@@ -273,7 +273,7 @@ const moveMenuChildren = computed<DropdownOption[]>(() =>
 );
 const areaMenuOptions = computed<DropdownOption[]>(() => [
   { label: uiText.value.quick.newList, key: "create-list", icon: renderIcon(AddOutline) },
-  { label: uiText.value.quick.add, key: "add", icon: renderIcon(AddOutline) },
+  { label: uiText.value.common.create, key: "add", icon: renderIcon(AddOutline) },
   { label: uiText.value.common.paste, key: "paste", icon: renderIcon(ClipboardOutline) },
   ...(props.polish
     ? [{ label: uiText.value.common.smartPaste, key: "smart-paste", icon: renderIcon(SmartPasteIcon) }]
@@ -288,7 +288,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
     return [
       { label: uiText.value.quick.editList, key: "edit-tag", icon: renderIcon(CreateOutline) },
       { label: showHidden ? uiText.value.quick.hideHidden : uiText.value.quick.showHidden, key: "toggle-show-hidden", icon: renderIcon(showHidden ? EyeOffOutline : EyeOutline) },
-      ...areaMenuOptions.value.filter((option) => ["paste", "smart-paste"].includes(String(option.key))),
+      ...areaMenuOptions.value.filter((option) => ["add", "paste", "smart-paste"].includes(String(option.key))),
       ...(moveMenuChildren.value.length > 0
         ? [{
             label: uiText.value.common.moveToWorkspace,
@@ -989,7 +989,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               type="button"
               class="quick-tag-add-button"
               :aria-label="uiText.quick.addInTag"
-              :title="uiText.quick.addInTag"
+              :title="uiText.common.create"
               @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)"
               @dblclick.stop
             >

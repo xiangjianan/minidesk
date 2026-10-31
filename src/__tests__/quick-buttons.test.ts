@@ -530,7 +530,7 @@ describe("QuickButtons", () => {
 
     await wrapper.get(".quick-tag-heading").trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴", "编辑列表", "查看隐藏", "移动到空间", "生活", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "查看隐藏", "移动到空间", "生活", "删除列表"]);
 
     expect(wrapper.find('[data-key="create-list"]').exists()).toBe(false);
     wrapper.unmount();
@@ -593,7 +593,7 @@ describe("QuickButtons", () => {
     const openMenu = () => wrapper.get(".quick-tag-heading").trigger("contextmenu");
     await openMenu();
     expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual([
-      "粘贴", "编辑列表", "查看隐藏", "删除列表",
+      "新建", "粘贴", "编辑列表", "查看隐藏", "删除列表",
     ]);
     expect(wrapper.find('[data-key="toggle-tag-collapsed"]').exists()).toBe(false);
     await wrapper.get('[data-key="toggle-show-hidden"]').trigger("click");
@@ -1768,7 +1768,7 @@ describe("QuickButtons", () => {
     const listKeys = wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"));
     await wrapper.get(".quick-tag-heading").trigger("contextmenu");
     expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(listKeys);
-    expect(listKeys).not.toContain("add");
+    expect(listKeys.indexOf("add")).toBeLessThan(listKeys.indexOf("paste"));
     wrapper.unmount();
   });
 
@@ -2001,7 +2001,7 @@ describe("QuickButtons 跨空间移动", () => {
     await wrapper.get(".quick-tag-title").trigger("contextmenu");
     expect(wrapper.findAll('[data-key^="move-ws:"]')).toHaveLength(0);
     expect(wrapper.find('[data-key="move-tag"]').exists()).toBe(false);
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴", "编辑列表", "查看隐藏", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "查看隐藏", "删除列表"]);
     expect(wrapper.find('[data-key="create-list"]').exists()).toBe(false);
     expect(wrapper.get('[data-key="delete-tag"]').text()).toBe("删除列表");
     wrapper.unmount();

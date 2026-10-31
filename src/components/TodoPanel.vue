@@ -331,6 +331,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
     return [
       { label: uiText.value.todo.editList, key: "edit-list", icon: renderIcon(CreateOutline) },
       { label: isCompletedVisible(list.id) ? uiText.value.todo.hideCompleted : uiText.value.todo.showCompleted, key: "toggle-completed", icon: renderIcon(isCompletedVisible(list.id) ? EyeOffOutline : EyeOutline) },
+      { label: uiText.value.common.create, key: "create", icon: renderIcon(AddOutline) },
       { label: uiText.value.common.paste, key: "paste", icon: renderIcon(ClipboardOutline) },
       ...(props.polish
         ? [{ label: uiText.value.common.smartPaste, key: "smart-paste", icon: renderIcon(SmartPasteIcon) }]
@@ -1509,6 +1510,12 @@ async function handleMenuSelect(key: string): Promise<void> {
     if (list) await listCreateDialogRef.value?.open(anchor, list);
     return;
   }
+  if (key === "create") {
+    closeMenu();
+    const list = getListById(period);
+    if (list) handleHeadingAddClick(list);
+    return;
+  }
   if (key === "create-list") {
     closeMenu();
     await openCreateListDialog(anchor);
@@ -2240,7 +2247,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             <button type="button" class="icon-button desk-paste-button"
               :aria-label="uiText.common.paste" :title="uiText.common.paste"
               @click.stop="openSectionActions($event, list.id); handleMenuSelect('paste')"><NIcon :component="ClipboardOutline" /></button>
-            <button type="button" class="icon-button" :aria-label="uiText.desk.addReminder" :title="uiText.desk.addReminder"
+            <button type="button" class="icon-button" :aria-label="uiText.desk.addReminder" :title="uiText.common.create"
               @click.stop="handleHeadingAddClick(list)"><NIcon :component="AddOutline" /></button>
             <button
               type="button"
@@ -2400,7 +2407,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             type="button"
             class="todo-add-row"
             :aria-label="uiText.todo.addItem"
-            :title="uiText.todo.addItem"
+            :title="uiText.common.create"
             @click.stop="handleHeadingAddClick(list)"
           >
             <NIcon :component="AddOutline" />
