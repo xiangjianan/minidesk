@@ -31,14 +31,14 @@ const uiText = computed(() => getUiText(props.language));
         <CloseOutline />
       </NIcon>
     </button>
-    <button type="button" class="preview-toolbar-button is-delete" :aria-label="uiText.common.delete" @click.stop.prevent="emit('delete', $event)">
-      <NIcon size="18">
-        <TrashOutline />
-      </NIcon>
-    </button>
     <button v-if="canEdit" type="button" class="preview-toolbar-button is-edit" :aria-label="uiText.common.edit" @click.stop.prevent="emit('edit')">
       <NIcon size="18">
         <CreateOutline />
+      </NIcon>
+    </button>
+    <button type="button" class="preview-toolbar-button is-delete" :aria-label="uiText.common.delete" @click.stop.prevent="emit('delete', $event)">
+      <NIcon size="18">
+        <TrashOutline />
       </NIcon>
     </button>
     <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
@@ -55,20 +55,6 @@ const uiText = computed(() => getUiText(props.language));
     <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
     <button
       type="button"
-      class="preview-toolbar-button preview-nav-button is-next"
-      :aria-label="uiText.preview.next"
-      :aria-disabled="!canNavigateNext"
-      :disabled="!canNavigateNext"
-      @click.stop.prevent="emit('navigate', 1)"
-      @keydown.enter.stop.prevent="emit('navigate', 1)"
-      @keydown.space.stop.prevent="emit('close')"
-    >
-      <NIcon size="20">
-        <ChevronDownOutline />
-      </NIcon>
-    </button>
-    <button
-      type="button"
       class="preview-toolbar-button preview-nav-button is-previous"
       :aria-label="uiText.preview.previous"
       :aria-disabled="!canNavigatePrevious"
@@ -79,6 +65,20 @@ const uiText = computed(() => getUiText(props.language));
     >
       <NIcon size="20">
         <ChevronUpOutline />
+      </NIcon>
+    </button>
+    <button
+      type="button"
+      class="preview-toolbar-button preview-nav-button is-next"
+      :aria-label="uiText.preview.next"
+      :aria-disabled="!canNavigateNext"
+      :disabled="!canNavigateNext"
+      @click.stop.prevent="emit('navigate', 1)"
+      @keydown.enter.stop.prevent="emit('navigate', 1)"
+      @keydown.space.stop.prevent="emit('close')"
+    >
+      <NIcon size="20">
+        <ChevronDownOutline />
       </NIcon>
     </button>
   </div>
