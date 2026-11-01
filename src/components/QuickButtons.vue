@@ -976,17 +976,6 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
             <button
               v-if="group.title && editingTagId !== group.id"
               type="button"
-              class="icon-button desk-paste-button"
-              :aria-label="uiText.common.paste"
-              :title="uiText.common.paste"
-              @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '')"
-              @dblclick.stop
-            >
-              <NIcon :component="ClipboardOutline" />
-            </button>
-            <button
-              v-if="group.title && editingTagId !== group.id"
-              type="button"
               class="quick-tag-add-button"
               :aria-label="uiText.quick.addInTag"
               :title="uiText.common.create"
@@ -994,6 +983,17 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               @dblclick.stop
             >
               <NIcon :component="AddOutline" />
+            </button>
+            <button
+              v-if="group.title && editingTagId !== group.id"
+              type="button"
+              class="icon-button desk-paste-button"
+              :aria-label="uiText.common.paste"
+              :title="uiText.common.paste"
+              @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '')"
+              @dblclick.stop
+            >
+              <NIcon :component="ClipboardOutline" />
             </button>
             <button
               v-if="group.title && editingTagId !== group.id"

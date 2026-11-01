@@ -1743,7 +1743,7 @@ describe("QuickButtons", () => {
 
     const smart = wrapper.get(".quick-tag-heading .desk-paste-button");
     expect(smart.attributes("aria-label")).toBe("粘贴");
-    expect(smart.element.nextElementSibling?.classList.contains("quick-tag-add-button")).toBe(true);
+    expect(smart.element.previousElementSibling?.classList.contains("quick-tag-add-button")).toBe(true);
 
     Object.assign(navigator, { clipboard: { readText: vi.fn(async () => "https://github.com") } });
     await smart.trigger("click");
