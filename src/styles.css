@@ -5674,6 +5674,17 @@ html[data-theme="dark"] .image-preview {
   transform: translateX(-50%);
 }
 
+.image-preview-actions {
+  top: 50%;
+  bottom: auto;
+  left: 14px;
+  flex-direction: column;
+  max-height: calc(100% - 28px);
+  margin-top: 0;
+  overflow-y: auto;
+  transform: translateY(-50%);
+}
+
 .image-editor {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);

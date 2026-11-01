@@ -380,8 +380,8 @@ describe("ImagePreview", () => {
     expect(next.attributes("aria-label")).toBe("下一张图片");
     expect(wrapper.find(".preview-nav-stack").exists()).toBe(false);
     expect(toolbar.findAll(".preview-nav-button").map((button) => button.attributes("aria-label"))).toEqual([
-      "上一张图片",
       "下一张图片",
+      "上一张图片",
     ]);
 
     await previous.trigger("click");
@@ -523,13 +523,13 @@ describe("ImagePreview", () => {
     expect(buttons).toHaveLength(7);
     expect(buttons.map((button) => button.text())).toEqual(["", "", "", "", "", "", ""]);
     expect(buttons.map((button) => button.attributes("aria-label"))).toEqual([
-      "上一张图片",
-      "下一张图片",
-      "缩小图片",
-      "放大图片",
-      "编辑",
-      "删除",
       "取消预览",
+      "删除",
+      "编辑",
+      "放大图片",
+      "缩小图片",
+      "下一张图片",
+      "上一张图片",
     ]);
 
     try {
