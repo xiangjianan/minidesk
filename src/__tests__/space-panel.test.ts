@@ -514,6 +514,9 @@ describe("SpacePanel", () => {
     expect(shellRule).toContain("min-width: 84px");
     expect(shellRule).toContain("max-width: 180px");
     expect(shellRule).toContain("display: grid");
+    expect(shellRule).toContain("grid-template-columns: minmax(0, 1fr)");
+    const sharedEditRule = ruleBodies(styles, ".space-tab-edit-measure").find((body) => body.includes("grid-area: 1 / 1"));
+    expect(sharedEditRule).toContain("box-sizing: border-box");
     expect(measureRule).toContain("visibility: hidden");
     expect(measureRule).toContain("white-space: pre");
     expect(inputRule).toContain("position: absolute");
