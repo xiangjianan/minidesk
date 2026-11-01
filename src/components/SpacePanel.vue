@@ -143,7 +143,10 @@ function startTabEdit(id: string, sourceElement?: HTMLElement): void {
   nextTick(() => {
     const input = document.querySelector<HTMLInputElement>(".space-tab-edit-input");
     input?.focus({ preventScroll: true });
-    if (input) setStickySelection(input, input.value.length, input.value.length);
+    if (input) {
+      setStickySelection(input, input.value.length, input.value.length);
+      input.scrollLeft = input.scrollWidth;
+    }
   });
 }
 

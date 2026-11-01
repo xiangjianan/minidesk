@@ -814,7 +814,7 @@ button.space-tab {
   padding: 0 10px;
   font: inherit;
   font-size: var(--app-font-size);
-  font-weight: 600;
+  font-weight: 400;
 }
 
 .space-tab-edit-measure {

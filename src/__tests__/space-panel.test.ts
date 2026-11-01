@@ -165,6 +165,26 @@ describe("SpacePanel", () => {
     expect(wrapper.emitted("rename")?.[0]).toEqual(["workspace", "资料"]);
   });
 
+  it("reveals the caret at the end of a long tab name when editing starts", async () => {
+    const title = "一个很长很长的记事本标签名称需要滚动才能看到末尾";
+    const scrollWidth = vi.spyOn(HTMLInputElement.prototype, "scrollWidth", "get").mockReturnValue(480);
+    const wrapper = mount(SpacePanel, {
+      attachTo: document.body,
+      props: { spaces: [{ id: "workspace", title, lines: [] }], activeSpaceId: "workspace" },
+    });
+    try {
+      await wrapper.get(".space-tab").trigger("dblclick");
+      await wrapper.vm.$nextTick();
+      const input = wrapper.get(".space-tab-edit-input").element as HTMLInputElement;
+      expect(input.selectionStart).toBe(title.length);
+      expect(input.selectionEnd).toBe(title.length);
+      expect(input.scrollLeft).toBe(480);
+    } finally {
+      wrapper.unmount();
+      scrollWidth.mockRestore();
+    }
+  });
+
   it("cancels tab renaming before switching tabs can blur and commit the draft", async () => {
     const wrapper = mountSpacePanel([
       { id: "workspace", title: "工作空间", lines: [] },
