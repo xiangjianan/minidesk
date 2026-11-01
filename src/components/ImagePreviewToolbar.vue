@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { NIcon } from "naive-ui";
-import { AddOutline, ChevronDownOutline, ChevronUpOutline, CloseOutline, CreateOutline, RemoveOutline, TrashOutline } from "@vicons/ionicons5";
+import { ChevronDownOutline, ChevronUpOutline, CloseOutline, CreateOutline, TrashOutline } from "@vicons/ionicons5";
+import { ZoomIn, ZoomOut } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
 import { ZOOM_STEP } from "../composables/useImageTransform";
 import type { AppLanguage } from "../types";
@@ -40,16 +41,18 @@ const uiText = computed(() => getUiText(props.language));
         <CreateOutline />
       </NIcon>
     </button>
+    <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
     <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-in" :aria-label="uiText.preview.zoomIn" @click.stop.prevent="emit('zoom', ZOOM_STEP)">
       <NIcon size="18">
-        <AddOutline />
+        <ZoomIn />
       </NIcon>
     </button>
     <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-out" :aria-label="uiText.preview.zoomOut" @click.stop.prevent="emit('zoom', -ZOOM_STEP)">
       <NIcon size="18">
-        <RemoveOutline />
+        <ZoomOut />
       </NIcon>
     </button>
+    <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
     <button
       type="button"
       class="preview-toolbar-button preview-nav-button is-next"
