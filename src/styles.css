@@ -5707,6 +5707,11 @@ html[data-theme="dark"] .image-preview {
   backdrop-filter: blur(28px) saturate(1.75);
 }
 
+/* 避免两个胶囊的外阴影叠在间隙中，遮住预览背景。 */
+html:not([data-theme="dark"]) .preview-toolbar-group {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.26);
+}
+
 .preview-toolbar-divider {
   width: 22px;
   height: 1px;
