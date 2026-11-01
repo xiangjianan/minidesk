@@ -521,15 +521,17 @@ describe("ImagePreview", () => {
     expect(toolbar.attributes("role")).toBe("toolbar");
     const buttons = toolbar.findAll("button");
     expect(buttons).toHaveLength(7);
+    expect(toolbar.findAll(".preview-toolbar-group").map((group) => group.findAll("button").length)).toEqual([2, 5]);
+    expect(toolbar.findAll(".preview-toolbar-divider")).toHaveLength(2);
     expect(buttons.map((button) => button.text())).toEqual(["", "", "", "", "", "", ""]);
     expect(buttons.map((button) => button.attributes("aria-label"))).toEqual([
-      "取消预览",
-      "编辑",
-      "删除",
-      "放大图片",
-      "缩小图片",
       "上一张图片",
       "下一张图片",
+      "取消预览",
+      "放大图片",
+      "缩小图片",
+      "编辑",
+      "删除",
     ]);
 
     try {
