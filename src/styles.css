@@ -5677,7 +5677,8 @@ html[data-theme="dark"] .image-preview {
 .preview-actions.image-preview-actions {
   top: 50%;
   bottom: auto;
-  left: 14px;
+  right: 14px;
+  left: auto;
   flex-direction: column;
   gap: 8px;
   max-height: calc(100% - 28px);
