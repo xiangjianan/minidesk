@@ -133,6 +133,23 @@ describe('sorting landing gap', () => {
     expect(empty.children).toHaveLength(0);
     expect(root.firstElementChild!.textContent).toBe('ABC');
   });
+
+  it('uses empty and filled list spacing while a sole reminder moves into an empty list', () => {
+    const root = document.body.appendChild(document.createElement('div'));
+    root.innerHTML = '<section class="todo-section"><ul class="todo-list"><li class="todo-item">A</li></ul></section><section class="todo-section"><ul class="todo-list todo-empty-list"><li class="todo-empty-hint"></li></ul></section>';
+    const lists = Array.from(root.querySelectorAll<HTMLElement>('.todo-list'));
+    const row = root.querySelector<HTMLElement>('.todo-item')!;
+    vi.spyOn(row, 'getBoundingClientRect').mockReturnValue({ left: 8, right: 108, top: 0, bottom: 34, width: 100, height: 34 } as DOMRect);
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => lists[1] });
+    const gap = createSortGap(row, '.todo-item');
+    gap.update(root, 30, 100);
+    expect(lists[0]!.classList.contains('is-sort-preview-empty')).toBe(true);
+    expect(lists[1]!.classList.contains('is-sort-preview-filled')).toBe(true);
+    expect(lists[1]!.querySelector<HTMLElement>('.sort-gap')?.style.width).toBe('100%');
+    gap.restore();
+    expect(lists[0]!.classList.contains('is-sort-preview-empty')).toBe(false);
+    expect(lists[1]!.classList.contains('is-sort-preview-filled')).toBe(false);
+  });
 });
 
 
