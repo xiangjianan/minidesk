@@ -100,6 +100,26 @@ describe('sorting landing gap', () => {
     gap.restore();
   });
 
+  it('keeps the nearby slot when leaving a button for blank space in a multi-row group', () => {
+    const root = document.body.appendChild(document.createElement('div'));
+    root.innerHTML = '<section class="quick-tag-group"><div class="quick-buttons"><button class="quick-button">A</button></div></section><section class="quick-tag-group"><div class="quick-buttons"><button class="quick-button">B</button><button class="quick-button">C</button></div></section>';
+    const buttons = Array.from(root.querySelectorAll<HTMLElement>('.quick-button'));
+    const destination = buttons[1]!.parentElement!;
+    buttons.forEach((button, index) => vi.spyOn(button, 'getBoundingClientRect').mockReturnValue({ left: 20, right: 70, top: index * 100, bottom: index * 100 + 40, width: 50, height: 40 } as DOMRect));
+    let hit: Element = buttons[1]!;
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => hit });
+    const gap = createSortGap(buttons[0]!, '.quick-button');
+    gap.update(root, 30, 110);
+    expect(gap.anchor).toBe(buttons[1]);
+    const placeholder = root.querySelector('.sort-gap');
+    expect(placeholder?.nextElementSibling).toBe(buttons[1]);
+    hit = destination;
+    gap.update(root, 10, 110);
+    expect(placeholder?.nextElementSibling).toBe(buttons[1]);
+    expect(gap.anchor).toBe(buttons[1]);
+    gap.restore();
+  });
+
   it('previews an empty destination and restores without changing either list', () => {
     const { root, items, pointTo } = fixture();
     items.forEach(el => el.className = 'todo-item');

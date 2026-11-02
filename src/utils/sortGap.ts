@@ -94,10 +94,12 @@ export function createSortGap(source: HTMLElement, selector: string) {
         ?? (selector === '.todo-item' ? hit?.closest('.todo-section')?.querySelector<HTMLElement>('.todo-list')
           : selector === '.quick-button' ? hit?.closest('.quick-tag-group:not(:has(.is-collapsed))')?.querySelector<HTMLElement>('.quick-buttons') : null);
       if (destination && !isClippedContent(destination)) {
-        const last = Array.from(destination.querySelectorAll<HTMLElement>(selector)).filter(el => el !== source).at(-1);
+        const items = Array.from(destination.querySelectorAll<HTMLElement>(selector)).filter(el => el !== source);
+        const last = items.at(-1);
         if (!last) {
           moveGap(() => destination.append(gap), destination); container = destination; anchor = null;
-        } else if (selector === '.quick-button' || y > last.getBoundingClientRect().bottom) {
+        } else if (y > layoutBounds(last).bottom || (selector === '.quick-button' && items.length === 1 &&
+          gap.parentElement !== destination && y >= layoutBounds(last).top && y <= layoutBounds(last).bottom)) {
           moveGap(() => last.after(gap), destination); anchor = last; before = false; container = null;
         }
       }
