@@ -38,27 +38,15 @@ export const CHANGELOG: ChangelogEntry[] = [
       date: "2026-11-02",
       notes: {
         zh: [
-          "优化：拖拽排序跨分组移动时分组高度平滑过渡",
-          "修复：快捷按钮旁的空白处可作为拖拽落位点",
-        ],
-        en: [
-          "Improved: group heights animate smoothly while drag sorting across groups",
-          "Fixed: blank space beside a quick button now works as a drop target",
-        ],
-      },
-    },
-    {
-      version: "1.1.22",
-      date: "2026-11-01",
-      notes: {
-        zh: [
           "改版：快捷动作区改为持久分组，纯文字紧凑胶囊样式，分组可自定义颜色",
-          "优化：面板菜单与各区右键菜单统一整理，列表拖拽预览完整还原原样式",
+          "优化：面板菜单与各区右键菜单统一整理",
+          "优化：拖拽排序全面打磨，预览还原原样式、落位贴近指针、跨分组高度平滑过渡",
           "新增：粘贴条目闪烁高亮反馈与顶栏随机工作台小贴士",
         ],
         en: [
           "Redesigned: quick actions as persistent groups with compact text-only pills and custom colors",
-          "Improved: panel and context menus unified; list drag previews faithfully match the original styling",
+          "Improved: panel and context menus unified across areas",
+          "Improved: drag sorting polished across the board — faithful previews, pointer-following drop slots, smooth cross-group height transitions",
           "New: flash highlight on pasted items and random workbench tips in the header menu",
         ],
       },
