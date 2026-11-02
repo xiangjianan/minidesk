@@ -34,7 +34,7 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
     {
-      version: "1.1.23",
+      version: "1.1.24",
       date: "2026-11-02",
       notes: {
         zh: [
