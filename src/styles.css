@@ -5590,7 +5590,8 @@ html[data-theme="dark"] .image-preview {
   height: auto;
   min-width: 0;
   min-height: 0;
-  max-width: 100%;
+  /* Equal insets keep the image centered and clear of the floating toolbar. */
+  max-width: max(0px, calc(100% - 112px));
   max-height: 100%;
   object-fit: contain;
   border-radius: 0;
@@ -7508,8 +7509,9 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   min-height: 0;
 }
 
-.focus-now-preview-image {
-  max-width: 100%;
+.preview-stage .focus-now-preview-image {
+  /* This stage has no outer padding, unlike the main preview. */
+  max-width: max(0px, calc(100% - 148px));
   max-height: 100%;
   object-fit: contain;
   user-select: none;
