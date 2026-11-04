@@ -34,8 +34,8 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
     {
-      version: "1.1.25",
-      date: "2026-11-03",
+      version: "1.1.26",
+      date: "2026-11-04",
       notes: {
         zh: [
           "改版：快捷动作区改为持久分组，纯文字紧凑胶囊样式，分组可自定义颜色",
