@@ -3396,6 +3396,17 @@ body:has(.image-preview) .n-modal-container:has(.version-history-modal) {
   z-index: 10100 !important;
 }
 
+body:has(.image-preview) .n-modal-container:has(.shortcut-help-modal) .n-modal-mask {
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.16) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  backdrop-filter: blur(6px) saturate(1.2);
+}
+
+html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.shortcut-help-modal) .n-modal-mask {
+  background: rgba(0, 0, 0, 0.32) !important;
+}
+
 body:has(.image-preview) .n-modal-container:has(.version-history-modal) .n-modal-mask {
   pointer-events: auto;
 }
