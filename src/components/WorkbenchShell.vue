@@ -352,6 +352,18 @@ function splitWidthByWeights(
   return widths;
 }
 
+// Allocate from the outer grid edges and divider centers, then convert those
+// visible spans back to CSS track widths by removing padding and half-gaps.
+function defaultColumnWidths(totalWidth: number, mins: readonly number[], weights: readonly number[]): number[] {
+  const last = mins.length - 1;
+  const offsets = mins.map((_, index) =>
+    (index === 0 ? gridPadding.value.left : gridGap.value / 2)
+    + (index === last ? gridPadding.value.right : gridGap.value / 2),
+  );
+  const spans = splitWidthByWeights(totalWidth, weights, mins.map((min, index) => min + offsets[index]));
+  return spans.map((span, index) => span - offsets[index]);
+}
+
 function fitColumnsToWidth(
   width: number,
   currentWidths?: readonly number[],
@@ -470,7 +482,9 @@ function refreshWorkbenchLayout(preserveVisibilityAnimation = false): void {
   }
   soloAssetsEngaged.value = false;
   const sourceWidths = columnWidths.value.length === mins.length ? columnWidths.value : readStoredColumnWidths(mins.length);
-  columnWidths.value = fitColumnsToWidth(metrics.contentWidth, sourceWidths, activeMins.value, activeWeights.value);
+  columnWidths.value = sourceWidths
+    ? fitColumnsToWidth(metrics.contentWidth, sourceWidths, activeMins.value, activeWeights.value)
+    : defaultColumnWidths(metrics.rect.width, activeMins.value, activeWeights.value);
   void nextTick(syncImagePreviewLeft);
 }
 
@@ -597,7 +611,7 @@ function expandZoneToDefault(canonicalIndex: number): void {
   // The zone returns to its default proportional width. Fund the growth from
   // expanded neighbors (proportional to their excess above the minimum); collapsed
   // neighbors stay collapsed and expanded neighbors never collapse as a side effect.
-  const target = fitColumnsToWidth(metrics.contentWidth, undefined, mins, activeWeights.value)[pos];
+  const target = defaultColumnWidths(metrics.rect.width, mins, activeWeights.value)[pos];
   const grow = Math.max(0, target - widths[pos]);
   const fundable = mins.map((min, i) =>
     i === pos || widths[i] < min ? 0 : Math.max(0, widths[i] - min),

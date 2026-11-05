@@ -4757,7 +4757,7 @@ body:has(.image-preview) .workbench-command-bar {
   min-width: 0;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(100px, 0.382fr) minmax(100px, 0.618fr) minmax(100px, 0.618fr) minmax(100px, 1fr);
+  grid-template-columns: minmax(100px, 0.1fr) minmax(100px, 0.24875fr) minmax(100px, 0.24875fr) minmax(100px, 0.4025fr);
 }
 
 .workbench-resizer {
