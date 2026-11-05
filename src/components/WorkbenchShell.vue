@@ -132,6 +132,7 @@ const headerHidden = ref(readStoredHeaderHidden());
 const headerHideButton = ref<HTMLButtonElement | null>(null);
 const headerRevealPosition = ref({ right: "126px", top: "10px" });
 const columnWidths = ref<number[]>([]);
+let usingDefaultWidths: boolean | undefined;
 let visibilityAnimations: Animation[] = [];
 let visibilityOverlays: HTMLElement[] = [];
 let visibilityGeneration = 0;
@@ -270,6 +271,7 @@ function readStoredColumnWidths(expectedLength: number = MIN_COLUMN_WIDTHS.lengt
 }
 
 function persistColumnWidths(widths: number[]): void {
+  usingDefaultWidths = false;
   if (typeof localStorage === "undefined") return;
   try {
     localStorage.setItem(widthStorageKey(), JSON.stringify(widths.map((width) => Math.round(width))));
@@ -482,7 +484,8 @@ function refreshWorkbenchLayout(preserveVisibilityAnimation = false): void {
   }
   soloAssetsEngaged.value = false;
   const sourceWidths = columnWidths.value.length === mins.length ? columnWidths.value : readStoredColumnWidths(mins.length);
-  columnWidths.value = sourceWidths
+  if (usingDefaultWidths === undefined) usingDefaultWidths = !sourceWidths;
+  columnWidths.value = sourceWidths && !usingDefaultWidths
     ? fitColumnsToWidth(metrics.contentWidth, sourceWidths, activeMins.value, activeWeights.value)
     : defaultColumnWidths(metrics.rect.width, activeMins.value, activeWeights.value);
   void nextTick(syncImagePreviewLeft);
@@ -534,6 +537,7 @@ function applyResizeDelta(index: number, delta: number, startWidths: number[], t
     nextWidths[index] = startWidths[index] + actualShrink;
   }
   columnWidths.value = nextWidths;
+  usingDefaultWidths = false;
   if (persist) persistColumnWidths(nextWidths);
   syncImagePreviewLeft();
 }
@@ -732,6 +736,7 @@ watch(
   () => {
     stopVisibilityAnimation();
     columnWidths.value = [];
+    usingDefaultWidths = undefined;
     soloAssetsEngaged.value = false;
     void nextTick(refreshWorkbenchLayout);
   },

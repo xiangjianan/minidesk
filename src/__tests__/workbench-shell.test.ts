@@ -368,6 +368,29 @@ describe("WorkbenchShell", () => {
     wrapper.unmount();
   });
 
+  it("recalculates default divider proportions when the grid width changes", async () => {
+    vi.spyOn(window, "innerWidth", "get").mockReturnValue(2400);
+    let width = 1710;
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      return this.classList.contains("workbench-grid")
+        ? { width, height: 748, top: 52, left: 0, right: width, bottom: 800, x: 0, y: 52, toJSON: () => undefined }
+        : originalGetBoundingClientRect.call(this);
+    };
+    const wrapper = mount(WorkbenchShell, { attachTo: document.body, props: defaultProps });
+    await nextTick(); await nextTick();
+    for (const nextWidth of [1710, 2000, 1350]) {
+      width = nextWidth;
+      window.dispatchEvent(new Event("resize"));
+      await nextTick();
+      const tracks = readColumnTracks(wrapper).map(Number.parseFloat);
+      const spans = [tracks[0] + 7, tracks[1] + 14, tracks[2] + 14, tracks[3] + 7];
+      expect(Math.abs(spans[0] - width * 0.1)).toBeLessThanOrEqual(1);
+      expect(Math.abs(spans[1] - spans[2])).toBeLessThanOrEqual(1);
+      expect(Math.abs(spans[3] - spans[2] * (1 + Math.sqrt(5)) / 2)).toBeLessThanOrEqual(2);
+    }
+    wrapper.unmount();
+  });
+
   it("coalesces drag moves per frame and saves only on release", async () => {
     vi.spyOn(window, "innerWidth", "get").mockReturnValue(1600);
     HTMLElement.prototype.getBoundingClientRect = function getMockRect() {
