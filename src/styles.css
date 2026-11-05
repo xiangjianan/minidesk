@@ -3390,6 +3390,30 @@ body:has(.image-preview) .shortcut-help-modal.n-card {
   user-select: text;
 }
 
+
+body:has(.image-preview) .n-modal-container:has(.shortcut-help-modal),
+body:has(.image-preview) .n-modal-container:has(.version-history-modal) {
+  z-index: 10100 !important;
+}
+
+body:has(.image-preview) .n-modal-container:has(.version-history-modal) .n-modal-mask {
+  pointer-events: auto;
+}
+
+body:has(.image-preview) .version-history-modal.n-card {
+  position: relative;
+  z-index: 4310;
+  pointer-events: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+body:has(.image-preview) .version-history-modal .n-scrollbar-container,
+body:has(.image-preview) .version-history-modal .n-scrollbar-content,
+body:has(.image-preview) .version-history-modal .n-scrollbar {
+  pointer-events: auto;
+}
+
 /* The workspace create/rename dialog can be opened from the left switcher while
    the image preview side panel is open. All Naive modal containers share
    z-index 10000, so by DOM order the preview can paint over this dialog; lift
