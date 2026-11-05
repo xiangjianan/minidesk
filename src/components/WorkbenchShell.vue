@@ -101,10 +101,10 @@ function selectHeaderMenu(key: string): void {
 const DESKTOP_RESIZE_BREAKPOINT = 1180;
 const WORKBENCH_HEADER_STORAGE_KEY = "mini-desk-workbench-header-hidden";
 const LEGACY_WORKBENCH_HEADER_STORAGE_KEY = "todo-board-workbench-header-hidden";
-// 图片占 10%，其余 90% 按 1:1:φ 分给快捷动作、提醒事项和工作空间。
+// 图片占 10%，其余 90% 按 0.95:1:φ 分给快捷动作、提醒事项和工作空间。
 const PHI = (1 + Math.sqrt(5)) / 2;
-const RIGHT_COLUMN_WEIGHT = 0.9 / (2 + PHI);
-const DEFAULT_COLUMN_WEIGHTS = [0.1, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT * PHI] as const;
+const RIGHT_COLUMN_WEIGHT = 0.9 / (1.95 + PHI);
+const DEFAULT_COLUMN_WEIGHTS = [0.1, RIGHT_COLUMN_WEIGHT * 0.95, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT * PHI] as const;
 const MIN_COLUMN_WIDTHS = [100, 100, 100, 100] as const;
 // Canonical zone order matches DEFAULT_COLUMN_WEIGHTS / MIN_COLUMN_WIDTHS indices.
 const ZONE_INDEX = { assets: 0, notes: 1, tasks: 2, workspace: 3 } as const;
