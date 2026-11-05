@@ -770,7 +770,7 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
-  it("switches the yunxia companion GIF for dark theme", async () => {
+  it("uses the same yunxia companion GIF in both themes", async () => {
     const wrapper = mount(CompanionBubble, {
       props: {
         visible: true,
@@ -789,7 +789,7 @@ describe("CompanionBubble", () => {
 
     await wrapper.setProps({ theme: "dark" });
 
-    expect(wrapper.get("img").attributes("src")).toBe("/static/video/yunxia-dark.gif");
+    expect(wrapper.get("img").attributes("src")).toBe("/static/video/yunxia.gif");
 
     wrapper.unmount();
   });
