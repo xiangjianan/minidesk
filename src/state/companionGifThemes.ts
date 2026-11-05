@@ -4,6 +4,7 @@ import catDarkGif from "../../static/video/mini-desk-cat-dark.gif?url";
 import ikunGif from "../../static/video/kun.gif?url";
 import ikunDarkGif from "../../static/video/kun-dark.gif?url";
 import hermesGif from "../../static/video/yunxia.gif?url";
+import hermesDarkGif from "../../static/video/yunxia-dark.gif?url";
 import catNotificationIcon from "../../static/img/mini-desk-cat.png?url";
 import catDarkNotificationIcon from "../../static/img/mini-desk-cat-dark.png?url";
 import ikunNotificationIcon from "../../static/img/kun.jpg?url";
@@ -35,7 +36,7 @@ export function getCompanionGifSrc(theme: CompanionGifTheme | undefined, mode: T
     return mode === "dark" ? customGif.dark || "" : customGif.light || "";
   }
   if (activeTheme === "cat") return mode === "dark" ? catDarkGif : catGif;
-  if (activeTheme === "hermes") return hermesGif;
+  if (activeTheme === "hermes") return mode === "dark" ? hermesDarkGif : hermesGif;
   return mode === "dark" ? ikunDarkGif : ikunGif;
 }
 
