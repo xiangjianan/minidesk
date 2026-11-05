@@ -101,12 +101,10 @@ function selectHeaderMenu(key: string): void {
 const DESKTOP_RESIZE_BREAKPOINT = 1180;
 const WORKBENCH_HEADER_STORAGE_KEY = "mini-desk-workbench-header-hidden";
 const LEGACY_WORKBENCH_HEADER_STORAGE_KEY = "todo-board-workbench-header-hidden";
-// 黄金比例 φ ≈ 1.618：四区从左到右按 (1−0.618):0.618:0.618:1（= φ⁻²:φ⁻¹:φ⁻¹:1，
-// 归一化 ≈ 14.6%/23.6%/23.6%/38.2%）分摊——工作区（笔记+存储双面板）为黄金重心。
-// 权重即竖线到竖线的整段可见跨度占比：zone 紧贴页面左右两侧、无内边距偏移，
-// 分隔线落在列边界上。
+// 图片占 10%，其余 90% 按 1:1:φ 分给快捷动作、提醒事项和工作空间。
 const PHI = (1 + Math.sqrt(5)) / 2;
-const DEFAULT_COLUMN_WEIGHTS = [1 - 1 / PHI, 1 / PHI, 1 / PHI, 1] as const;
+const RIGHT_COLUMN_WEIGHT = 0.9 / (2 + PHI);
+const DEFAULT_COLUMN_WEIGHTS = [0.1, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT * PHI] as const;
 const MIN_COLUMN_WIDTHS = [100, 100, 100, 100] as const;
 // Canonical zone order matches DEFAULT_COLUMN_WEIGHTS / MIN_COLUMN_WIDTHS indices.
 const ZONE_INDEX = { assets: 0, notes: 1, tasks: 2, workspace: 3 } as const;
