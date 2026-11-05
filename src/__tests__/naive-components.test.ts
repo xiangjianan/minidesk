@@ -799,7 +799,7 @@ describe("Naive UI component usage", () => {
     expect(styles).toMatch(/\.companion-popover\s*\{[^}]*transform-origin: right bottom/s);
     // 悬浮层次感只靠气泡自身的静态柔和多层投影：GIF 本体不带任何投影，
     // 气泡与 GIF 也都不再上下位移（无轻浮动画）。
-    expect(styles).toMatch(/\.companion-popover-shell\.n-popover\s*\{[^}]*box-shadow: var\(--shadow-float\) !important/s);
+    expect(styles).toMatch(/\.companion-popover-shell\.n-popover\s*\{[^}]*box-shadow: var\(--shadow-companion\) !important/s);
     expect(styles).not.toContain("--companion-gif-shadow");
     expect(styles).not.toMatch(/\.focus-companion img\s*\{[^}]*filter/s);
     expect(styles).not.toContain("@keyframes companion-float");
