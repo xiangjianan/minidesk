@@ -41,7 +41,7 @@ The code commit is pushed to `main` first; the release commit is created only af
          notes: { zh: ["…"], en: ["…"] },
        },
        ```
-       Write detailed, bulleted notes (both zh and en) derived from this release's actual diff — same source as the commit message, but expanded into one bullet per significant user-facing change. Stage `src/state/changelog.ts` together with the other code changes in this same commit. If (and only if) the working tree was completely clean and no code commit is made, skip this append as well.
+       Prefix every note with its change type: `新增：`, `优化：`, `修复：` or another accurate category, with matching English prefixes such as `New:`, `Improved:`, and `Fixed:`. Write concise, bulleted notes (both zh and en) derived from this release's actual diff — same source as the commit message, but expanded into one bullet per significant user-facing change. Stage `src/state/changelog.ts` together with the other code changes in this same commit. If (and only if) the working tree was completely clean and no code commit is made, skip this append as well.
      - Stage intended source and metadata changes only. Do not stage `dist/`, release zips, or other build artifacts.
      - Commit with the generated message.
    - If the working tree is clean (no pending changes), skip this step and go straight to step 4.
@@ -106,10 +106,11 @@ npx wrangler pages deploy dist --project-name=todolist
    - Tag format: `v<version>`, for example `v1.0.52`.
    - Use the release commit that was pushed to `main` in step 6.
    - Attach `dist-<version>.zip`.
+   - Write meaningful release notes from the same curated changes, using the same change-type prefixes as the in-app history. Include Chinese and English; do not use a generic version-only description.
    - Prefer `gh` when available:
 
 ```bash
-gh release create "v<version>" "dist-<version>.zip" --title "v<version>" --notes "Release v<version>"
+gh release create "v<version>" "dist-<version>.zip" --title "v<version>" --notes-file <release-notes-file>
 ```
 
 10. Clean up the local release package.

@@ -16,6 +16,19 @@ describe("changelog", () => {
     }
   });
 
+  it("中英文记录均标明对应的变更类型", () => {
+    const labels: Record<string, string> = { "新增": "New", "优化": "Improved", "修复": "Fixed" };
+    for (const entry of CHANGELOG) {
+      expect(entry.notes.zh).toHaveLength(entry.notes.en.length);
+      entry.notes.zh.forEach((note, index) => {
+        const category = note.match(/^([^：]+)：/)?.[1];
+        expect(category).toBeDefined();
+        if (category && labels[category]) expect(entry.notes.en[index]).toMatch(new RegExp(`^${labels[category]}: `));
+        else expect(entry.notes.en[index]).toMatch(/^[A-Za-z][A-Za-z ]*: /);
+      });
+    }
+  });
+
   it("按版本从新到旧排列（newest-first）", () => {
     const versions = CHANGELOG.map((entry) => entry.version);
     const sorted = [...versions].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
