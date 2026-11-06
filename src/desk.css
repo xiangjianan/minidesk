@@ -710,6 +710,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   pointer-events: auto;
 }
 .workbench-shell .workbench-title-group { max-width: calc(50% - 48px); gap: 4px; }
+.workbench-shell .workbench-title-group .save-status { margin-inline-start: -4px; }
 .workbench-shell .workbench-command-actions { margin-inline-start: auto; }
 /* Only the button footprint should trigger reveal, not the surrounding header. */
 .workbench-shell .workbench-header-reveal-zone {
