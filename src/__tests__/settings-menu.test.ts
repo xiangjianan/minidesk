@@ -76,6 +76,23 @@ function findVersionBadge(wrapper: ReturnType<typeof mount>) {
 }
 
 describe("SettingsMenu", () => {
+  it("spins the update icon only while a check is running", async () => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.0", updateAvailable: false, updateChecking: false, companionGifTheme: "none" },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    const iconClass = () => {
+      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { props?: { class?: string } } }>;
+      return options.find(option => option.key === "version")?.icon?.().props?.class;
+    };
+    expect(iconClass()).not.toContain("settings-update-spinning");
+    await wrapper.setProps({ updateChecking: true });
+    expect(iconClass()).toContain("settings-update-spinning");
+    await wrapper.setProps({ updateChecking: false });
+    expect(iconClass()).not.toContain("settings-update-spinning");
+    wrapper.unmount();
+  });
+
   it.each(["zh", "en"] as const)("places visible areas and appearance left of settings and permits repeated toggles in %s", async (language) => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", language,

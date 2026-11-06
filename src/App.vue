@@ -239,6 +239,7 @@ const {
 
 const {
   bubbleMessage,
+  bubbleSequence,
   bubbleLink,
   bubbleSignature,
   bubbleVisible,
@@ -4000,6 +4001,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :zone-visibility="activeWorkspace.zoneVisibility"
           :app-version="appVersion"
           :update-available="versionPromptVisible"
+          :update-checking="updateChecking"
           :companion-gif-theme="state.companionGifTheme"
           :custom-companion-gif="state.customCompanionGif"
           :has-custom-companion-gif="Boolean(state.customCompanionGif.light || state.customCompanionGif.dark || state.customCompanionGifStored.light || state.customCompanionGifStored.dark)"
@@ -4243,6 +4245,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <CompanionBubble
       :visible="companionVisible"
       :message="bubbleMessage"
+      :sequence="bubbleSequence"
       :link-text="bubbleLink?.text"
       :link-href="bubbleLink?.href"
       :signature-text="bubbleSignature"

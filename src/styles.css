@@ -7513,3 +7513,30 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .is-sort-committing :is(.todo-item, .todo-completed-divider, .today-focus-item, .todo-section, .quick-button, .quick-tag-group, .image-card, .space-tab, .workspace-switcher-item) {
   transform: none !important;
 }
+
+/* Menu labels are controls, not selectable document text. */
+.n-dropdown-menu,
+[role="menu"],
+.workspace-switcher,
+.zone-visibility-popover {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.settings-update-spinning {
+  animation: settings-update-spin 0.8s linear infinite;
+}
+
+@keyframes settings-update-spin {
+  to { transform: rotate(360deg); }
+}
+
+.companion-message-enter-active,
+.companion-message-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.companion-message-enter-from,
+.companion-message-leave-to {
+  opacity: 0;
+}

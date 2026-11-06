@@ -13,6 +13,7 @@ import { organizeContextMenu, CONTEXT_MENU_Z_INDEX, createExclusiveContextMenu }
 const props = withDefaults(defineProps<{
   visible: boolean;
   message: string;
+  sequence?: number;
   linkText?: string;
   linkHref?: string;
   signatureText?: string;
@@ -450,8 +451,10 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
         </Transition>
       </template>
 
+      <Transition name="companion-message" mode="out-in">
       <div
         v-if="popoverContentVisible"
+        :key="sequence"
         ref="popoverRef"
         class="companion-popover"
         role="status"
@@ -492,6 +495,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
           <NButton size="tiny" class="companion-action-button" data-testid="companion-action" @click="emit('action')">{{ renderedActionText }}</NButton>
         </div>
       </div>
+      </Transition>
     </NPopover>
     <NDropdown
       v-if="gifMenu"

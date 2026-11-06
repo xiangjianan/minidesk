@@ -32,6 +32,7 @@ import { renderIcon } from "../utils/dropdownIcons";
 const props = withDefaults(defineProps<{
   appVersion: string;
   updateAvailable: boolean;
+  updateChecking?: boolean;
   companionGifTheme: CompanionGifTheme;
   customCompanionGif?: CompanionCustomGif;
   hasCustomCompanionGif?: boolean;
@@ -164,7 +165,7 @@ const options = computed(() => [
           : null,
       ]),
     key: "version",
-    icon: renderIcon(RefreshOutline),
+    icon: () => h(NIcon, { size: 16, class: { "settings-update-spinning": props.updateChecking } }, { default: () => h(RefreshOutline) }),
   },
 ]);
 

@@ -61,6 +61,7 @@ export interface CompanionBubbleDeps {
 export function useCompanionBubble(deps: CompanionBubbleDeps) {
   startPointerTracking();
   const bubbleMessage = ref("");
+  const bubbleSequence = ref(0);
   const bubbleLink = ref<{ text: string; href: string } | null>(null);
   const bubbleSignature = ref("");
   const bubbleVisible = ref(false);
@@ -133,6 +134,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
     clearPendingConfirm();
+    bubbleSequence.value += 1;
     bubbleMessage.value = message;
     bubbleLink.value = options.linkText && options.linkHref ? { text: options.linkText, href: options.linkHref } : null;
     bubbleSignature.value = options.signatureText ?? "";
@@ -330,6 +332,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
 
   return {
     bubbleMessage,
+    bubbleSequence,
     bubbleLink,
     bubbleSignature,
     bubbleVisible,
