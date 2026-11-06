@@ -59,7 +59,7 @@ html[data-theme="dark"] .workbench-shell,
 .workbench-command-bar {
   position: relative;
   padding-inline: 24px;
-  padding-inline-start: 16px;
+  padding-inline-start: 11px;
   background: var(--card);
   -webkit-backdrop-filter: blur(20px) saturate(1.3);
   backdrop-filter: blur(20px) saturate(1.3);
@@ -811,7 +811,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 }
 .workbench-shell .workspace-trigger:hover,
 .workbench-shell .workspace-trigger:active,
-.workbench-shell .workspace-trigger:focus-visible { background: var(--secondary); box-shadow: none; }
+.workbench-shell .workspace-trigger:focus-visible { background: transparent; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   .workbench-shell .icon-button,
   .workbench-shell .panel-header .desk-ai-action,
