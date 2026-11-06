@@ -435,7 +435,7 @@ onUnmounted(() => disposeSort?.());
             :aria-label="uiText.space.add"
             @click="emit('create')"
           >
-            +
+            <NIcon :component="AddOutline" />
           </button>
         </TransitionGroup>
       </NScrollbar>
