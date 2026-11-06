@@ -149,7 +149,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     startBubbleTimer(duration);
   }
 
-  function hideBubbleMessage(options: { clearRetainedContent?: boolean } = {}): void {
+  function hideBubbleMessage(options: { clearRetainedContent?: boolean; fadeCompanion?: boolean } = {}): void {
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
     bubbleTimer.value = undefined;
@@ -165,6 +165,11 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     bubbleLink.value = null;
     bubbleSignature.value = "";
     if (options.clearRetainedContent) bubbleClearSignal.value += 1;
+    if (options.fadeCompanion) {
+      companionFadeRemaining.value = COMPANION_FADE_MS;
+      companionFadeStartedAt.value = Date.now();
+      bubbleFadeTimer.value = window.setTimeout(finishCompanionFade, COMPANION_FADE_MS);
+    }
   }
 
   function startBubbleTimer(duration: number): void {

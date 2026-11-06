@@ -273,8 +273,7 @@ setBubbleExpiredHandler((options) => {
   if (options.guideKey) activeGuideKey.value = null;
 });
 setHostHideCompanion(() => {
-  hideBubbleMessage();
-  companionFocused.value = false;
+  hideBubbleMessage({ fadeCompanion: true });
   activeGuideKey.value = null;
 });
 // Bumped after "clear data" so the whole workbench shell remounts and its
@@ -3807,8 +3806,10 @@ async function manualCheckUpdate(): Promise<void> {
   updateChecking.value = true;
   const checkingMessage = uiText.value.updateCheck.checking;
   showBubbleText(checkingMessage, undefined, { explicit: true, hideCompanionAfter: true });
+  const startedAt = Date.now();
   const latest = await checkLatestAppVersion();
-  updateChecking.value = false;
+  const remaining = Math.max(0, 800 - (Date.now() - startedAt));
+  window.setTimeout(() => { updateChecking.value = false; }, remaining);
   if (!appMounted) return;
   if (versionPromptVisible.value) {
     if (bubbleMessage.value === checkingMessage) hideBubbleMessage();

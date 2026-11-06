@@ -165,7 +165,7 @@ const options = computed(() => [
           : null,
       ]),
     key: "version",
-    icon: () => h(NIcon, { size: 16, class: { "settings-update-spinning": props.updateChecking } }, { default: () => h(RefreshOutline) }),
+    icon: () => h(NIcon, { size: 16 }, { default: () => h(RefreshOutline, { class: { "settings-update-spinning": props.updateChecking } }) }),
   },
 ]);
 

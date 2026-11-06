@@ -2288,6 +2288,8 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       expect(rows[0].attributes("data-confirm-target")).toBeUndefined();
+      expect(wrapper.find(".companion-popover-shell").classes()).toContain("is-popover-fading");
+      await vi.advanceTimersByTimeAsync(260);
       expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
     } finally {
       wrapper.unmount();

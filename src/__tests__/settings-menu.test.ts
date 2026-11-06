@@ -82,8 +82,8 @@ describe("SettingsMenu", () => {
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
     const iconClass = () => {
-      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { props?: { class?: string } } }>;
-      return options.find(option => option.key === "version")?.icon?.().props?.class;
+      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { children?: { default?: () => { props?: { class?: string } } } } }>;
+      return options.find(option => option.key === "version")?.icon?.().children?.default?.().props?.class;
     };
     expect(iconClass()).not.toContain("settings-update-spinning");
     await wrapper.setProps({ updateChecking: true });

@@ -295,17 +295,25 @@ watch(
 onMounted(() => {
   exclusiveMenu.mount();
   window.addEventListener("keydown", handleConfirmKeydown, { capture: true });
+  window.addEventListener("click", handleConfirmOutsideClick, { capture: true });
 });
 
 onUnmounted(() => {
   exclusiveMenu.unmount();
   window.removeEventListener("keydown", handleConfirmKeydown, { capture: true });
+  window.removeEventListener("click", handleConfirmOutsideClick, { capture: true });
   stopWindowMousemoveTracking();
   window.clearTimeout(popoverTimer.value);
   window.clearTimeout(contentTimer.value);
   window.clearTimeout(gifTimer.value);
   window.clearTimeout(gifFadeTimer.value);
 });
+
+function handleConfirmOutsideClick(event: MouseEvent): void {
+  if (!props.confirm || !(event.target instanceof Node)) return;
+  if (surfaceRef.value?.contains(event.target) || popoverRef.value?.contains(event.target)) return;
+  emit("no");
+}
 
 function handleConfirmKeydown(event: KeyboardEvent): void {
   if (event.key !== "Enter") return;
@@ -451,7 +459,8 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
         </Transition>
       </template>
 
-      <Transition name="companion-message" mode="out-in">
+      <div class="companion-message-stack">
+      <Transition name="companion-message">
       <div
         v-if="popoverContentVisible"
         :key="sequence"
@@ -496,6 +505,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
         </div>
       </div>
       </Transition>
+      </div>
     </NPopover>
     <NDropdown
       v-if="gifMenu"

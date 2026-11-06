@@ -7531,6 +7531,14 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   to { transform: rotate(360deg); }
 }
 
+.companion-message-stack {
+  display: grid;
+}
+
+.companion-message-stack > .companion-popover {
+  grid-area: 1 / 1;
+}
+
 .companion-message-enter-active,
 .companion-message-leave-active {
   transition: opacity 0.2s ease;
