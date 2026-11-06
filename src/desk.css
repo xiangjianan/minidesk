@@ -59,7 +59,7 @@ html[data-theme="dark"] .workbench-shell,
 .workbench-command-bar {
   position: relative;
   padding-inline: 24px;
-  padding-inline-start: 11px;
+  padding-inline-start: 8px;
   background: var(--card);
   -webkit-backdrop-filter: blur(20px) saturate(1.3);
   backdrop-filter: blur(20px) saturate(1.3);
