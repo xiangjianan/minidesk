@@ -59,6 +59,23 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
+  it("replays the same message after the companion has faded away", async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(CompanionBubble, {
+      attachTo: document.body,
+      props: { visible: true, message: "关于", sequence: 1 },
+      global: { stubs: { NPopover: popoverStub } },
+    });
+    await vi.advanceTimersByTimeAsync(200);
+    await vi.advanceTimersByTimeAsync(10260);
+    expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
+    await wrapper.setProps({ sequence: 2 });
+    await vi.advanceTimersByTimeAsync(200);
+    expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(true);
+    expect(document.body.querySelector('[data-testid="companion-confirm"]')?.textContent).toContain("关于");
+    wrapper.unmount();
+  });
+
   it("reserves the GIF box before the image finishes loading", async () => {
     const wrapper = mount(CompanionBubble, {
       props: {

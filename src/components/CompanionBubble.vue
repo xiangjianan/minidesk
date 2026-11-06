@@ -72,6 +72,9 @@ const renderedSecondaryText = ref("");
 const renderedActionText = ref("");
 const popoverTimer = ref<number | undefined>();
 const contentTimer = ref<number | undefined>();
+const replacementTimer = ref<number | undefined>();
+const replacingPopover = ref(false);
+let renderedSequence = props.sequence;
 const gifTimer = ref<number | undefined>();
 const gifFadeTimer = ref<number | undefined>();
 const gifRemainingMs = ref(GIF_MAX_VISIBLE_MS);
@@ -211,6 +214,7 @@ watch(
   () =>
     [
       props.visible,
+      props.sequence,
       props.message,
       props.linkText,
       props.linkHref,
@@ -254,7 +258,7 @@ watch(
 watch(
   () => [props.message, props.linkText, props.linkHref, props.confirm, props.confirmDanger, props.confirmText, props.cancelText, props.confirmHint, props.secondaryText, props.actionText, props.language] as const,
   () => {
-    if (!popoverVisible.value) return;
+    if (!popoverVisible.value || props.sequence !== renderedSequence) return;
     // The clearSignal watch can strand `delayedPopoverVisible` at false while
     // `popoverVisible` stays bridged true: focus fires hideBubbleMessage (bumps
     // clearSignal) and a same-tick tip re-show, so popoverVisible never makes
@@ -269,6 +273,26 @@ watch(
       }, POPOVER_DELAY_MS);
     }
     syncRenderedContent();
+  },
+);
+
+watch(
+  () => props.sequence,
+  (sequence) => {
+    window.clearTimeout(replacementTimer.value);
+    if (!popoverVisible.value || !delayedPopoverVisible.value || props.confirm || renderedConfirm.value) {
+      renderedSequence = sequence;
+      replacingPopover.value = false;
+      syncRenderedContent();
+      return;
+    }
+    replacingPopover.value = true;
+    replacementTimer.value = window.setTimeout(() => {
+      renderedSequence = sequence;
+      syncRenderedContent();
+      replacingPopover.value = false;
+      replacementTimer.value = undefined;
+    }, 180);
   },
 );
 
@@ -305,6 +329,7 @@ onUnmounted(() => {
   stopWindowMousemoveTracking();
   window.clearTimeout(popoverTimer.value);
   window.clearTimeout(contentTimer.value);
+  window.clearTimeout(replacementTimer.value);
   window.clearTimeout(gifTimer.value);
   window.clearTimeout(gifFadeTimer.value);
 });
@@ -417,7 +442,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
     v-if="surfaceVisible"
     ref="surfaceRef"
     class="focus-companion"
-    :class="{ 'is-visible': gifVisible || (!shouldRenderGif && popoverVisible), 'is-fading': gifFading }"
+    :class="{ 'is-visible': gifVisible || (!shouldRenderGif && popoverVisible), 'is-fading': gifFading, 'is-dismissing': retainingPopoverContent && !popoverVisible }"
     :style="placementStyle"
     data-testid="companion-bubble"
     :aria-hidden="!surfaceVisible"
@@ -435,7 +460,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
       :arrow-point-to-center="true"
       :animated="false"
       :z-index="CONTEXT_MENU_Z_INDEX"
-      :class="['companion-popover-shell', { 'is-popover-fading': retainingPopoverContent, 'is-confirm-danger': renderedConfirm && renderedConfirmDanger }]"
+      :class="['companion-popover-shell', { 'is-popover-fading': retainingPopoverContent || replacingPopover, 'is-replacing': replacingPopover, 'is-confirm-danger': renderedConfirm && renderedConfirmDanger }]"
       arrow-class="companion-popover-arrow"
       :style="{ maxWidth: '240px', '--n-box-shadow': 'none' }"
     >
@@ -464,7 +489,6 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
       <Transition name="companion-message" appear>
       <div
         v-if="popoverContentVisible"
-        :key="sequence"
         ref="popoverRef"
         class="companion-popover"
         role="status"
