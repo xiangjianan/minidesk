@@ -3054,6 +3054,14 @@ button.todo-section-menu-button {
   cursor: pointer;
 }
 
+.companion-undo-button svg {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+}
+
 .companion-undo-button:hover,
 .companion-undo-button:focus-visible {
   background: var(--button-hover);
