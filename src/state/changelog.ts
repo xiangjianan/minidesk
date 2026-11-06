@@ -33,126 +33,126 @@ export interface ChangelogEntry {
 }
 
 export const CHANGELOG: ChangelogEntry[] = [
-    {
-      version: "1.1.28",
-      date: "2026-11-04",
-      notes: {
-        zh: [
-          "改版：快捷动作区改为持久分组，纯文字紧凑胶囊样式，分组可自定义颜色",
-          "优化：面板菜单与各区右键菜单统一整理",
-          "优化：拖拽排序全面打磨，预览还原原样式、落位贴近指针、跨分组高度平滑过渡",
-          "新增：粘贴条目闪烁高亮反馈与顶栏随机工作台小贴士",
-        ],
-        en: [
-          "Redesigned: quick actions as persistent groups with compact text-only pills and custom colors",
-          "Improved: panel and context menus unified across areas",
-          "Improved: drag sorting polished across the board — faithful previews, pointer-following drop slots, smooth cross-group height transitions",
-          "New: flash highlight on pasted items and random workbench tips in the header menu",
-        ],
-      },
+  {
+    version: "1.1.28",
+    date: "2026-11-05",
+    notes: {
+      zh: [
+        "快捷动作升级为可自定义颜色的持久分组，支持跨组拖拽整理",
+        "完善提醒、贴图与快捷动作的拖拽排序、粘贴和菜单操作",
+        "新增一键清理所有列表的已完成提醒，以及顶栏工作台小贴士",
+      ],
+      en: [
+        "Quick actions now live in persistent, customizable color groups and can be dragged between groups",
+        "Refined sorting, pasting, and menus for reminders, images, and quick actions",
+        "Clear completed reminders across all lists at once and discover workbench tips in the header",
+      ],
     },
-    {
-      version: "1.1.14",
-      date: "2026-10-27",
-      notes: {
-        zh: [
-          "优化：大幅降低大看板拖拽排序与分组折叠的布局开销，操作更流畅",
-        ],
-        en: [
-          "Improved: far less layout work while drag sorting or collapsing groups on large boards, for smoother interactions",
-        ],
-      },
+  },
+  {
+    version: "1.1.8",
+    date: "2026-10-15",
+    notes: {
+      zh: [
+        "提醒可以拖入快捷动作或记事本，快捷动作显示使用次数",
+        "顶栏可快速切换浅色、深色与跟随系统外观",
+      ],
+      en: [
+        "Drag reminders into quick actions or the notebook; quick actions show usage counts",
+        "Switch between light, dark, and system appearance from the header",
+      ],
     },
-    {
-      version: "1.1.12",
-      date: "2026-10-23",
-      notes: {
-        zh: [
-          "新增：拖拽排序实时预览落位空隙，支持拖入折叠分组",
-          "优化：提醒列表拖拽排序与落位动画更顺滑稳定",
-          "修复：隐藏的快捷按钮按当前标签筛选显示",
-        ],
-        en: [
-          "New: live landing-gap preview while drag sorting; drops onto collapsed groups",
-          "Improved: smoother, steadier reminder drag sorting and landing animations",
-          "Fixed: hidden quick actions now filtered by the selected tag",
-        ],
-      },
+  },
+  {
+    version: "1.0.209",
+    date: "2026-10-11",
+    notes: {
+      zh: [
+        "新增「现在做这个」专注模式，围绕单条提醒计时、记事和添加贴图",
+        "提醒列表支持多列布局，工作台各区宽度可按工作空间调整",
+        "智能粘贴可识别提醒时间，手机速记也能生成定时提醒",
+      ],
+      en: [
+        "Added Do it now focus mode with a timer, notes, and images for an individual reminder",
+        "Arrange reminder lists in columns and adjust panel widths per workspace",
+        "Smart paste and mobile capture can recognize times and create scheduled reminders",
+      ],
     },
-    {
-      version: "1.1.10",
-      date: "2026-10-22",
-      notes: {
-        zh: [
-          "新增：一键清理所有列表的已完成提醒",
-          "新增：快捷按钮右键按类型复制",
-        ],
-        en: [
-          "New: clear completed reminders across all lists in one click",
-          "New: per-type copy on quick button right-click",
-        ],
-      },
+  },
+  {
+    version: "1.0.190",
+    date: "2026-09-24",
+    notes: {
+      zh: [
+        "记事本支持高亮、文字颜色、下划线和删除线等标注",
+        "智能粘贴扩展到快捷动作，AI 润色支持多种表达风格",
+        "快捷动作支持紧凑显示与分组布局，提醒可拖入记事本",
+      ],
+      en: [
+        "Mark up notebook text with highlights, colors, underlines, and strikethrough",
+        "Smart paste expanded to quick actions, with multiple AI polishing styles",
+        "Quick actions gained compact and grouped layouts; reminders can be dragged into the notebook",
+      ],
     },
-    {
-      version: "1.1.8",
-      date: "2026-10-15",
-      notes: {
-        zh: [
-          "新增：顶栏一键切换浅色 / 深色 / 跟随系统",
-          "新增：提醒拖入快捷区或记事本，快捷按钮显示点击次数",
-          "调整：名称限长 20 字；石墨灰 + 钢青蓝配色与动画细节打磨",
-        ],
-        en: [
-          "New: one-button light / dark / system theme cycling in the top bar",
-          "New: drag reminders into the quick area or notebook; quick buttons show click counts",
-          "Changed: 20-character name cap; graphite-blue palette and animation polish",
-        ],
-      },
+  },
+  {
+    version: "1.0.162",
+    date: "2026-08-31",
+    notes: {
+      zh: [
+        "新增智能粘贴和 AI 润色，帮助整理便签与提醒内容",
+        "手机速记支持扫码配对，将临时想法发送到电脑的提醒或便签",
+        "工作台可安装并离线使用；工作空间之间可以移动内容",
+      ],
+      en: [
+        "Added smart paste and AI polishing to help organize notes and reminders",
+        "Pair a phone by QR code to send quick captures to desktop reminders or notes",
+        "Install the workbench for offline use and move content between workspaces",
+      ],
     },
-    {
-      version: "1.0.209",
-      date: "2026-10-11",
-      notes: {
-        zh: [
-          "新增：「现在做这个」专注模式（计时 + 记事 + 贴图）",
-          "新增：提醒多列布局，智能粘贴识别时间生成闹钟，记事本富文本标注",
-          "改版：桌面与手机视觉焕新，四区宽度引入黄金分割",
-        ],
-        en: [
-          "New: \"Do it now\" focus mode with timer, notes, and images",
-          "New: multi-column reminders, time-aware smart paste, rich-text notes",
-          "Redesign: refreshed desktop and mobile visuals with golden-ratio zones",
-        ],
-      },
+  },
+  {
+    version: "1.0.120",
+    date: "2026-08-10",
+    notes: {
+      zh: [
+        "新增多个独立工作空间和全局搜索，按场景组织和查找内容",
+        "快捷动作支持打开本地应用，提醒提供快捷时间预设",
+        "每个工作空间可自定义显示区域，并支持导入和导出",
+      ],
+      en: [
+        "Added independent workspaces and global search to organize and find content",
+        "Quick actions can open local apps, and reminders offer time presets",
+        "Customize visible areas per workspace and import or export workspaces",
+      ],
     },
-    {
-      version: "1.0.156",
-      date: "2026-08-29",
-      notes: {
-        zh: [
-          "新增：手机速记，扫码配对自动同步到电脑",
-          "新增：多工作空间、全局搜索与快捷动作分组",
-          "优化：自建中继不限量，可离线使用与安装",
-        ],
-        en: [
-          "New: mobile quick capture synced to the desktop via QR pairing",
-          "New: multi-workspace, global search, grouped quick actions",
-          "Improved: self-hosted relay, offline support, installable app",
-        ],
-      },
+  },
+  {
+    version: "1.0.70",
+    date: "2026-06-13",
+    notes: {
+      zh: [
+        "新增图片编辑和预览工具、快捷动作标签管理及实用工具面板",
+        "加入多标签页写入保护，减少同时打开工作台造成的数据冲突",
+      ],
+      en: [
+        "Added image editing and preview tools, quick-action tag management, and utilities",
+        "Added protection against conflicting saves across browser tabs",
+      ],
     },
-    {
-      version: "1.0.45",
-      date: "2026-06-06",
-      notes: {
-        zh: [
-          "首个正式版：四区看板、截止时间与到期通知",
-          "随后补齐：多标签页保护、贴图、自定义列表与陪伴 GIF",
-        ],
-        en: [
-          "First release: four-zone board with deadlines and notifications",
-          "Then: multi-tab safety, images, custom lists, companion GIFs",
-        ],
-      },
+  },
+  {
+    version: "1.0.45",
+    date: "2026-06-06",
+    notes: {
+      zh: [
+        "Mini Desk 从待办看板成长为桌面工作台，集贴图、记事、快捷动作与提醒于一处",
+        "支持自定义提醒列表、截止时间与通知，还有可切换主题的陪伴 GIF",
+      ],
+      en: [
+        "Mini Desk grew from a to-do board into a workbench for images, notes, quick actions, and reminders",
+        "Added customizable reminder lists, deadlines and notifications, and companion GIF themes",
+      ],
     },
+  },
 ];
