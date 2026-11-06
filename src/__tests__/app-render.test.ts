@@ -9042,8 +9042,15 @@ describe("App shell", () => {
       fetchMock.mockResolvedValueOnce(latest ? response(latest) : { ok: false });
       wrapper.getComponent(SettingsMenu).vm.$emit("checkUpdate");
       await flushPromises();
-      expect(wrapper.get('[data-testid="update-check-status"]').text()).toBe(expected);
-      expect(wrapper.find('[data-testid="update-check-apply"]').exists()).toBe(update);
+      if (update) {
+        expect(wrapper.get('[data-testid="update-check-status"]').text()).toBe(expected);
+        expect(wrapper.find('[data-testid="update-check-apply"]').exists()).toBe(true);
+        await wrapper.get('[data-testid="update-check-cancel"]').trigger("click");
+        expect(wrapper.find('[data-testid="update-check-status"]').exists()).toBe(false);
+      } else {
+        expect(wrapper.find('[data-testid="update-check-status"]').exists()).toBe(false);
+        expect(wrapper.getComponent(CompanionBubble).props("message")).toBe(expected);
+      }
       expect(fetchMock).toHaveBeenCalledTimes(2);
       if (update) expect(wrapper.getComponent(SettingsMenu).props("updateAvailable")).toBe(true);
     } finally {

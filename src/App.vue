@@ -327,7 +327,7 @@ const pendingImagePayloadDeletions = new Map<string, number>();
 const shortcutHelpVisible = ref(false);
 const supportDialogVisible = ref(false);
 const updateCheckVisible = ref(false);
-const updateCheckStatus = ref<"checking" | "current" | "available" | "failed">("checking");
+const updateChecking = ref(false);
 const isMobileBlocked = ref(getInitialMobileBlocked());
 // URL 带 #inbox=<12位码> 时优先；否则回退手机壳本地记忆（主屏图标/微信入口丢 fragment 的场景）。
 const mobileInboxCode = ref<string | null>(parseInboxFragment(window.location.hash) ?? loadRememberedInboxCode());
@@ -3802,10 +3802,19 @@ function invalidateGuideCompanion(nextKey: GuideKey): void {
 }
 
 async function manualCheckUpdate(): Promise<void> {
-  updateCheckVisible.value = true;
-  updateCheckStatus.value = "checking";
+  if (updateChecking.value) return;
+  updateChecking.value = true;
+  const checkingMessage = uiText.value.updateCheck.checking;
+  showBubbleText(checkingMessage, undefined, { explicit: true, hideCompanionAfter: true });
   const latest = await checkLatestAppVersion();
-  updateCheckStatus.value = versionPromptVisible.value ? "available" : latest ? "current" : "failed";
+  updateChecking.value = false;
+  if (!appMounted) return;
+  if (versionPromptVisible.value) {
+    if (bubbleMessage.value === checkingMessage) hideBubbleMessage();
+    updateCheckVisible.value = true;
+  } else {
+    showBubbleText(latest ? uiText.value.updateCheck.current : uiText.value.updateCheck.failed, undefined, { explicit: true, hideCompanionAfter: true });
+  }
 }
 
 function getImageUndoAnchor(anchor?: HTMLElement): HTMLElement | undefined {
@@ -4262,15 +4271,10 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
     <NModal :show="updateCheckVisible" preset="card" class="update-check-modal" :title="uiText.updateCheck.title" style="width: min(400px, calc(100vw - 32px))" @update:show="(show: boolean) => { updateCheckVisible = show; }">
-      <p data-testid="update-check-status" role="status">{{
-        updateCheckStatus === "checking" ? uiText.updateCheck.checking :
-        updateCheckStatus === "current" ? uiText.updateCheck.current :
-        updateCheckStatus === "failed" ? uiText.updateCheck.failed :
-        availableAppVersion !== appVersion ? uiText.updateCheck.available.replace("{version}", availableAppVersion) : uiText.updateCheck.ready
-      }}</p>
+      <p data-testid="update-check-status">{{ availableAppVersion !== appVersion ? uiText.updateCheck.available.replace("{version}", availableAppVersion) : uiText.updateCheck.ready }}</p>
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
-        <NButton v-if="updateCheckStatus !== 'checking'" data-testid="update-check-retry" @click="manualCheckUpdate">{{ uiText.updateCheck.retry }}</NButton>
-        <NButton v-if="updateCheckStatus === 'available'" type="primary" data-testid="update-check-apply" @click="updateStaticVersion">{{ uiText.updateCheck.update }}</NButton>
+        <NButton data-testid="update-check-cancel" @click="updateCheckVisible = false">{{ uiText.common.cancel }}</NButton>
+        <NButton type="primary" data-testid="update-check-apply" @click="updateStaticVersion">{{ uiText.updateCheck.update }}</NButton>
       </div>
     </NModal>
     <NModal :show="importConflict !== null" preset="card" class="workspace-dialog-modal" :title="uiText.app.importConflictTitle" style="max-width: 440px; width: calc(100vw - 32px)" :mask-closable="false" @update:show="(show: boolean) => { if (!show) { importConflict?.cancel(); importConflict = null; } }">
