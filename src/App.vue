@@ -4376,7 +4376,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
     <NModal :show="updateCheckVisible" preset="card" class="update-check-modal" :title="uiText.updateCheck.title" style="width: min(400px, calc(100vw - 32px))" @update:show="(show: boolean) => { updateCheckVisible = show; }">
       <p data-testid="update-check-status">{{ availableAppVersion !== appVersion ? uiText.updateCheck.available.replace("{version}", availableAppVersion) : uiText.updateCheck.ready }}</p>
-      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+      <div class="dialog-actions" style="margin-top: 16px;">
         <NButton data-testid="update-check-cancel" @click="updateCheckVisible = false">{{ uiText.common.cancel }}</NButton>
         <NButton type="primary" data-testid="update-check-apply" @click="updateStaticVersion">{{ uiText.updateCheck.update }}</NButton>
       </div>
@@ -4388,7 +4388,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         <p v-if="importConflict.legacy">{{ uiText.app.importLegacyNotice }}</p>
         <NCheckbox v-if="importPreview.conflicts" v-model:checked="importCopyConflicts" data-testid="import-copy-conflicts">{{ uiText.app.importCopyConflicts }}</NCheckbox>
         <p v-if="importReplaceConfirm">{{ uiText.app.importReplaceWarning }}</p>
-        <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:16px;">
+        <div class="dialog-actions" style="margin-top:16px;">
           <NButton data-testid="import-cancel" @click="importConflict.cancel(); importConflict = null">{{ uiText.common.cancel }}</NButton>
           <NButton data-testid="import-add" @click="() => { const pending = importConflict; importConflict = null; void pending?.add(); }">{{ uiText.app.importAddCopy }}</NButton>
           <NButton v-if="!importReplaceConfirm" data-testid="import-replace" @click="importReplaceConfirm = true">{{ uiText.app.importReplace }}</NButton>
@@ -4402,7 +4402,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <div style="display: flex; flex-direction: column; gap: 12px; margin: 16px 0;">
         <NCheckbox v-for="zone in exportZoneKeys" :key="zone" :checked="exportZones.includes(zone)" :data-testid="`export-zone-${zone}`" @update:checked="(checked: boolean) => { exportZones = checked ? [...exportZones, zone] : exportZones.filter((item) => item !== zone); }">{{ uiText.app.exportZoneNames[zone] }}</NCheckbox>
       </div>
-      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+      <div class="dialog-actions">
         <NButton @click="exportWorkspaceId = null">{{ uiText.common.cancel }}</NButton>
         <NButton type="primary" data-testid="confirm-workspace-export" :disabled="exportZones.length === 0" @click="confirmWorkspaceExport">{{ uiText.common.confirm }}</NButton>
       </div>
@@ -4424,7 +4424,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           <span>{{ uiText.app.workspaceSlogan }}</span>
           <NInput v-model:value="workspaceDraftSlogan" :placeholder="uiText.app.workspaceSloganPlaceholder" />
         </label>
-        <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <div class="dialog-actions">
           <NButton @click="workspaceDialogVisible = false">{{ uiText.common.cancel }}</NButton>
           <NButton type="primary" :disabled="!workspaceDraftTitle.trim()" @click="confirmWorkspaceDialog">{{ uiText.common.confirm }}</NButton>
         </div>

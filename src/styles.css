@@ -547,6 +547,18 @@ html[data-theme="dark"] .n-modal-mask {
   gap: 8px;
 }
 
+.dialog-actions > .n-button,
+.notify-panel-actions > button,
+.gif-theme-custom-actions > button,
+.support-footer > .n-button,
+.workspace-inbox-footer > .n-button {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.dialog-actions > .n-button { height: auto; min-height: 34px; }
+.dialog-actions > .n-button .n-button__content { white-space: normal; text-align: center; }
+
 .save-status {
   position: relative;
   width: 34px;
@@ -3147,7 +3159,8 @@ button.companion-undo-button {
 }
 
 .companion-actions .n-button {
-  min-width: 64px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .companion-action-button {
