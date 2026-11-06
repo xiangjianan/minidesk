@@ -383,7 +383,7 @@ describe("Naive UI component usage", () => {
     expect(styles).toMatch(/\.today-focus-input\s*\{[^}]*font-size: var\(--app-font-size\)/s);
     expect(styles).toMatch(/\.todo-completed-divider\s*\{[^}]*font-size: var\(--app-font-size\)/s);
     expect(styles).toMatch(/\.n-input,[\s\S]*?\.n-card\s*\{[^}]*font-size: var\(--app-font-size\)/s);
-    expect(styles).toMatch(/\.companion-actions \.n-button\s*\{[^}]*min-width: 64px/s);
+    expect(styles).toMatch(/\.companion-actions \.n-button\s*\{[^}]*flex: 1 1 0[^}]*min-width: 0/s);
   });
 
   it("keeps scrollbars and buttons in the simple line UI style", () => {
