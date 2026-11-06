@@ -466,7 +466,7 @@ onUnmounted(() => disposeSort?.());
       </Transition>
     </div>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="menuOptions"
-
+      :polish-labels="true"
       @select="handleMenuSelect" @clickoutside="exclusiveMenu.handleClickOutside" />
   </section>
 </template>

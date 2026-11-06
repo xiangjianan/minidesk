@@ -468,6 +468,7 @@ describe("workbench style contract", () => {
     // 智能粘贴使用共享星星剪贴板，文字渐变走共享 render-label。
     expect(quick).toContain('key: "smart-paste", icon: renderIcon(SmartPasteIcon)');
     expect(quick).toContain(':polish-labels="true"');
+    expect(space).toContain(':polish-labels="true"');
     const contextMenu = readFileSync(resolve(__dirname, "../components/ContextMenu.vue"), "utf8");
     expect(contextMenu).toContain(':render-label="polishLabels ? renderPolishMenuLabel : undefined"');
     // 防重态：进行中 cursor:wait + 降透明度（与便签入口同款）。
