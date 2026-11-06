@@ -441,7 +441,7 @@ describe("workbench style contract", () => {
     const todo = readFileSync(resolve(__dirname, "../components/TodoPanel.vue"), "utf8");
 
     // 便签头部使用普通粘贴按钮。
-    expect(space).toContain('class="icon-button desk-paste-button"');
+    expect(space).toContain('class="desk-ai-action desk-paste-button"');
     expect(space).not.toContain('class="smart-paste-icon-flow"');
     expect(space).not.toContain("polish-menu-flow");
     expectSelectorBody(desk, ".workbench-shell .desk-ai-button", "color: var(--muted)");

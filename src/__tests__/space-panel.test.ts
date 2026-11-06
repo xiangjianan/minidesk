@@ -112,7 +112,7 @@ describe("SpacePanel", () => {
     await flushPromises();
     const update = wrapper.emitted("update")?.at(-1);
     expect(update?.[0]).toBe("note");
-    expect((update?.[1] as { text: string }[]).map(line => line.text).join("\n")).toBe("原文追加文字");
+    expect((update?.[1] as { text: string }[]).map(line => line.text).join("\n")).toBe("原文\n追加文字");
     wrapper.unmount();
   });
 
