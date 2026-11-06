@@ -1545,7 +1545,7 @@ describe("QuickButtons", () => {
 
     await wrapper.get(".quick-button").trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["复制标题", "复制链接", "新建", "粘贴", "编辑", "设为隐藏", "删除"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "复制标题", "复制链接", "粘贴", "编辑", "设为隐藏", "删除"]);
 
     await wrapper.findAll(".dropdown-option").find((option) => option.text() === "复制链接")?.trigger("click");
 
@@ -1585,7 +1585,7 @@ describe("QuickButtons", () => {
       const contentLabel = language === "zh" ? valueLabel : englishValueLabel;
       await wrapper.get(".quick-button").trigger("contextmenu");
       const options = wrapper.findAll(".dropdown-option");
-      expect(options.slice(0, 2).map((option) => option.text())).toEqual([titleLabel, contentLabel]);
+      expect(options.slice(1, 3).map((option) => option.text())).toEqual([titleLabel, contentLabel]);
       await options.find((option) => option.text() === titleLabel)!.trigger("click");
       expect(wrapper.emitted("copyText")?.[0]).toEqual(["quick-1", expect.any(HTMLElement)]);
       await wrapper.get(".quick-button").trigger("contextmenu");
@@ -1817,7 +1817,8 @@ describe("QuickButtons", () => {
     });
     await wrapper.get(".quick-button").trigger("contextmenu");
     const keys = wrapper.findAll(".dropdown-option").map((option) => option.attributes("data-key"));
-    expect(keys.slice(keys.indexOf("copy-link"), keys.indexOf("copy-link") + 4)).toEqual(["copy-link", "add", "paste", "smart-paste"]);
+    expect(keys.slice(0, 1)).toEqual(["add"]);
+    expect(keys.slice(keys.indexOf("copy-link"), keys.indexOf("copy-link") + 3)).toEqual(["copy-link", "paste", "smart-paste"]);
     Object.assign(navigator, { clipboard: { readText: vi.fn(async () => "https://github.com") } });
     await wrapper.get('[data-key="paste"]').trigger("click");
     await flushPromises();

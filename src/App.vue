@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
+import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
 import ImagePanel from "./components/ImagePanel.vue";
 import MobileHome from "./components/MobileHome.vue";
@@ -56,7 +56,7 @@ import {
   updateTodoFocus,
   updateTodoText,
 } from "./state/todos";
-import { DEFAULT_BOARD_TITLE, defaultState, STORAGE_KEY } from "./state/defaults";
+import { DEFAULT_BOARD_TITLE, defaultState, defaultWorkspace, STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
@@ -290,6 +290,10 @@ const importFeedbackAnchor = ref<HTMLElement | undefined>();
 const pendingEditSpaceId = ref<string | null>(null);
 const pendingEditTodoListId = ref<string | null>(null);
 const workspaceDialogVisible = ref(false);
+const exportWorkspaceId = ref<string | null>(null);
+const exportAnchor = ref<HTMLElement>();
+const exportZones = ref<ZoneKey[]>(["assets", "notes", "tasks", "workspace"]);
+const exportZoneKeys: ZoneKey[] = ["assets", "notes", "tasks", "workspace"];
 const workspaceDialogMode = ref<"create" | "rename">("create");
 const workspaceDialogId = ref<string | null>(null);
 const workspaceDraftTitle = ref("");
@@ -967,15 +971,38 @@ function exportTimestamp(date: Date): string {
 }
 
 function exportWorkspaceById(id: string, anchor?: HTMLElement): void {
-  const workspace = state.workspaces.find((item) => item.id === id);
-  if (!workspace) return;
+  if (!state.workspaces.some((item) => item.id === id)) return;
+  exportWorkspaceId.value = id;
+  exportAnchor.value = anchor;
+  exportZones.value = [...exportZoneKeys];
+}
+
+function confirmWorkspaceExport(): void {
+  const workspace = state.workspaces.find((item) => item.id === exportWorkspaceId.value);
+  if (!workspace || exportZones.value.length === 0) return;
   const serialized = getSerializableWorkspace(workspace, { includeImageData: true, omitInbox: true });
+  const empty = defaultWorkspace(workspace.id, state.language);
+  if (!exportZones.value.includes("assets")) serialized.images = [];
+  if (!exportZones.value.includes("notes")) {
+    Object.assign(serialized, { quickTags: empty.quickTags, quickButtons: [], quickOtherCollapsed: false, showHiddenQuickButtons: false, quickCompact: false, quickLayoutManual: false });
+  }
+  if (!exportZones.value.includes("tasks")) {
+    Object.assign(serialized, { todoLists: empty.todoLists, todos: empty.todos, showCompletedTodos: empty.showCompletedTodos, todoLayoutManual: false, todoMaxColumns: empty.todoMaxColumns, todoListOrder: undefined, todoColumnLayouts: undefined });
+  }
+  if (!exportZones.value.includes("workspace")) {
+    Object.assign(serialized, { noteLines: [], workspaceLines: [], storageLines: [], spaces: empty.spaces, activeSpaceId: empty.activeSpaceId });
+  }
+  const excludedTitles: Record<ZoneKey, string[]> = { assets: ["image-title"], notes: ["quick-title"], tasks: ["todo-morning-title", "todo-noon-title", "todo-evening-title"], workspace: ["workspace-title", "storage-title", "note-title"] };
+  for (const zone of exportZoneKeys) if (!exportZones.value.includes(zone)) {
+    for (const key of excludedTitles[zone]) delete serialized.customTitles[key];
+  }
   const ratios = readWorkbenchWidthRatios(workspace.id);
   if (ratios) serialized.zoneWidthRatios = ratios;
   const content = JSON.stringify({ miniDeskWorkspaceExport: true, version: 1, workspace: serialized }, null, 2);
   const title = getWorkspaceBoardTitle(workspace);
   downloadExportFile(content, `mini-desk-${slugifyTitle(title)}-${exportTimestamp(new Date())}.json`);
-  showBubble("dataExported", anchor, { hideCompanionAfter: true });
+  exportWorkspaceId.value = null;
+  showBubble("dataExported", exportAnchor.value, { hideCompanionAfter: true });
 }
 
 function exportCurrentWorkspace(anchor?: HTMLElement): void {
@@ -4227,6 +4254,16 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @close="changelogVisible = false"
       @update="applyChangelogUpdate"
     />
+    <NModal :show="exportWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
+      <p>{{ uiText.app.exportChooseZones }}</p>
+      <div style="display: flex; flex-direction: column; gap: 12px; margin: 16px 0;">
+        <NCheckbox v-for="zone in exportZoneKeys" :key="zone" :checked="exportZones.includes(zone)" :data-testid="`export-zone-${zone}`" @update:checked="(checked: boolean) => { exportZones = checked ? [...exportZones, zone] : exportZones.filter((item) => item !== zone); }">{{ uiText.app.exportZoneNames[zone] }}</NCheckbox>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 8px;">
+        <NButton @click="exportWorkspaceId = null">{{ uiText.common.cancel }}</NButton>
+        <NButton type="primary" data-testid="confirm-workspace-export" :disabled="exportZones.length === 0" @click="confirmWorkspaceExport">{{ uiText.common.confirm }}</NButton>
+      </div>
+    </NModal>
     <NModal
       v-model:show="workspaceDialogVisible"
       preset="card"

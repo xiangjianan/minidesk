@@ -7230,6 +7230,8 @@ describe("App shell", () => {
       const settings = wrapper.getComponent(SettingsMenu);
       settings.vm.$emit("exportWorkspace", settings.element as HTMLElement);
       await wrapper.vm.$nextTick();
+      (document.querySelector('[data-testid="confirm-workspace-export"]') as HTMLElement).click();
+      await wrapper.vm.$nextTick();
 
       expect(createObjectURL).toHaveBeenCalled();
       expect(wrapper.find(".focus-companion.is-visible img").exists()).toBe(true);
@@ -7448,6 +7450,39 @@ describe("App shell", () => {
     }
   });
 
+  it("requires an area and exports only the selected area", async () => {
+    let blob: Blob | undefined;
+    Object.assign(URL, { createObjectURL: vi.fn((value: Blob) => { blob = value; return "blob:export"; }), revokeObjectURL: vi.fn() });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const source = defaultState();
+    source.workspaces[0].spaces[0].lines = [{ text: "private note", indent: 0 }];
+    source.workspaces[0].quickButtons = [{ id: "q", title: "private action", type: "text", value: "secret", hidden: false }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(source));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(SettingsMenu).vm.$emit("exportWorkspace");
+      await wrapper.vm.$nextTick();
+      for (const zone of ["assets", "notes", "tasks", "workspace"]) {
+        (document.querySelector(`[data-testid="export-zone-${zone}"]`) as HTMLInputElement).click();
+        await wrapper.vm.$nextTick();
+      }
+      const confirm = document.querySelector('[data-testid="confirm-workspace-export"]') as HTMLButtonElement;
+      expect(confirm.disabled).toBe(true);
+      (document.querySelector('[data-testid="export-zone-assets"]') as HTMLInputElement).click();
+      await wrapper.vm.$nextTick();
+      expect(confirm.disabled).toBe(false);
+      confirm.click();
+      await wrapper.vm.$nextTick();
+      expect(blob).toBeDefined();
+      const exported = await blob!.text();
+      expect(exported).not.toContain("private note");
+      expect(exported).not.toContain("private action");
+      expect(JSON.parse(exported).workspace.quickButtons).toEqual([]);
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
   it("exports through a generated browser download without requesting file-system access", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 9, 29, 0, 4, 5));
@@ -7472,6 +7507,9 @@ describe("App shell", () => {
       localStorage.setItem(`mini-desk-workbench-widths:${DEFAULT_WORKSPACE_ID}`, JSON.stringify([100, 200, 300, 400]));
       const settings = wrapper.getComponent(SettingsMenu);
       settings.vm.$emit("exportWorkspace", settings.element as HTMLElement);
+      await wrapper.vm.$nextTick();
+      expect(createObjectURL).not.toHaveBeenCalled();
+      (document.querySelector('[data-testid="confirm-workspace-export"]') as HTMLElement).click();
       await wrapper.vm.$nextTick();
 
       expect(showSaveFilePicker).not.toHaveBeenCalled();
