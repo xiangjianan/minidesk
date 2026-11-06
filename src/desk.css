@@ -1125,6 +1125,7 @@ html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-c
 }
 .quick-list-colors { display: flex; flex-wrap: wrap; align-items: center; gap: 28px 8px; padding: 0 0 22px; border: 0; margin: 0; }
 .quick-list-colors legend { margin-bottom: 8px; }
+.quick-list-dialog .dialog-actions { justify-content: flex-end; }
 .quick-list-colors .quick-color-swatch, .quick-list-colors .quick-color-none { width: 28px; height: 28px; min-width: 28px; padding: 0; border: 1px solid var(--line-subtle); border-radius: 50%; }
 .quick-list-colors .selected { outline: 2px solid var(--text); outline-offset: 2px; }
 .quick-color-custom { position: relative; display: inline-flex; align-items: center; height: 28px; }
