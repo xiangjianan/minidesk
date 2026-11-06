@@ -612,6 +612,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   background-clip: text;
   animation: starred-text-flow 4.8s linear infinite;
 }
+.workbench-shell .desk-smart-paste { user-select: none; -webkit-user-select: none; }
 .workbench-shell .desk-smart-paste:disabled { cursor: wait; opacity: 0.6; }
 .workbench-shell .desk-ai-button:disabled { cursor: wait; opacity: 0.6; }
 @media (prefers-reduced-motion: reduce) {
