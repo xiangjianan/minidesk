@@ -826,6 +826,16 @@ function finishSpaceEdit(id: string): void {
   if (pendingEditSpaceId.value === id) pendingEditSpaceId.value = null;
 }
 
+function showDeleteUndo(message: string, anchor: HTMLElement | undefined, restore: () => void, cleanup?: () => void): void {
+  let restored = false;
+  showBubbleText(message, anchor, {
+    keepPosition: true, force: true, hideCompanionAfter: true,
+    actionText: uiText.value.imageEditor.undo,
+    onAction: () => { restore(); restored = true; },
+    onDismiss: () => { if (!restored) cleanup?.(); },
+  });
+}
+
 function deleteSpace(id: string): void {
   if (activeWorkspace.value.spaces.length <= 1) {
     showBubbleText(uiText.value.app.keepOneSpace);
@@ -835,6 +845,9 @@ function deleteSpace(id: string): void {
   requestConfirmation("confirmDeleteSpace", anchor, () => {
     const index = activeWorkspace.value.spaces.findIndex((space) => space.id === id);
     if (index < 0 || activeWorkspace.value.spaces.length <= 1) return;
+    const workspaceId = activeWorkspace.value.id;
+    const removedSpace = JSON.parse(JSON.stringify(activeWorkspace.value.spaces[index]));
+    const wasActive = activeWorkspace.value.activeSpaceId === id;
     activeWorkspace.value.spaces.splice(index, 1);
     if (activeWorkspace.value.activeSpaceId === id) {
       activeWorkspace.value.activeSpaceId = activeWorkspace.value.spaces[Math.max(0, index - 1)]?.id ?? activeWorkspace.value.spaces[0].id;
@@ -843,11 +856,19 @@ function deleteSpace(id: string): void {
     const removedInbox = activeWorkspace.value.inbox;
     if (removedInbox && removedInbox.noteTarget === id) {
       delete activeWorkspace.value.inbox;
-      void revokeInbox(removedInbox.code);
+
     }
     syncLegacySpaceLines();
     persistNow();
-    showBubble("deleteSpace", anchor, { hideCompanionAfter: true });
+    showDeleteUndo(getMessage("deleteSpace", Math.random, state.language), anchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace || workspace.spaces.some((item) => item.id === id)) return;
+      workspace.spaces.splice(Math.min(index, workspace.spaces.length), 0, removedSpace);
+      if (wasActive && state.activeWorkspaceId === workspaceId) workspace.activeSpaceId = id;
+      if (removedInbox?.noteTarget === id && !workspace.inbox) workspace.inbox = removedInbox;
+      if (state.activeWorkspaceId === workspaceId) syncLegacySpaceLines();
+      persistNow();
+    }, () => { if (removedInbox?.noteTarget === id) void revokeInbox(removedInbox.code); });
   }, undefined, { confirmText: uiText.value.app.deleteSpace, cancelText: uiText.value.common.cancel, highlightTarget: getSpaceGroupTargets(id) });
 }
 
@@ -1217,7 +1238,10 @@ function deleteWorkspace(id: string, anchor?: HTMLElement): void {
     async () => {
       // 整区删除连坐配对：被删工作区的配对码随区消失，云端队列同步注销（失败仅气泡警告）。
       const doomedWorkspace = state.workspaces.find((workspace) => workspace.id === id);
-      const doomedInboxCode = doomedWorkspace?.inbox?.code;
+      if (!doomedWorkspace) return;
+      const workspaceIndex = state.workspaces.findIndex((workspace) => workspace.id === id);
+      const removedWorkspace = JSON.parse(JSON.stringify(doomedWorkspace));
+      const doomedInboxCode = doomedWorkspace.inbox?.code;
       const doomedPayloadIds = new Set([
         ...(doomedWorkspace?.images ?? []).map((image) => getImagePayloadId(image)),
         ...Object.values(doomedWorkspace?.todos ?? {}).flatMap((todos) => collectTodoFocusPayloadIds(todos)),
@@ -1235,13 +1259,18 @@ function deleteWorkspace(id: string, anchor?: HTMLElement): void {
       pendingEditTodoListId.value = null;
       clearImagePreview();
       persistNow();
-      if (doomedInboxCode !== undefined) void revokeInbox(doomedInboxCode);
       // 整区删除连坐本地存储：该工作区独占的四区宽度键即刻清理；图片负载
       // 沿用单图删除的 5 秒宽限（期间可被撤销/重导入保住），到期未被任何
       // 工作区引用即从 IndexedDB 清除，不占配额。
-      removeWorkbenchWidths(id);
-      doomedPayloadIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId));
-      showBubble("deleteWorkspace", anchor, { hideCompanionAfter: true });
+      showDeleteUndo(getMessage("deleteWorkspace", Math.random, state.language), anchor, () => {
+        if (state.workspaces.some((workspace) => workspace.id === id)) return;
+        state.workspaces.splice(Math.min(workspaceIndex, state.workspaces.length), 0, removedWorkspace);
+        persistNow();
+      }, () => {
+        if (doomedInboxCode !== undefined) void revokeInbox(doomedInboxCode);
+        removeWorkbenchWidths(id);
+        doomedPayloadIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId));
+      });
     },
     undefined,
     { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, danger: true },
@@ -1884,7 +1913,8 @@ function deleteImage(id: string, anchor?: HTMLElement): void {
   requestConfirmation("confirmDeleteImage", anchor, async () => {
     const index = activeWorkspace.value.images.findIndex((image) => image.id === id);
     if (index < 0) return;
-    const deletedImage = activeWorkspace.value.images[index];
+    const workspaceId = activeWorkspace.value.id;
+    const deletedImage = JSON.parse(JSON.stringify(activeWorkspace.value.images[index]));
     const nextPreviewImage = activeWorkspace.value.images[index + 1] ?? activeWorkspace.value.images[index - 1];
     activeWorkspace.value.images = activeWorkspace.value.images.filter((image) => image.id !== id);
     if (activePreviewId.value === id) {
@@ -1901,8 +1931,12 @@ function deleteImage(id: string, anchor?: HTMLElement): void {
       clearImagePreview();
     }
     persistNow();
-    scheduleImagePayloadDeletion(getImagePayloadId(deletedImage));
-    showBubble("deleteImage", feedbackAnchor, { hideCompanionAfter: true });
+    showDeleteUndo(getMessage("deleteImage", Math.random, state.language), feedbackAnchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace || workspace.images.some((item) => item.id === id)) return;
+      workspace.images.splice(Math.min(index, workspace.images.length), 0, deletedImage);
+      persistNow();
+    }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)));
   }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel });
 }
 
@@ -1912,9 +1946,23 @@ function deleteFocusImage(id: string, anchor?: HTMLElement): void {
     const session = focusSession.value;
     const todo = focusTodo.value;
     if (!session || !todo) return;
-    const deleted = todo.focusImages?.find((item) => item.id === id);
-    replaceFocusImages({ period: session.period, id: session.id }, (list) => list.filter((item) => item.id !== id));
-    if (deleted) scheduleImagePayloadDeletion(getImagePayloadId(deleted));
+    const index = (todo.focusImages ?? []).findIndex((item) => item.id === id);
+    if (index < 0) return;
+    const deleted = JSON.parse(JSON.stringify(todo.focusImages![index]));
+    const workspaceId = activeWorkspace.value.id;
+    const period = session.period;
+    const todoId = session.id;
+    replaceFocusImages({ period, id: todoId }, (list) => list.filter((item) => item.id !== id));
+    showDeleteUndo(getMessage("deleteImage", Math.random, state.language), anchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      const target = workspace?.todos[period]?.find((item) => item.id === todoId);
+      if (!target) return;
+      const images = target.focusImages ?? [];
+      if (images.some((item) => item.id === id)) return;
+      images.splice(Math.min(index, images.length), 0, deleted);
+      target.focusImages = images;
+      persistNow();
+    }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)));
   }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, danger: true });
 }
 
@@ -2222,10 +2270,21 @@ function deleteQuickTagWithButtons(id: string, anchor?: HTMLElement): void {
   if (!tag) return;
   requestConfirmation("confirmDeleteQuickTagWithButtons", anchor, () => {
     if (activeWorkspace.value.quickTags.length <= 1) return;
+    const workspaceId = activeWorkspace.value.id;
+    const tagIndex = activeWorkspace.value.quickTags.findIndex((item) => item.id === id);
+    if (tagIndex < 0) return;
+    const removedTag = JSON.parse(JSON.stringify(activeWorkspace.value.quickTags[tagIndex]));
+    const removedButtons = activeWorkspace.value.quickButtons.map((item, index) => ({ item: JSON.parse(JSON.stringify(item)), index })).filter(({ item }) => item.tagId === id);
     activeWorkspace.value.quickTags = activeWorkspace.value.quickTags.filter((item) => item.id !== id);
     activeWorkspace.value.quickButtons = activeWorkspace.value.quickButtons.filter((button) => button.tagId !== id);
     persistNow();
-    showBubble("deleteQuickTagWithButtons", anchor, { hideCompanionAfter: true });
+    showDeleteUndo(getMessage("deleteQuickTagWithButtons", Math.random, state.language), anchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace || workspace.quickTags.some((item) => item.id === id)) return;
+      workspace.quickTags.splice(Math.min(tagIndex, workspace.quickTags.length), 0, removedTag);
+      for (const { item, index } of removedButtons) if (!workspace.quickButtons.some((button) => button.id === item.id)) workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, item);
+      persistNow();
+    });
   }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, highlightTarget: getQuickTagGroupTargets(id, anchor) });
 }
 
@@ -2272,9 +2331,16 @@ function deleteQuick(id: string, anchor?: HTMLElement): void {
   requestConfirmation("confirmDeleteQuick", anchor, () => {
     const index = activeWorkspace.value.quickButtons.findIndex((button) => button.id === id);
     if (index < 0) return;
+    const workspaceId = activeWorkspace.value.id;
+    const removed = JSON.parse(JSON.stringify(activeWorkspace.value.quickButtons[index]));
     activeWorkspace.value.quickButtons = activeWorkspace.value.quickButtons.filter((button) => button.id !== id);
     persistNow();
-    showBubble("deleteQuick", anchor, { hideCompanionAfter: true });
+    showDeleteUndo(getMessage("deleteQuick", Math.random, state.language), anchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace || workspace.quickButtons.some((button) => button.id === id)) return;
+      workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, removed);
+      persistNow();
+    });
   }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel });
 }
 
@@ -2706,6 +2772,10 @@ function removeTodoList(listId: TodoListId, anchor?: HTMLElement): void {
   const index = activeWorkspace.value.todoLists.findIndex((list) => list.id === listId);
   if (index < 0 || activeWorkspace.value.todoLists.length <= 1) return;
   // 列删除连坐：整列 todo 的 focusImages 载荷随列表一起进宽限删除队列。
+  const workspaceId = activeWorkspace.value.id;
+  const removedList = JSON.parse(JSON.stringify(activeWorkspace.value.todoLists[index]));
+  const removedTodos = JSON.parse(JSON.stringify(getTodos(listId)));
+  const completedVisible = activeWorkspace.value.showCompletedTodos[listId];
   const doomedFocusIds = collectTodoFocusPayloadIds(getTodos(listId) ?? []);
   activeWorkspace.value.todoLists.splice(index, 1);
   const next = removeTodoListData(activeWorkspace.value.todos, activeWorkspace.value.showCompletedTodos, listId);
@@ -2714,8 +2784,15 @@ function removeTodoList(listId: TodoListId, anchor?: HTMLElement): void {
   clearEmptyTodoRemovalTimersForList(listId);
   if (pendingEditTodoListId.value === listId) pendingEditTodoListId.value = null;
   persistNow();
-  doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId));
-  showBubbleText(uiText.value.app.todoListDeleted, anchor, { hideCompanionAfter: true });
+  showDeleteUndo(uiText.value.app.todoListDeleted, anchor, () => {
+    const workspace = state.workspaces.find((item) => item.id === workspaceId);
+    if (!workspace || workspace.todoLists.some((item) => item.id === listId)) return;
+    workspace.todoLists.splice(Math.min(index, workspace.todoLists.length), 0, removedList);
+    workspace.todos[listId] = removedTodos;
+    if (completedVisible !== undefined) workspace.showCompletedTodos[listId] = completedVisible;
+    persistNow();
+    scheduleNextTodoNotification();
+  }, () => doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId)));
 }
 
 function updateTodoMaxColumns(count: number): void {

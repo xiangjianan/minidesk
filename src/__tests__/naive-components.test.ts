@@ -96,7 +96,7 @@ describe("Naive UI component usage", () => {
     expect(companion).not.toContain("content-class=\"companion-popover-shell\"");
     expect(companion).not.toContain("border: '1px solid #111'");
     expect(companion).not.toContain("bubble-box");
-    expect(companion).not.toContain("<button");
+    expect(companion).toContain("companion-undo-button");
     expect(settings).not.toContain('type="file"');
   });
 

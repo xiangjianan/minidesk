@@ -3830,7 +3830,7 @@ describe("App shell", () => {
     }
   });
 
-  it("confirms image deletion with semantic labels and no undo", async () => {
+  it("confirms image deletion and restores it with undo", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -3859,7 +3859,9 @@ describe("App shell", () => {
 
       expect((wrapper.getComponent(ImagePanel).props("images") as Array<{ id: string }>)).toHaveLength(0);
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/图片已删除/);
-      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
+      await wrapper.get('[data-testid="companion-action"]').trigger("click");
+      expect((wrapper.getComponent(ImagePanel).props("images") as Array<{ id: string }>).map((item) => item.id)).toContain("img-1");
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -4070,7 +4072,7 @@ describe("App shell", () => {
     }
   });
 
-  it("places image deletion feedback at the screen corner after deleting an image card", async () => {
+  it("keeps image deletion feedback at the confirmation position", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -4106,9 +4108,9 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      // 确认后的删除成功提示也是普通气泡：落屏幕右下角（CSS 默认定位，无内联样式）。
+      // 删除反馈保留确认框的位置。
       const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      expect(style).toBeUndefined();
+      expect(style).toContain("right:");
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -4172,7 +4174,7 @@ describe("App shell", () => {
     }
   });
 
-  it("anchors image deletion feedback to the screenshot list after deleting from preview", async () => {
+  it("keeps image deletion feedback at the preview confirmation position", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -4224,16 +4226,16 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      // 删除反馈是普通提示消息：固定屏幕右下角，不再锚定截图列表区域。
+      // 删除反馈保留确认框的位置。
       const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      expect(style).toBeUndefined();
+      expect(style).toContain("right:");
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
     }
   });
 
-  it("confirms quick button deletion with semantic labels and no undo", async () => {
+  it("confirms quick button deletion and restores it with undo", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -4261,7 +4263,9 @@ describe("App shell", () => {
 
       expect((wrapper.getComponent(QuickButtons).props("buttons") as Array<{ id: string }>)).toHaveLength(0);
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/快捷按钮已删除/);
-      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
+      await wrapper.get('[data-testid="companion-action"]').trigger("click");
+      expect((wrapper.getComponent(QuickButtons).props("buttons") as Array<{ id: string }>).map((item) => item.id)).toContain("quick-1");
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -6359,7 +6363,7 @@ describe("App shell", () => {
       expect(deleteSpy).not.toHaveBeenCalled();
 
       // Once the grace window elapses without an undo, the payload is reclaimed.
-      await vi.advanceTimersByTimeAsync(1500);
+      await vi.advanceTimersByTimeAsync(4500);
       expect(deleteSpy).toHaveBeenCalledWith("img-del");
     } finally {
       wrapper.unmount();
@@ -10076,6 +10080,7 @@ describe("App inbox revoke wiring", () => {
 
   it("删除配对便签落点的空间时清空配对并注销旧码", async () => {
     seedPairedWithNoteTarget();
+    vi.useFakeTimers();
     const wrapper = mountApp();
 
     try {
@@ -10092,11 +10097,15 @@ describe("App inbox revoke wiring", () => {
       const workspace = stored.workspaces[0];
       expect(workspace.spaces.map((space: { id: string }) => space.id)).toEqual([DEFAULT_SPACE_ID]);
       expect(workspace.inbox).toBeUndefined();
+      expect(revokeInboxKey).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(3000);
+      await flushAsyncComponents();
       expect(revokeInboxKey).toHaveBeenCalledTimes(1);
       const [keyHash] = vi.mocked(revokeInboxKey).mock.calls[0];
       expect(keyHash).toMatch(/^[0-9a-f]{64}$/);
     } finally {
       wrapper.unmount();
+      vi.useRealTimers();
     }
   });
 
@@ -10125,6 +10134,7 @@ describe("App inbox revoke wiring", () => {
 
   it("删除配对工作区时注销其配对码", async () => {
     seedPairedWorkspaces();
+    vi.useFakeTimers();
     const wrapper = mountApp();
 
     try {
@@ -10140,11 +10150,15 @@ describe("App inbox revoke wiring", () => {
 
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       expect(stored.workspaces.map((workspace: { id: string }) => workspace.id)).toEqual(["backup"]);
+      expect(revokeInboxKey).not.toHaveBeenCalled();
+      await vi.advanceTimersByTimeAsync(3000);
+      await flushAsyncComponents();
       expect(revokeInboxKey).toHaveBeenCalledTimes(1);
       const [keyHash] = vi.mocked(revokeInboxKey).mock.calls[0];
       expect(keyHash).toMatch(/^[0-9a-f]{64}$/);
     } finally {
       wrapper.unmount();
+      vi.useRealTimers();
     }
   });
 
@@ -10200,13 +10214,14 @@ describe("App inbox revoke wiring", () => {
       expect(event.defaultPrevented).toBe(true);
 
       // 宽度键：被删工作区独占的键即刻清理，旧共享键保留（其余空间的初始种子）。
-      expect(localStorage.getItem("mini-desk-workbench-widths:default")).toBeNull();
+      expect(localStorage.getItem("mini-desk-workbench-widths:default")).not.toBeNull();
       expect(localStorage.getItem("mini-desk-workbench-widths")).toBe(JSON.stringify([111, 222, 333, 444]));
 
       // 图片负载：沿用单图删除的 5 秒宽限，到期未被引用即从 IndexedDB 回收。
       await vi.advanceTimersByTimeAsync(4000);
       expect(deleteSpy).not.toHaveBeenCalled();
-      await vi.advanceTimersByTimeAsync(1500);
+      await vi.advanceTimersByTimeAsync(4500);
+      expect(localStorage.getItem("mini-desk-workbench-widths:default")).toBeNull();
       expect(deleteSpy).toHaveBeenCalledWith("img-a");
     } finally {
       wrapper.unmount();
