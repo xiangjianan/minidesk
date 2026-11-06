@@ -33,15 +33,7 @@ The code commit is pushed to `main` first; the release commit is created only af
        - Pick the prefix from the dominant change. When several types are mixed, prefer the most significant (`feat:` / `fix:` over `chore:`).
        - Real examples from this repo: `fix: 移动端主题按钮去除点击 focus 蓝色背景`, `perf: 添加首屏 loading 骨架消除白屏`, `feat: 提醒事项列宽超过阈值自动分多列`.
        - **Do not** use the `release <version>` message here — that is reserved for step 6.
-     - **Append the changelog entry (before committing):** determine this release's target version now — patch+1 unless the user specified a version; step 4 must reuse the same value. **Curation policy — only significant, user-facing updates belong in the changelog**: new features, and major changes/optimizations users will clearly notice. Do NOT record tiny changes (small style tweaks, minor fixes). If this release contains only trivial changes, do NOT add a new entry — instead bump the existing top entry's `version` (and `date`) to the target version so the changelog's newest version always matches the released app version (`src/__tests__/changelog.test.ts` enforces this). Otherwise insert a new entry at the **top** of `CHANGELOG` in `src/state/changelog.ts`:
-       ```ts
-       {
-         version: "<target version>",
-         date: "<today, YYYY-MM-DD>",
-         notes: { zh: ["…"], en: ["…"] },
-       },
-       ```
-       Prefix every note with its change type: `新增：`, `优化：`, `修复：` or another accurate category, with matching English prefixes such as `New:`, `Improved:`, and `Fixed:`. Write concise, bulleted notes (both zh and en) derived from this release's actual diff — same source as the commit message, but expanded into one bullet per significant user-facing change. Stage `src/state/changelog.ts` together with the other code changes in this same commit. If (and only if) the working tree was completely clean and no code commit is made, skip this append as well.
+     - Determine the target version now (patch+1 unless specified) and prepare concise GitHub release notes from significant user-facing changes. Prefix entries with `新增：`, `优化：`, `修复：` or another accurate category, and match them with English `New:`, `Improved:`, `Fixed:`, etc. Do not create an in-app release history.
      - Stage intended source and metadata changes only. Do not stage `dist/`, release zips, or other build artifacts.
      - Commit with the generated message.
    - If the working tree is clean (no pending changes), skip this step and go straight to step 4.
@@ -55,7 +47,7 @@ The code commit is pushed to `main` first; the release commit is created only af
 
 4. Bump the version in all three places it is hardcoded.
    - Read the current version.
-   - Use the target version already determined in step 2. If step 2 produced no target version (clean tree, version-only release), use patch+1 unless the user specified a version — and bump the changelog top entry's version to match.
+   - Use the target version already determined in step 2. If step 2 produced no target version (clean tree, version-only release), use patch+1 unless the user specified a version.
    - Use `npm version <version> --no-git-tag-version` (updates `package.json` and `package-lock.json`).
    - Also update the same version string in:
      - `index.html` → `<meta name="app-version" content="<version>" />`
@@ -106,7 +98,7 @@ npx wrangler pages deploy dist --project-name=todolist
    - Tag format: `v<version>`, for example `v1.0.52`.
    - Use the release commit that was pushed to `main` in step 6.
    - Attach `dist-<version>.zip`.
-   - Write meaningful release notes from the same curated changes, using the same change-type prefixes as the in-app history. Include Chinese and English; do not use a generic version-only description.
+   - Write meaningful release notes from the same curated changes, using the change-type prefixes above. Include Chinese and English; do not use a generic version-only description.
    - Prefer `gh` when available:
 
 ```bash

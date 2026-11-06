@@ -110,7 +110,6 @@ import type { AppLanguage, BoardState, CompanionGifTheme, DraggedTodo, GuideKey,
 const ImagePreview = defineAsyncComponent(() => import("./components/ImagePreview.vue"));
 const ShortcutHelp = defineAsyncComponent(() => import("./components/ShortcutHelp.vue"));
 const SupportAuthor = defineAsyncComponent(() => import("./components/SupportAuthor.vue"));
-const VersionHistory = defineAsyncComponent(() => import("./components/VersionHistory.vue"));
 // 配对弹窗含 qrcode 依赖，异步加载避免二维码库进主包；v-if + :key 用法与同步组件一致。
 const WorkspaceInboxDialog = defineAsyncComponent(() => import("./components/WorkspaceInboxDialog.vue"));
 
@@ -327,7 +326,8 @@ const emptyTodoRemovalTimers = new Map<string, number>();
 const pendingImagePayloadDeletions = new Map<string, number>();
 const shortcutHelpVisible = ref(false);
 const supportDialogVisible = ref(false);
-const changelogVisible = ref(false);
+const updateCheckVisible = ref(false);
+const updateCheckStatus = ref<"checking" | "current" | "available" | "failed">("checking");
 const isMobileBlocked = ref(getInitialMobileBlocked());
 // URL 带 #inbox=<12位码> 时优先；否则回退手机壳本地记忆（主屏图标/微信入口丢 fragment 的场景）。
 const mobileInboxCode = ref<string | null>(parseInboxFragment(window.location.hash) ?? loadRememberedInboxCode());
@@ -3801,10 +3801,11 @@ function invalidateGuideCompanion(nextKey: GuideKey): void {
   hideCompanion();
 }
 
-// "Update now" from the changelog modal — close it, then run the same cache-clear + reload.
-async function applyChangelogUpdate(): Promise<void> {
-  changelogVisible.value = false;
-  await updateStaticVersion();
+async function manualCheckUpdate(): Promise<void> {
+  updateCheckVisible.value = true;
+  updateCheckStatus.value = "checking";
+  const latest = await checkLatestAppVersion();
+  updateCheckStatus.value = versionPromptVisible.value ? "available" : latest ? "current" : "failed";
 }
 
 function getImageUndoAnchor(anchor?: HTMLElement): HTMLElement | undefined {
@@ -4003,7 +4004,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @suggest="suggestIssue"
           @support="supportDialogVisible = true"
           @shortcut-help="shortcutHelpVisible = true"
-          @changelog="changelogVisible = true"
+          @check-update="manualCheckUpdate"
           @language="updateLanguage"
           @theme="(theme) => { state.theme = theme; hideCompanion(); }"
           @toggle-zone="toggleActiveWorkspaceZone"
@@ -4260,15 +4261,18 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
-    <VersionHistory
-      :show="changelogVisible"
-      :language="state.language"
-      :update-available="versionPromptVisible"
-      :available-version="availableAppVersion"
-      :current-version="appVersion"
-      @close="changelogVisible = false"
-      @update="applyChangelogUpdate"
-    />
+    <NModal :show="updateCheckVisible" preset="card" class="update-check-modal" :title="uiText.updateCheck.title" style="width: min(400px, calc(100vw - 32px))" @update:show="(show: boolean) => { updateCheckVisible = show; }">
+      <p data-testid="update-check-status" role="status">{{
+        updateCheckStatus === "checking" ? uiText.updateCheck.checking :
+        updateCheckStatus === "current" ? uiText.updateCheck.current :
+        updateCheckStatus === "failed" ? uiText.updateCheck.failed :
+        availableAppVersion !== appVersion ? uiText.updateCheck.available.replace("{version}", availableAppVersion) : uiText.updateCheck.ready
+      }}</p>
+      <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;">
+        <NButton v-if="updateCheckStatus !== 'checking'" data-testid="update-check-retry" @click="manualCheckUpdate">{{ uiText.updateCheck.retry }}</NButton>
+        <NButton v-if="updateCheckStatus === 'available'" type="primary" data-testid="update-check-apply" @click="updateStaticVersion">{{ uiText.updateCheck.update }}</NButton>
+      </div>
+    </NModal>
     <NModal :show="importConflict !== null" preset="card" class="workspace-dialog-modal" :title="uiText.app.importConflictTitle" style="max-width: 440px; width: calc(100vw - 32px)" :mask-closable="false" @update:show="(show: boolean) => { if (!show) { importConflict?.cancel(); importConflict = null; } }">
       <template v-if="importConflict && importPreview">
         <p>{{ uiText.app.importConflictDescription }}</p>

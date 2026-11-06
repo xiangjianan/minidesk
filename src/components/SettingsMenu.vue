@@ -55,7 +55,7 @@ const emit = defineEmits<{
   suggest: [anchor?: HTMLElement];
   support: [anchor?: HTMLElement];
   shortcutHelp: [];
-  changelog: [];
+  checkUpdate: [];
   language: [language: AppLanguage, anchor?: HTMLElement];
   theme: [theme: ThemeMode];
   toggleZone: [zone: ZoneKey];
@@ -157,6 +157,7 @@ const options = computed(() => [
     label: () =>
       h("span", { class: "settings-version-item", "data-testid": "settings-version" }, [
         h("span", `v${props.appVersion}`),
+        h("span", { class: "settings-version-check" }, text.value.settings.checkUpdate),
         props.updateAvailable
           ? h("span", { class: "settings-version-badge" }, text.value.settings.updateAvailable)
           : null,
@@ -181,7 +182,7 @@ function handleSelect(key: string): void {
     return;
   }
   if (key === "version") {
-    emit("changelog");
+    emit("checkUpdate");
     return;
   }
   if (key.startsWith("language:")) {

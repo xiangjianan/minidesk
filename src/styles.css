@@ -3319,6 +3319,11 @@ button.todo-section-menu-button {
   min-width: 112px;
 }
 
+.settings-version-check {
+  color: var(--muted);
+  font-size: calc(var(--app-font-size) - 2px);
+}
+
 .settings-version-badge {
   padding: 1px 8px;
   border-radius: 999px;
@@ -3394,7 +3399,7 @@ body:has(.image-preview) .shortcut-help-modal.n-card {
 
 
 body:has(.image-preview) .n-modal-container:has(.shortcut-help-modal),
-body:has(.image-preview) .n-modal-container:has(.version-history-modal) {
+body:has(.image-preview) .n-modal-container:has(.update-check-modal) {
   z-index: 10100 !important;
 }
 
@@ -3409,29 +3414,23 @@ html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.shortcu
   background: rgba(0, 0, 0, 0.32) !important;
 }
 
-body:has(.image-preview) .n-modal-container:has(.version-history-modal) .n-modal-mask {
+body:has(.image-preview) .n-modal-container:has(.update-check-modal) .n-modal-mask {
   pointer-events: auto;
   background: rgba(15, 23, 42, 0.16) !important;
   -webkit-backdrop-filter: blur(6px) saturate(1.2);
   backdrop-filter: blur(6px) saturate(1.2);
 }
 
-html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.version-history-modal) .n-modal-mask {
+html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.update-check-modal) .n-modal-mask {
   background: rgba(0, 0, 0, 0.32) !important;
 }
 
-body:has(.image-preview) .version-history-modal.n-card {
+body:has(.image-preview) .update-check-modal.n-card {
   position: relative;
   z-index: 4310;
   pointer-events: auto;
   -webkit-user-select: text;
   user-select: text;
-}
-
-body:has(.image-preview) .version-history-modal .n-scrollbar-container,
-body:has(.image-preview) .version-history-modal .n-scrollbar-content,
-body:has(.image-preview) .version-history-modal .n-scrollbar {
-  pointer-events: auto;
 }
 
 /* The workspace create/rename dialog can be opened from the left switcher while
@@ -4200,131 +4199,6 @@ button.mobile-home-btn-danger:focus-visible:where(:not([data-pointer-focus])) {
   display: grid;
   gap: 10px;
   padding: 14px 16px 18px;
-}
-
-.version-history-modal {
-  width: min(560px, calc(100vw - 32px)) !important;
-  max-width: 560px !important;
-  margin: 0 auto;
-}
-
-.version-history-modal .n-card__content {
-  padding: 0 !important;
-}
-
-.version-history-content {
-  max-height: min(68vh, 680px);
-}
-
-.version-history-inner {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 16px 18px;
-}
-
-.version-history-status {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 2px 0 4px;
-  font-size: var(--app-font-size);
-}
-
-.version-history-status-current,
-.version-history-status-arrow {
-  color: var(--muted);
-}
-
-.version-history-status-latest {
-  color: var(--danger);
-  font-weight: 600;
-}
-
-.version-history-update {
-  align-self: flex-start;
-  margin: 2px 0 8px;
-  padding: 6px 14px;
-  border: 0;
-  border-radius: var(--radius);
-  background: var(--danger);
-  color: #fff;
-  font-size: var(--app-font-size);
-  line-height: 1.4;
-  cursor: pointer;
-  transition: opacity 0.18s ease;
-}
-
-.version-history-update:hover {
-  opacity: 0.88;
-}
-
-.version-history-list {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.version-history-entry {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--line-main);
-}
-
-.version-history-list .version-history-entry:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
-}
-
-.version-history-entry-head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.version-history-version {
-  font-weight: 600;
-  font-size: calc(var(--app-font-size) + 1px);
-  color: var(--text);
-}
-
-.version-history-badge {
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--danger) 16%, transparent);
-  color: var(--danger);
-  font-size: calc(var(--app-font-size) - 3px);
-  line-height: 1.5;
-}
-
-.version-history-date {
-  margin-left: auto;
-  color: var(--muted);
-  font-size: calc(var(--app-font-size) - 2px);
-}
-
-.version-history-notes {
-  margin: 0;
-  padding-left: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: var(--text);
-  font-size: var(--app-font-size);
-  line-height: 1.55;
-}
-
-.version-history-notes li {
-  padding-left: 2px;
-}
-
-.version-history-notes li::marker {
-  color: var(--muted);
 }
 
 .shortcut-keyboard-overview,
@@ -7347,7 +7221,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 }
 
 /* naive-ui 2.44 的内容类名是 .n-card-content（连字符；.n-card__content 是
-   旧版类名，同文件 shortcut-help/version-history 处的旧选择器已不命中）。 */
+   旧版类名，同文件 shortcut-help 处的旧选择器已不命中）。 */
 .focus-now-modal .n-card-content {
   padding: 0 !important;
 }

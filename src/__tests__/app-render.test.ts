@@ -9028,6 +9028,30 @@ describe("App shell", () => {
     }
   });
 
+  it.each([
+    { latest: FALLBACK_APP_VERSION, expected: "当前已是最新版本", update: false },
+    { latest: "99.0.0", expected: "发现新版本 v99.0.0", update: true },
+    { latest: null, expected: "检查失败，请检查网络后重试", update: false },
+  ])("manually checks updates and reports $expected", async ({ latest, expected, update }) => {
+    const response = (version: string) => ({ ok: true, text: async () => `<meta name="app-version" content="${version}">` });
+    const fetchMock = vi.fn().mockResolvedValue(response(FALLBACK_APP_VERSION));
+    vi.stubGlobal("fetch", fetchMock);
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      fetchMock.mockResolvedValueOnce(latest ? response(latest) : { ok: false });
+      wrapper.getComponent(SettingsMenu).vm.$emit("checkUpdate");
+      await flushPromises();
+      expect(wrapper.get('[data-testid="update-check-status"]').text()).toBe(expected);
+      expect(wrapper.find('[data-testid="update-check-apply"]').exists()).toBe(update);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      if (update) expect(wrapper.getComponent(SettingsMenu).props("updateAvailable")).toBe(true);
+    } finally {
+      wrapper.unmount();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("does not check for deployed versions when the window regains focus or the page becomes visible", async () => {
     vi.useFakeTimers();
     const fetchMock = vi.fn().mockResolvedValue({

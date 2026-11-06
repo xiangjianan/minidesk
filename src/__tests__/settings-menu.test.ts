@@ -255,7 +255,7 @@ describe("SettingsMenu", () => {
     expect(wrapper.emitted("suggest")?.[0]).toEqual([expect.any(HTMLElement)]);
   });
 
-  it("点击版本号打开更新记录（无更新时也可点）", async () => {
+  it("点击版本号检查更新（无更新时也可点）", async () => {
     const wrapper = mount(SettingsMenu, {
       props: {
         appVersion: "1.0.11",
@@ -279,10 +279,10 @@ describe("SettingsMenu", () => {
 
     await wrapper.find('[data-key="version"]').trigger("click");
 
-    expect(wrapper.emitted("changelog")).toHaveLength(1);
+    expect(wrapper.emitted("checkUpdate")).toHaveLength(1);
   });
 
-  it("有更新时点击版本号也打开更新记录而非直接更新", async () => {
+  it("有更新时点击版本号检查更新而非直接更新", async () => {
     const wrapper = mount(SettingsMenu, {
       props: {
         appVersion: "1.0.11",
@@ -306,7 +306,7 @@ describe("SettingsMenu", () => {
 
     await wrapper.find('[data-key="version"]').trigger("click");
 
-    expect(wrapper.emitted("changelog")).toHaveLength(1);
+    expect(wrapper.emitted("checkUpdate")).toHaveLength(1);
     expect(wrapper.emitted("update")).toBeUndefined();
   });
 
