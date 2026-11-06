@@ -63,7 +63,7 @@ const uploadStub = defineComponent({
   template: '<div class="upload-stub"><slot /></div>',
 });
 
-type VNodeLike = { type: unknown; props?: { class?: string }; children?: unknown };
+type VNodeLike = { type: unknown; props?: { class?: string; "aria-label"?: string }; children?: unknown };
 
 // The version option's label is a render function returning a root span whose
 // children hold the version text and (when updating) the badge vnode.
@@ -82,7 +82,7 @@ describe("SettingsMenu", () => {
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
     const iconClass = () => {
-      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { children?: { default?: () => { props?: { class?: string } } } } }>;
+      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { children?: { default?: () => { props?: { class?: string; "aria-label"?: string } } } } }>;
       return options.find(option => option.key === "version")?.icon?.().children?.default?.().props?.class;
     };
     expect(iconClass()).not.toContain("settings-update-spinning");
@@ -381,7 +381,8 @@ describe("SettingsMenu", () => {
     });
 
     const badge = findVersionBadge(wrapper);
-    expect(badge?.children).toBe("有更新");
+    expect(badge?.children).toBeNull();
+    expect(badge?.props?.["aria-label"]).toBe("有更新");
 
     const quiet = mount(SettingsMenu, {
       props: {
@@ -406,7 +407,7 @@ describe("SettingsMenu", () => {
     expect(findVersionBadge(quiet)).toBeUndefined();
   });
 
-  it("英文下更新角标显示 New", () => {
+  it("英文下更新红点有无障碍提示", () => {
     const wrapper = mount(SettingsMenu, {
       props: {
         appVersion: "1.0.11",
@@ -428,7 +429,7 @@ describe("SettingsMenu", () => {
       },
     });
 
-    expect(findVersionBadge(wrapper)?.children).toBe("New");
+    expect(findVersionBadge(wrapper)?.props?.["aria-label"]).toBe("New");
   });
 
   it("shows help and shortcut copy from the settings menu", async () => {

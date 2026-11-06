@@ -161,7 +161,7 @@ const options = computed(() => [
         h("span", { class: "settings-version-check" }, text.value.settings.checkUpdate),
         h("span", { class: "settings-version-number" }, `v${props.appVersion}`),
         props.updateAvailable
-          ? h("span", { class: "settings-version-badge" }, text.value.settings.updateAvailable)
+          ? h("span", { class: "settings-version-badge", role: "img", "aria-label": text.value.settings.updateAvailable })
           : null,
       ]),
     key: "version",
