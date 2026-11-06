@@ -61,6 +61,7 @@ import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
 import * as workspaceMover from "./state/workspaceMoves";
+import { mergeImportedWorkspace } from "./state/workspaceImport";
 import { QUICK_BUTTON_OTHER_GROUP_ID, QUICK_DENSITY_THRESHOLD, assignQuickTagColumn, distributeQuickTagColumns, formatQuickCopiedPreview, recordQuickButtonClick, reorderQuickButton, toggleQuickHiddenVisibility } from "./state/quickButtons";
 import { isQuickAppScheme } from "./state/quickApps";
 import { pickRandomTip, pickWorkbenchTipArea, resolveTipGuideKey, type TipPickState } from "./state/guideTips";
@@ -290,6 +291,27 @@ const importFeedbackAnchor = ref<HTMLElement | undefined>();
 const pendingEditSpaceId = ref<string | null>(null);
 const pendingEditTodoListId = ref<string | null>(null);
 const workspaceDialogVisible = ref(false);
+const importConflict = ref<{ source: WorkspaceData; targetId: string; zones: ZoneKey[]; legacy: boolean; add: () => Promise<void>; replace: () => Promise<void>; finish: (workspace: WorkspaceData, includeInboxNotice?: boolean) => Promise<void>; cancel: () => void } | null>(null);
+const importCopyConflicts = ref(false);
+const importReplaceConfirm = ref(false);
+const importPreview = computed(() => {
+  const pending = importConflict.value;
+  const target = pending && state.workspaces.find((item) => item.id === pending.targetId);
+  return pending && target ? mergeImportedWorkspace(target, pending.source, pending.zones, state.language, importCopyConflicts.value) : null;
+});
+async function confirmImportMerge(): Promise<void> {
+  if (shouldBlockBoardEffects()) return;
+  const pending = importConflict.value;
+  const target = pending && state.workspaces.find((item) => item.id === pending.targetId);
+  if (!pending || !target) return;
+  const result = mergeImportedWorkspace(target, pending.source, pending.zones, state.language, importCopyConflicts.value);
+  await persistImagePayloads(result.imagesToPersist.filter((image) => Boolean(image.src)));
+  state.workspaces = state.workspaces.map((item) => item.id === target.id ? result.workspace : item);
+  state.activeWorkspaceId = target.id;
+  boardEpoch.value++;
+  importConflict.value = null;
+  await pending.finish(result.workspace, false);
+}
 const exportWorkspaceId = ref<string | null>(null);
 const exportAnchor = ref<HTMLElement>();
 const exportZones = ref<ZoneKey[]>(["assets", "notes", "tasks", "workspace"]);
@@ -322,6 +344,12 @@ watch(
   },
   { immediate: true },
 );
+watch(isMobileBlocked, (blocked) => {
+  if (blocked && importConflict.value) {
+    importConflict.value.cancel();
+    importConflict.value = null;
+  }
+});
 let appMounted = false;
 let pendingBrowserImagePasteRequest: { request: ImagePasteRequest; token: number } | undefined;
 let browserImagePasteRequestToken = 0;
@@ -998,7 +1026,7 @@ function confirmWorkspaceExport(): void {
   }
   const ratios = readWorkbenchWidthRatios(workspace.id);
   if (ratios) serialized.zoneWidthRatios = ratios;
-  const content = JSON.stringify({ miniDeskWorkspaceExport: true, version: 1, workspace: serialized }, null, 2);
+  const content = JSON.stringify({ miniDeskWorkspaceExport: true, version: 1, zones: exportZones.value, workspace: serialized }, null, 2);
   const title = getWorkspaceBoardTitle(workspace);
   downloadExportFile(content, `mini-desk-${slugifyTitle(title)}-${exportTimestamp(new Date())}.json`);
   exportWorkspaceId.value = null;
@@ -3193,12 +3221,12 @@ async function importData(event: Event): Promise<void> {
       input.value = "";
       return;
     }
-    const finishImport = async (workspace: WorkspaceData): Promise<void> => {
+    const finishImport = async (workspace: WorkspaceData, includeInboxNotice = true): Promise<void> => {
       await persistWorkspaceImages([workspace]);
       persistNow("all", { force: true });
       refreshTodoNotifications();
       showBubble("dataImported", importFeedbackAnchor.value, { hideCompanionAfter: true });
-      if (importedHasInbox) {
+      if (importedHasInbox && includeInboxNotice) {
         showBubbleText(uiText.value.app.inboxImportNotice, importFeedbackAnchor.value, { hideCompanionAfter: true }, 5000);
       }
       importFeedbackAnchor.value = undefined;
@@ -3210,9 +3238,15 @@ async function importData(event: Event): Promise<void> {
     };
     // Add as a new workspace; a colliding title is auto-suffixed with a number so
     // duplicate names are never created.
+    const freshImportedWorkspace = (): WorkspaceData => {
+      const copy = JSON.parse(JSON.stringify(importedWorkspace)) as WorkspaceData;
+      for (const image of collectInlineImagePayloads([copy])) image.payloadId = createId();
+      return copy;
+    };
     const addAsNewWorkspace = async (): Promise<void> => {
+      if (shouldBlockBoardEffects()) return;
       const workspace = ensureUniqueWorkspaceTitle(
-        { ...importedWorkspace, id: createId(), createdAt: Date.now() },
+        { ...freshImportedWorkspace(), id: createId(), createdAt: Date.now() },
         state.workspaces,
         DEFAULT_BOARD_TITLE,
       );
@@ -3230,7 +3264,8 @@ async function importData(event: Event): Promise<void> {
         await addAsNewWorkspace();
         return;
       }
-      const replacement: WorkspaceData = { ...importedWorkspace, id: target.id, createdAt: target.createdAt };
+      if (shouldBlockBoardEffects()) return;
+      const replacement: WorkspaceData = { ...freshImportedWorkspace(), id: target.id, createdAt: target.createdAt };
       // Overwriting retires the old inbox just like deleting its workspace.
       // A re-import retaining the same code still owns that channel.
       const oldInboxCode = target.inbox?.code;
@@ -3251,34 +3286,14 @@ async function importData(event: Event): Promise<void> {
     const conflictTarget = state.workspaces.find((item) => resolveTitle(item) === importedTitle);
 
     if (conflictTarget) {
-      // Same-name workspace exists: offer overwrite vs add-new (which auto-numbers).
-      requestConfirmation(
-        "confirmImportWorkspaceConflict",
-        importFeedbackAnchor.value,
-        () => overwriteConflictWorkspace(conflictTarget.id),
-        cancelImport,
-        {
-          position: "toast",
-          confirmText: uiText.value.common.overwrite,
-          cancelText: uiText.value.common.cancel,
-          danger: true,
-          confirmHint: importedTitle,
-          secondaryText: uiText.value.common.add,
-          onSecondary: addAsNewWorkspace,
-          // 导入确认针对的是外部文件内容，锚点（导入入口）不代表被覆盖对象 —— 跳过高亮。
-          highlightTarget: null,
-        },
-      );
+      const rawZones = (parsed as { zones?: unknown }).zones;
+      const validZones = Array.isArray(rawZones) && rawZones.length > 0 && rawZones.every((zone) => exportZoneKeys.includes(zone));
+      importCopyConflicts.value = false;
+      importReplaceConfirm.value = false;
+      importConflict.value = { source: importedWorkspace, targetId: conflictTarget.id, zones: validZones ? [...new Set(rawZones as ZoneKey[])] : [...exportZoneKeys], legacy: !validZones, add: addAsNewWorkspace, replace: () => overwriteConflictWorkspace(conflictTarget.id), finish: finishImport, cancel: cancelImport };
       return;
     }
-
-    requestConfirmation(
-      "confirmImportWorkspace",
-      importFeedbackAnchor.value,
-      addAsNewWorkspace,
-      cancelImport,
-      { position: "toast", confirmText: uiText.value.common.add, cancelText: uiText.value.common.cancel, highlightTarget: null },
-    );
+    await addAsNewWorkspace();
     return;
   }
 
@@ -4254,6 +4269,22 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @close="changelogVisible = false"
       @update="applyChangelogUpdate"
     />
+    <NModal :show="importConflict !== null" preset="card" class="workspace-dialog-modal" :title="uiText.app.importConflictTitle" style="max-width: 440px; width: calc(100vw - 32px)" :mask-closable="false" @update:show="(show: boolean) => { if (!show) { importConflict?.cancel(); importConflict = null; } }">
+      <template v-if="importConflict && importPreview">
+        <p>{{ uiText.app.importConflictDescription }}</p>
+        <p data-testid="import-preview">{{ uiText.app.importPreview.replace("{added}", String(importPreview.added)).replace("{skipped}", String(importPreview.skipped)).replace("{conflicts}", String(importPreview.conflicts)) }}</p>
+        <p v-if="importConflict.legacy">{{ uiText.app.importLegacyNotice }}</p>
+        <NCheckbox v-if="importPreview.conflicts" v-model:checked="importCopyConflicts" data-testid="import-copy-conflicts">{{ uiText.app.importCopyConflicts }}</NCheckbox>
+        <p v-if="importReplaceConfirm">{{ uiText.app.importReplaceWarning }}</p>
+        <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:16px;">
+          <NButton data-testid="import-cancel" @click="importConflict.cancel(); importConflict = null">{{ uiText.common.cancel }}</NButton>
+          <NButton data-testid="import-add" @click="() => { const pending = importConflict; importConflict = null; void pending?.add(); }">{{ uiText.app.importAddCopy }}</NButton>
+          <NButton v-if="!importReplaceConfirm" data-testid="import-replace" @click="importReplaceConfirm = true">{{ uiText.app.importReplace }}</NButton>
+          <NButton v-else type="error" data-testid="import-replace-confirm" @click="() => { const pending = importConflict; importConflict = null; void pending?.replace(); }">{{ uiText.app.importReplaceConfirm }}</NButton>
+          <NButton type="primary" data-testid="import-merge" @click="confirmImportMerge">{{ uiText.app.importMerge }}</NButton>
+        </div>
+      </template>
+    </NModal>
     <NModal :show="exportWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
       <p>{{ uiText.app.exportChooseZones }}</p>
       <div style="display: flex; flex-direction: column; gap: 12px; margin: 16px 0;">
