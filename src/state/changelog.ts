@@ -40,12 +40,24 @@ export const CHANGELOG: ChangelogEntry[] = [
       zh: [
         "快捷动作升级为可自定义颜色的持久分组，支持跨组拖拽整理",
         "完善提醒、贴图与快捷动作的拖拽排序、粘贴和菜单操作",
-        "新增一键清理所有列表的已完成提醒，以及顶栏工作台小贴士",
       ],
       en: [
         "Quick actions now live in persistent, customizable color groups and can be dragged between groups",
         "Refined sorting, pasting, and menus for reminders, images, and quick actions",
-        "Clear completed reminders across all lists at once and discover workbench tips in the header",
+      ],
+    },
+  },
+  {
+    version: "1.1.12",
+    date: "2026-10-23",
+    notes: {
+      zh: [
+        "可一键清理所有列表的已完成提醒，快捷动作支持按类型复制内容",
+        "拖拽排序显示实时落位预览，也可以拖入折叠的分组",
+      ],
+      en: [
+        "Clear completed reminders across all lists at once and copy quick-action details by type",
+        "See a live drop preview while sorting and drop items into collapsed groups",
       ],
     },
   },
@@ -68,13 +80,23 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: "2026-10-11",
     notes: {
       zh: [
-        "新增「现在做这个」专注模式，围绕单条提醒计时、记事和添加贴图",
         "提醒列表支持多列布局，工作台各区宽度可按工作空间调整",
-        "智能粘贴可识别提醒时间，手机速记也能生成定时提醒",
+      ],
+      en: [
+        "Arrange reminder lists in columns and adjust panel widths per workspace",
+      ],
+    },
+  },
+  {
+    version: "1.0.200",
+    date: "2026-10-02",
+    notes: {
+      zh: [
+        "新增「现在做这个」专注模式，围绕单条提醒计时、记事和添加贴图",
+        "智能粘贴和手机速记可识别时间，生成定时提醒",
       ],
       en: [
         "Added Do it now focus mode with a timer, notes, and images for an individual reminder",
-        "Arrange reminder lists in columns and adjust panel widths per workspace",
         "Smart paste and mobile capture can recognize times and create scheduled reminders",
       ],
     },
@@ -101,11 +123,21 @@ export const CHANGELOG: ChangelogEntry[] = [
     notes: {
       zh: [
         "新增智能粘贴和 AI 润色，帮助整理便签与提醒内容",
+      ],
+      en: [
+        "Added smart paste and AI polishing to help organize notes and reminders",
+      ],
+    },
+  },
+  {
+    version: "1.0.156",
+    date: "2026-08-29",
+    notes: {
+      zh: [
         "手机速记支持扫码配对，将临时想法发送到电脑的提醒或便签",
         "工作台可安装并离线使用；工作空间之间可以移动内容",
       ],
       en: [
-        "Added smart paste and AI polishing to help organize notes and reminders",
         "Pair a phone by QR code to send quick captures to desktop reminders or notes",
         "Install the workbench for offline use and move content between workspaces",
       ],
@@ -116,14 +148,26 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: "2026-08-10",
     notes: {
       zh: [
-        "新增多个独立工作空间和全局搜索，按场景组织和查找内容",
         "快捷动作支持打开本地应用，提醒提供快捷时间预设",
         "每个工作空间可自定义显示区域，并支持导入和导出",
       ],
       en: [
-        "Added independent workspaces and global search to organize and find content",
         "Quick actions can open local apps, and reminders offer time presets",
         "Customize visible areas per workspace and import or export workspaces",
+      ],
+    },
+  },
+  {
+    version: "1.0.103",
+    date: "2026-08-02",
+    notes: {
+      zh: [
+        "新增多个独立工作空间，按不同场景组织内容",
+        "加入全局搜索，快速查找工作台中的内容",
+      ],
+      en: [
+        "Added independent workspaces to organize content for different contexts",
+        "Added global search to find content across the workbench",
       ],
     },
   },
