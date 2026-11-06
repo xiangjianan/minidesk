@@ -369,10 +369,10 @@ onUnmounted(() => disposeSort?.());
     <div class="panel-header desk-zone-heading" @contextmenu.stop.prevent="openHeaderMenu($event)">
       <h2><NIcon :component="DocumentTextOutline" /><span>{{ uiText.desk.notes }}</span></h2>
       <div class="header-actions" @contextmenu.stop>
-        <button v-if="props.polish && activeSpace" class="desk-ai-action desk-ai-button desk-smart-paste" type="button"
-          :aria-label="uiText.common.smartPaste" :disabled="smartPastePending" :aria-busy="smartPastePending" @mousedown.prevent
-          @click.stop="appendSmartPaste">
-          <NIcon :component="SmartPasteIcon" /><span>{{ uiText.common.smartPaste }}</span>
+        <button v-if="activeSpace" class="icon-button desk-paste-button" type="button"
+          :aria-label="uiText.common.paste" :title="uiText.common.paste" @mousedown.prevent
+          @click.stop="textPanelRef?.appendPaste()">
+          <NIcon :component="ClipboardOutline" />
         </button>
       </div>
     </div>

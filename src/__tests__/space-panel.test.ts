@@ -84,12 +84,12 @@ describe("SpacePanel", () => {
     wrapper.unmount();
   });
 
-  it("opens the menu across the heading row but excludes the smart paste area", async () => {
+  it("opens the menu across the heading row but excludes the paste button", async () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     await wrapper.setProps({ polish: vi.fn() });
     await wrapper.get(".header-actions").trigger("contextmenu");
     expect(wrapper.find(".dropdown-option").exists()).toBe(false);
-    await wrapper.get(".desk-smart-paste").trigger("contextmenu");
+    await wrapper.get(".desk-paste-button").trigger("contextmenu");
     expect(wrapper.find(".dropdown-option").exists()).toBe(false);
     await wrapper.get(".desk-zone-heading").trigger("contextmenu");
     expect(wrapper.findAll(".dropdown-option")).toHaveLength(4);

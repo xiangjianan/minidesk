@@ -48,71 +48,23 @@ describe("visible workbench actions", () => {
     expect(wrapper.emitted("save")).toBeUndefined();
   });
 
-  it("smart paste appends below the last line instead of replacing the selection", async () => {
-    const polish = vi.fn(async (): Promise<PolishResult> => ({ items: [{ text: "Organized line" }] }));
-    const { wrapper } = mountPastePanel(polish);
+  it("pastes clipboard text into the active notebook without smart processing", async () => {
+    const polish = vi.fn(async (): Promise<PolishResult> => null);
+    const { wrapper, readText } = mountPastePanel(polish);
     const textarea = wrapper.get("textarea");
     textarea.element.setSelectionRange(0, 7);
     await textarea.trigger("select");
-    await wrapper.get('[aria-label="智能粘贴"]').trigger("click");
+    await wrapper.get('[aria-label="粘贴"]').trigger("click");
     await flushPromises();
-    expect(polish).toHaveBeenCalledWith("note", "clipboard draft", undefined);
-    expect(textarea.element.value).toBe("Keep the first line\nLast line\nOrganized line");
+    expect(readText).toHaveBeenCalledOnce();
+    expect(polish).not.toHaveBeenCalled();
+    expect(textarea.element.value).toBe("Keep the first line\nLast lineclipboard draft");
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toBe("notes");
   });
 
-  it("appends raw clipboard text on service failure without losing notes", async () => {
+  it("shows the paste button without a smart paste service", async () => {
     const { wrapper } = mountPastePanel(vi.fn(async () => null));
-    await wrapper.get('[aria-label="智能粘贴"]').trigger("click");
-    await flushPromises();
-    expect(wrapper.get("textarea").element.value).toBe("Keep the first line\nLast line\nclipboard draft");
-  });
-
-  it("does not duplicate requests while a paste is pending", async () => {
-    let finish!: (result: PolishResult) => void;
-    const polish = vi.fn(() => new Promise<PolishResult>((resolve) => { finish = resolve; }));
-    const { wrapper, readText } = mountPastePanel(polish);
-    const button = wrapper.get('[aria-label="智能粘贴"]');
-    await button.trigger("click");
-    await flushPromises();
-    expect(button.attributes("disabled")).toBeDefined();
-    await button.trigger("click");
-    expect(readText).toHaveBeenCalledTimes(1);
-    finish({ items: [{ text: "Done" }] });
-    await flushPromises();
-    expect(button.attributes("disabled")).toBeUndefined();
-  });
-
-  it("discards a result after switching to another note space", async () => {
-    let finish!: (result: PolishResult) => void;
-    const { wrapper } = mountPastePanel(() => new Promise<PolishResult>((resolve) => { finish = resolve; }));
-    await wrapper.get('[aria-label="智能粘贴"]').trigger("click");
-    await flushPromises();
-    await wrapper.setProps({ spaces: [{ id: "other", title: "Other", lines: [{ text: "Do not touch", indent: 0 }] }], activeSpaceId: "other" });
-    finish({ items: [{ text: "Late result" }] });
-    await flushPromises();
-    expect(wrapper.get("textarea").element.value).toBe("Do not touch");
-    expect(wrapper.emitted("update")).toBeUndefined();
-  });
-
-  it("does not overwrite edits made while polishing is pending", async () => {
-    let finish!: (result: PolishResult) => void;
-    const { wrapper } = mountPastePanel(() => new Promise<PolishResult>((resolve) => { finish = resolve; }));
-    await wrapper.get('[aria-label="智能粘贴"]').trigger("click");
-    await flushPromises();
-    await wrapper.get("textarea").setValue("Changed while waiting");
-    finish({ items: [{ text: "Late result" }] });
-    await flushPromises();
-    expect(wrapper.get("textarea").element.value).toBe("Changed while waiting");
-  });
-
-  it("leaves notes untouched for an empty clipboard", async () => {
-    const polish = vi.fn(async () => null);
-    const { wrapper } = mountPastePanel(polish, "  ");
-    await wrapper.get('[aria-label="智能粘贴"]').trigger("click");
-    await flushPromises();
-    expect(polish).not.toHaveBeenCalled();
-    expect(wrapper.emitted("update")).toBeUndefined();
-    expect(wrapper.get('[aria-label="智能粘贴"]').attributes("disabled")).toBeUndefined();
+    await wrapper.setProps({ polish: undefined, language: "en" });
+    expect(wrapper.get('[aria-label="Paste"]').attributes("title")).toBe("Paste");
   });
 });
