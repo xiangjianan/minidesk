@@ -3056,7 +3056,7 @@ describe("App shell", () => {
     }
   });
 
-  it("confirms todo deletion with semantic labels and no undo", async () => {
+  it("confirms todo deletion with semantic labels and undo", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -3087,7 +3087,7 @@ describe("App shell", () => {
 
       expect(wrapper.findAll("input.todo-input").some((input) => (input.element as HTMLInputElement).value === "待删除提醒")).toBe(false);
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/提醒已删除/);
-      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -6446,8 +6446,8 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(4000);
       expect(deleteSpy).not.toHaveBeenCalledWith("pay-1");
 
-      // Once the grace window elapses, only the todo's focus payload is reclaimed.
-      await vi.advanceTimersByTimeAsync(1500);
+      // Cleanup starts after the undo bubble expires, then observes the image grace window.
+      await vi.advanceTimersByTimeAsync(4500);
       expect(deleteSpy).toHaveBeenCalledWith("pay-1");
       expect(deleteSpy).not.toHaveBeenCalledWith("img-board");
     } finally {

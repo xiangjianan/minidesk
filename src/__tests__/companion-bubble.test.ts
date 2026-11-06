@@ -442,7 +442,7 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
-  it("does not render a single undo action button", async () => {
+  it("renders the supplied undo action button", async () => {
     vi.useFakeTimers();
     const wrapper = mount(CompanionBubble, {
       attachTo: document.body,
@@ -462,7 +462,7 @@ describe("CompanionBubble", () => {
     await vi.advanceTimersByTimeAsync(200);
     await wrapper.vm.$nextTick();
 
-    expect(document.body.querySelector('[data-testid="companion-action"]')).toBeNull();
+    expect(document.body.querySelector('[data-testid="companion-action"]')?.textContent).toBe("撤销");
     expect(document.body.querySelector('[data-testid="companion-yes"]')).toBeNull();
     expect(document.body.querySelector('[data-testid="companion-no"]')).toBeNull();
 

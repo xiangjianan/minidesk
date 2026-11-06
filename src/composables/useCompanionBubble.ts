@@ -21,6 +21,10 @@ const CONFIRM_TARGET_MARK = "data-confirm-target";
 
 export interface BubbleOptions {
   hideCompanionAfter?: boolean;
+  keepPosition?: boolean;
+  actionText?: string;
+  onAction?: () => void;
+  onDismiss?: () => void;
   guideKey?: GuideKey;
   linkText?: string;
   linkHref?: string;
@@ -65,6 +69,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   const bubbleLink = ref<{ text: string; href: string } | null>(null);
   const bubbleSignature = ref("");
   const bubbleVisible = ref(false);
+  const companionDismissing = ref(false);
+  const bubbleActionText = ref("");
   const companionFocused = ref(false);
   const companionPosition = ref<{ right: string; bottom?: string; top?: string } | undefined>();
   /** 当前气泡的锚点：GIF 点击 Tips 用它解析气泡归属的区域。 */
@@ -131,6 +137,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     // 「不显示」安静模式：普通提示气泡随 GIF 一并静音（二次确认走 requestConfirmation，
     // 不受影响）；用户显式点出的 Tips（explicit）与 force 反馈不受静音。
     if (deps.state.companionGifTheme === "none" && !options.force && !options.explicit) return;
+    dismissBubbleAction();
+    companionDismissing.value = false;
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
     clearPendingConfirm();
@@ -143,10 +151,25 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     bubbleAnchor.value = anchor ?? null;
     // 所有提示消息气泡 —— 普通 toast、整理提醒、右键「Tips」、确认后的成功提示 ——
     // 统一落到屏幕右下角；只有二次确认弹框例外，贴近鼠标。
-    companionPosition.value = getToastPosition();
+    if (!options.keepPosition) companionPosition.value = getToastPosition();
     bubbleVisible.value = true;
     bubbleTimerOptions.value = options;
+    bubbleActionText.value = options.actionText ?? "";
     startBubbleTimer(duration);
+  }
+
+  function dismissBubbleAction(): void {
+    const onDismiss = bubbleTimerOptions.value.onDismiss;
+    bubbleTimerOptions.value = {};
+    bubbleActionText.value = "";
+    onDismiss?.();
+  }
+
+  function runBubbleAction(): void {
+    const action = bubbleTimerOptions.value.onAction;
+    if (!action) return;
+    action();
+    hideBubbleMessage({ fadeCompanion: true });
   }
 
   function hideBubbleMessage(options: { clearRetainedContent?: boolean; fadeCompanion?: boolean } = {}): void {
@@ -158,7 +181,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     bubbleTimerStartedAt.value = 0;
     companionFadeRemaining.value = 0;
     companionFadeStartedAt.value = 0;
-    bubbleTimerOptions.value = {};
+    dismissBubbleAction();
+    companionDismissing.value = Boolean(options.fadeCompanion);
     clearPendingConfirm();
     bubbleVisible.value = false;
     bubbleMessage.value = "";
@@ -180,6 +204,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
 
   function finishBubbleTimer(): void {
     const options = bubbleTimerOptions.value;
+    dismissBubbleAction();
     clearPendingConfirm(true);
     bubbleTimer.value = undefined;
     bubbleRemainingMs.value = 0;
@@ -252,6 +277,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     options: { confirmText?: string; cancelText?: string; danger?: boolean; confirmHint?: string; secondaryText?: string; onSecondary?: () => void | Promise<void>; position?: "toast"; highlightTarget?: HTMLElement | HTMLElement[] | null } = {},
   ): void {
     if (deps.isBoardBlocked()) return;
+    dismissBubbleAction();
+    companionDismissing.value = false;
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
     bubbleTimer.value = undefined;
@@ -329,6 +356,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   }
 
   function clearTimers(): void {
+    dismissBubbleAction();
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
     bubbleTimer.value = undefined;
@@ -341,6 +369,9 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     bubbleLink,
     bubbleSignature,
     bubbleVisible,
+    companionDismissing,
+    bubbleActionText,
+    runBubbleAction,
     companionFocused,
     companionPosition,
     bubbleAnchor,

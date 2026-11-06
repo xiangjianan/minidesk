@@ -12,6 +12,7 @@ import { organizeContextMenu, CONTEXT_MENU_Z_INDEX, createExclusiveContextMenu }
 
 const props = withDefaults(defineProps<{
   visible: boolean;
+  dismissing?: boolean;
   message: string;
   sequence?: number;
   linkText?: string;
@@ -172,7 +173,7 @@ function syncRenderedContent(): void {
   renderedCancelText.value = props.cancelText ?? uiText.value.common.no;
   renderedConfirmHint.value = props.confirmHint ?? "";
   renderedSecondaryText.value = props.secondaryText ?? "";
-  renderedActionText.value = "";
+  renderedActionText.value = props.actionText ?? "";
 }
 
 watch(
@@ -214,6 +215,7 @@ watch(
   () =>
     [
       props.visible,
+      props.dismissing,
       props.sequence,
       props.message,
       props.linkText,
@@ -238,6 +240,11 @@ watch(
     gifFadeTimer.value = undefined;
     gifRemainingMs.value = GIF_MAX_VISIBLE_MS;
     gifTimerStartedAt.value = 0;
+    if (props.dismissing && visible) {
+      gifVisible.value = false;
+      gifFading.value = true;
+      return;
+    }
     if (!visible || !shouldRenderGif.value) {
       hoveringCompanion.value = false;
       gifVisible.value = false;

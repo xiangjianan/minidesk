@@ -243,6 +243,9 @@ const {
   bubbleLink,
   bubbleSignature,
   bubbleVisible,
+  companionDismissing,
+  bubbleActionText,
+  runBubbleAction,
   companionFocused,
   companionPosition,
   bubbleAnchor,
@@ -2929,13 +2932,30 @@ function updateTodoNotify(period: TodoPeriod, id: string, notifyAt: number | und
 
 function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): boolean {
   if (!isConfiguredTodoListId(period)) return false;
-  if (getTodos(period).findIndex((todo) => todo.id === id) < 0) return false;
-  // 删除连坐：被删 todo 的 focusImages 载荷与单图删除同口径走 5 秒宽限（撤销可保住）。
-  const doomedFocusIds = collectTodoFocusPayloadIds(getTodos(period).filter((todo) => todo.id === id));
+  const index = getTodos(period).findIndex((todo) => todo.id === id);
+  if (index < 0) return false;
+  const workspaceId = activeWorkspace.value.id;
+  const deletedTodo = JSON.parse(JSON.stringify(getTodos(period)[index])) as TodoItem;
+  const doomedFocusIds = collectTodoFocusPayloadIds([deletedTodo]);
   activeWorkspace.value.todos = removeTodoFromMap(activeWorkspace.value.todos, period, id);
   persistNow();
-  doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId));
-  showBubble("deleteTodo", anchor, { hideCompanionAfter: true });
+  showBubble("deleteTodo", anchor, {
+    hideCompanionAfter: true,
+    keepPosition: true,
+    force: true,
+    actionText: uiText.value.imageEditor.undo,
+    onAction: () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      if (!workspace || !workspace.todoLists.some((list) => list.id === period)) return;
+      const todos = workspace.todos[period] ?? [];
+      if (todos.some((todo) => todo.id === id)) return;
+      todos.splice(Math.min(index, todos.length), 0, deletedTodo);
+      workspace.todos[period] = todos;
+      persistNow();
+      scheduleNextTodoNotification();
+    },
+    onDismiss: () => doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId)),
+  });
   return true;
 }
 
@@ -4245,6 +4265,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
          经 handleMobileInboxSent 强制在右下角弹出，其余板效仍被 isBoardBlocked 屏蔽。 -->
     <CompanionBubble
       :visible="companionVisible"
+      :dismissing="companionDismissing"
+      :action-text="bubbleActionText"
       :message="bubbleMessage"
       :sequence="bubbleSequence"
       :link-text="bubbleLink?.text"
@@ -4266,6 +4288,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @yes="confirmCompanionAction"
       @no="cancelCompanionAction"
       @secondary="secondaryCompanionAction"
+      @action="runBubbleAction"
       @pause="pauseBubbleTimer"
       @resume="resumeBubbleTimer"
       @gif-click="handleCompanionGifClick"
