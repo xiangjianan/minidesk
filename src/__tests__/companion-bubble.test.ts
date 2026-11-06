@@ -463,7 +463,7 @@ describe("CompanionBubble", () => {
     await wrapper.vm.$nextTick();
 
     expect(document.body.querySelector('[data-testid="companion-action"]')?.getAttribute("aria-label")).toBe("撤销");
-    expect(document.body.querySelector('[data-testid="companion-action"] svg')?.getAttribute("width")).toBe("16");
+    expect(document.body.querySelector('[data-testid="companion-action"] svg')?.getAttribute("width")).toBe("13");
     expect(document.body.querySelector('[data-testid="companion-yes"]')).toBeNull();
     expect(document.body.querySelector('[data-testid="companion-no"]')).toBeNull();
 

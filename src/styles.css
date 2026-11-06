@@ -3038,12 +3038,13 @@ button.todo-section-menu-button {
   white-space: pre-line;
 }
 
-.companion-undo-button {
+button.companion-undo-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 20px;
+  min-height: 0;
   margin-left: 5px;
   padding: 0;
   vertical-align: middle;
@@ -3057,8 +3058,8 @@ button.todo-section-menu-button {
 .companion-undo-button svg {
   display: block;
   flex: none;
-  width: 16px;
-  height: 16px;
+  width: 13px;
+  height: 13px;
   stroke: currentColor;
 }
 

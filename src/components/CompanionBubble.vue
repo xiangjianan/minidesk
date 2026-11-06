@@ -506,7 +506,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
         @mousemove="handleCompanionMousemove"
         @mouseleave="handleCompanionMouseleave"
       >
-        <span v-if="renderedMessage">{{ renderedMessage }}<button v-if="!renderedConfirm && renderedActionText" type="button" class="companion-undo-button" data-testid="companion-action" :aria-label="renderedActionText" :title="renderedActionText" @click="emit('action')"><Undo2 :size="16" :stroke-width="2" aria-hidden="true" /></button></span>
+        <span v-if="renderedMessage">{{ renderedMessage }}<button v-if="!renderedConfirm && renderedActionText" type="button" class="companion-undo-button" data-testid="companion-action" :aria-label="renderedActionText" :title="renderedActionText" @click="emit('action')"><Undo2 :size="13" :stroke-width="1.5" aria-hidden="true" /></button></span>
         <p v-if="renderedConfirmHint" class="companion-confirm-hint">{{ renderedConfirmHint }}</p>
         <div v-if="renderedLinkText || renderedSignatureText" class="companion-meta-row">
           <a
