@@ -2,6 +2,7 @@
 import { computed, h, onMounted, onUnmounted, ref, watch } from "vue";
 import type { Component, VNode } from "vue";
 import { LogoGithub } from "@vicons/ionicons5";
+import { Undo2 } from "lucide-vue-next";
 import { CloseOutline, EyeOffOutline } from "@vicons/ionicons5";
 import { NButton, NDropdown, NIcon, NPopover } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
@@ -505,7 +506,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
         @mousemove="handleCompanionMousemove"
         @mouseleave="handleCompanionMouseleave"
       >
-        <span v-if="renderedMessage">{{ renderedMessage }}</span>
+        <span v-if="renderedMessage">{{ renderedMessage }}<button v-if="!renderedConfirm && renderedActionText" type="button" class="companion-undo-button" data-testid="companion-action" :aria-label="renderedActionText" :title="renderedActionText" @click="emit('action')"><Undo2 :size="14" aria-hidden="true" /></button></span>
         <p v-if="renderedConfirmHint" class="companion-confirm-hint">{{ renderedConfirmHint }}</p>
         <div v-if="renderedLinkText || renderedSignatureText" class="companion-meta-row">
           <a
@@ -531,9 +532,6 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
           <NButton size="tiny" class="companion-action-button" :class="{ 'is-danger': renderedConfirmDanger }" data-testid="companion-yes" @click="emit('yes')">{{ renderedConfirmText }}</NButton>
           <NButton v-if="renderedSecondaryText" size="tiny" class="companion-action-button" data-testid="companion-secondary" @click="emit('secondary')">{{ renderedSecondaryText }}</NButton>
           <NButton size="tiny" class="companion-action-button" data-testid="companion-no" @click="emit('no')">{{ renderedCancelText }}</NButton>
-        </div>
-        <div v-else-if="renderedActionText" class="companion-actions">
-          <NButton size="tiny" class="companion-action-button" data-testid="companion-action" @click="emit('action')">{{ renderedActionText }}</NButton>
         </div>
       </div>
       </Transition>

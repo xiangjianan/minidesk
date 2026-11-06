@@ -462,7 +462,7 @@ describe("CompanionBubble", () => {
     await vi.advanceTimersByTimeAsync(200);
     await wrapper.vm.$nextTick();
 
-    expect(document.body.querySelector('[data-testid="companion-action"]')?.textContent).toBe("撤销");
+    expect(document.body.querySelector('[data-testid="companion-action"]')?.getAttribute("aria-label")).toBe("撤销");
     expect(document.body.querySelector('[data-testid="companion-yes"]')).toBeNull();
     expect(document.body.querySelector('[data-testid="companion-no"]')).toBeNull();
 

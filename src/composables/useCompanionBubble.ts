@@ -204,7 +204,9 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
 
   function finishBubbleTimer(): void {
     const options = bubbleTimerOptions.value;
+    const wasConfirm = Boolean(pendingConfirm.value);
     dismissBubbleAction();
+    companionDismissing.value = wasConfirm;
     clearPendingConfirm(true);
     bubbleTimer.value = undefined;
     bubbleRemainingMs.value = 0;

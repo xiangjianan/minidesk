@@ -108,6 +108,18 @@ describe("todo delete confirmation", () => {
     }
   });
 
+  it("does not bring the GIF back after a confirmation times out", async () => {
+    const wrapper = mountApp();
+    try {
+      await deleteViaMenu(wrapper);
+      await vi.advanceTimersByTimeAsync(12000);
+      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
+      await vi.advanceTimersByTimeAsync(12000);
+      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
+      expect(remainingTodos(wrapper)).toBe(4);
+    } finally { wrapper.unmount(); }
+  });
+
   it("keeps the confirmation position and restores only the deleted todo", async () => {
     const wrapper = mountApp();
     try {

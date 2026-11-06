@@ -3038,6 +3038,28 @@ button.todo-section-menu-button {
   white-space: pre-line;
 }
 
+.companion-undo-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin-left: 5px;
+  padding: 0;
+  vertical-align: middle;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line-control);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.companion-undo-button:hover,
+.companion-undo-button:focus-visible {
+  background: var(--button-hover);
+  border-color: var(--line-focus);
+}
+
 .companion-confirm-hint {
   margin: 0;
   font-size: 0.85em;
