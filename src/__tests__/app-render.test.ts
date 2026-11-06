@@ -9051,7 +9051,8 @@ describe("App shell", () => {
         expect(wrapper.find('[data-testid="update-check-status"]').exists()).toBe(false);
       } else {
         expect(wrapper.find('[data-testid="update-check-status"]').exists()).toBe(false);
-        expect(wrapper.getComponent(CompanionBubble).props("message")).toBe(expected);
+        if (latest) expect(wrapper.getComponent(CompanionBubble).props("message")).toMatch(/最新版|最新版本|最新的/);
+        else expect(wrapper.getComponent(CompanionBubble).props("message")).toBe(expected);
       }
       expect(fetchMock).toHaveBeenCalledTimes(2);
       if (update) expect(wrapper.getComponent(SettingsMenu).props("updateAvailable")).toBe(true);

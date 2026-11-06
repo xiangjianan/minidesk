@@ -3815,7 +3815,7 @@ async function manualCheckUpdate(): Promise<void> {
     if (bubbleMessage.value === checkingMessage) hideBubbleMessage();
     updateCheckVisible.value = true;
   } else {
-    showBubbleText(latest ? uiText.value.updateCheck.current : uiText.value.updateCheck.failed, undefined, { explicit: true, hideCompanionAfter: true });
+    showBubbleText(latest ? uiText.value.updateCheck.current[Math.floor(Math.random() * uiText.value.updateCheck.current.length)] : uiText.value.updateCheck.failed, undefined, { explicit: true, hideCompanionAfter: true });
   }
 }
 

@@ -3027,7 +3027,6 @@ button.todo-section-menu-button {
   gap: 6px;
   line-height: 1.5;
   transform-origin: right bottom;
-  animation: companion-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .companion-popover > span {
@@ -7533,6 +7532,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 
 .companion-message-stack {
   display: grid;
+  align-items: end;
 }
 
 .companion-message-stack > .companion-popover {
@@ -7541,10 +7541,22 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 
 .companion-message-enter-active,
 .companion-message-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
 .companion-message-enter-from,
 .companion-message-leave-to {
   opacity: 0;
+  transform: translateY(3px) scale(0.98);
+}
+
+.companion-surface-leave-active {
+  animation: none !important;
+  transition: opacity 0.26s ease, transform 0.26s ease;
+  pointer-events: none;
+}
+
+.companion-surface-leave-to {
+  opacity: 0 !important;
+  transform: translateY(8px) scale(0.96) !important;
 }

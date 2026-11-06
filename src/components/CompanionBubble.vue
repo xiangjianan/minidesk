@@ -412,6 +412,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
 </script>
 
 <template>
+  <Transition name="companion-surface">
   <div
     v-if="surfaceVisible"
     ref="surfaceRef"
@@ -460,7 +461,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
       </template>
 
       <div class="companion-message-stack">
-      <Transition name="companion-message">
+      <Transition name="companion-message" appear>
       <div
         v-if="popoverContentVisible"
         :key="sequence"
@@ -522,4 +523,5 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
       <span class="dropdown-anchor" :style="{ left: `${gifMenu.x}px`, top: `${gifMenu.y}px` }" aria-hidden="true" />
     </NDropdown>
   </div>
+  </Transition>
 </template>

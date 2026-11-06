@@ -876,7 +876,7 @@ export const UI_TEXT = {
     updateCheck: {
       title: "检查更新",
       checking: "正在检查更新…",
-      current: "当前已是最新版本",
+      current: ["当前已是最新版本 ( •̀ ω •́ )✧", "已经是最新版啦 (๑•̀ㅂ•́)و✧", "一切都是最新的 (｡･ω･｡)ﾉ♡"],
       available: "发现新版本 v{version}",
       ready: "发现可用更新",
       failed: "检查失败，请检查网络后重试",
@@ -1318,7 +1318,7 @@ export const UI_TEXT = {
     updateCheck: {
       title: "Check for updates",
       checking: "Checking for updates…",
-      current: "You are up to date",
+      current: ["You are up to date ( •̀ ω •́ )✧", "Already on the latest version (๑•̀ㅂ•́)و✧", "Everything is up to date (｡･ω･｡)ﾉ♡"],
       available: "Version v{version} is available",
       ready: "An update is available",
       failed: "Could not check for updates. Check your connection and try again.",

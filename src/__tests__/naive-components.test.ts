@@ -794,7 +794,7 @@ describe("Naive UI component usage", () => {
     expect(styles).toContain("@keyframes companion-gif-in");
     expect(styles).toMatch(/\.focus-companion\.is-visible\s*\{[^}]*animation: companion-gif-in/s);
     expect(styles).toContain("@keyframes companion-pop");
-    expect(styles).toMatch(/\.companion-popover\s*\{[^}]*animation: companion-pop/s);
+    expect(styles).toContain(".companion-message-enter-active");
     expect(styles).toMatch(/\.companion-popover\s*\{[^}]*transform-origin: right bottom/s);
     // 悬浮层次感只靠气泡自身的静态柔和多层投影：GIF 本体不带任何投影，
     // 气泡与 GIF 也都不再上下位移（无轻浮动画）。
