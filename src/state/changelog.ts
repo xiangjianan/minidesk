@@ -34,6 +34,20 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.1.29",
+    date: "2026-11-06",
+    notes: {
+      zh: [
+        "导出工作空间时可选择需要的区域，导入同名空间时可合并现有内容",
+        "重新整理发版记录，呈现 Mini Desk 的主要功能与发展历程",
+      ],
+      en: [
+        "Choose which areas to export and merge imports into an existing workspace",
+        "Reorganized release history to highlight Mini Desk's major features and evolution",
+      ],
+    },
+  },
+  {
     version: "1.1.28",
     date: "2026-11-05",
     notes: {
