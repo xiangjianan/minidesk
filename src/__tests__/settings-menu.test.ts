@@ -255,6 +255,37 @@ describe("SettingsMenu", () => {
     expect(wrapper.emitted("suggest")?.[0]).toEqual([expect.any(HTMLElement)]);
   });
 
+  it.each(["about", "version"])("keeps the menu open after selecting %s", async (key) => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.29", updateAvailable: false, companionGifTheme: "none" },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    const settings = wrapper.findAllComponents(dropdownStub)[1];
+    settings.vm.$emit("update:show", true);
+    await wrapper.vm.$nextTick();
+    settings.vm.$emit("select", key);
+    settings.vm.$emit("update:show", false);
+    await wrapper.vm.$nextTick();
+    expect(settings.props("show")).toBe(true);
+    expect(wrapper.emitted(key === "about" ? "about" : "checkUpdate")).toHaveLength(1);
+    settings.vm.$emit("update:show", false);
+    await wrapper.vm.$nextTick();
+    expect(settings.props("show")).toBe(false);
+  });
+
+  it.each([["zh", "检查更新"], ["en", "Check for updates"]] as const)("aligns and localizes the version row in %s", (language, label) => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.29", updateAvailable: false, companionGifTheme: "none", language },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => unknown; label?: () => VNodeLike }>;
+    const option = options.find((item) => item.key === "version");
+    expect(option?.icon).toBeTypeOf("function");
+    const nodes = option?.label?.()?.children as VNodeLike[];
+    expect(nodes[0].children).toBe(label);
+    expect(nodes[1].children).toBe("v1.1.29");
+  });
+
   it("点击版本号检查更新（无更新时也可点）", async () => {
     const wrapper = mount(SettingsMenu, {
       props: {

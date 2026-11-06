@@ -14,6 +14,7 @@ import {
   Smartphone as PhonePortraitOutline,
   Database as ServerOutline,
   Settings as SettingsOutline,
+  RefreshCw as RefreshOutline,
   Sun,
   Moon,
   LayoutGrid as GridOutline,
@@ -156,18 +157,19 @@ const options = computed(() => [
   {
     label: () =>
       h("span", { class: "settings-version-item", "data-testid": "settings-version" }, [
-        h("span", `v${props.appVersion}`),
         h("span", { class: "settings-version-check" }, text.value.settings.checkUpdate),
+        h("span", { class: "settings-version-number" }, `v${props.appVersion}`),
         props.updateAvailable
           ? h("span", { class: "settings-version-badge" }, text.value.settings.updateAvailable)
           : null,
       ]),
     key: "version",
+    icon: renderIcon(RefreshOutline),
   },
 ]);
 
 function handleSelect(key: string): void {
-  keepOpenAfterPreferenceSelect = key.startsWith("gif-theme:") && key !== "gif-theme:custom";
+  keepOpenAfterPreferenceSelect = key === "about" || key === "version" || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
   if (key === "create-workspace") emit("createWorkspace");
   if (key === "export-workspace") emit("exportWorkspace", triggerRef.value ?? undefined);

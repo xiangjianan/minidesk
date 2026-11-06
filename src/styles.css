@@ -3316,12 +3316,13 @@ button.todo-section-menu-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-width: 112px;
+  white-space: nowrap;
 }
 
-.settings-version-check {
+.settings-version-number {
   color: var(--muted);
   font-size: calc(var(--app-font-size) - 2px);
+  font-variant-numeric: tabular-nums;
 }
 
 .settings-version-badge {
@@ -5399,10 +5400,6 @@ button.space-add-button,
 .n-dropdown-divider {
   margin: 5px 6px !important;
   background-color: color-mix(in srgb, var(--border) 78%, transparent) !important;
-}
-
-.settings-version-item {
-  color: var(--muted);
 }
 
 .image-list {
