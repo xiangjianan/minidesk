@@ -136,19 +136,12 @@ describe("TodoFocusModal", () => {
     expect(wrapper.emitted("notesUpdate")?.[0]).toEqual([[{ text: "新", indent: 0 }]]);
   });
 
-  it("顶部按钮从剪贴板粘贴图片到列表末尾", async () => {
-    const wrapper = mountModal();
-    const button = wrapper.get(".focus-now-add-image");
-    expect(button.text()).toContain("粘贴图片");
-    await button.trigger("click");
-    expect(wrapper.emitted("pasteImage")?.[0]).toEqual([{ placement: "append", anchor: button.element }]);
-    wrapper.unmount();
-  });
-
-  it("ImagePanel hideHeader 渲染且 paste 事件上抛", async () => {
+  it("贴图标题和粘贴事件复用 ImagePanel", async () => {
     const wrapper = mountModal({ images: [{ id: "i1", createdAt: 1 }] });
     const imagePanel = wrapper.findComponent({ name: "ImagePanel" });
-    expect(imagePanel.props("hideHeader")).toBe(true);
+    expect(imagePanel.props("hideHeader")).toBeFalsy();
+    expect(imagePanel.props("headerId")).toBe("focus-now-image-title");
+    expect(wrapper.get(".focus-now-notes-header").text()).toContain("记事本");
     imagePanel.vm.$emit("paste", { placement: "append" });
     await nextTick();
     expect(wrapper.emitted("pasteImage")).toHaveLength(1);

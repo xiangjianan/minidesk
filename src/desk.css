@@ -95,7 +95,7 @@ html[data-theme="dark"] .workbench-shell,
   box-shadow: none;
 }
 
-.workbench-zone .panel-header {
+:is(.workbench-zone, .focus-now-body) .panel-header {
   min-height: 48px;
   padding: 0 0 12px;
   gap: 8px;
@@ -122,8 +122,8 @@ html[data-theme="dark"] .workbench-shell,
   }
 }
 
-.workbench-zone .panel-header h1,
-.workbench-zone .panel-header h2 {
+:is(.workbench-zone, .focus-now-body) .panel-header h1,
+:is(.workbench-zone, .focus-now-body) .panel-header h2 {
   gap: 8px;
   font-weight: 600;
   line-height: 1.4;
@@ -150,27 +150,27 @@ html[data-theme="dark"] .workbench-shell,
   font-size: 14px;
 }
 .workbench-shell .header-actions { flex-shrink: 0; gap: 0; }
-.workbench-shell .icon-button {
+:is(.workbench-shell, .focus-now-body) .icon-button {
   box-shadow: none; background: transparent; border-radius: 8px; color: var(--muted);
   transition: background-color 180ms ease, color 180ms ease;
 }
-.workbench-shell .icon-button:hover,
-.workbench-shell .icon-button:focus-visible { background: var(--secondary); color: var(--primary); box-shadow: none; }
+:is(.workbench-shell, .focus-now-body) .icon-button:hover,
+:is(.workbench-shell, .focus-now-body) .icon-button:focus-visible { background: var(--secondary); color: var(--primary); box-shadow: none; }
 .workbench-shell .icon-button .n-button__border,
 .workbench-shell .icon-button .n-button__state-border { display: none; }
 .workbench-shell .n-button.icon-button {
   --n-border-radius: 8px !important;
   border-radius: 8px !important;
 }
-.workbench-shell .panel-header .desk-ai-action {
+:is(.workbench-shell, .focus-now-body) .panel-header .desk-ai-action {
   background: transparent;
   border: 0;
   border-radius: 8px;
   box-shadow: none;
   transition: background-color 180ms ease, color 180ms ease;
 }
-.workbench-shell .panel-header .desk-ai-action:hover,
-.workbench-shell .panel-header .desk-ai-action:focus-visible { background: var(--secondary); }
+:is(.workbench-shell, .focus-now-body) .panel-header .desk-ai-action:hover,
+:is(.workbench-shell, .focus-now-body) .panel-header .desk-ai-action:focus-visible { background: var(--secondary); }
 .workbench-shell button:focus-visible:where(:not([data-pointer-focus])) { outline: 2px solid var(--ring); outline-offset: 2px; }
 
 html[data-theme="dark"] .focus-now-images {
@@ -447,13 +447,13 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   line-height: 1.85;
   padding: 18px 16px;
 }
-.workbench-shell .desk-ai-action {
+:is(.workbench-shell, .focus-now-body) .desk-ai-action {
   display: inline-flex; align-items: center; gap: 6px;
   border-radius: 6px; min-height: 30px; padding: 0 8px;
   color: var(--muted); background: transparent;
   white-space: nowrap; font-size: 12px;
 }
-.workbench-shell .desk-ai-action:hover { background: var(--secondary); color: var(--primary); }
+:is(.workbench-shell, .focus-now-body) .desk-ai-action:hover { background: var(--secondary); color: var(--primary); }
 .workbench-shell .desk-ai-button { color: var(--muted); }
 .workbench-shell .desk-ai-button:hover,
 .workbench-shell .desk-ai-button:focus-visible { color: var(--primary); }
@@ -473,7 +473,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 
 /* Keep controls usable after a user resizes a column below its default. */
 @container (max-width: 235px) {
-  .workbench-zone .panel-header { flex-wrap: wrap; gap: 2px; }
+  :is(.workbench-zone, .focus-now-body) .panel-header { flex-wrap: wrap; gap: 2px; }
   .workbench-zone .panel-header .header-actions { margin-inline-start: auto; }
   .workbench-zone .todo-heading { flex-wrap: wrap; }
   .workbench-zone .todo-heading-actions { margin-inline-start: auto; }
@@ -532,12 +532,12 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 /* Overdue dates retain their warning color; task text stays readable and neutral. */
 
 .workbench-shell .workspace-trigger-title { font-size: 18px; font-weight: 600; letter-spacing: 0; }
-.workbench-zone .panel-header h1,
-.workbench-zone .panel-header h2 { font-size: 16px; }
+:is(.workbench-zone, .focus-now-body) .panel-header h1,
+:is(.workbench-zone, .focus-now-body) .panel-header h2 { font-size: 16px; }
 
 /* Shared title sizing, including the narrower image column. */
-.workbench-zone .panel-header h1,
-.workbench-zone .panel-header h2 { flex-shrink: 1; }
+:is(.workbench-zone, .focus-now-body) .panel-header h1,
+:is(.workbench-zone, .focus-now-body) .panel-header h2 { flex-shrink: 1; }
 
 /* Keep each tag heading available while its actions scroll underneath. */
 .workbench-shell .quick-tag-heading {
@@ -820,7 +820,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 .workbench-shell .workspace-trigger:focus-visible { background: transparent; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) {
   .workbench-shell .icon-button,
-  .workbench-shell .panel-header .desk-ai-action,
+  :is(.workbench-shell, .focus-now-body) .panel-header .desk-ai-action,
   .workbench-shell .workspace-trigger,
   .workbench-shell .workbench-header-hide-button,
   .workbench-shell .workbench-header-reveal,
@@ -960,8 +960,8 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   box-shadow: 0 1px 4px color-mix(in srgb, var(--text) 3%, transparent);
 }
 
-.workbench-zone .panel-header h1,
-.workbench-zone .panel-header h2 {
+:is(.workbench-zone, .focus-now-body) .panel-header h1,
+:is(.workbench-zone, .focus-now-body) .panel-header h2 {
   letter-spacing: -0.025em;
 }
 
@@ -1157,3 +1157,6 @@ html[data-theme="dark"] .quick-color-custom-preview {
   font-size: 16px;
   margin-bottom: 8px;
 }
+
+.focus-now-body .panel-header { flex: none; }
+.focus-now-notes-header .header-actions { margin-left: auto; }

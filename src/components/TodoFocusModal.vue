@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NIcon, NModal } from "naive-ui";
-import { AddOutline } from "@vicons/ionicons5";
-import { Timer, Image as ImageIcon } from "lucide-vue-next";
+import { Timer, Image as ImageIcon, FileText, Clipboard } from "lucide-vue-next";
 import type { AppLanguage, ImagePasteRequest, LineItem, StoredImage } from "../types";
 import { getDefaultTitles, getIconHeadingText, getUiText } from "../state/i18n";
 import { formatFocusDuration } from "../state/todos";
@@ -88,7 +87,7 @@ const displayDurationIso = computed(() => `PT${Math.ceil(displayMs.value / 1000)
 //    saveImage 上抛 App、关预览是收浮层而非撤全屏。 ——
 const activePreviewId = ref<string>();
 const editorActive = ref(false);
-const pasteButtonRef = ref<HTMLButtonElement>();
+const textPanelRef = ref<InstanceType<typeof TextPanel> | null>(null);
 const bodyRef = ref<HTMLElement>();
 const imageWidth = ref(25);
 const bodyWidth = ref(0);
@@ -378,28 +377,13 @@ function handleModalShow(value: boolean): void {
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
         <aside :class="{ 'is-collapsed': imagesCollapsed }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
           <div class="focus-now-images-rail" @click="imageWidth = 25"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
-          <div class="focus-now-images-toolbar">
-            <button
-              ref="pasteButtonRef"
-              class="focus-now-add-image"
-              type="button"
-              :aria-label="uiText.todo.focusAddImage"
-              :title="uiText.todo.focusAddImage"
-              @click="emit('pasteImage', { placement: 'append', anchor: pasteButtonRef })"
-            >
-              <NIcon size="14" aria-hidden="true">
-                <AddOutline />
-              </NIcon>
-              {{ uiText.todo.focusAddImage }}
-            </button>
-          </div>
           <ImagePanel
-            :title="uiText.todo.focusImagesLabel"
+            :title="getDefaultTitles(language)['image-title']"
+            header-id="focus-now-image-title"
             :images="images"
             :active-preview-id="activePreviewId"
             :language="language"
             :can-edit="false"
-            hide-header
             @preview="openPreview"
             @close-preview="clearPreview"
             @copy="(id: string) => emit('copyImage', id)"
@@ -425,7 +409,18 @@ function handleModalShow(value: boolean): void {
         <!-- 右侧区域 = 记事本 + 预览/编辑浮层：浮层绝对定位盖住（而非 v-show 藏起
              记事本——display:none 会丢滚动位置），关预览即原样露出。 -->
         <section class="focus-now-notes">
+          <div class="panel-header desk-zone-heading focus-now-notes-header">
+            <h2><NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span></h2>
+            <div class="header-actions">
+              <button class="desk-ai-action desk-paste-button" type="button"
+                :aria-label="uiText.common.paste" :title="uiText.common.paste"
+                @mousedown.prevent @click="textPanelRef?.appendPaste()">
+                <NIcon :component="Clipboard" /><span>{{ uiText.common.paste }}</span>
+              </button>
+            </div>
+          </div>
           <TextPanel
+            ref="textPanelRef"
             title-id="focus-now-notes-title"
             :title="uiText.todo.focusDoing"
             :lines="notes"

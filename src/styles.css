@@ -7385,39 +7385,6 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   background: var(--card);
 }
 
-/* 贴图条顶部「添加图片」：15% 宽窄条里占满一行的主行动按钮（左图右文提示的左半）。 */
-.focus-now-images.is-collapsed {
-  visibility: hidden;
-}
-
-.focus-now-images-toolbar {
-  flex: none;
-  padding: 8px;
-  border-bottom: 1px solid var(--line-subtle);
-}
-
-.focus-now-add-image {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-}
-
-.focus-now-add-image:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
 .focus-now-images .image-panel {
   flex: 1 1 auto;
   min-height: 0;
@@ -7635,7 +7602,6 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   border-radius: 0;
   background: transparent;
 }
-.focus-now-images-toolbar { border-bottom: 0; }
 .focus-now-images-rail { display: none; }
 .focus-now-images.is-collapsed { visibility: visible; }
 .focus-now-images.is-collapsed > :not(.focus-now-images-rail) { display: none; }
@@ -7670,4 +7636,6 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-divider:hover::before,
 .focus-now-divider:focus-visible::before { background: var(--line-subtle); }
 .focus-now-divider::after { text-align: center; line-height: 20px; }
-.focus-now-notes { border: 0; border-radius: 0; }
+.focus-now-notes { border: 0; border-radius: 0; padding: 0 18px 16px; background: transparent; }
+.focus-now-notes .text-panel { flex: 1 1 auto; min-height: 0; height: auto; background: var(--card); border-radius: 12px; overflow: hidden; }
+.focus-now-images:not(.is-collapsed) { padding: 0 18px 16px; }
