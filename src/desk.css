@@ -1040,9 +1040,12 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   transition: box-shadow var(--motion-fast) ease;
 }
 
-:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-move,
-:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-enter-active,
-:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-leave-active {
+.workbench-shell .image-card.image-reorder-move,
+.focus-now-images .image-card.image-reorder-move,
+.workbench-shell .image-card.image-reorder-enter-active,
+.focus-now-images .image-card.image-reorder-enter-active,
+.workbench-shell .image-card.image-reorder-leave-active,
+.focus-now-images .image-card.image-reorder-leave-active {
   transition:
     transform 0.22s cubic-bezier(0.2, 0, 0, 1),
     opacity 0.18s ease,
