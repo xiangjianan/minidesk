@@ -49,6 +49,7 @@ describe("TodoFocusModal", () => {
     const body = wrapper.get(".focus-now-body");
     vi.spyOn(body.element, "getBoundingClientRect").mockReturnValue({ left: 100, width: 1000 } as DOMRect);
     const divider = wrapper.get(".focus-now-divider");
+    expect(divider.attributes("aria-valuenow")).toBe("10");
     divider.element.dispatchEvent(new MouseEvent("pointerdown", { button: 0, clientX: 350, bubbles: true }));
     window.dispatchEvent(new MouseEvent("pointermove", { clientX: 600 }));
     await nextTick();
@@ -64,6 +65,8 @@ describe("TodoFocusModal", () => {
     await nextTick();
     expect(divider.attributes("aria-valuenow")).toBe("4");
     expect(wrapper.get(".focus-now-images").classes()).toContain("is-collapsed");
+    await wrapper.get(".focus-now-images-rail").trigger("click");
+    expect(divider.attributes("aria-valuenow")).toBe("10");
     wrapper.unmount();
   });
 

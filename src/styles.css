@@ -7370,7 +7370,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(44px, var(--focus-image-width, 25%)) 12px minmax(0, 1fr);
+  grid-template-columns: minmax(44px, var(--focus-image-width, 10%)) 12px minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -7426,7 +7426,8 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   pointer-events: none;
 }
 .focus-now-divider:hover::after,
-.focus-now-divider:focus-visible::after { opacity: 0.7; }
+.focus-now-divider:focus-visible::after,
+.focus-now-divider:active::after { opacity: 0.7; }
 
 .focus-now-notes {
   position: relative;
@@ -7619,9 +7620,11 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   white-space: nowrap;
 }
 .focus-now-images-rail .n-icon { writing-mode: horizontal-tb; font-size: 16px; }
-.focus-now-divider {
+button.focus-now-divider {
   width: 12px;
   min-width: 0;
+  z-index: 2;
+  cursor: col-resize;
   border-radius: 0;
   overflow: visible;
 }
@@ -7634,7 +7637,14 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   background: var(--line-subtle);
 }
 .focus-now-divider:hover::before,
-.focus-now-divider:focus-visible::before { background: var(--line-subtle); }
+.focus-now-divider:focus-visible::before,
+.focus-now-divider:active::before {
+  width: 3px;
+  background: linear-gradient(to bottom,
+    var(--line-subtle) 0 calc(50% - 44px),
+    color-mix(in srgb, var(--muted) 24%, transparent) calc(50% - 44px) calc(50% + 44px),
+    var(--line-subtle) calc(50% + 44px) 100%);
+}
 .focus-now-divider::after { text-align: center; line-height: 20px; }
 .focus-now-notes { border: 0; border-radius: 0; padding: 0 18px 16px; background: transparent; }
 .focus-now-notes .text-panel { flex: 1 1 auto; min-height: 0; height: auto; background: var(--card); border-radius: 12px; overflow: hidden; }
