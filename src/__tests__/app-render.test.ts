@@ -6680,7 +6680,8 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       const modal = wrapper.getComponent(TodoFocusModal);
-      modal.getComponent(TextPanel).vm.$emit("update", [{ text: "随手记第一条", indent: 0 }]);
+      await modal.get("textarea").trigger("click");
+      await modal.get("textarea").setValue("随手记第一条");
       await wrapper.vm.$nextTick();
 
       // 3s 文本防抖到点冲刷：focusNotes 落进 localStorage。
