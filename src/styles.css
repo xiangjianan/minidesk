@@ -7370,7 +7370,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(44px, var(--focus-image-width, 15%)) 12px minmax(0, 1fr);
+  grid-template-columns: minmax(44px, var(--focus-image-width, 15%)) 12px minmax(44px, 1fr);
   min-height: 0;
 }
 
@@ -7659,3 +7659,23 @@ button.focus-now-divider {
 .focus-now-notes { border: 0; border-radius: 0; padding: 0 18px 16px; background: transparent; }
 .focus-now-notes .text-panel { flex: 1 1 auto; min-height: 0; height: auto; background: var(--card); border-radius: 12px; overflow: hidden; }
 .focus-now-images:not(.is-collapsed) { padding: 0 18px 16px; }
+
+.focus-now-notes.is-collapsed { padding: 0; }
+.focus-now-notes-rail {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.focus-now-notes-rail .n-icon { writing-mode: horizontal-tb; font-size: 16px; }

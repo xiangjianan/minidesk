@@ -92,13 +92,15 @@ const bodyRef = ref<HTMLElement>();
 const imageWidth = ref(15);
 const bodyWidth = ref(0);
 const imagesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * imageWidth.value / 100 < 100);
+const maxImageWidth = computed(() => bodyWidth.value > 0 ? Math.max(0, (bodyWidth.value - 56) / bodyWidth.value * 100) : 100);
+const notesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * (1 - imageWidth.value / 100) - 12 < 100);
 let resizing = false;
 
 function resizeImages(clientX: number): void {
   const rect = bodyRef.value?.getBoundingClientRect();
   if (!rect?.width) return;
   bodyWidth.value = rect.width;
-  imageWidth.value = Math.max(44 / rect.width * 100, Math.min(70, (clientX - rect.left) / rect.width * 100));
+  imageWidth.value = Math.max(44 / rect.width * 100, Math.min(maxImageWidth.value, (clientX - rect.left) / rect.width * 100));
 }
 function moveDivider(event: PointerEvent): void {
   if (resizing) resizeImages(event.clientX);
@@ -122,7 +124,7 @@ function keyboardDivider(event: KeyboardEvent): void {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   event.preventDefault();
   bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0;
-  imageWidth.value = Math.max(bodyWidth.value ? 44 / bodyWidth.value * 100 : 0, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
+  imageWidth.value = Math.max(bodyWidth.value ? 44 / bodyWidth.value * 100 : 0, Math.min(maxImageWidth.value, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
 }
 const previewRef = ref<HTMLElement>();
 const previewImageRef = ref<HTMLImageElement>();
@@ -195,7 +197,7 @@ function exitEditor(): void {
 // Esc 关整预览。document 捕获阶段截停——外层 NModal 的 FocusTrap 在冒泡阶段
 // 收 Esc 会关掉整个弹窗（专注会话被误暂停）。
 function handlePreviewKeydown(event: KeyboardEvent): void {
-  if (!activePreviewId.value) return;
+  if (!activePreviewId.value || notesCollapsed.value) return;
   const key = event.key.toLowerCase();
   if (editorActive.value && isTextEntryTarget(event.target)) return;
   if (editorActive.value && event.key === "Enter") {
@@ -343,7 +345,7 @@ function handleModalShow(value: boolean): void {
     :closable="false"
     :aria-label="uiText.todo.focusDoing"
     :mask-closable="false"
-    :close-on-esc="!activePreviewId"
+    :close-on-esc="!activePreviewId || notesCollapsed"
     @update:show="handleModalShow"
   >
     <div class="focus-now-stage">
@@ -402,14 +404,17 @@ function handleModalShow(value: boolean): void {
           :aria-label="uiText.todo.focusImagesLabel"
           :aria-valuenow="Math.round(imageWidth)"
           :aria-valuemin="bodyWidth ? Math.round(4400 / bodyWidth) : 0"
-          aria-valuemax="70"
+          :aria-valuemax="Math.round(maxImageWidth)"
           @pointerdown="startDivider"
           @keydown="keyboardDivider"
         ></button>
         <!-- 右侧区域 = 记事本 + 预览/编辑浮层：浮层绝对定位盖住（而非 v-show 藏起
              记事本——display:none 会丢滚动位置），关预览即原样露出。 -->
-        <section class="focus-now-notes">
-          <div class="panel-header desk-zone-heading focus-now-notes-header">
+        <section class="focus-now-notes" :class="{ 'is-collapsed': notesCollapsed }">
+          <button v-if="notesCollapsed" class="focus-now-notes-rail" type="button" @click="imageWidth = 15">
+            <NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span>
+          </button>
+          <div v-show="!notesCollapsed" class="panel-header desk-zone-heading focus-now-notes-header">
             <h2><NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span></h2>
             <div class="header-actions">
               <button class="desk-ai-action desk-paste-button" type="button"
@@ -420,6 +425,7 @@ function handleModalShow(value: boolean): void {
             </div>
           </div>
           <TextPanel
+            v-show="!notesCollapsed"
             ref="textPanelRef"
             title-id="focus-now-notes-title"
             :title="uiText.todo.focusDoing"
@@ -434,6 +440,7 @@ function handleModalShow(value: boolean): void {
           <Transition name="focus-preview" appear>
           <div
             v-if="activePreviewId"
+            v-show="!notesCollapsed"
             ref="previewRef"
             class="focus-now-preview"
             tabindex="-1"

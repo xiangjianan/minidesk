@@ -60,7 +60,11 @@ describe("TodoFocusModal", () => {
     divider.element.dispatchEvent(new MouseEvent("pointerdown", { button: 0, bubbles: true }));
     window.dispatchEvent(new MouseEvent("pointermove", { clientX: 2000 }));
     await nextTick();
-    expect(divider.attributes("aria-valuenow")).toBe("70");
+    expect(divider.attributes("aria-valuenow")).toBe("94");
+    expect(wrapper.get(".focus-now-notes").classes()).toContain("is-collapsed");
+    expect(wrapper.get(".focus-now-notes-rail").text()).toBe("记事本");
+    await wrapper.get(".focus-now-notes-rail").trigger("click");
+    expect(divider.attributes("aria-valuenow")).toBe("15");
     window.dispatchEvent(new MouseEvent("pointermove", { clientX: 0 }));
     await nextTick();
     expect(divider.attributes("aria-valuenow")).toBe("4");
