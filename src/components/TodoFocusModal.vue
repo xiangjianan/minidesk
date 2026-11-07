@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<{
   baseMs: number;
   notes: LineItem[];
   images: StoredImage[];
+  initialImageWidth?: number;
   language?: AppLanguage;
   polish?: (kind: PolishKind, text: string, style?: PolishStyle) => Promise<PolishResult>;
 }>(), {
@@ -39,6 +40,7 @@ const emit = defineEmits<{
   close: [];
   notesUpdate: [lines: LineItem[]];
   notesBlur: [];
+  imageWidthUpdate: [width: number];
   pasteImage: [request: ImagePasteRequest];
   dropImageFiles: [files: File[], targetId?: string];
   copyImage: [id: string];
@@ -68,7 +70,10 @@ function stopDisplayTimer(): void {
 }
 
 onMounted(() => {
-  if (props.show) startDisplayTimer();
+  if (props.show) {
+    startDisplayTimer();
+    void nextTick(() => { bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0; });
+  }
 });
 
 // App checkpoint 提升 baseMs 时重置段起点：显示 = baseMs + (now − 段起点)，接续不跳变。
@@ -89,7 +94,7 @@ const activePreviewId = ref<string>();
 const editorActive = ref(false);
 const textPanelRef = ref<InstanceType<typeof TextPanel> | null>(null);
 const bodyRef = ref<HTMLElement>();
-const imageWidth = ref(15);
+const imageWidth = ref(props.initialImageWidth ?? 15);
 const bodyWidth = ref(0);
 const imagesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * imageWidth.value / 100 < 100);
 const maxImageWidth = computed(() => bodyWidth.value > 0 ? Math.max(0, (bodyWidth.value - 56) / bodyWidth.value * 100) : 100);
@@ -102,10 +107,15 @@ function resizeImages(clientX: number): void {
   bodyWidth.value = rect.width;
   imageWidth.value = Math.max(44 / rect.width * 100, Math.min(maxImageWidth.value, (clientX - rect.left) / rect.width * 100));
 }
+function expandPanel(): void {
+  imageWidth.value = 15;
+  emit("imageWidthUpdate", imageWidth.value);
+}
 function moveDivider(event: PointerEvent): void {
   if (resizing) resizeImages(event.clientX);
 }
 function stopDivider(): void {
+  if (resizing) emit("imageWidthUpdate", imageWidth.value);
   resizing = false;
   window.removeEventListener("pointermove", moveDivider);
   window.removeEventListener("pointerup", stopDivider);
@@ -125,6 +135,7 @@ function keyboardDivider(event: KeyboardEvent): void {
   event.preventDefault();
   bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0;
   imageWidth.value = Math.max(bodyWidth.value ? 44 / bodyWidth.value * 100 : 0, Math.min(maxImageWidth.value, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
+  emit("imageWidthUpdate", imageWidth.value);
 }
 const previewRef = ref<HTMLElement>();
 const previewImageRef = ref<HTMLImageElement>();
@@ -308,6 +319,8 @@ watch(() => props.images.some((image) => image.id === activePreviewId.value), (e
 // NModal 常驻挂载（App 只切 show 不 v-if）：show 翻转既管预览态也管计时段。
 watch(() => props.show, (visible) => {
   if (visible) {
+    imageWidth.value = props.initialImageWidth ?? 15;
+    void nextTick(() => { bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0; });
     // 重开弹窗重置段起点与刻度：隐藏期间的空闲间隔不计入专注时长
     //（关闭时增量已并入 App 的 baseMs，显示从新 baseMs 重新起步）。
     segmentStartAt.value = Date.now();
@@ -316,6 +329,7 @@ watch(() => props.show, (visible) => {
     return;
   }
   stopDisplayTimer();
+  stopDivider();
   // 撤下即清预览态：重开弹窗不得复活陈旧预览；activePreviewId 归零连带摘掉键盘监听。
   clearPreview();
 });
@@ -378,7 +392,7 @@ function handleModalShow(value: boolean): void {
       </header>
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
         <aside :class="{ 'is-collapsed': imagesCollapsed }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
-          <div class="focus-now-images-rail" @click="imageWidth = 15"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
+          <div class="focus-now-images-rail" @click="expandPanel"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
           <ImagePanel
             :title="getDefaultTitles(language)['image-title']"
             header-id="focus-now-image-title"
@@ -411,7 +425,7 @@ function handleModalShow(value: boolean): void {
         <!-- 右侧区域 = 记事本 + 预览/编辑浮层：浮层绝对定位盖住（而非 v-show 藏起
              记事本——display:none 会丢滚动位置），关预览即原样露出。 -->
         <section class="focus-now-notes" :class="{ 'is-collapsed': notesCollapsed }">
-          <button v-if="notesCollapsed" class="focus-now-notes-rail" type="button" @click="imageWidth = 15">
+          <button v-if="notesCollapsed" class="focus-now-notes-rail" type="button" @click="expandPanel">
             <NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span>
           </button>
           <div v-show="!notesCollapsed" class="panel-header desk-zone-heading focus-now-notes-header">

@@ -74,6 +74,18 @@ describe("TodoFocusModal", () => {
     wrapper.unmount();
   });
 
+  it("重新打开不同事项时加载各自的比例", async () => {
+    const wrapper = mountModal({ initialImageWidth: 32 });
+    expect(wrapper.get(".focus-now-divider").attributes("aria-valuenow")).toBe("32");
+    await wrapper.setProps({ show: false, initialImageWidth: undefined });
+    await wrapper.setProps({ show: true });
+    expect(wrapper.get(".focus-now-divider").attributes("aria-valuenow")).toBe("15");
+    await wrapper.setProps({ show: false, initialImageWidth: 32 });
+    await wrapper.setProps({ show: true });
+    expect(wrapper.get(".focus-now-divider").attributes("aria-valuenow")).toBe("32");
+    wrapper.unmount();
+  });
+
   it("渲染任务标题与初始累计计时（h:mm:ss）", () => {
     const wrapper = mountModal();
     expect(wrapper.get(".focus-now-title").text()).toBe("现在做这个：写周报");
