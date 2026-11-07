@@ -250,13 +250,13 @@ function handlePreviewKeydown(event: KeyboardEvent): void {
     if (previewImage.value) emit("copyImage", previewImage.value.id);
     return;
   }
-  if (key === "w" || key === "a") {
+  if (!editorActive.value && (key === "w" || key === "a" || key === "arrowup" || key === "arrowleft")) {
     event.preventDefault();
     event.stopPropagation();
     navigateFocus(-1);
     return;
   }
-  if (key === "s" || key === "d") {
+  if (!editorActive.value && (key === "s" || key === "d" || key === "arrowdown" || key === "arrowright")) {
     event.preventDefault();
     event.stopPropagation();
     navigateFocus(1);
@@ -349,7 +349,7 @@ function handleModalShow(value: boolean): void {
     <div class="focus-now-stage">
       <header class="focus-now-header">
         <div class="focus-now-header-spacer" aria-hidden="true"></div>
-        <h2 class="focus-now-title" :title="title">{{ title }}</h2>
+        <h2 class="focus-now-title" :title="uiText.todo.focusTitlePrefix + title">{{ uiText.todo.focusTitlePrefix }}{{ title }}</h2>
         <div class="focus-now-header-controls">
           <span class="focus-now-timer-group">
             <NIcon class="focus-now-timer-icon" :size="18" :aria-label="uiText.todo.focusTimer" aria-hidden="true">
@@ -415,7 +415,7 @@ function handleModalShow(value: boolean): void {
               <button class="desk-ai-action desk-paste-button" type="button"
                 :aria-label="uiText.common.paste" :title="uiText.common.paste"
                 @mousedown.prevent @click="textPanelRef?.appendPaste()">
-                <NIcon :component="Clipboard" /><span>{{ uiText.common.paste }}</span>
+                <NIcon :component="Clipboard" :size="16" /><span>{{ uiText.common.paste }}</span>
               </button>
             </div>
           </div>

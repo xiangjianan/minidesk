@@ -72,7 +72,7 @@ describe("TodoFocusModal", () => {
 
   it("渲染任务标题与初始累计计时（h:mm:ss）", () => {
     const wrapper = mountModal();
-    expect(wrapper.text()).toContain("写周报");
+    expect(wrapper.get(".focus-now-title").text()).toBe("现在做这个：写周报");
     expect(wrapper.get(".focus-now-timer-label").text()).toBe("已进行");
     expect(wrapper.find(".focus-now-timer").text()).toBe("0:12:34"); // 754s → 12.5 分钟向下取整
   });
@@ -95,6 +95,7 @@ describe("TodoFocusModal", () => {
 
   it("从零开始每秒递增，英文界面也显示累计时长", async () => {
     const wrapper = mountModal({ baseMs: 0, language: "en" });
+    expect(wrapper.get(".focus-now-title").text()).toBe("Do this now: 写周报");
     expect(wrapper.get(".focus-now-timer-label").text()).toBe("Elapsed");
     expect(wrapper.get(".focus-now-timer").text()).toBe("0:00:00");
     vi.advanceTimersByTime(1000);
@@ -292,6 +293,28 @@ describe("TodoFocusModal", () => {
     pressKey("s");
     await nextTick();
     expect(img().attributes("src")).toBe("data:image/png;base64,BBB");
+    wrapper.unmount();
+  });
+
+  it("方向键切换预览图片并在边界保持当前图片", async () => {
+    const wrapper = mountModal({ images: [IMG, IMG2] });
+    wrapper.findComponent({ name: "ImagePanel" }).vm.$emit("preview", "i1");
+    await nextTick();
+    expect(pressKey("ArrowUp").defaultPrevented).toBe(true);
+    await nextTick();
+    expect(wrapper.get(".focus-now-preview-image").attributes("src")).toBe(IMG.src);
+    expect(pressKey("ArrowDown").defaultPrevented).toBe(true);
+    await nextTick();
+    expect(wrapper.get(".focus-now-preview-image").attributes("src")).toBe(IMG2.src);
+    pressKey("ArrowRight");
+    await nextTick();
+    expect(wrapper.get(".focus-now-preview-image").attributes("src")).toBe(IMG2.src);
+    pressKey("ArrowLeft");
+    await nextTick();
+    expect(wrapper.get(".focus-now-preview-image").attributes("src")).toBe(IMG.src);
+    pressKey("Enter");
+    await nextTick();
+    expect(pressKey("ArrowDown").defaultPrevented).toBe(false);
     wrapper.unmount();
   });
 
