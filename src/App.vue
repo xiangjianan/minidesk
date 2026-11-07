@@ -4,6 +4,7 @@ import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, react
 import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
 import ImagePanel from "./components/ImagePanel.vue";
+import ImagePreview from "./components/ImagePreview.vue";
 import MobileHome from "./components/MobileHome.vue";
 import MobileInboxCapture from "./components/MobileInboxCapture.vue";
 import QuickButtons from "./components/QuickButtons.vue";
@@ -107,7 +108,6 @@ import type { ImagePlacementHint, ImageReplacementHint, SaveScope } from "./stat
 import { appendContinuingListFormat } from "./utils/textEditor";
 import type { AppLanguage, BoardState, CompanionGifTheme, DraggedTodo, GuideKey, ImagePasteFeedback, ImagePasteRequest, LineItem, QuickApiBodyType, QuickApiHeader, QuickApiMethod, QuickButton, QuickButtonType, StoredImage, TodoItem, TodoListConfig, TodoListId, TodoPeriod, TodoStarChange, WorkspaceData, WorkspaceInbox, WorkspaceMoveTarget, WorkspaceSpace, ZoneKey } from "./types";
 
-const ImagePreview = defineAsyncComponent(() => import("./components/ImagePreview.vue"));
 const ShortcutHelp = defineAsyncComponent(() => import("./components/ShortcutHelp.vue"));
 const SupportAuthor = defineAsyncComponent(() => import("./components/SupportAuthor.vue"));
 // 配对弹窗含 qrcode 依赖，异步加载避免二维码库进主包；v-if + :key 用法与同步组件一致。
