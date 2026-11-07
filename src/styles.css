@@ -7386,6 +7386,10 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 }
 
 /* 贴图条顶部「添加图片」：15% 宽窄条里占满一行的主行动按钮（左图右文提示的左半）。 */
+.focus-now-images.is-collapsed {
+  visibility: hidden;
+}
+
 .focus-now-images-toolbar {
   flex: none;
   padding: 8px;
@@ -7430,18 +7434,32 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   touch-action: none;
 }
 
-.focus-now-divider::after {
+.focus-now-divider::before {
   content: "";
   position: absolute;
-  inset: 0 5px;
-  border-radius: 2px;
-  background: var(--line-subtle);
+  top: 50%; left: 50%;
+  width: 3px; height: 88px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: transparent;
 }
-
+.focus-now-divider:hover::before,
+.focus-now-divider:focus-visible::before {
+  background: color-mix(in srgb, var(--muted) 24%, transparent);
+}
+.focus-now-divider::after {
+  content: "‹ ›";
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  color: var(--muted);
+  font-size: 20px;
+  opacity: 0;
+  pointer-events: none;
+}
 .focus-now-divider:hover::after,
-.focus-now-divider:focus-visible::after {
-  background: var(--primary);
-}
+.focus-now-divider:focus-visible::after { opacity: 0.7; }
 
 .focus-now-notes {
   position: relative;

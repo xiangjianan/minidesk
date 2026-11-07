@@ -96,7 +96,7 @@ let resizing = false;
 function resizeImages(clientX: number): void {
   const rect = bodyRef.value?.getBoundingClientRect();
   if (!rect?.width) return;
-  imageWidth.value = Math.max(15, Math.min(70, (clientX - rect.left) / rect.width * 100));
+  imageWidth.value = Math.max(0, Math.min(70, (clientX - rect.left) / rect.width * 100));
 }
 function moveDivider(event: PointerEvent): void {
   if (resizing) resizeImages(event.clientX);
@@ -118,7 +118,7 @@ function startDivider(event: PointerEvent): void {
 function keyboardDivider(event: KeyboardEvent): void {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   event.preventDefault();
-  imageWidth.value = Math.max(15, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
+  imageWidth.value = Math.max(0, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
 }
 const previewRef = ref<HTMLElement>();
 const previewImageRef = ref<HTMLImageElement>();
@@ -371,7 +371,7 @@ function handleModalShow(value: boolean): void {
         </div>
       </header>
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
-        <aside class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
+        <aside :class="{ 'is-collapsed': imageWidth === 0 }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
           <div class="focus-now-images-toolbar">
             <button
               ref="pasteButtonRef"
@@ -411,7 +411,7 @@ function handleModalShow(value: boolean): void {
           aria-orientation="vertical"
           :aria-label="uiText.todo.focusImagesLabel"
           :aria-valuenow="Math.round(imageWidth)"
-          aria-valuemin="15"
+          aria-valuemin="0"
           aria-valuemax="70"
           @pointerdown="startDivider"
           @keydown="keyboardDivider"
