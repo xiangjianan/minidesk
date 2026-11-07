@@ -89,7 +89,7 @@ const activePreviewId = ref<string>();
 const editorActive = ref(false);
 const textPanelRef = ref<InstanceType<typeof TextPanel> | null>(null);
 const bodyRef = ref<HTMLElement>();
-const imageWidth = ref(10);
+const imageWidth = ref(15);
 const bodyWidth = ref(0);
 const imagesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * imageWidth.value / 100 < 100);
 let resizing = false;
@@ -376,7 +376,7 @@ function handleModalShow(value: boolean): void {
       </header>
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
         <aside :class="{ 'is-collapsed': imagesCollapsed }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
-          <div class="focus-now-images-rail" @click="imageWidth = 10"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
+          <div class="focus-now-images-rail" @click="imageWidth = 15"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
           <ImagePanel
             :title="getDefaultTitles(language)['image-title']"
             header-id="focus-now-image-title"
