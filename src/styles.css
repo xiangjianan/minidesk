@@ -7370,8 +7370,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(120px, 15%) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: minmax(0, var(--focus-image-width, 25%)) 12px minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -7422,20 +7421,26 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   border-right: 0;
 }
 
-/* 10% 宽贴图条：卡片收成单列缩略——28px 序号列会把图挤没，序号信息由
-   预览的上一张/下一张承担；缩略高度也随条宽收紧。 */
-.focus-now-images .image-card {
-  grid-template-columns: minmax(0, 1fr);
+.focus-now-divider {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
 }
 
-.focus-now-images .image-index {
-  display: none;
+.focus-now-divider::after {
+  content: "";
+  position: absolute;
+  inset: 0 5px;
+  border-radius: 2px;
+  background: var(--line-subtle);
 }
 
-.focus-now-images .image-card img,
-.focus-now-images .image-drag-preview img {
-  max-height: 88px;
-  margin: 6px;
+.focus-now-divider:hover::after,
+.focus-now-divider:focus-visible::after {
+  background: var(--primary);
 }
 
 .focus-now-notes {
@@ -7485,10 +7490,6 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 }
 
 @media (max-width: 940px) {
-  .focus-now-body {
-    grid-template-columns: 96px minmax(0, 1fr);
-  }
-
   .focus-now-timer {
     font-size: 14px;
   }

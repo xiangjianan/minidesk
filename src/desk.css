@@ -173,12 +173,16 @@ html[data-theme="dark"] .workbench-shell,
 .workbench-shell .panel-header .desk-ai-action:focus-visible { background: var(--secondary); }
 .workbench-shell button:focus-visible:where(:not([data-pointer-focus])) { outline: 2px solid var(--ring); outline-offset: 2px; }
 
+html[data-theme="dark"] .focus-now-images {
+  --desk-card-shadow: none;
+}
+
 /* Preserve card alignment while leaving room for the hover ring inside the scroll clip. */
 .workbench-zone-assets > .image-panel { overflow: visible; }
 .workbench-zone-assets .image-list-scrollbar { width: calc(100% + 14px); margin-inline-start: -2px; }
 .workbench-zone-assets .image-list-scrollbar .image-list { padding-inline: 2px 12px; }
-.workbench-shell .image-list { padding: calc(var(--desk-group-top) + 2px) 0 16px; gap: 14px; }
-.workbench-shell .image-card { border-radius: var(--desk-card-radius); background: var(--card); box-shadow: var(--desk-card-shadow); }
+:is(.workbench-shell, .focus-now-images) .image-list { padding: calc(var(--desk-group-top, 0px) + 2px) 0 16px; gap: 14px; }
+:is(.workbench-shell, .focus-now-images) .image-card { border-radius: var(--desk-card-radius, 12px); background: var(--card); box-shadow: var(--desk-card-shadow, inset 0 0 0 1px var(--line-subtle), 0 2px 3px rgba(24, 35, 52, 0.025), 0 6px 16px rgba(24, 35, 52, 0.025)); }
 
 /* Put scroll rails in the zone inset while groups align with the header rule. */
 .workbench-zone-notes > .quick-block { overflow: visible; }
@@ -1030,21 +1034,21 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 16%, var(--line-subtle)), 0 1px 3px color-mix(in srgb, var(--text) 4%, transparent);
 }
 
-.workbench-shell .image-card {
+:is(.workbench-shell, .focus-now-images) .image-card {
   transition: box-shadow var(--motion-fast) ease;
 }
 
-.workbench-shell .image-card.image-reorder-move,
-.workbench-shell .image-card.image-reorder-enter-active,
-.workbench-shell .image-card.image-reorder-leave-active {
+:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-move,
+:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-enter-active,
+:is(.workbench-shell, .focus-now-images) .image-card.image-reorder-leave-active {
   transition:
     transform 0.22s cubic-bezier(0.2, 0, 0, 1),
     opacity 0.18s ease,
     box-shadow var(--motion-fast) ease;
 }
 
-.workbench-shell .image-card:hover {
-  box-shadow: var(--desk-card-shadow), 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
+:is(.workbench-shell, .focus-now-images) .image-card:hover {
+  box-shadow: var(--desk-card-shadow, inset 0 0 0 1px var(--line-subtle)), 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
 }
 
 html[data-theme="dark"] .workbench-shell {

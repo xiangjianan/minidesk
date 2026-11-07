@@ -89,6 +89,37 @@ const displayDurationIso = computed(() => `PT${Math.ceil(displayMs.value / 1000)
 const activePreviewId = ref<string>();
 const editorActive = ref(false);
 const pasteButtonRef = ref<HTMLButtonElement>();
+const bodyRef = ref<HTMLElement>();
+const imageWidth = ref(25);
+let resizing = false;
+
+function resizeImages(clientX: number): void {
+  const rect = bodyRef.value?.getBoundingClientRect();
+  if (!rect?.width) return;
+  imageWidth.value = Math.max(15, Math.min(70, (clientX - rect.left) / rect.width * 100));
+}
+function moveDivider(event: PointerEvent): void {
+  if (resizing) resizeImages(event.clientX);
+}
+function stopDivider(): void {
+  resizing = false;
+  window.removeEventListener("pointermove", moveDivider);
+  window.removeEventListener("pointerup", stopDivider);
+  window.removeEventListener("pointercancel", stopDivider);
+}
+function startDivider(event: PointerEvent): void {
+  if (event.button !== 0) return;
+  event.preventDefault();
+  resizing = true;
+  window.addEventListener("pointermove", moveDivider);
+  window.addEventListener("pointerup", stopDivider);
+  window.addEventListener("pointercancel", stopDivider);
+}
+function keyboardDivider(event: KeyboardEvent): void {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  event.preventDefault();
+  imageWidth.value = Math.max(15, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
+}
 const previewRef = ref<HTMLElement>();
 const previewImageRef = ref<HTMLImageElement>();
 const editorRef = ref<InstanceType<typeof ImageEditor> | null>(null);
@@ -285,6 +316,7 @@ watch(() => props.show, (visible) => {
 
 onBeforeUnmount(() => {
   stopDisplayTimer();
+  stopDivider();
   document.removeEventListener("keydown", handlePreviewKeydown, { capture: true });
 });
 
@@ -338,7 +370,7 @@ function handleModalShow(value: boolean): void {
           </button>
         </div>
       </header>
-      <div class="focus-now-body">
+      <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
         <aside class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
           <div class="focus-now-images-toolbar">
             <button
@@ -372,6 +404,18 @@ function handleModalShow(value: boolean): void {
             @drop-files="(files: File[], _anchor: HTMLElement | undefined, targetId: string | undefined) => emit('dropImageFiles', files, targetId)"
           />
         </aside>
+        <button
+          class="focus-now-divider"
+          type="button"
+          role="separator"
+          aria-orientation="vertical"
+          :aria-label="uiText.todo.focusImagesLabel"
+          :aria-valuenow="Math.round(imageWidth)"
+          aria-valuemin="15"
+          aria-valuemax="70"
+          @pointerdown="startDivider"
+          @keydown="keyboardDivider"
+        ></button>
         <!-- 右侧区域 = 记事本 + 预览/编辑浮层：浮层绝对定位盖住（而非 v-show 藏起
              记事本——display:none 会丢滚动位置），关预览即原样露出。 -->
         <section class="focus-now-notes">

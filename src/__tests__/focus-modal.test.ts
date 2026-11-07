@@ -44,6 +44,25 @@ describe("TodoFocusModal", () => {
     vi.useRealTimers();
   });
 
+  it("通过拖拽和方向键调整图片区域宽度，并限制范围", async () => {
+    const wrapper = mountModal();
+    const body = wrapper.get(".focus-now-body");
+    vi.spyOn(body.element, "getBoundingClientRect").mockReturnValue({ left: 100, width: 1000 } as DOMRect);
+    const divider = wrapper.get(".focus-now-divider");
+    divider.element.dispatchEvent(new MouseEvent("pointerdown", { button: 0, clientX: 350, bubbles: true }));
+    window.dispatchEvent(new MouseEvent("pointermove", { clientX: 600 }));
+    await nextTick();
+    expect(divider.attributes("aria-valuenow")).toBe("50");
+    window.dispatchEvent(new Event("pointerup"));
+    await divider.trigger("keydown", { key: "ArrowRight" });
+    expect(divider.attributes("aria-valuenow")).toBe("52");
+    divider.element.dispatchEvent(new MouseEvent("pointerdown", { button: 0, bubbles: true }));
+    window.dispatchEvent(new MouseEvent("pointermove", { clientX: 2000 }));
+    await nextTick();
+    expect(divider.attributes("aria-valuenow")).toBe("70");
+    wrapper.unmount();
+  });
+
   it("渲染任务标题与初始累计计时（h:mm:ss）", () => {
     const wrapper = mountModal();
     expect(wrapper.text()).toContain("写周报");
