@@ -1567,6 +1567,19 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
     }
     // 异步读取图片期间可能已收到更新版本或产生本地输入。
     if (!appMounted || nextState.sync.revision <= state.sync.revision || hasUnsavedLocalChanges()) return;
+    // 同步笔记时保留未变化的提醒列表，避免无关状态替换触发布局动画。
+    for (const incoming of nextState.workspaces) {
+      const current = state.workspaces.find((workspace) => workspace.id === incoming.id);
+      if (!current) continue;
+      if (JSON.stringify(incoming.todoLists) === JSON.stringify(current.todoLists)) {
+        incoming.todoLists = current.todoLists;
+      }
+      for (const listId of Object.keys(incoming.todos)) {
+        if (JSON.stringify(incoming.todos[listId]) === JSON.stringify(current.todos[listId])) {
+          incoming.todos[listId] = current.todos[listId];
+        }
+      }
+    }
     Object.assign(state, nextState);
     resetTextGenerationBaseline();
     applyTheme();
