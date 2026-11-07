@@ -1575,9 +1575,21 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
         incoming.todoLists = current.todoLists;
       }
       for (const listId of Object.keys(incoming.todos)) {
-        if (JSON.stringify(incoming.todos[listId]) === JSON.stringify(current.todos[listId])) {
-          incoming.todos[listId] = current.todos[listId];
-        }
+        const nextTodos = incoming.todos[listId];
+        const currentTodos = current.todos[listId];
+        if (!currentTodos || nextTodos.length !== currentTodos.length) continue;
+        const rowData = (todo: TodoItem) => {
+          const { focusNotes, focusImages, ...visible } = todo;
+          return visible;
+        };
+        if (!nextTodos.every((todo, index) => JSON.stringify(rowData(todo)) === JSON.stringify(rowData(currentTodos[index])))) continue;
+        // Notes and image payloads do not affect reminder rows. Keep their
+        // objects stable so TransitionGroup does not run FLIP for a note edit.
+        nextTodos.forEach((todo, index) => {
+          currentTodos[index].focusNotes = todo.focusNotes;
+          currentTodos[index].focusImages = todo.focusImages;
+        });
+        incoming.todos[listId] = currentTodos;
       }
     }
     Object.assign(state, nextState);

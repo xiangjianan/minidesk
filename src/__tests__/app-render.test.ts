@@ -6674,6 +6674,7 @@ describe("App shell", () => {
     try {
       wrapper.getComponent(TodoPanel).vm.$emit("focusNow", "morning", "t1");
       await flushPromises();
+      const originalRow = wrapper.getComponent(TodoPanel).props("todos").morning[0];
       const newer = structuredClone(workspace);
       newer.todos.morning[0].focusNotes = [{ text: "另一窗口的笔记", indent: 0 }];
       const raw = JSON.stringify({ sync: { revision: 2, clientId: "b" }, workspaces: [newer] });
@@ -6681,6 +6682,7 @@ describe("App shell", () => {
       window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: raw }));
       await vi.waitFor(() => {
         const modal = wrapper.getComponent(TodoFocusModal);
+        expect(wrapper.getComponent(TodoPanel).props("todos").morning[0]).toBe(originalRow);
         expect(modal.get("textarea").element.value).toBe("另一窗口的笔记");
         expect(modal.props("images")[0].src).toBe("data:image/png;base64,Zm9v");
       });
