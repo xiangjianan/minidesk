@@ -6664,6 +6664,32 @@ describe("App shell", () => {
     }
   });
 
+  it("接收其他窗口更新时同步专注笔记并重新载入图片", async () => {
+    const restoreIndexedDb = installMemoryImageDb();
+    await storeImagePayload({ id: "focus-image", src: "data:image/png;base64,Zm9v", createdAt: 1 });
+    const workspace = defaultWorkspace();
+    workspace.todos = { morning: [{ id: "t1", text: "任务", done: false, focusNotes: [{ text: "旧笔记", indent: 0 }], focusImages: [{ id: "focus-image", createdAt: 1 }] }] };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ sync: { revision: 1, clientId: "a" }, workspaces: [workspace] }));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(TodoPanel).vm.$emit("focusNow", "morning", "t1");
+      await flushPromises();
+      const newer = structuredClone(workspace);
+      newer.todos.morning[0].focusNotes = [{ text: "另一窗口的笔记", indent: 0 }];
+      const raw = JSON.stringify({ sync: { revision: 2, clientId: "b" }, workspaces: [newer] });
+      localStorage.setItem(STORAGE_KEY, raw);
+      window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: raw }));
+      await vi.waitFor(() => {
+        const modal = wrapper.getComponent(TodoFocusModal);
+        expect(modal.get("textarea").element.value).toBe("另一窗口的笔记");
+        expect(modal.props("images")[0].src).toBe("data:image/png;base64,Zm9v");
+      });
+    } finally {
+      wrapper.unmount();
+      restoreIndexedDb();
+    }
+  });
+
   it("专注弹窗内 TextPanel 笔记写入 focusNotes 并经文本防抖落盘", async () => {
     vi.useFakeTimers();
     localStorage.setItem(

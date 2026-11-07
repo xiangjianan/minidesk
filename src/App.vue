@@ -1557,8 +1557,16 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
     const activeExternal = nextState.workspaces.find((w) => w.id === nextState.activeWorkspaceId) ?? nextState.workspaces[0];
     if (activeExternal) {
       activeExternal.images = await hydrateStoredImages(activeExternal.images);
+      const session = focusSession.value;
+      if (session) {
+        const todo = activeExternal.todos[session.period]?.find((item) => item.id === session.id);
+        if (todo?.focusImages?.length) {
+          todo.focusImages = await hydrateStoredImages(todo.focusImages);
+        }
+      }
     }
-    if (!appMounted) return;
+    // 异步读取图片期间可能已收到更新版本或产生本地输入。
+    if (!appMounted || nextState.sync.revision <= state.sync.revision || hasUnsavedLocalChanges()) return;
     Object.assign(state, nextState);
     resetTextGenerationBaseline();
     applyTheme();
