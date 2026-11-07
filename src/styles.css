@@ -7458,6 +7458,16 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   z-index: 1;
 }
 
+/* Match the workbench preview's surface and photo timing. */
+.focus-preview-enter-active { animation: image-preview-in 120ms ease-out; }
+.focus-preview-leave-active {
+  pointer-events: none;
+  animation: image-preview-out 220ms ease-in forwards;
+}
+.focus-preview-leave-active .preview-stage img {
+  animation: image-preview-photo-out 220ms ease-in forwards;
+}
+
 .focus-now-preview-stage {
   flex: 1 1 auto;
   min-height: 0;

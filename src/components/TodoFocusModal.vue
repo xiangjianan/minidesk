@@ -431,6 +431,7 @@ function handleModalShow(value: boolean): void {
             @update="(lines: LineItem[]) => emit('notesUpdate', lines)"
             @blur="emit('notesBlur')"
           />
+          <Transition name="focus-preview" appear>
           <div
             v-if="activePreviewId"
             ref="previewRef"
@@ -453,7 +454,9 @@ function handleModalShow(value: boolean): void {
             />
             <template v-else>
               <div class="preview-stage focus-now-preview-stage" @wheel="wheel" @mousedown="down">
+                <Transition name="preview-photo" appear>
                 <img
+                  v-if="previewImage?.src"
                   ref="previewImageRef"
                   :key="activePreviewId"
                   class="focus-now-preview-image"
@@ -464,6 +467,7 @@ function handleModalShow(value: boolean): void {
                   draggable="false"
                   @dblclick.stop.prevent="toggleZoom"
                 />
+                </Transition>
               </div>
               <ImagePreviewToolbar :language="language" :can-navigate-previous="canNavigatePrevious"
             :can-navigate-next="canNavigateNext"
@@ -471,6 +475,7 @@ function handleModalShow(value: boolean): void {
             @delete="previewImage && emit('deleteImage', previewImage.id)" @close="clearPreview" />
             </template>
           </div>
+          </Transition>
         </section>
       </div>
     </div>
