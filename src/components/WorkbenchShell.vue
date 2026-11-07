@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import {
+  Image, Zap, SquareCheck, FileText,
   RefreshCw as SyncOutline,
   CircleHelp as HelpCircleOutline,
 } from "lucide-vue-next";
@@ -14,6 +15,7 @@ import {
   DEFAULT_LANGUAGE,
   WORKBENCH_COLLAPSED_FIXED_LABELS_BY_LANGUAGE,
   getDefaultTitles,
+  getIconHeadingText,
   getUiText,
 } from "../state/i18n";
 import {
@@ -56,8 +58,8 @@ const zoneLabels = computed<readonly string[]>(() => {
   const defaults = getDefaultTitles(props.language);
   const fixed = WORKBENCH_COLLAPSED_FIXED_LABELS_BY_LANGUAGE[props.language];
   return [
-    props.assetsTitle || defaults["image-title"],
-    props.notesTitle || defaults["quick-title"],
+    getIconHeadingText(props.assetsTitle || defaults["image-title"], "image"),
+    getIconHeadingText(props.notesTitle || defaults["quick-title"], "quick"),
     fixed.tasks,
     fixed.workspace,
   ];
@@ -860,7 +862,7 @@ onUnmounted(() => {
           :class="{ 'workbench-zone-collapsed': zoneCollapsed[0] }"
           :aria-label="zoneLabels[0]"
         >
-          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(0)">{{ zoneLabels[0] }}</div>
+          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(0)"><NIcon :component="Image" /><span>{{ zoneLabels[0] }}</span></div>
           <slot name="assets" />
         </section>
         <section
@@ -869,7 +871,7 @@ onUnmounted(() => {
           :class="{ 'workbench-zone-collapsed': zoneCollapsed[1] }"
           :aria-label="zoneLabels[1]"
         >
-          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(1)">{{ zoneLabels[1] }}</div>
+          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(1)"><NIcon :component="Zap" /><span>{{ zoneLabels[1] }}</span></div>
           <slot name="notes" />
         </section>
         <section
@@ -878,7 +880,7 @@ onUnmounted(() => {
           :class="{ 'workbench-zone-collapsed': zoneCollapsed[2] }"
           :aria-label="zoneLabels[2]"
         >
-          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(2)">{{ zoneLabels[2] }}</div>
+          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(2)"><NIcon :component="SquareCheck" /><span>{{ zoneLabels[2] }}</span></div>
           <slot name="tasks" />
         </section>
         <section
@@ -887,7 +889,7 @@ onUnmounted(() => {
           :class="{ 'workbench-zone-collapsed': zoneCollapsed[3] }"
           :aria-label="zoneLabels[3]"
         >
-          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(3)">{{ zoneLabels[3] }}</div>
+          <div class="workbench-zone-rail" aria-hidden="true" :title="expandHint" @click="expandZoneToDefault(3)"><NIcon :component="FileText" /><span>{{ zoneLabels[3] }}</span></div>
           <slot name="workspace" />
         </section>
         <button

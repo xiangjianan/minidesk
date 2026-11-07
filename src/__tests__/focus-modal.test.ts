@@ -62,7 +62,7 @@ describe("TodoFocusModal", () => {
     expect(divider.attributes("aria-valuenow")).toBe("70");
     window.dispatchEvent(new MouseEvent("pointermove", { clientX: 0 }));
     await nextTick();
-    expect(divider.attributes("aria-valuenow")).toBe("0");
+    expect(divider.attributes("aria-valuenow")).toBe("4");
     expect(wrapper.get(".focus-now-images").classes()).toContain("is-collapsed");
     wrapper.unmount();
   });

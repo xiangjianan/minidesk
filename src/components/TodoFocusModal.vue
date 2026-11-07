@@ -2,9 +2,9 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NIcon, NModal } from "naive-ui";
 import { AddOutline } from "@vicons/ionicons5";
-import { Timer } from "lucide-vue-next";
+import { Timer, Image as ImageIcon } from "lucide-vue-next";
 import type { AppLanguage, ImagePasteRequest, LineItem, StoredImage } from "../types";
-import { getUiText } from "../state/i18n";
+import { getDefaultTitles, getIconHeadingText, getUiText } from "../state/i18n";
 import { formatFocusDuration } from "../state/todos";
 import { isTextEntryTarget } from "../utils/dom";
 import { useImageTransform } from "../composables/useImageTransform";
@@ -91,12 +91,15 @@ const editorActive = ref(false);
 const pasteButtonRef = ref<HTMLButtonElement>();
 const bodyRef = ref<HTMLElement>();
 const imageWidth = ref(25);
+const bodyWidth = ref(0);
+const imagesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * imageWidth.value / 100 < 100);
 let resizing = false;
 
 function resizeImages(clientX: number): void {
   const rect = bodyRef.value?.getBoundingClientRect();
   if (!rect?.width) return;
-  imageWidth.value = Math.max(0, Math.min(70, (clientX - rect.left) / rect.width * 100));
+  bodyWidth.value = rect.width;
+  imageWidth.value = Math.max(44 / rect.width * 100, Math.min(70, (clientX - rect.left) / rect.width * 100));
 }
 function moveDivider(event: PointerEvent): void {
   if (resizing) resizeImages(event.clientX);
@@ -110,6 +113,7 @@ function stopDivider(): void {
 function startDivider(event: PointerEvent): void {
   if (event.button !== 0) return;
   event.preventDefault();
+  bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0;
   resizing = true;
   window.addEventListener("pointermove", moveDivider);
   window.addEventListener("pointerup", stopDivider);
@@ -118,7 +122,8 @@ function startDivider(event: PointerEvent): void {
 function keyboardDivider(event: KeyboardEvent): void {
   if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
   event.preventDefault();
-  imageWidth.value = Math.max(0, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
+  bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0;
+  imageWidth.value = Math.max(bodyWidth.value ? 44 / bodyWidth.value * 100 : 0, Math.min(70, imageWidth.value + (event.key === "ArrowRight" ? 2 : -2)));
 }
 const previewRef = ref<HTMLElement>();
 const previewImageRef = ref<HTMLImageElement>();
@@ -371,7 +376,8 @@ function handleModalShow(value: boolean): void {
         </div>
       </header>
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
-        <aside :class="{ 'is-collapsed': imageWidth === 0 }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
+        <aside :class="{ 'is-collapsed': imagesCollapsed }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
+          <div class="focus-now-images-rail" @click="imageWidth = 25"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
           <div class="focus-now-images-toolbar">
             <button
               ref="pasteButtonRef"
@@ -411,7 +417,7 @@ function handleModalShow(value: boolean): void {
           aria-orientation="vertical"
           :aria-label="uiText.todo.focusImagesLabel"
           :aria-valuenow="Math.round(imageWidth)"
-          aria-valuemin="0"
+          :aria-valuemin="bodyWidth ? Math.round(4400 / bodyWidth) : 0"
           aria-valuemax="70"
           @pointerdown="startDivider"
           @keydown="keyboardDivider"

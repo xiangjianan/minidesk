@@ -7370,7 +7370,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-body {
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: minmax(0, var(--focus-image-width, 25%)) 12px minmax(0, 1fr);
+  grid-template-columns: minmax(44px, var(--focus-image-width, 25%)) 12px minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -7628,3 +7628,46 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   opacity: 0 !important;
   transform: translateY(8px) scale(0.96) !important;
 }
+
+/* The focus split follows the workbench: a single rule and a centered handle. */
+.focus-now-images {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.focus-now-images-toolbar { border-bottom: 0; }
+.focus-now-images-rail { display: none; }
+.focus-now-images.is-collapsed { visibility: visible; }
+.focus-now-images.is-collapsed > :not(.focus-now-images-rail) { display: none; }
+.focus-now-images.is-collapsed > .focus-now-images-rail {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+  writing-mode: vertical-rl;
+  white-space: nowrap;
+}
+.focus-now-images-rail .n-icon { writing-mode: horizontal-tb; font-size: 16px; }
+.focus-now-divider {
+  width: 12px;
+  min-width: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+.focus-now-divider::before {
+  top: 0;
+  width: 1px;
+  height: 100%;
+  border-radius: 0;
+  transform: translateX(-50%);
+  background: var(--line-subtle);
+}
+.focus-now-divider:hover::before,
+.focus-now-divider:focus-visible::before { background: var(--line-subtle); }
+.focus-now-divider::after { text-align: center; line-height: 20px; }
+.focus-now-notes { border: 0; border-radius: 0; }
