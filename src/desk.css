@@ -1,6 +1,7 @@
 /* Four independent surfaces. Keep this layer scoped to the desktop workbench;
    editors, dialogs, the mobile guide and stored layout retain their contracts. */
-.workbench-shell {
+.workbench-shell,
+.focus-now-modal {
   --app-font-size: 14px;
   --scrollbar-size: 4px;
   --desk-surface: #f7f8fa;
@@ -28,7 +29,8 @@
   font-size: var(--app-font-size);
 }
 
-html[data-theme="dark"] .workbench-shell {
+html[data-theme="dark"] .workbench-shell,
+html[data-theme="dark"] .focus-now-modal {
   --desk-surface: #202329;
   --card: #2a2e36;
   --desk-row-hover: #303c46;

@@ -7260,7 +7260,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 .focus-now-modal.n-card {
   width: 90vw !important;
   max-width: 90vw !important;
-  background: var(--background) !important;
+  background: var(--desk-surface) !important;
   color: var(--text);
   border: 1px solid var(--border);
   border-radius: var(--radius) !important;
