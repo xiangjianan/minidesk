@@ -6690,6 +6690,20 @@ describe("App shell", () => {
     }
   });
 
+  it("专注笔记失焦立即保存，供其他窗口同步", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos: { morning: [{ id: "t1", text: "任务", done: false }] } }));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(TodoPanel).vm.$emit("focusNow", "morning", "t1");
+      await flushPromises();
+      const input = wrapper.getComponent(TodoFocusModal).get("textarea");
+      await input.trigger("click");
+      await input.setValue("立即同步");
+      await input.trigger("blur");
+      expect(loadState().workspaces[0].todos.morning[0].focusNotes).toEqual([{ text: "立即同步", indent: 0 }]);
+    } finally { wrapper.unmount(); }
+  });
+
   it("专注弹窗内 TextPanel 笔记写入 focusNotes 并经文本防抖落盘", async () => {
     vi.useFakeTimers();
     localStorage.setItem(

@@ -39,6 +39,7 @@ const emit = defineEmits<{
   /** 关闭（=暂停）：App 计算并合并本次增量到任务的 focusElapsedMs（单一事实源在 App 的 focusSession）。 */
   close: [];
   notesUpdate: [lines: LineItem[]];
+  notesBlur: [];
   pasteImage: [request: ImagePasteRequest];
   dropImageFiles: [files: File[], targetId?: string];
   copyImage: [id: string];
@@ -383,6 +384,7 @@ function handleModalShow(value: boolean): void {
             :polish="polish"
             hide-header
             @update="(lines: LineItem[]) => emit('notesUpdate', lines)"
+            @blur="emit('notesBlur')"
           />
           <div
             v-if="activePreviewId"
