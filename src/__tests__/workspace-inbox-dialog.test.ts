@@ -116,6 +116,8 @@ describe("WorkspaceInboxDialog", () => {
     expect(order).toEqual(["update"]);
     expect(wrapper.find('[data-testid="inbox-code"]').text()).toBe(payload?.code);
     expect(wrapper.find('[data-testid="inbox-generate"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="inbox-generate-hint"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("用手机扫下方二维码");
   });
 
   it("生成后点取消：仅 emit close，不回收已生效的配对", async () => {
@@ -241,6 +243,9 @@ describe("WorkspaceInboxDialog", () => {
     const wrapper = mountDialog(undefined);
     expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("一、手机安装");
     expect(wrapper.find('[data-testid="inbox-generate"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("先生成配对码，再用手机扫码或打开配对地址");
+    expect(wrapper.get('[data-testid="inbox-generate-hint"]').text()).toContain("生成后配对码会自动保存");
+    expect(wrapper.get('[data-testid="inbox-save"]').attributes("disabled")).toBeDefined();
     // 空态同样能走完引导第一步：App Store 下载链接在场。
     expect(wrapper.find('[data-testid="inbox-app-store"]').exists()).toBe(true);
   });

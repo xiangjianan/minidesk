@@ -6709,7 +6709,8 @@ body,
 .workspace-inbox-address { font-size: 11px; color: var(--primary); word-break: break-all; }
 .workspace-inbox-address:hover, .workspace-inbox-address:focus-visible { text-decoration: underline; }
 .workspace-inbox-qr { display: block; margin: 8px auto; border: 1px solid var(--line-subtle); border-radius: 8px; }
-.workspace-inbox-empty { display: flex; justify-content: center; padding: 2px 0 18px; }
+.workspace-inbox-empty { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 2px 0 18px; }
+.workspace-inbox-generate-hint { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .workspace-inbox-error { margin: 4px 0 0; color: var(--destructive); font-size: 12px; text-align: center; }
 .workspace-inbox-footer { display: flex; justify-content: flex-end; gap: 8px; }
 

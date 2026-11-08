@@ -225,7 +225,7 @@ function save(): void {
       </li>
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep2Title }}</span>
-        <span class="workspace-inbox-step-body">{{ text.app.inboxStep2Body }}</span>
+        <span class="workspace-inbox-step-body">{{ hasCode ? text.app.inboxStep2Body : text.app.inboxStep2BodyPending }}</span>
       </li>
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep3Title }}</span>
@@ -238,6 +238,7 @@ function save(): void {
     </ol>
 
     <div v-if="!hasCode" class="workspace-inbox-empty">
+      <p class="workspace-inbox-generate-hint" data-testid="inbox-generate-hint">{{ text.app.inboxGenerateHint }}</p>
       <NButton
         type="primary"
         data-testid="inbox-generate"
