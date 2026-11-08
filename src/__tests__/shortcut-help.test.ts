@@ -49,7 +49,7 @@ describe("ShortcutHelp", () => {
     expect(wrapper.text()).toContain("Ctrl/⌘ + S");
     expect(wrapper.text()).toContain("Esc / Space");
     expect(wrapper.text()).toContain("上移 / 下移当前行");
-    expect(wrapper.findAll(".shortcut-section h4").map((heading) => heading.text())).toEqual(["工作台", "图床与预览", "快捷动作", "提醒事项", "工作空间与文本"]);
+    expect(wrapper.findAll(".shortcut-section h4").map((heading) => heading.text())).toEqual(["工作台", "贴图", "快捷动作", "提醒事项", "记事本"]);
     expect(wrapper.findAll(".shortcut-section-icon svg")).toHaveLength(5);
   });
 
@@ -146,10 +146,10 @@ describe("SHORTCUT_HELP entries", () => {
   });
 
   it("pins the Tab dash-autofill copy for notes", () => {
-    const zhSection = SHORTCUT_HELP.zh.find((section) => section.area === "工作空间与文本");
+    const zhSection = SHORTCUT_HELP.zh.find((section) => section.area === "记事本");
     expect(zhSection?.shortcuts).toContainEqual({ key: "Tab", desc: "缩进；未标记的行自动补 -" });
 
-    const enSection = SHORTCUT_HELP.en.find((section) => section.area === "Spaces & Text");
+    const enSection = SHORTCUT_HELP.en.find((section) => section.area === "Notepad");
     expect(enSection?.shortcuts).toContainEqual({ key: "Tab", desc: "Indent; unmarked lines get a dash" });
   });
 
@@ -176,7 +176,7 @@ describe("SHORTCUT_HELP entries", () => {
   it("flags drift in the ASCII binding half of a mixed-language key", () => {
     const drifted = JSON.parse(JSON.stringify(SHORTCUT_HELP.zh)) as ShortcutHelpSections;
     const pasteEntry = drifted
-      .find((section) => section.area === "图床与预览")
+      .find((section) => section.area === "贴图")
       ?.shortcuts.find((item) => item.key === "Ctrl/⌘ + V / 拖拽图片");
     expect(pasteEntry).toBeDefined();
     pasteEntry!.key = "Ctrl + V / 拖拽图片";

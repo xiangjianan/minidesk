@@ -97,7 +97,7 @@ describe("localized public copy", () => {
       "5",
       "拖动按钮",
     ]));
-    const imageShortcuts = SHORTCUT_HELP.zh.find((section) => section.area === "图床与预览")?.shortcuts ?? [];
+    const imageShortcuts = SHORTCUT_HELP.zh.find((section) => section.area === "贴图")?.shortcuts ?? [];
     expect(imageShortcuts).toEqual(expect.arrayContaining([
       { key: "Enter", desc: "预览中编辑图片 / 编辑时保存（文字输入框外）" },
       { key: "5", desc: "复制图片" },
@@ -107,7 +107,7 @@ describe("localized public copy", () => {
     ]));
     expect(SHORTCUT_HELP.zh.flatMap((section) => [section.area, section.summary, ...section.tips, ...section.shortcuts.map((shortcut) => `${shortcut.key} ${shortcut.desc}`)]).join("\n")).not.toContain("工具");
     expect(SHORTCUT_HELP.en.flatMap((section) => section.tips)).toContain("Double-click list titles or space tabs to rename them.");
-    const englishImageShortcuts = SHORTCUT_HELP.en.find((section) => section.area === "Images & Preview")?.shortcuts ?? [];
+    const englishImageShortcuts = SHORTCUT_HELP.en.find((section) => section.area === "Images")?.shortcuts ?? [];
     expect(englishImageShortcuts).toEqual(expect.arrayContaining([
       { key: "Enter", desc: "Edit in preview / save while editing (outside text fields)" },
       { key: "5", desc: "Copy image" },

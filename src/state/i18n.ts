@@ -1423,7 +1423,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Esc", desc: "关闭提示或退出当前工作台控件" },
       { key: "←/→", desc: "选中分隔线后调整区域宽度" },
     ]},
-    { area: "图床与预览", icon: "images", summary: "临时收截图，也能做轻量图片剪贴板。", tips: [
+    { area: "贴图", icon: "images", summary: "临时收截图，也能做轻量图片剪贴板。", tips: [
       "外部图片可以直接拖进图床，原图会存在本机浏览器。",
       "预览里右键也有复制、删除和关闭，处理截图更快。",
       "预览支持拖动平移；大图不用反复开新窗口。",
@@ -1468,7 +1468,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "右键条目", desc: "复制 / 删除 / 星标 / 通知" },
       { key: "右键空白", desc: "新增提醒事项列表" },
     ]},
-    { area: "工作空间与文本", icon: "notes", summary: "适合放草稿、清单和拆解步骤。", tips: [
+    { area: "记事本", icon: "notes", summary: "适合放草稿、清单和拆解步骤。", tips: [
       "空间 Tab 可以双击重命名，也能拖动调整顺序。",
       "删除空间前会确认；系统会至少保留一个空间。",
       "空缩进行继续按 Backspace，会先取消缩进再合并内容。",
@@ -1499,7 +1499,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Esc", desc: "Dismiss the message or leave the active desk control" },
       { key: "←/→", desc: "Resize areas when a divider is focused" },
     ]},
-    { area: "Images & Preview", icon: "images", summary: "A local screenshot shelf that also works as a lightweight image clipboard.", tips: [
+    { area: "Images", icon: "images", summary: "A local screenshot shelf that also works as a lightweight image clipboard.", tips: [
       "Drag external images into the image area; originals stay in this browser.",
       "Right-click inside preview for copy, delete, and close actions.",
       "Drag in preview to pan large images without opening another window.",
@@ -1544,7 +1544,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Right-click item", desc: "Copy / Delete / Star / Notify" },
       { key: "Right-click blank", desc: "New reminder list" },
     ]},
-    { area: "Spaces & Text", icon: "notes", summary: "Good for drafts, checklists, and breaking tasks into steps.", tips: [
+    { area: "Notepad", icon: "notes", summary: "Good for drafts, checklists, and breaking tasks into steps.", tips: [
       "Double-click a space tab to rename it; drag tabs to reorder spaces.",
       "Deleting a space asks for confirmation; at least one space is always kept.",
       "Backspace on an empty indented line reduces indent before merging text.",
