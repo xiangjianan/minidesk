@@ -29,6 +29,18 @@ describe("CompanionBubble", () => {
     document.body.innerHTML = "";
   });
 
+  it("adds an expression to plain dynamic messages when rendered", async () => {
+    vi.useFakeTimers();
+    const wrapper = mount(CompanionBubble, {
+      attachTo: document.body,
+      props: { visible: true, message: "配对设置已保存" },
+      global: { stubs: { NPopover: popoverStub } },
+    });
+    await vi.advanceTimersByTimeAsync(200);
+    expect(document.body.querySelector('[data-testid="companion-confirm"]')?.textContent).toMatch(/^配对设置已保存 .+/);
+    wrapper.unmount();
+  });
+
   it("shows the GIF immediately and delays the message bubble by 200ms", async () => {
     vi.useFakeTimers();
     const wrapper = mount(CompanionBubble, {

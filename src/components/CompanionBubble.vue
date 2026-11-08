@@ -9,6 +9,7 @@ import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, CompanionGifTheme } from "../types";
 import { DEFAULT_COMPANION_GIF_THEME, getCompanionGifSrc, getCompanionNotificationIconSrc } from "../state/companionGifThemes";
 import { getUiText } from "../state/i18n";
+import { ensureBubbleKaomoji } from "../state/messages";
 import { clampCompanionOffset, readCompanionOffset, saveCompanionOffset, type CompanionOffset } from "../state/companionPosition";
 import { organizeContextMenu, CONTEXT_MENU_Z_INDEX, createExclusiveContextMenu } from "../utils/contextMenu";
 
@@ -228,7 +229,7 @@ const popoverContentVisible = computed(() => visiblePopover.value || retainingPo
 const popoverKey = computed(() => `${props.position?.right ?? "default"}:${props.position?.bottom ?? "default"}`);
 
 function syncRenderedContent(): void {
-  renderedMessage.value = props.message;
+  renderedMessage.value = ensureBubbleKaomoji(props.message);
   renderedLinkText.value = props.linkText ?? "";
   renderedLinkHref.value = props.linkHref ?? "";
   renderedSignatureText.value = props.signatureText ?? "";

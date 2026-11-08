@@ -3188,7 +3188,7 @@ function updateCompanionGifTheme(theme: CompanionGifTheme, anchor?: HTMLElement)
     hideCompanion();
     return;
   }
-  showBubbleText(uiText.value.app.gifThemeChanged, anchor);
+  showBubble("gifThemeChanged", anchor);
 }
 
 async function updateCustomCompanionGif(files: { light?: File; dark?: File }, anchor?: HTMLElement): Promise<void> {
@@ -3214,7 +3214,7 @@ async function updateCustomCompanionGif(files: { light?: File; dark?: File }, an
   state.companionGifTheme = "custom";
   await persistCustomCompanionGifPayloads(state.customCompanionGif);
   persistNow();
-  showBubbleText(uiText.value.app.customGifSet, anchor);
+  showBubble("gifThemeChanged", anchor);
 }
 
 // 主题切换过渡窗口时长，与 styles.css 里 .theme-switching 的 motion-medium 对齐。

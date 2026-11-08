@@ -7,6 +7,7 @@ export type MessageSurface = "companion" | "naive-message";
 export type MessageKey =
   | "save"
   | "stateConflict"
+  | "gifThemeChanged"
   | "workspaceDensityGood"
   | "workspaceDensityAreaOver"
   | "workspaceDensityAllOver"
@@ -148,6 +149,11 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
       "记录已经归位",
       "可以安心继续",
     ],
+  },
+  gifThemeChanged: {
+    mood: "happy",
+    surface: "companion",
+    variants: ["换个新模样", "新主题来啦", "换好新装啦", "今天换个心情", "新伙伴登场", "换个样子陪你", "新形象已就位", "换上喜欢的样子", "新主题已换好", "换个模样继续"],
   },
   stateConflict: {
     mood: "warning",
@@ -966,6 +972,7 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
 };
 
 const EN_MESSAGE_VARIANTS = {
+  gifThemeChanged: ["A fresh new look", "New theme is here", "All dressed up", "A change of mood", "A new look for today", "Ready in a new style", "New look, same desk", "Theme switched", "Looking fresh", "Ready to keep going"],
   save: ["Thought tucked away", "Desk saved it", "This page is tucked away"],
   stateConflict: ["Another window saved newer changes", "Newer board data exists in another tab", "Save paused to avoid overwriting another tab"],
   workspaceDensityGood: [
@@ -1096,6 +1103,15 @@ export function getMessage(key: MessageKey, random = Math.random, language: AppL
   const entry = MESSAGE_CATALOG[key];
   const variants = normalizeLanguage(language) === "en" ? EN_MESSAGE_VARIANTS[key] : entry.variants;
   return withKaomoji(randomItem(variants, random), entry.mood, random);
+}
+
+/** Add one expression to plain bubble copy without duplicating an existing one. */
+export function ensureBubbleKaomoji(text: string, random = Math.random): string {
+  if (!text.trim()) return text;
+  const known = Object.values(KAOMOJI_BY_MOOD).some((items) => items.some((item) => text.includes(item)));
+  // Some existing messages use a hand-written face outside the shared catalog.
+  const hasFace = /[（(][^()（）\n]{0,24}[・＾￣⌒ω▽﹏；°･꒳][^()（）\n]{0,24}[)）ヾ]/u.test(text);
+  return known || hasFace ? text : `${text} ${randomItem(KAOMOJI_BY_MOOD.calm, random)}`;
 }
 
 export function withKaomoji(text: string, mood: MessageMood, random = Math.random): string {
