@@ -2843,6 +2843,10 @@ button.todo-star-button {
   color: var(--text);
 }
 
+.todo-vertical-move {
+  transition: none !important;
+}
+
 .today-focus-move-move,
 .todo-move-move {
   transition: transform 0.22s cubic-bezier(0.2, 0, 0, 1);
