@@ -1805,6 +1805,26 @@ describe("App shell", () => {
     }
   });
 
+  it("does not hide and re-show the GIF as a Tips message expires", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountApp();
+    try {
+      await wrapper.get("textarea").trigger("focus");
+      await vi.advanceTimersByTimeAsync(200);
+      await wrapper.get('[data-testid="companion-gif"]').trigger("click");
+      await vi.advanceTimersByTimeAsync(5000);
+      await nextTick();
+      const surface = wrapper.get('[data-testid="companion-bubble"]');
+      expect(surface.classes()).toContain("is-visible");
+      expect(surface.classes()).not.toContain("is-dismissing");
+      await vi.advanceTimersByTimeAsync(130);
+      expect(surface.classes()).not.toContain("is-dismissing");
+    } finally {
+      wrapper.unmount();
+      vi.useRealTimers();
+    }
+  });
+
   it("随机弹出锚定气泡所属区域的 Tips：连点不重复上一条", async () => {
     vi.useFakeTimers();
     // 快捷文本复制气泡带 quick-block 锚点但没有 guideKey：区域只能靠锚点解析。

@@ -523,7 +523,7 @@ function isPointInsideElement(x: number, y: number, element: HTMLElement | null)
     v-if="surfaceVisible"
     ref="surfaceRef"
     class="focus-companion"
-    :class="{ 'is-visible': gifVisible || (!shouldRenderGif && popoverVisible), 'is-fading': gifFading, 'is-dismissing': retainingPopoverContent && !popoverVisible }"
+    :class="{ 'is-visible': gifVisible || (!shouldRenderGif && popoverVisible), 'is-fading': gifFading, 'is-dismissing': dismissing && retainingPopoverContent && !popoverVisible }"
     :style="placementStyle"
     data-testid="companion-bubble"
     :aria-hidden="!surfaceVisible"
