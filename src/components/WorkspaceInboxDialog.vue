@@ -226,29 +226,24 @@ function save(): void {
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep2Title }}</span>
         <span class="workspace-inbox-step-body">{{ hasCode ? text.app.inboxStep2Body : text.app.inboxStep2BodyPending }}</span>
+        <NButton v-if="!hasCode" class="workspace-inbox-generate" type="primary" data-testid="inbox-generate"
+          :loading="registering" :disabled="registering" @click="generate">{{ text.app.inboxGenerate }}</NButton>
       </li>
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep3Title }}</span>
-        <span class="workspace-inbox-step-body">{{ text.app.inboxStep3Body }}</span>
+        <span class="workspace-inbox-step-body">{{ hasCode ? text.app.inboxStep3Body : text.app.inboxStep3BodyPending }}</span>
       </li>
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep4Title }}</span>
         <span class="workspace-inbox-step-body">{{ text.app.inboxStep4Body }}</span>
       </li>
+      <li class="workspace-inbox-step">
+        <span class="workspace-inbox-step-title">{{ text.app.inboxStep5Title }}</span>
+        <span class="workspace-inbox-step-body">{{ text.app.inboxStep5Body }}</span>
+      </li>
     </ol>
 
-    <div v-if="!hasCode" class="workspace-inbox-empty">
-      <p class="workspace-inbox-generate-hint" data-testid="inbox-generate-hint">{{ text.app.inboxGenerateHint }}</p>
-      <NButton
-        type="primary"
-        data-testid="inbox-generate"
-        :loading="registering"
-        :disabled="registering"
-        @click="generate"
-      >{{ text.app.inboxGenerate }}</NButton>
-    </div>
-
-    <template v-else>
+    <template v-if="hasCode">
       <div class="workspace-inbox-field">
         <span class="workspace-inbox-label">{{ text.app.inboxCodeLabel }}</span>
         <span class="workspace-inbox-code-row">

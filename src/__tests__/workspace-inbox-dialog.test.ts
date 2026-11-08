@@ -116,8 +116,7 @@ describe("WorkspaceInboxDialog", () => {
     expect(order).toEqual(["update"]);
     expect(wrapper.find('[data-testid="inbox-code"]').text()).toBe(payload?.code);
     expect(wrapper.find('[data-testid="inbox-generate"]').exists()).toBe(false);
-    expect(wrapper.find('[data-testid="inbox-generate-hint"]').exists()).toBe(false);
-    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("用手机扫下方二维码");
+    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("在手机上扫描二维码或打开配对地址");
   });
 
   it("生成后点取消：仅 emit close，不回收已生效的配对", async () => {
@@ -217,14 +216,15 @@ describe("WorkspaceInboxDialog", () => {
     }
   });
 
-  it("渲染四步引导：一至四标题齐全，每 5 分钟折入步骤四", () => {
+  it("渲染五步引导，按实际操作顺序展示", () => {
     const wrapper = mountDialog(INBOX);
     const steps = wrapper.get('[data-testid="inbox-steps"]');
     expect(steps.text()).toContain("一、手机安装");
-    expect(steps.text()).toContain("二、扫码配对");
-    expect(steps.text()).toContain("三、手机速记");
-    expect(steps.text()).toContain("四、自动同步");
-    // 同步频率提示折入步骤四正文。
+    expect(steps.text()).toContain("二、生成配对码");
+    expect(steps.text()).toContain("三、手机配对");
+    expect(steps.text()).toContain("四、设置接收位置");
+    expect(steps.text()).toContain("五、手机速记与同步");
+    // 同步频率提示折入最后一步。
     expect(steps.text()).toContain("每 5 分钟");
     // 旧两段说明文案已被四步引导替代。
     expect(wrapper.text()).not.toContain("在手机上打开下面的地址");
@@ -239,12 +239,12 @@ describe("WorkspaceInboxDialog", () => {
     expect(link.text()).toBe("下载 Mini Desk");
   });
 
-  it("未生成码的空态同样展示四步引导", () => {
+  it("未生成码时引导先生成再扫码", () => {
     const wrapper = mountDialog(undefined);
     expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("一、手机安装");
     expect(wrapper.find('[data-testid="inbox-generate"]').exists()).toBe(true);
-    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("先生成配对码，再用手机扫码或打开配对地址");
-    expect(wrapper.get('[data-testid="inbox-generate-hint"]').text()).toContain("生成后配对码会自动保存");
+    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("点击下方按钮生成配对码，生成后会自动保存");
+    expect(wrapper.get('[data-testid="inbox-steps"]').text()).toContain("生成配对码后，用手机扫描二维码或打开配对地址");
     expect(wrapper.get('[data-testid="inbox-save"]').attributes("disabled")).toBeDefined();
     // 空态同样能走完引导第一步：App Store 下载链接在场。
     expect(wrapper.find('[data-testid="inbox-app-store"]').exists()).toBe(true);
