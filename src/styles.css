@@ -4845,6 +4845,24 @@ textarea:focus,
   box-shadow: var(--focus-ring);
 }
 
+/* The outer Naive input owns the rounded border. Rounding its inner field
+   clips native text selection at only one edge. */
+.n-input .n-input__input-el,
+.n-input .n-input__textarea-el {
+  border-radius: 0;
+}
+
+.n-input .n-input__input-el::selection,
+.n-input .n-input__textarea-el::selection {
+  color: var(--text);
+  background: color-mix(in srgb, var(--primary) 25%, var(--input));
+}
+
+html[data-theme="dark"] .n-input .n-input__input-el::selection,
+html[data-theme="dark"] .n-input .n-input__textarea-el::selection {
+  background: color-mix(in srgb, var(--primary) 38%, var(--input));
+}
+
 .n-input .n-input__input-el:focus,
 .n-input .n-input__textarea-el:focus,
 .n-base-selection-input:focus {
