@@ -278,12 +278,16 @@ function clearCustomGifPreviews(): void {
 
 onBeforeUnmount(clearCustomGifPreviews);
 
+function focusCustomGifDialog(): void {
+  document.querySelector<HTMLElement>(".gif-theme-custom-modal")?.focus({ preventScroll: true });
+}
+
 function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
   if (normalizeLanguage(props.language) === "zh") {
     return COMPANION_GIF_THEME_OPTIONS.find((option) => option.value === theme)?.label ?? theme;
   }
   if (theme === "custom") return "Custom";
-  if (theme === "none") return "Hidden";
+  if (theme === "none") return text.value.settings.gifQuietMode;
   return theme;
 }
 
@@ -334,9 +338,9 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
   </NDropdown>
   </div>
   <NModal :show="customGifDialogOpen" preset="card" class="quick-dialog gif-theme-custom-modal"
-    :z-index="CONTEXT_MENU_Z_INDEX + 1" :mask-closable="false"
+    :z-index="CONTEXT_MENU_Z_INDEX + 1" :mask-closable="false" :auto-focus="false" tabindex="-1"
     :title="text.settings.customGif" :aria-label="text.settings.customGif"
-    @close="closeCustomGifDialog" @esc="closeCustomGifDialog">
+    @after-enter="focusCustomGifDialog" @close="closeCustomGifDialog" @esc="closeCustomGifDialog">
   <section class="gif-theme-custom-dialog">
     <label>
       <span>{{ text.settings.lightGif }}</span>

@@ -103,7 +103,7 @@ function renderGifMenuIcon(icon: Component): () => VNode {
 }
 
 const gifMenuOptions = computed<DropdownOption[]>(() => [
-  { label: "不显示", key: "hide", icon: renderGifMenuIcon(EyeOffOutline) },
+  { label: uiText.value.settings.gifQuietMode, key: "hide", icon: renderGifMenuIcon(EyeOffOutline) },
 ]);
 
 function openGifMenu(event: MouseEvent): void {
