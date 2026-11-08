@@ -82,7 +82,7 @@ describe("localized public copy", () => {
     expect(SHORTCUT_HELP.zh).toHaveLength(5);
     expect(SHORTCUT_HELP.zh[0]).toMatchObject({
       area: "工作台",
-      icon: "⌘",
+      icon: "desk",
       summary: expect.stringContaining("一个桌面"),
     });
     expect(SHORTCUT_HELP.zh.flatMap((section) => section.tips)).toEqual(expect.arrayContaining([
@@ -91,7 +91,7 @@ describe("localized public copy", () => {
       "快捷动作按列表整理，列表中的加号用于添加动作，也能拖动动作到其他列表。",
     ]));
     expect(SHORTCUT_HELP.zh.flatMap((section) => section.shortcuts.map((shortcut) => shortcut.key))).toEqual(expect.arrayContaining([
-      "Ctrl + S",
+      "Ctrl/⌘ + S",
       "Esc / Space",
       "Enter",
       "5",
@@ -99,7 +99,7 @@ describe("localized public copy", () => {
     ]));
     const imageShortcuts = SHORTCUT_HELP.zh.find((section) => section.area === "图床与预览")?.shortcuts ?? [];
     expect(imageShortcuts).toEqual(expect.arrayContaining([
-      { key: "Enter", desc: "编辑图片 / 保存编辑" },
+      { key: "Enter", desc: "预览中编辑图片 / 编辑时保存（文字输入框外）" },
       { key: "5", desc: "复制图片" },
     ]));
     expect(imageShortcuts).not.toEqual(expect.arrayContaining([
@@ -109,7 +109,7 @@ describe("localized public copy", () => {
     expect(SHORTCUT_HELP.en.flatMap((section) => section.tips)).toContain("Double-click list titles or space tabs to rename them.");
     const englishImageShortcuts = SHORTCUT_HELP.en.find((section) => section.area === "Images & Preview")?.shortcuts ?? [];
     expect(englishImageShortcuts).toEqual(expect.arrayContaining([
-      { key: "Enter", desc: "Edit image / Save edit" },
+      { key: "Enter", desc: "Edit in preview / save while editing (outside text fields)" },
       { key: "5", desc: "Copy image" },
     ]));
   });
