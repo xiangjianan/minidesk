@@ -103,10 +103,8 @@ function selectHeaderMenu(key: string): void {
 const DESKTOP_RESIZE_BREAKPOINT = 1180;
 const WORKBENCH_HEADER_STORAGE_KEY = "mini-desk-workbench-header-hidden";
 const LEGACY_WORKBENCH_HEADER_STORAGE_KEY = "todo-board-workbench-header-hidden";
-// 图片占 10%，其余 90% 按 0.9:1:φ 分给快捷动作、提醒事项和工作空间。
-const PHI = (1 + Math.sqrt(5)) / 2;
-const RIGHT_COLUMN_WEIGHT = 0.9 / (1.9 + PHI);
-const DEFAULT_COLUMN_WEIGHTS = [0.1, RIGHT_COLUMN_WEIGHT * 0.9, RIGHT_COLUMN_WEIGHT, RIGHT_COLUMN_WEIGHT * PHI] as const;
+// Default zone widths: images, quick actions, reminders, and notes.
+const DEFAULT_COLUMN_WEIGHTS = [0.12, 0.27, 0.27, 0.34] as const;
 const MIN_COLUMN_WIDTHS = [100, 100, 100, 100] as const;
 // Canonical zone order matches DEFAULT_COLUMN_WEIGHTS / MIN_COLUMN_WIDTHS indices.
 const ZONE_INDEX = { assets: 0, notes: 1, tasks: 2, workspace: 3 } as const;
@@ -329,8 +327,7 @@ function readGridMetrics(): { rect: DOMRect; contentWidth: number } | undefined 
 // Splits `width` across columns in proportion to `weights`, flooring any column
 // that would land below its minimum at that minimum and re-splitting the rest
 // among the remaining columns (water-filling). The weights describe the FULL
-// on-screen column width — divider line to divider line — so the golden-ratio
-// defaults and user-dragged ratios both hold at any window size. With the
+// on-screen column width — divider line to divider line — so the default proportions and user-dragged ratios both hold at any window size. With the
 // 1180px desktop breakpoint and the 100px minimums the floor never fires in
 // practice; it only keeps the min-width contract intact for narrower mounts.
 function splitWidthByWeights(
@@ -390,7 +387,7 @@ function fitColumnsToWidth(
       return [...mins];
     }
     // Existing widths act as the weights on a resize so the current on-screen
-    // ratios survive; the golden defaults seed a fresh layout directly.
+    // ratios survive; the defaults seed a fresh layout directly.
     return splitWidthByWeights(width, hasCurrent ? currentWidths! : weights, mins);
   }
 
