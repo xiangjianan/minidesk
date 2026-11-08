@@ -3023,9 +3023,13 @@ button.todo-section-menu-button {
 
 /* 点击 GIF 会轮换弹出当前区域的 Tips，悬浮用指针光标提示可点。 */
 .focus-companion-gif {
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
   transition: opacity 0.26s ease;
 }
+
+.focus-companion-gif:active { cursor: grabbing; }
 
 .companion-gif-fade-enter-active,
 .companion-gif-fade-leave-active {

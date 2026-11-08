@@ -117,10 +117,10 @@ describe("workbench style contract", () => {
     expect(ruleBodies(styles, ".focus-companion img").join("\n")).not.toContain("height: auto");
   });
 
-  it("shows a pointer cursor over the companion GIF (it opens area tips on click)", () => {
+  it("shows a grab cursor over the draggable companion GIF", () => {
     const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
 
-    expectSelectorBody(styles, ".focus-companion-gif", "cursor: pointer");
+    expectSelectorBody(styles, ".focus-companion-gif", "cursor: grab");
   });
 
   it("lifts the command bar above the preview modal layer while the image preview is open", () => {
