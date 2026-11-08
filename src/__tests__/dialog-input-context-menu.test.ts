@@ -22,7 +22,10 @@ describe("dialog input context menu", () => {
     input.dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true, clientX: 10, clientY: 20 }));
     await nextTick();
     const context = wrapper.getComponent({ name: "ContextMenu" });
-    expect(context.props("options")).toEqual([{ key: "copy", label: "复制", disabled: false }, { key: "paste", label: "粘贴", disabled: false }]);
+    expect(context.props("options")).toEqual([
+      { key: "copy", label: "复制", icon: expect.any(Function), disabled: false },
+      { key: "paste", label: "粘贴", icon: expect.any(Function), disabled: false },
+    ]);
     context.vm.$emit("select", "copy");
     await vi.waitFor(() => expect(clipboard.writeText).toHaveBeenCalledWith("ell"));
     input.setSelectionRange(1, 4);

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import ContextMenu from "./ContextMenu.vue";
+import { Clipboard as ClipboardOutline, Copy as CopyOutline } from "@vicons/ionicons5";
+import { renderIcon } from "../utils/dropdownIcons";
 import { copyTextToClipboard, readClipboardText } from "../utils/clipboard";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
 
@@ -10,8 +12,8 @@ type Menu = { x: number; y: number; field: Field; start: number; end: number; va
 const menu = ref<Menu | null>(null);
 const exclusiveMenu = createExclusiveContextMenu(() => { menu.value = null; });
 const options = computed(() => [
-  { key: "copy", label: props.copyLabel, disabled: !menu.value || menu.value.start === menu.value.end || (menu.value.field instanceof HTMLInputElement && menu.value.field.type === "password") },
-  { key: "paste", label: props.pasteLabel, disabled: !menu.value || menu.value.field.readOnly || menu.value.field.disabled || !navigator.clipboard?.readText },
+  { key: "copy", label: props.copyLabel, icon: renderIcon(CopyOutline), disabled: !menu.value || menu.value.start === menu.value.end || (menu.value.field instanceof HTMLInputElement && menu.value.field.type === "password") },
+  { key: "paste", label: props.pasteLabel, icon: renderIcon(ClipboardOutline), disabled: !menu.value || menu.value.field.readOnly || menu.value.field.disabled || !navigator.clipboard?.readText },
 ]);
 
 function open(event: MouseEvent): void {
