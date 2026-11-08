@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import ContextMenu from "./ContextMenu.vue";
-import { Clipboard as ClipboardOutline, Copy as CopyOutline } from "@vicons/ionicons5";
-import { renderIcon } from "../utils/dropdownIcons";
+import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { copyTextToClipboard, readClipboardText } from "../utils/clipboard";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
 

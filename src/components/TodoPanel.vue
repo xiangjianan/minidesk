@@ -14,8 +14,6 @@ import {
   CheckCheck as CheckmarkDoneOutline,
   SquareCheck as CheckboxOutline,
   ChevronDown as ChevronDownOutline,
-  Clipboard as ClipboardOutline,
-  Copy as CopyOutline,
   Pencil as CreateOutline,
   EyeOff as EyeOffOutline,
   Eye as EyeOutline,
@@ -62,7 +60,7 @@ import { clampCaret } from "../utils/caret";
 import { splitDroppedTodoText } from "../utils/textEditor";
 import { copySelection, copyTextToClipboard, getSelectionRange, probeClipboardForTextPaste } from "../utils/clipboard";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
-import { renderIcon } from "../utils/dropdownIcons";
+import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { isImeComposing } from "../utils/ime";
 import type { PolishKind, PolishResult, PolishStyle, PolishTodoItem } from "../sync/polishClient";
 import { runSmartPaste, smartPasteMessages, runSelectionPolish, selectionPolishMessages } from "../utils/smartPaste";

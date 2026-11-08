@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NButton, NIcon, NModal, NSelect } from "naive-ui";
-import { CheckmarkOutline, CloseCircleOutline, CopyOutline } from "@vicons/ionicons5";
+import { CheckmarkOutline, CloseCircleOutline } from "@vicons/ionicons5";
 import QRCode from "qrcode";
 import { buildInboxAddress, generateInboxCode, INBOX_APP_STORE_URL, isValidInboxCode } from "../sync/pairing";
 import { inboxKeyHash } from "../sync/crypto";
 import { registerInboxKey } from "../sync/inboxClient";
 import { getDisplaySpaceTitle, getDisplayTodoListTitle, getUiText } from "../state/i18n";
 import { getWorkspaceBoardTitle } from "../state/workspaces";
+import { CopyActionIcon as CopyOutline } from "../utils/dropdownIcons";
 import { copyTextToClipboard } from "../utils/clipboard";
 import type { AppLanguage, WorkspaceData, WorkspaceInbox } from "../types";
 

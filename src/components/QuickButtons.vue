@@ -14,9 +14,7 @@ import {
   Plus as AddOutline,
   LayoutGrid as AppsOutline,
   ChevronDown as ChevronDownOutline,
-  Clipboard as ClipboardOutline,
   CloudUpload as CloudUploadOutline,
-  Copy as CopyOutline,
   Pencil as CreateOutline,
   FileText as DocumentTextOutline,
   EyeOff as EyeOffOutline,
@@ -43,7 +41,7 @@ import type { PolishKind, PolishResult, PolishStyle } from "../sync/polishClient
 import { quickSmartPasteMessages, runQuickSmartPaste } from "../utils/smartPaste";
 import type { SmartPastePhase } from "../utils/smartPaste";
 import { readClipboardText } from "../utils/clipboard";
-import { renderIcon } from "../utils/dropdownIcons";
+import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { createDragAutoScroll, findDragScrollContainer } from "../utils/dragScroll";
 import HighlightText from "./HighlightText.vue";
 

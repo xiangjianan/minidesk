@@ -2,12 +2,12 @@
 import { computed, onBeforeUnmount, ref } from "vue";
 import {
   AlertCircleOutline,
-  ClipboardOutline,
   CloseCircleOutline,
   CreateOutline,
   NotificationsOutline,
 } from "@vicons/ionicons5";
 import { NIcon } from "naive-ui";
+import { PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { getUiText } from "../state/i18n";
 import { createId } from "../state/storage";
 import { readClipboardText } from "../utils/clipboard";

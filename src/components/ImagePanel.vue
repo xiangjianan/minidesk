@@ -10,9 +10,7 @@ import {
   ArrowRightLeft as MoveOutline,
   ArrowDown as ArrowDownOutline,
   ArrowUp as ArrowUpOutline,
-  Clipboard as ClipboardOutline,
   X as CloseOutline,
-  Copy as CopyOutline,
   Pencil as CreateOutline,
   Eye as EyeOutline,
   CircleHelp as HelpCircleOutline,
@@ -28,7 +26,7 @@ import { getIconHeadingText, getUiText } from "../state/i18n";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
 import { binaryStringToBytes } from "../utils/base64";
 import { createDragAutoScroll } from "../utils/dragScroll";
-import { renderIcon } from "../utils/dropdownIcons";
+import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 
 const props = withDefaults(defineProps<{
   title: string;
