@@ -549,7 +549,6 @@ html[data-theme="dark"] .n-modal-mask {
 
 .dialog-actions > .n-button,
 .notify-panel-actions > button,
-.gif-theme-custom-actions > button,
 .support-footer > .n-button,
 .workspace-inbox-footer > .n-button {
   flex: 1 1 0;
@@ -3343,26 +3342,6 @@ button.companion-undo-button {
 
 .gif-theme-upload-button {
   justify-content: center;
-}
-
-.gif-theme-custom-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-}
-
-.gif-theme-custom-cancel,
-.gif-theme-custom-confirm {
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid var(--line-control);
-  background: transparent;
-  color: var(--text);
-  font-size: var(--app-font-size);
-}
-
-.gif-theme-custom-confirm {
-  background: var(--button-hover);
 }
 
 .settings-trigger .n-badge {

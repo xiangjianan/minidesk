@@ -372,9 +372,9 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
         <NButton size="small" class="gif-theme-upload-button">{{ text.settings.chooseDarkGif }}</NButton>
       </NUpload>
     </label>
-    <div class="gif-theme-custom-actions">
-      <button class="gif-theme-custom-cancel" type="button" @click="closeCustomGifDialog">{{ text.common.cancel }}</button>
-      <button class="gif-theme-custom-confirm" type="button" @click="confirmCustomGif">{{ text.common.confirm }}</button>
+    <div class="dialog-actions">
+      <NButton class="quick-dialog-action gif-theme-custom-cancel" @click="closeCustomGifDialog">{{ text.common.cancel }}</NButton>
+      <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" @click="confirmCustomGif">{{ text.common.confirm }}</NButton>
     </div>
   </section>
   </NModal>

@@ -583,6 +583,10 @@ describe("SettingsMenu", () => {
     const dark = new File(["dark"], "dark.gif", { type: "image/gif" });
 
     await wrapper.find('[data-key="gif-theme:custom"]').trigger("click");
+    const actions = wrapper.get(".gif-theme-custom-dialog .dialog-actions").findAll("button");
+    expect(actions.map((button) => button.text())).toEqual(["取消", "确定"]);
+    expect(actions[0].classes()).toContain("quick-dialog-action");
+    expect(actions[1].classes()).toContain("quick-dialog-submit");
     const uploads = wrapper.findAllComponents(uploadStub);
     expect(uploads).toHaveLength(2);
     expect(uploads[0].props("accept")).toBe("image/gif,.gif");
