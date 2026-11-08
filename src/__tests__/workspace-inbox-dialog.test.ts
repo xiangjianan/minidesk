@@ -224,6 +224,7 @@ describe("WorkspaceInboxDialog", () => {
     expect(steps.text()).toContain("三、手机配对");
     expect(steps.text()).toContain("四、设置接收位置");
     expect(steps.text()).toContain("五、手机速记与同步");
+    expect(wrapper.get('[data-testid="inbox-sync-scope"]').text()).toContain("不会自动备份整个工作台");
     // 同步频率提示折入最后一步。
     expect(steps.text()).toContain("每 5 分钟");
     // 旧两段说明文案已被四步引导替代。

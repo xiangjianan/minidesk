@@ -179,6 +179,8 @@ describe("SettingsMenu", () => {
     });
 
     expect(wrapper.find('[data-key="data"]').text()).toBe("数据");
+    const dataOption = (wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; children?: Array<{ key: string; render?: () => { children?: string } }> }>).find((option) => option.key === "data");
+    expect(dataOption?.children?.find((child) => child.key === "data-storage-hint")?.render?.().children).toContain("数据保存在当前浏览器");
     expect(wrapper.findAll('[data-key="create-workspace"]')).toHaveLength(1);
     expect(wrapper.findAll('[data-key="import"]')).toHaveLength(1);
     expect(wrapper.findAll('[data-key="export-workspace"]')).toHaveLength(1);

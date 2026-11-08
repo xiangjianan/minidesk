@@ -4134,7 +4134,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           data-testid="save-status"
           :data-state="workspaceDensityStatus"
           :aria-label="workspaceDensityLabel"
-          :title="workspaceDensityLabel"
+          :title="`${workspaceDensityLabel}\n${uiText.app.localStorageHint}`"
           aria-live="polite"
           role="button"
           tabindex="0"
@@ -4454,6 +4454,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       </template>
     </NModal>
     <NModal :show="exportWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
+      <p class="workspace-export-hint">{{ uiText.app.exportScopeHint }}</p>
       <p>{{ uiText.app.exportChooseZones }}</p>
       <div style="display: flex; flex-direction: column; gap: 12px; margin: 16px 0;">
         <NCheckbox v-for="zone in exportZoneKeys" :key="zone" :checked="exportZones.includes(zone)" :data-testid="`export-zone-${zone}`" @update:checked="(checked: boolean) => { exportZones = checked ? [...exportZones, zone] : exportZones.filter((item) => item !== zone); }">{{ uiText.app.exportZoneNames[zone] }}</NCheckbox>

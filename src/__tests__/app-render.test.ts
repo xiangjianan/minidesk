@@ -1921,6 +1921,7 @@ describe("App shell", () => {
     const wrapper = mountApp();
 
     try {
+      expect(wrapper.get('[data-testid="save-status"]').attributes("title")).toContain("工作空间数据自动保存在当前浏览器");
       await wrapper.get('[data-testid="save-status"]').trigger("click");
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();

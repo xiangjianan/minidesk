@@ -240,6 +240,7 @@ function save(): void {
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep5Title }}</span>
         <span class="workspace-inbox-step-body">{{ text.app.inboxStep5Body }}</span>
+        <span class="workspace-inbox-step-body" data-testid="inbox-sync-scope">{{ text.app.inboxSyncScope }}</span>
       </li>
     </ol>
 

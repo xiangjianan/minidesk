@@ -112,6 +112,7 @@ const options = computed(() => [
     key: "data",
     icon: renderIcon(ServerOutline),
     children: [
+      { type: "render" as const, key: "data-storage-hint", render: () => h("div", { class: "settings-data-hint" }, text.value.settings.dataStorageHint) },
       { label: text.value.settings.createWorkspace, key: "create-workspace", icon: renderIcon(AddOutline) },
       { label: text.value.settings.import, key: "import", icon: renderIcon(CloudUploadOutline) },
       { label: text.value.settings.exportCurrentWorkspace, key: "export-workspace", icon: renderIcon(CloudDownloadOutline) },

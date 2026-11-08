@@ -7701,3 +7701,7 @@ button.focus-now-divider {
   cursor: pointer;
 }
 .focus-now-notes-rail .n-icon { writing-mode: horizontal-tb; font-size: 16px; }
+
+/* Brief data guidance inside the settings submenu and export dialog. */
+.settings-data-hint { max-width: 220px; padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; white-space: normal; }
+.workspace-export-hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
