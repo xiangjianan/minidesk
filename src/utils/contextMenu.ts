@@ -109,14 +109,7 @@ export function organizeContextMenu(options: DropdownOption[]): DropdownOption[]
   return result;
 }
 
-/** Keep native editing commands available in dialog fields; elsewhere use app menus. */
+/** Block the browser menu without stopping custom context menu handlers. */
 export function preventNativeContextMenu(event: Event): void {
-  const target = event.target;
-  if (target instanceof Element
-    && target.matches("input, textarea, [contenteditable]:not([contenteditable='false'])")
-    && target.closest(".n-modal, [role='dialog']")) {
-    event.stopPropagation();
-    return;
-  }
   event.preventDefault();
 }

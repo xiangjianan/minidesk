@@ -3,6 +3,7 @@ import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
+import DialogInputContextMenu from "./components/DialogInputContextMenu.vue";
 import ImagePanel from "./components/ImagePanel.vue";
 import ImagePreview from "./components/ImagePreview.vue";
 import MobileHome from "./components/MobileHome.vue";
@@ -4088,6 +4089,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
 
 <template>
   <NConfigProvider :theme="naiveTheme" :theme-overrides="naiveThemeOverrides" :locale="naiveLocale" :date-locale="naiveDateLocale">
+    <DialogInputContextMenu :copy-label="uiText.common.copy" :paste-label="uiText.common.paste" />
     <NGlobalStyle />
     <WorkbenchShell
       v-if="!isMobileBlocked"
