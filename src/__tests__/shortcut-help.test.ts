@@ -49,7 +49,8 @@ describe("ShortcutHelp", () => {
     expect(wrapper.text()).toContain("Ctrl + S");
     expect(wrapper.text()).toContain("Esc / Space");
     expect(wrapper.text()).toContain("上移 / 下移当前行");
-    expect(wrapper.findAll(".shortcut-section-icon").map((icon) => icon.text())).toEqual(["⌘", "🖼️", "⏱️", "📝", "⚡"]);
+    expect(wrapper.findAll(".shortcut-section h4").map((heading) => heading.text())).toEqual(["工作台", "图床与预览", "快捷动作", "提醒事项", "工作空间与文本"]);
+    expect(wrapper.findAll(".shortcut-section-icon svg")).toHaveLength(5);
   });
 
   it("keeps English help copy available", () => {

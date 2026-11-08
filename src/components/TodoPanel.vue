@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RemindersAreaIcon as CheckboxOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
 import { TITLE_MAX_LENGTH } from "../state/titleLimits";
@@ -12,7 +13,6 @@ import {
   Plus as AddOutline,
   AlarmClock as AlarmOutline,
   CheckCheck as CheckmarkDoneOutline,
-  SquareCheck as CheckboxOutline,
   ChevronDown as ChevronDownOutline,
   Pencil as CreateOutline,
   EyeOff as EyeOffOutline,

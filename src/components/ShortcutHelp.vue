@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { NModal, NScrollbar } from "naive-ui";
+import { NIcon, NModal, NScrollbar } from "naive-ui";
+import { Monitor } from "lucide-vue-next";
+import { ImagesAreaIcon, QuickAreaIcon, RemindersAreaIcon, NotesAreaIcon } from "../utils/areaIcons";
 import type { AppLanguage } from "../types";
 import { getUiText, SHORTCUT_HELP } from "../state/i18n";
 
@@ -13,6 +15,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{ close: [] }>();
 const uiText = computed(() => getUiText(props.language));
+const areaIcons = { desk: Monitor, images: ImagesAreaIcon, quick: QuickAreaIcon, reminders: RemindersAreaIcon, notes: NotesAreaIcon };
 const sections = computed(() => SHORTCUT_HELP[props.language === "en" ? "en" : "zh"]);
 
 type KeyboardRowId = "system" | "numbers" | "letters-top" | "letters-home" | "letters-bottom" | "controls" | "arrows";
@@ -199,7 +202,7 @@ function createKeyboardRows(keys: ShortcutKeycap[]): ShortcutKeyboardRow[] {
         </div>
         <div v-for="section in sections" :key="section.area" class="shortcut-section">
           <div class="shortcut-section-heading">
-            <span class="shortcut-section-icon" aria-hidden="true">{{ section.icon }}</span>
+            <span class="shortcut-section-icon" aria-hidden="true"><NIcon :component="areaIcons[section.icon]" :size="16" /></span>
             <div>
               <h4>{{ section.area }}</h4>
               <p>{{ section.summary }}</p>

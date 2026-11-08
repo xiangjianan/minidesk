@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ImagesAreaIcon as ImageOutline } from "../utils/areaIcons";
 import ContextMenu from "./ContextMenu.vue";
 import { suppressSortCommitMotion } from "../utils/sortCommit";
 import { createSortGap } from "../utils/sortGap";
@@ -14,7 +15,6 @@ import {
   Pencil as CreateOutline,
   Eye as EyeOutline,
   CircleHelp as HelpCircleOutline,
-  Image as ImageOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";

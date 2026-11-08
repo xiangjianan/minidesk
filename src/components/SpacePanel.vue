@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { NotesAreaIcon as DocumentTextOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
 import { installPointerSort } from "../utils/pointerSort";
@@ -9,7 +10,6 @@ import type { Component, VNode } from "vue";
 import { NIcon, NScrollbar } from "naive-ui";
 import {
   Plus as AddOutline,
-  FileText as DocumentTextOutline,
   Pencil as CreateOutline,
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,

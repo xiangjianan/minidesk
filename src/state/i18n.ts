@@ -1405,7 +1405,7 @@ function isDefaultSpaceTitle(id: string, title: string): boolean {
 
 export type ShortcutHelpSection = {
   area: string;
-  icon: string;
+  icon: "desk" | "images" | "quick" | "reminders" | "notes";
   summary: string;
   tips: string[];
   shortcuts: { key: string; desc: string }[];
@@ -1413,14 +1413,14 @@ export type ShortcutHelpSection = {
 
 export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
   zh: [
-    { area: "工作台", icon: "⌘", summary: "把图片、提醒、快捷动作和便签放在一个桌面里。", tips: [
+    { area: "工作台", icon: "desk", summary: "把图片、提醒、快捷动作和便签放在一个桌面里。", tips: [
       "拖动栏间分隔线可以调整宽度，布局会自动记住。",
       "顶部菜单可以收起，适合给内容区让出空间。",
       "双击列表标题或空间标签可以改名。",
     ], shortcuts: [
       { key: "Ctrl + S", desc: "立即保存" },
     ]},
-    { area: "图床与预览", icon: "🖼️", summary: "临时收截图，也能做轻量图片剪贴板。", tips: [
+    { area: "图床与预览", icon: "images", summary: "临时收截图，也能做轻量图片剪贴板。", tips: [
       "外部图片可以直接拖进图床，原图会存在本机浏览器。",
       "预览里右键也有复制、删除和关闭，处理截图更快。",
       "预览支持拖动平移；大图不用反复开新窗口。",
@@ -1436,7 +1436,16 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Delete / Backspace", desc: "删除图片" },
       { key: "Esc / Space", desc: "关闭预览" },
     ]},
-    { area: "提醒事项", icon: "⏱️", summary: "用时间段管理提醒，把重要事项单独拎出来。", tips: [
+    { area: "快捷动作", icon: "quick", summary: "把常用链接和复制片段放在手边。", tips: [
+      "快捷动作可以隐藏；需要时从三点菜单临时显示隐藏项。",
+      "API 快捷动作能复制响应内容，适合做个人小自动化。",
+      "快捷动作按列表整理，列表中的加号用于添加动作，也能拖动动作到其他列表。",
+    ], shortcuts: [
+      { key: "拖入文本 / URL", desc: "自动创建快捷动作" },
+      { key: "右键", desc: "编辑 / 隐藏 / 删除" },
+      { key: "拖动按钮", desc: "排序或移动到其他分类" },
+    ]},
+    { area: "提醒事项", icon: "reminders", summary: "用时间段管理提醒，把重要事项单独拎出来。", tips: [
       "右键空白处可以新增提醒事项列表，列表名也能拖动排序。",
       "提醒时间不依赖星标；普通提醒也可以单独设置通知。",
       "星标事项会同步进入今日重点，完成后仍会弱化保留。",
@@ -1448,7 +1457,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "右键条目", desc: "复制 / 删除 / 星标 / 通知" },
       { key: "右键空白", desc: "新增提醒事项列表" },
     ]},
-    { area: "工作空间与文本", icon: "📝", summary: "适合放草稿、清单和拆解步骤。", tips: [
+    { area: "工作空间与文本", icon: "notes", summary: "适合放草稿、清单和拆解步骤。", tips: [
       "空间 Tab 可以双击重命名，也能拖动调整顺序。",
       "删除空间前会确认；系统会至少保留一个空间。",
       "空缩进行继续按 Backspace，会先取消缩进再合并内容。",
@@ -1464,25 +1473,16 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Ctrl/⌘ + Shift + U", desc: "给选中文字加下划线" },
       { key: "右键", desc: "复制 / 粘贴" },
     ]},
-    { area: "快捷动作", icon: "⚡", summary: "把常用链接和复制片段放在手边。", tips: [
-      "快捷动作可以隐藏；需要时从三点菜单临时显示隐藏项。",
-      "API 快捷动作能复制响应内容，适合做个人小自动化。",
-      "快捷动作按列表整理，列表中的加号用于添加动作，也能拖动动作到其他列表。",
-    ], shortcuts: [
-      { key: "拖入文本 / URL", desc: "自动创建快捷动作" },
-      { key: "右键", desc: "编辑 / 隐藏 / 删除" },
-      { key: "拖动按钮", desc: "排序或移动到其他分类" },
-    ]},
   ],
   en: [
-    { area: "Desk", icon: "⌘", summary: "Screenshots, reminders, quick actions, and notes in one local workspace.", tips: [
+    { area: "Desk", icon: "desk", summary: "Screenshots, reminders, quick actions, and notes in one local workspace.", tips: [
       "Drag column dividers to resize areas; the layout is remembered.",
       "Hide the top bar when you want more room for content.",
       "Double-click list titles or space tabs to rename them.",
     ], shortcuts: [
       { key: "Ctrl + S", desc: "Save immediately" },
     ]},
-    { area: "Images & Preview", icon: "🖼️", summary: "A local screenshot shelf that also works as a lightweight image clipboard.", tips: [
+    { area: "Images & Preview", icon: "images", summary: "A local screenshot shelf that also works as a lightweight image clipboard.", tips: [
       "Drag external images into the image area; originals stay in this browser.",
       "Right-click inside preview for copy, delete, and close actions.",
       "Drag in preview to pan large images without opening another window.",
@@ -1498,7 +1498,16 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Delete / Backspace", desc: "Delete image" },
       { key: "Esc / Space", desc: "Close preview" },
     ]},
-    { area: "Reminders", icon: "⏱️", summary: "Organize reminders by time of day and pull important ones into Focus.", tips: [
+    { area: "Quick Actions", icon: "quick", summary: "Keep frequent links and copy snippets close by.", tips: [
+      "Hidden actions can be temporarily shown from the three-dot menu.",
+      "API actions can copy response content for small personal automations.",
+      "Organize actions in lists. Use a list’s plus button to add actions, or drag actions between lists.",
+    ], shortcuts: [
+      { key: "Drag text/URL", desc: "Auto-create action" },
+      { key: "Right-click", desc: "Edit / Hide / Delete" },
+      { key: "Drag action", desc: "Reorder or move to another category" },
+    ]},
+    { area: "Reminders", icon: "reminders", summary: "Organize reminders by time of day and pull important ones into Focus.", tips: [
       "Right-click blank space to create another reminder list; list titles can be dragged.",
       "Notification time works without starring the reminder.",
       "Starred reminders appear in Focus and stay visible in a muted done state after completion.",
@@ -1510,7 +1519,7 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Right-click item", desc: "Copy / Delete / Star / Notify" },
       { key: "Right-click blank", desc: "New reminder list" },
     ]},
-    { area: "Spaces & Text", icon: "📝", summary: "Good for drafts, checklists, and breaking tasks into steps.", tips: [
+    { area: "Spaces & Text", icon: "notes", summary: "Good for drafts, checklists, and breaking tasks into steps.", tips: [
       "Double-click a space tab to rename it; drag tabs to reorder spaces.",
       "Deleting a space asks for confirmation; at least one space is always kept.",
       "Backspace on an empty indented line reduces indent before merging text.",
@@ -1525,15 +1534,6 @@ export const SHORTCUT_HELP: Record<AppLanguage, ShortcutHelpSection[]> = {
       { key: "Ctrl/⌘ + Shift + X", desc: "Strikethrough the selection" },
       { key: "Ctrl/⌘ + Shift + U", desc: "Underline the selection" },
       { key: "Right-click", desc: "Copy / Paste" },
-    ]},
-    { area: "Quick Actions", icon: "⚡", summary: "Keep frequent links and copy snippets close by.", tips: [
-      "Hidden actions can be temporarily shown from the three-dot menu.",
-      "API actions can copy response content for small personal automations.",
-      "Organize actions in lists. Use a list’s plus button to add actions, or drag actions between lists.",
-    ], shortcuts: [
-      { key: "Drag text/URL", desc: "Auto-create action" },
-      { key: "Right-click", desc: "Edit / Hide / Delete" },
-      { key: "Drag action", desc: "Reorder or move to another category" },
     ]},
   ],
 };

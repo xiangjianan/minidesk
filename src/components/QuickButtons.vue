@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { QuickAreaIcon as FlashOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
 import QuickListDialog from "./QuickListDialog.vue";
@@ -19,7 +20,6 @@ import {
   FileText as DocumentTextOutline,
   EyeOff as EyeOffOutline,
   Eye as EyeOutline,
-  Zap as FlashOutline,
   CircleHelp as HelpCircleOutline,
   Link as LinkOutline,
   Maximize2 as ResizeOutline,
