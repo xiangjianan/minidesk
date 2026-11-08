@@ -7621,7 +7621,7 @@ describe("App shell", () => {
     }
   });
 
-  it("clears all board data from the settings data menu after confirmation", async () => {
+  it("clears only the current workspace after confirmation", async () => {
     vi.useFakeTimers();
     const deleteDatabase = vi.fn(() => {
       const request: { onsuccess: (() => void) | null; onerror: (() => void) | null; onblocked: (() => void) | null } = {
@@ -7658,10 +7658,10 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/清空|当前数据|不可恢复/);
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("清空数据");
+      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("清空当前空间");
       expect(wrapper.get('[data-testid="companion-yes"]').classes()).toContain("is-danger");
       // the destructive-action hint (all workspaces cleared, back up first) is shown
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/所有空间都会被清空/);
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("仅清空当前空间");
 
       const gridBefore = wrapper.find(".workbench-grid").element;
 
@@ -7671,16 +7671,13 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      // localStorage fully wiped — every key, not just the app key
-      expect(localStorage.length).toBe(0);
-      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
-      expect(localStorage.getItem("unrelated-key")).toBeNull();
-      // entire IndexedDB image database deleted (current + legacy)
-      expect(deleteDatabase).toHaveBeenCalledWith("mini-desk-images-v1");
-      expect(deleteDatabase).toHaveBeenCalledWith("todo-board-images-v1");
+      expect(localStorage.getItem("unrelated-key")).toBe("keep-me");
+      expect(localStorage.getItem(STORAGE_KEY)).not.toBeNull();
+      expect(deleteDatabase).not.toHaveBeenCalled();
+      expect(loadState().theme).toBe("dark");
       // in-memory board reset to defaults
       expect(wrapper.text()).not.toContain("待清空");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/清空|已重置|数据|初始/);
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/清空|已重置|数据|初始|清理|整理/);
       // the workbench shell remounts so its entrance animation replays
       const gridAfter = wrapper.find(".workbench-grid").element;
       expect(gridAfter).not.toBe(gridBefore);
@@ -10301,14 +10298,14 @@ describe("App inbox revoke wiring", () => {
     }
   });
 
-  it("清空数据时注销所有工作区的配对码", async () => {
+  it("清空当前空间只注销该空间的配对码", async () => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
         ...defaultState(),
         workspaces: [
           { ...defaultWorkspace(), inbox: { code: "AB2CDE4FGHJK", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 7 } },
-          { ...defaultWorkspace("backup"), inbox: { code: "ZZ9YXW8VTSRQ", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 7 } },
+          { ...defaultWorkspace("backup"), todos: { ...defaultWorkspace("backup").todos, morning: [{ id: "keep-other", text: "其他空间提醒", done: false }] }, inbox: { code: "ZZ9YXW8VTSRQ", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 7 } },
         ],
       }),
     );
@@ -10330,8 +10327,11 @@ describe("App inbox revoke wiring", () => {
       await flushAsyncComponents();
       expect(event.defaultPrevented).toBe(true);
 
-      expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
-      expect(revokeInboxKey).toHaveBeenCalledTimes(2);
+      expect(loadState().workspaces).toHaveLength(2);
+      expect(loadState().workspaces[0].inbox).toBeUndefined();
+      expect(loadState().workspaces[1].inbox?.code).toBe("ZZ9YXW8VTSRQ");
+      expect(loadState().workspaces[1].todos.morning[0]?.text).toBe("其他空间提醒");
+      expect(revokeInboxKey).toHaveBeenCalledTimes(1);
       for (const [keyHash] of vi.mocked(revokeInboxKey).mock.calls) {
         expect(keyHash).toMatch(/^[0-9a-f]{64}$/);
       }

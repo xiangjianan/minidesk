@@ -19,7 +19,6 @@ import WorkspaceSwitcher from "./components/WorkspaceSwitcher.vue";
 import { getCompanionGifSrc, getCompanionNotificationIconSrc } from "./state/companionGifThemes";
 import { nextManualTheme, resolveTheme, type ResolvedTheme } from "./state/theme";
 import {
-  deleteImageDatabases,
   deleteStoredImage,
   getImagePayloadId,
   hydrateCustomCompanionGif,
@@ -58,7 +57,7 @@ import {
   updateTodoFocus,
   updateTodoText,
 } from "./state/todos";
-import { DEFAULT_BOARD_TITLE, defaultState, defaultWorkspace, STORAGE_KEY } from "./state/defaults";
+import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
@@ -3243,46 +3242,41 @@ function applyTheme(): void {
 }
 
 function clearData(anchor?: HTMLElement): void {
+  const workspaceId = activeWorkspace.value.id;
   requestConfirmation(
     "confirmClearData",
     anchor,
-    async () => {
-      // 清空数据 = 全部配对一起消失：先留底所有配对码，本地抹掉后逐个注销云端队列，
-      // 否则手机会继续发进无人拉取的死队列（同删除工作区的连坐规则）。
-      const doomedInboxCodes = state.workspaces.flatMap((workspace) => (workspace.inbox ? [workspace.inbox.code] : []));
-      const doomedPolishCode = state.polishCode;
+    () => {
+      const index = state.workspaces.findIndex((workspace) => workspace.id === workspaceId);
+      if (index < 0) return;
+      const workspace = state.workspaces[index];
+      const payloadIds = new Set([
+        ...workspace.images.map((image) => getImagePayloadId(image)),
+        ...Object.values(workspace.todos).flatMap((todos) => collectTodoFocusPayloadIds(todos)),
+      ]);
+      const inboxCode = workspace.inbox?.code;
       window.clearTimeout(textSaveTimer.value);
       textSaveTimer.value = undefined;
       emptyTodoRemovalTimers.forEach((timer) => window.clearTimeout(timer));
       emptyTodoRemovalTimers.clear();
-      clearPendingImagePayloadDeletions();
       clearImagePreview();
-      // 清空数据连根移除全部 todo：专注会话一并丢弃，避免幽灵 checkpoint 打到新状态。
       discardFocusSession();
       pendingEditSpaceId.value = null;
       pendingEditTodoListId.value = null;
       resetUndoHistory();
-      Object.assign(state, defaultState());
-      // defaultState() 不含可选键 polishCode，需显式删掉，否则清空后本次会话仍带着已注销的旧码。
-      delete state.polishCode;
-      doomedInboxCodes.forEach((code) => void revokeInbox(code));
-      if (doomedPolishCode) void revokeInbox(doomedPolishCode);
-      polishRegisteredCode = null;
+      const titles = Object.fromEntries(Object.entries(workspace.customTitles).filter(([key]) => key === "board-title" || key === "board-slogan"));
+      state.workspaces.splice(index, 1, { ...defaultWorkspace(workspaceId, state.language), createdAt: workspace.createdAt, customTitles: titles });
+      removeWorkbenchWidths(workspaceId);
       resetTextGenerationBaseline();
-      // Flush reactive watchers (the theme watcher persists on change) before wiping, so
-      // their writes land first and the clear below leaves localStorage truly empty.
-      await nextTick();
-      localStorage.clear();
-      await deleteImageDatabases();
+      persistNow();
       refreshTodoNotifications();
       lastUndoSnapshot.value = createUndoSnapshot();
-      // Remount the workbench shell so its entrance choreography (bar settles,
-      // zones rise left→right) replays — the same animation as a fresh page load.
+      payloadIds.forEach((id) => scheduleImagePayloadDeletion(id));
+      if (inboxCode && !state.workspaces.some((item) => item.inbox?.code === inboxCode)) void revokeInbox(inboxCode);
       boardEpoch.value += 1;
       showBubble("dataCleared", anchor, { hideCompanionAfter: true });
     },
     undefined,
-    // 清空数据删的是整块看板，锚点只是触发入口，高亮它反而误导 —— 跳过高亮。
     { confirmText: uiText.value.settings.clearData, cancelText: uiText.value.common.cancel, danger: true, confirmHint: uiText.value.settings.clearDataHint, highlightTarget: null },
   );
 }
