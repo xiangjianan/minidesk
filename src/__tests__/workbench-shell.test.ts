@@ -692,6 +692,20 @@ describe("WorkbenchShell", () => {
     restored.unmount();
   });
 
+  it("uses the default widths for a named workspace when only old shared widths remain", async () => {
+    vi.spyOn(window, "innerWidth", "get").mockReturnValue(1600);
+    localStorage.setItem(WORKBENCH_WIDTH_STORAGE_KEY, JSON.stringify([180, 500, 300, 280]));
+    localStorage.setItem(LEGACY_WORKBENCH_WIDTH_STORAGE_KEY, JSON.stringify([180, 500, 300, 280]));
+    HTMLElement.prototype.getBoundingClientRect = function () {
+      if (this.classList.contains("workbench-grid")) return { width: 1200, height: 748, top: 52, left: 0, right: 1200, bottom: 800, x: 0, y: 52, toJSON: () => undefined } as DOMRect;
+      return originalGetBoundingClientRect.call(this);
+    };
+    const wrapper = mount(WorkbenchShell, { attachTo: document.body, props: { ...defaultProps, workspaceId: "default" } });
+    await nextTick(); await nextTick();
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 113px 262px 293px 490px");
+    wrapper.unmount();
+  });
+
   it("restores legacy resized workbench widths after the project rename", async () => {
     vi.spyOn(window, "innerWidth", "get").mockReturnValue(1600);
     // Legacy widths are always at or above the column minimums (the old shrink

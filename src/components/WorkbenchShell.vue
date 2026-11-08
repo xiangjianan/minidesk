@@ -179,7 +179,10 @@ const gridTemplateColumns = computed(() =>
     : undefined,
 );
 
-const gridStyle = computed(() => gridTemplateColumns.value ? { gridTemplateColumns: gridTemplateColumns.value } : undefined);
+const gridStyle = computed(() => ({
+  "--workbench-default-columns": DEFAULT_COLUMN_WEIGHTS.map((weight) => `minmax(100px, ${weight}fr)`).join(" "),
+  ...(gridTemplateColumns.value ? { gridTemplateColumns: gridTemplateColumns.value } : {}),
+}));
 
 // A zone collapses to its vertical title rail once its width drops below the
 // column minimum: content is hidden and only the title remains visible. Indexed
@@ -258,11 +261,11 @@ function widthStorageKey(): string {
 function readStoredColumnWidths(expectedLength: number = MIN_COLUMN_WIDTHS.length): number[] | undefined {
   if (typeof localStorage === "undefined") return undefined;
   try {
-    // 本工作区自己的尺寸优先；没有时回落到旧共享键作为初始种子（旧数据
-    // 只读不写：该空间一旦拖过分隔条就分道扬镳，其余空间不受影响）。
-    const raw = localStorage.getItem(widthStorageKey())
-      ?? localStorage.getItem(WORKBENCH_WIDTH_STORAGE_KEY)
-      ?? localStorage.getItem(LEGACY_WORKBENCH_WIDTH_STORAGE_KEY);
+    // Named workspaces read only their own preference. Shared legacy keys are
+    // reserved for mounts without workspace context, never implicit defaults.
+    const raw = props.workspaceId
+      ? localStorage.getItem(widthStorageKey())
+      : localStorage.getItem(WORKBENCH_WIDTH_STORAGE_KEY) ?? localStorage.getItem(LEGACY_WORKBENCH_WIDTH_STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : props.zoneWidthRatios?.map((ratio) => ratio * 10000);
     if (!Array.isArray(parsed) || parsed.length !== expectedLength) return undefined;
     const widths = parsed.map((value) => Number(value));
