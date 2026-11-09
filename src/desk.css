@@ -1345,3 +1345,15 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
 .companion-popover-shell.n-popover.is-confirm-danger .companion-popover-arrow {
   background: color-mix(in srgb, var(--danger) 8%, var(--popover)) !important;
 }
+
+/* Quiet pointer feedback: emphasize the control itself without a gray tile. */
+:is(.workbench-shell, .focus-now-body) :is(.icon-button, .desk-ai-action):hover:not(:focus-visible) {
+  background: transparent;
+  color: var(--foreground);
+  box-shadow: none;
+}
+.workbench-shell button.quick-button:hover .quick-button-label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
