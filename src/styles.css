@@ -8,17 +8,17 @@
   --card: #ffffff;
   --popover: #ffffff;
   --popover-foreground: #111827;
-  --primary: #3f6887;
+  --primary: #303030;
   --primary-foreground: #ffffff;
   --secondary: #ececee;
   --secondary-foreground: #18181b;
   --muted-surface: #f2f2f4;
   --muted-foreground: #71717a;
-  --accent: #e4edf3;
-  --accent-foreground: #355b78;
+  --accent: #f1f1f1;
+  --accent-foreground: #303030;
   --destructive: #b42318;
   --border: rgba(60, 60, 67, 0.14);
-  --ring: #3f6887;
+  --ring: #555555;
   --bg: #fcfcfe;
   --panel: #ffffff;
   --text: #1d1d1f;
@@ -27,7 +27,7 @@
   --line-section: rgba(60, 60, 67, 0.14);
   --line-subtle: rgba(60, 60, 67, 0.09);
   --line-control: rgba(60, 60, 67, 0.22);
-  --line-focus: #3f6887;
+  --line-focus: #555555;
   --input: #ffffff;
   --button: #ffffff;
   --button-hover: color-mix(in srgb, #ffffff 88%, var(--primary) 12%);
@@ -51,8 +51,8 @@
   --shadow-companion: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.10);
   --shadow-float: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 20px rgba(15, 23, 42, 0.08), 0 24px 48px rgba(15, 23, 42, 0.06);
   /* 手机端首页（OpenDesign 原型）补充 token：实心动作蓝（加深保证白字对比）、小号蓝字、成功/实心危险与大圆角卡。 */
-  --action: #3f6887;
-  --link: #355b78;
+  --action: #303030;
+  --link: #424242;
   --ok: #1e7f36;
   --danger-fill: #b42318;
   --radius-card: 18px;
