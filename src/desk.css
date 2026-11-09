@@ -1399,7 +1399,6 @@ html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-c
 
 /* Rectangular workbench controls share the reminder row corner radius. */
 .workbench-shell :is(.todo-item, .today-focus-item),
-.workbench-shell .quick-block.is-compact button.quick-button,
 .workbench-shell .todo-add-row,
 :is(.workbench-shell, .focus-now-images) .image-card {
   border-radius: var(--desk-corner-radius, 8px);
