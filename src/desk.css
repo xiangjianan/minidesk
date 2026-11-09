@@ -5,7 +5,10 @@
   --app-font-size: 14px;
   --scrollbar-size: 4px;
   --desk-surface: #f7f8fa;
-  --desk-card-radius: 12px;
+  --desk-card-radius: 8px;
+  --desk-corner-radius: 8px;
+  --radius: 8px;
+  --radius-control: 8px;
   --desk-row-hover: #f1f6fc;
   --desk-tab-hover: #dce5ed;
   --desk-tab-active-hover: #f0f4f7;
@@ -1219,7 +1222,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
 .workbench-shell .quick-buttons { gap: 8px; }
 .workbench-shell button.quick-button {
   border: 1px solid var(--line-subtle);
-  border-radius: 6px;
+  border-radius: var(--desk-corner-radius);
   box-shadow: none;
   padding-inline: 8px;
 }
@@ -1245,7 +1248,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
   box-shadow: none;
 }
 :is(.workbench-shell, .focus-now-images) .image-card {
-  border-radius: 4px;
+  border-radius: var(--desk-corner-radius, 8px);
   border: 1px solid var(--line-subtle);
   box-shadow: none;
 }
@@ -1333,7 +1336,7 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
   backdrop-filter: none;
   box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 10%, transparent) !important;
 }
-.n-dropdown-option, .n-dropdown-option-body { border-radius: 4px !important; }
+.n-dropdown-option, .n-dropdown-option-body { border-radius: 8px !important; }
 .n-dropdown-option:hover, .n-dropdown-option.n-dropdown-option--pending {
   background: color-mix(in srgb, var(--foreground) 6%, var(--popover)) !important;
 }
@@ -1367,7 +1370,7 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
 :is(.workbench-shell, .focus-now-modal) .panel-header:has(.title-edit-input:focus),
 .workbench-shell .space-tab-edit-shell:has(.space-tab-edit-input:focus) {
   background: transparent;
-  border-radius: 4px;
+  border-radius: var(--desk-corner-radius);
   outline: 1px solid var(--desk-selection-border);
   outline-offset: -1px;
   box-shadow: none;
@@ -1392,4 +1395,12 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
 .workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button:hover,
 html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button:hover {
   background: var(--desk-interaction-surface) !important;
+}
+
+/* Rectangular workbench controls share the reminder row corner radius. */
+.workbench-shell :is(.todo-item, .today-focus-item),
+.workbench-shell .quick-block.is-compact button.quick-button,
+.workbench-shell .todo-add-row,
+:is(.workbench-shell, .focus-now-images) .image-card {
+  border-radius: var(--desk-corner-radius, 8px);
 }
