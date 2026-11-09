@@ -1352,3 +1352,28 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
   color: var(--foreground);
   box-shadow: none;
 }
+
+/* Match editing outlines to the selected image, with a light outline in dark mode. */
+.workbench-shell,
+.focus-now-modal { --desk-selection-border: #242424; }
+html[data-theme="dark"] .workbench-shell,
+html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
+:is(.workbench-shell, .focus-now-modal) .image-panel .image-card.is-active {
+  border-color: var(--desk-selection-border);
+  box-shadow: none;
+}
+.workbench-shell :is(.todo-item:has(.todo-input:focus), .today-focus-item:has(.today-focus-input:focus)),
+.workbench-shell :is(.quick-tag-heading.is-editing, .todo-heading:has(.title-edit-input:focus)),
+:is(.workbench-shell, .focus-now-modal) .panel-header:has(.title-edit-input:focus),
+.workbench-shell .space-tab-edit-shell:has(.space-tab-edit-input:focus) {
+  background: transparent;
+  border-radius: 4px;
+  outline: 1px solid var(--desk-selection-border);
+  outline-offset: -1px;
+  box-shadow: none;
+}
+:is(.workbench-shell, .focus-now-modal) :is(.quick-tag-title-input, .title-edit-input, .space-tab-edit-input):focus {
+  border-color: transparent;
+  box-shadow: none;
+  outline: none;
+}
