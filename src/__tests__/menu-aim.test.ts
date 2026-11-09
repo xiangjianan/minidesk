@@ -59,4 +59,53 @@ describe("submenu intent", () => {
     expect(switchMenu).not.toHaveBeenCalled();
     aim.stop();
   });
+
+  it("keeps the submenu open when leaving its row through the gap", () => {
+    vi.useFakeTimers();
+    const aim = createMenuAim();
+    const menu = document.createElement("div");
+    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div>';
+    const gap = document.createElement("div");
+    document.body.append(menu, gap);
+    const active = menu.firstElementChild as HTMLElement;
+    const body = active.firstElementChild as HTMLElement;
+    const submenu = active.querySelector<HTMLElement>(".n-dropdown-menu")!;
+    submenu.getBoundingClientRect = () => ({ left: 0, right: 200, top: 50, bottom: 250, width: 200, height: 200, x: 0, y: 50, toJSON() {} });
+    const close = vi.fn();
+    active.addEventListener("mouseleave", aim.guardLeave, true);
+    body.addEventListener("mouseleave", close);
+    aim.start();
+    body.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 300, clientY: 100 }));
+    body.dispatchEvent(new MouseEvent("mouseleave", { clientX: 260, clientY: 130, relatedTarget: gap }));
+    expect(close).not.toHaveBeenCalled();
+    submenu.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 190, clientY: 150 }));
+    vi.advanceTimersByTime(300);
+    expect(close).not.toHaveBeenCalled();
+    aim.stop();
+  });
+
+  it("closes after leaving toward the gap and stopping outside", () => {
+    vi.useFakeTimers();
+    const aim = createMenuAim();
+    const menu = document.createElement("div");
+    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div>';
+    const gap = document.createElement("div");
+    document.body.append(menu, gap);
+    const active = menu.firstElementChild as HTMLElement;
+    const body = active.firstElementChild as HTMLElement;
+    const submenu = active.querySelector<HTMLElement>(".n-dropdown-menu")!;
+    submenu.getBoundingClientRect = () => ({ left: 0, right: 200, top: 50, bottom: 250, width: 200, height: 200, x: 0, y: 50, toJSON() {} });
+    const close = vi.fn();
+    active.addEventListener("mouseleave", aim.guardLeave, true);
+    body.addEventListener("mouseleave", close);
+    aim.start();
+    body.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 300, clientY: 100 }));
+    body.dispatchEvent(new MouseEvent("mouseleave", { clientX: 260, clientY: 130, relatedTarget: gap }));
+    vi.advanceTimersByTime(300);
+    expect(close).toHaveBeenCalledTimes(1);
+    aim.stop();
+  });
+
 });

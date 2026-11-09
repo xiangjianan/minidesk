@@ -24,15 +24,18 @@ export function createMenuAim() {
   let pending: HTMLElement | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let replaying = false;
+  let leavingSubmenu: HTMLElement | null = null;
   function cancel() {
     if (timer !== undefined) clearTimeout(timer);
     timer = undefined;
     pending = null;
+    leavingSubmenu = null;
   }
   function track(event: MouseEvent) {
     history.push({ x: event.clientX, y: event.clientY });
     if (history.length > 4) history.shift();
     if (pending && event.target instanceof Element && !pending.contains(event.target)) cancel();
+    if (leavingSubmenu && event.target instanceof Node && leavingSubmenu.contains(event.target)) cancel();
   }
   function guard(event: MouseEvent) {
     if (replaying || !(event.currentTarget instanceof HTMLElement)) return;
@@ -62,7 +65,34 @@ export function createMenuAim() {
       replaying = false;
     }, 300);
   }
+  // Naive UI closes on mouseleave into a divider or the gap beside the menu,
+  // before the neighbouring row can apply its own intent protection.
+  function guardLeave(event: MouseEvent) {
+    if (replaying || !(event.currentTarget instanceof HTMLElement)) return;
+    const active = event.currentTarget;
+    const menu = active.closest('.settings-aim-menu');
+    if (!menu || active.closest('.n-dropdown-menu') !== menu) return;
+    const body = active.querySelector<HTMLElement>(':scope > .n-dropdown-option-body--pending');
+    const submenu = active.querySelector<HTMLElement>('.n-dropdown-menu');
+    const previous = history[0];
+    if (!body || !submenu || !previous) return;
+    const rect = submenu.getBoundingClientRect();
+    const current = { x: event.clientX, y: event.clientY };
+    if (!rect.width || !rect.height || !isMovingTowardSubmenu(previous, current, rect)) return;
+    if (event.relatedTarget instanceof Node && submenu.contains(event.relatedTarget)) return;
+    event.stopPropagation();
+    cancel();
+    leavingSubmenu = submenu;
+    const relatedTarget = event.relatedTarget;
+    timer = setTimeout(() => {
+      cancel();
+      if (!body.isConnected) return;
+      replaying = true;
+      body.dispatchEvent(new MouseEvent('mouseleave', { clientX: current.x, clientY: current.y, relatedTarget }));
+      replaying = false;
+    }, 300);
+  }
   function start() { history = []; document.addEventListener('mousemove', track, true); }
   function stop() { cancel(); history = []; document.removeEventListener('mousemove', track, true); }
-  return { start, stop, guard };
+  return { start, stop, guard, guardLeave };
 }
