@@ -9,6 +9,7 @@ import { formatFocusDuration } from "../state/todos";
 import { isTextEntryTarget } from "../utils/dom";
 import { useImageTransform } from "../composables/useImageTransform";
 import type { PolishKind, PolishResult, PolishStyle } from "../sync/polishClient";
+import type { SmartPastePhase } from "../utils/smartPaste";
 import TextPanel from "./TextPanel.vue";
 import ImagePanel from "./ImagePanel.vue";
 import ImageEditor from "./ImageEditor.vue";
@@ -41,6 +42,7 @@ const emit = defineEmits<{
   close: [];
   notesUpdate: [lines: LineItem[]];
   notesBlur: [];
+  polishMessage: [phase: SmartPastePhase, message: string, anchor: HTMLElement | undefined];
   imageWidthUpdate: [width: number];
   pasteImage: [request: ImagePasteRequest];
   dropImageFiles: [files: File[], targetId?: string];
@@ -451,6 +453,7 @@ function handleModalShow(value: boolean): void {
             hide-header
             @update="(lines: LineItem[]) => emit('notesUpdate', lines)"
             @blur="emit('notesBlur')"
+            @polish-message="(phase, message, anchor) => emit('polishMessage', phase, message, anchor)"
           />
           <Transition name="focus-preview" appear>
           <div

@@ -4378,6 +4378,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @close="closeFocusNow"
       @notes-update="(lines) => focusSession && updateFocusNotes(focusSession.period, focusSession.id, lines)"
       @notes-blur="handleEditorBlur"
+      @polish-message="handlePolishStatus"
       @image-width-update="(width) => { if (focusSession) { activeWorkspace.todos = updateTodoFocus(activeWorkspace.todos, focusSession.period, focusSession.id, { focusImageWidth: width }); markDirty({ recordCheckpoint: false }); persistNow('all', { recordCheckpoint: false }); } }"
       @paste-image="(request) => focusSession && pasteImageFromClipboard(request, { period: focusSession.period, id: focusSession.id })"
       @drop-image-files="(files, targetId) => focusSession && addImageFiles(files, undefined, targetId, { period: focusSession.period, id: focusSession.id })"
