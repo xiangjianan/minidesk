@@ -1391,9 +1391,7 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
 :is(.workbench-shell, .focus-now-modal) .image-panel .image-card.is-active {
   background: var(--desk-interaction-surface);
 }
-.workbench-shell button.quick-button:hover,
-.workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button:hover,
-html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button:hover {
+.workbench-shell button.quick-button:hover {
   background: var(--desk-interaction-surface) !important;
 }
 
