@@ -1171,7 +1171,6 @@ html[data-theme="dark"] .quick-color-custom-preview {
   --desk-tab-hover: #f5f5f5;
   --desk-tab-active-hover: #f5f5f5;
   --desk-selected-text: #242424;
-  --desk-content-text: #5f5f5f;
   --desk-zone-accent: #555;
   --desk-edge: #e9e9e9;
   --text: #222;
@@ -1251,7 +1250,6 @@ html[data-theme="dark"] .focus-now-modal {
   --desk-tab-hover: #303030;
   --desk-tab-active-hover: #303030;
   --desk-selected-text: #ededed;
-  --desk-content-text: #bdbdbd;
   --desk-edge: #383838;
   --text: #ededed;
   --foreground: #ededed;
@@ -1297,26 +1295,8 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
   border-color: var(--line-subtle);
   box-shadow: none;
 }
-.workbench-shell .quick-tag-group:not([style*="--quick-list-color"]) .quick-button-label {
-  color: var(--desk-content-text);
-  transition: color var(--motion-fast) ease;
-}
-.workbench-shell .quick-tag-group:not([style*="--quick-list-color"]) button.quick-button:hover .quick-button-label,
-.workbench-shell .quick-tag-group:not([style*="--quick-list-color"]) button.quick-button:focus-visible .quick-button-label {
-  color: var(--foreground);
-}
 .workbench-shell :is(.todo-item, .today-focus-item):not(:has(:focus-visible)):hover {
   background-color: transparent;
-}
-.workbench-shell .todo-item:not(.is-starred):not(.is-done):not(.deadline-overdue) .todo-input {
-  color: var(--desk-content-text);
-  -webkit-text-fill-color: var(--desk-content-text);
-  transition: color var(--motion-fast) ease, -webkit-text-fill-color var(--motion-fast) ease;
-}
-.workbench-shell .todo-item:not(.is-starred):not(.is-done):not(.deadline-overdue):hover .todo-input,
-.workbench-shell .todo-item:not(.is-starred):not(.is-done):not(.deadline-overdue) .todo-input:focus {
-  color: var(--foreground);
-  -webkit-text-fill-color: var(--foreground);
 }
 .workbench-shell .space-tab.is-active { font-weight: 650; }
 
