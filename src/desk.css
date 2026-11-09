@@ -1230,10 +1230,15 @@ html[data-theme="dark"] .quick-color-custom-preview {
   border-radius: 0;
 }
 .workbench-shell .space-tab.is-active {
-  color: var(--foreground);
+  color: var(--desk-heading-text);
   background: transparent;
   border-radius: 0;
-  box-shadow: inset 0 -2px var(--foreground);
+  box-shadow: inset 0 -2px var(--desk-heading-text);
+}
+.workbench-shell button.space-tab.is-active:hover,
+.workbench-shell button.space-tab.is-active:focus-visible {
+  border-radius: 0;
+  background: transparent;
 }
 .workbench-shell .space-text-panel {
   border-radius: 0;
@@ -1312,7 +1317,7 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
 .workbench-shell :is(.todo-item, .today-focus-item):not(:has(:focus-visible)):hover {
   background-color: transparent;
 }
-.workbench-shell .space-tab.is-active { font-weight: 650; }
+.workbench-shell .space-tab.is-active { font-size: 12px; font-weight: 500; }
 
 /* Floating surfaces share the same restrained, opaque visual language. */
 .n-dropdown-menu,
