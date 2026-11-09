@@ -1159,6 +1159,8 @@ html[data-theme="dark"] .quick-color-custom-preview {
   margin-bottom: 8px;
 }
 
+/* Align section headings midway between the modal rule and their own rules. */
+.focus-now-stage { gap: 0; }
 .focus-now-body .panel-header { flex: none; }
 .focus-now-notes-header .header-actions { margin-left: auto; }
 
