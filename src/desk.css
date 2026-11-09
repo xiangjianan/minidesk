@@ -1165,8 +1165,9 @@ html[data-theme="dark"] .quick-color-custom-preview {
 .workbench-shell,
 .focus-now-modal {
   --desk-surface: #fff;
-  --desk-group-surface: #fff;
+  --desk-group-surface: #f5f5f4;
   --desk-group-content: #fff;
+  --desk-action-border: #d8d8d8;
   --desk-row-hover: #f5f5f5;
   --desk-tab-hover: #f5f5f5;
   --desk-tab-active-hover: #f5f5f5;
@@ -1212,14 +1213,14 @@ html[data-theme="dark"] .quick-color-custom-preview {
 }
 .workbench-shell .quick-buttons { gap: 8px; }
 .workbench-shell button.quick-button {
-  border: 1px solid var(--line-subtle);
+  border: 1px solid var(--desk-action-border);
   border-radius: 6px;
   box-shadow: none;
   padding-inline: 8px;
 }
 .workbench-shell .todo-list { padding: 0 0 8px; }
 .workbench-shell .space-tabs-scrollbar {
-  background: var(--desk-group-surface);
+  background: var(--desk-surface);
   border-bottom: 1px solid var(--desk-edge);
   border-radius: 0;
 }
@@ -1243,8 +1244,9 @@ html[data-theme="dark"] .quick-color-custom-preview {
 html[data-theme="dark"] .workbench-shell,
 html[data-theme="dark"] .focus-now-modal {
   --desk-surface: #202020;
-  --desk-group-surface: #202020;
+  --desk-group-surface: #303030;
   --desk-group-content: #202020;
+  --desk-action-border: #5a5a5a;
   --card: #202020;
   --desk-row-hover: #303030;
   --desk-tab-hover: #303030;
@@ -1280,6 +1282,23 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
   align-self: center;
 }
 .workbench-shell :is(.quick-tag-group, .todo-section) { clip-path: inset(0); }
+
+
+/* Use type weight and quiet surfaces to distinguish sections from their content. */
+:is(.workbench-zone, .focus-now-body) .panel-header :is(h1, h2) {
+  font-weight: 650;
+}
+.workbench-shell :is(.quick-tag-heading, .todo-heading) {
+  background-color: var(--desk-group-surface);
+}
+.workbench-shell :is(.todo-item, .today-focus-item):hover {
+  background-color: var(--desk-row-hover);
+}
+.workbench-shell button.quick-button:hover,
+.workbench-shell button.quick-button:focus-visible {
+  border-color: color-mix(in srgb, var(--foreground) 32%, var(--desk-action-border));
+}
+.workbench-shell .space-tab.is-active { font-weight: 650; }
 
 /* Floating surfaces share the same restrained, opaque visual language. */
 .n-dropdown-menu,
