@@ -207,11 +207,6 @@ export const GUIDE_MESSAGES: Record<AppLanguage, Record<GuideKey, string[]>> = {
       "标题和内容都要填写。",
       "常用文本也可以做成快捷按钮。",
       "右键菜单可以删除不需要的入口。",
-      "按钮右下角显示累计点击次数。",
-      "×10 表示这个按钮已点击十次。",
-      "每个按钮只统计自己的点击。",
-      "点击次数不会改变按钮背景。",
-      "未使用的按钮不显示次数。",
     ],
     todos: [
       "试试把提醒事项拖到工作空间。",
@@ -342,11 +337,6 @@ export const GUIDE_MESSAGES: Record<AppLanguage, Record<GuideKey, string[]>> = {
       "A shortcut needs both title and content.",
       "Common snippets can become quick buttons.",
       "Use the context menu to delete an entry.",
-      "The bottom-right corner shows total clicks.",
-      "×10 means this button has been clicked ten times.",
-      "Each button only counts its own clicks.",
-      "Click counts never change the button background.",
-      "Unused buttons do not show a count.",
     ],
     todos: [
       "Try dragging a reminder into the memo.",

@@ -5136,25 +5136,6 @@ button.quick-button {
   background: var(--button-hover);
 }
 
-/* A quiet count in a reserved corner; usage never changes the background. */
-.quick-button { position: relative; }
-.quick-button:has(.quick-button-clicks) .quick-button-content { padding-inline-end: 34px; }
-.quick-button-clicks {
-  position: absolute;
-  right: 7px;
-  bottom: 4px;
-  max-width: 40%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--muted);
-  opacity: 0.65;
-  font-size: 10px;
-  line-height: 1.2;
-  font-variant-numeric: tabular-nums;
-  pointer-events: none;
-}
-
 /* Animate tag groups sliding into place when the tag list is reordered. */
 .quick-tag-group-move {
   transition: transform var(--motion-medium) var(--motion-ease);

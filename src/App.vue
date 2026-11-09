@@ -63,7 +63,7 @@ import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchW
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
 import * as workspaceMover from "./state/workspaceMoves";
 import { mergeImportedWorkspace } from "./state/workspaceImport";
-import { QUICK_BUTTON_OTHER_GROUP_ID, QUICK_DENSITY_THRESHOLD, assignQuickTagColumn, distributeQuickTagColumns, formatQuickCopiedPreview, recordQuickButtonClick, reorderQuickButton, toggleQuickHiddenVisibility } from "./state/quickButtons";
+import { QUICK_BUTTON_OTHER_GROUP_ID, QUICK_DENSITY_THRESHOLD, assignQuickTagColumn, distributeQuickTagColumns, formatQuickCopiedPreview, reorderQuickButton, toggleQuickHiddenVisibility } from "./state/quickButtons";
 import { isQuickAppScheme } from "./state/quickApps";
 import { pickRandomTip, pickWorkbenchTipArea, resolveTipGuideKey, type TipPickState } from "./state/guideTips";
 import { isValidNotifyAt } from "./state/deadlines";
@@ -2607,8 +2607,6 @@ function replaceFocusImages(destination: FocusDestination, mutate: (list: Stored
 async function handleQuickButton(id: string, anchor?: HTMLElement): Promise<void> {
   const button = activeWorkspace.value.quickButtons.find((item) => item.id === id);
   if (!button) return;
-  recordQuickButtonClick(button);
-  persistNow();
   if (button.type === "link") {
     // noopener 下 window.open 成功也返回 null（规范行为），返回值判不出弹窗拦截；
     // 与 openQuickApp 同一处理：用户手势触发的打开默认成功，只提示已发起。

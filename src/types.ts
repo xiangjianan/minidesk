@@ -94,7 +94,7 @@ export interface QuickButton {
   apiHeaders?: QuickApiHeader[];
   apiBodyType?: QuickApiBodyType;
   apiBody?: string;
-  /** 累计点击次数，点击 +1，以按钮右下角 ×N 显示；缺省 = 0。 */
+  /** 旧版本保留的点击次数，仅用于兼容已有数据。 */
   clicks?: number;
   hidden: boolean;
 }

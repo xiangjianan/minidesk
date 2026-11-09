@@ -523,12 +523,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 .workbench-shell .quick-block.is-compact .quick-button-content {
   padding-inline-end: 0;
 }
-.workbench-shell .quick-block.is-compact .quick-button-clicks {
-  position: static;
-  flex: 0 0 auto;
-  max-width: none;
-  align-self: center;
-}
+
 
 
 /* Overdue dates retain their warning color; task text stays readable and neutral. */
@@ -1240,7 +1235,8 @@ html[data-theme="dark"] .quick-color-custom-preview {
 }
 :is(.workbench-shell, .focus-now-images) .image-card {
   border-radius: 4px;
-  box-shadow: inset 0 0 0 1px var(--line-subtle);
+  border: 1px solid var(--line-subtle);
+  box-shadow: none;
 }
 
 /* Dark mode follows the same flat hierarchy with readable neutral contrast. */
@@ -1272,15 +1268,42 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section, .s
   border-bottom: 1px solid var(--desk-edge);
   box-shadow: none;
 }
-.workbench-shell .quick-button-clicks {
-  right: 8px;
-  bottom: 6px;
-  padding: 2px 5px;
-  border: 1px solid var(--line-subtle);
-  border-radius: 4px;
-  background: var(--desk-group-surface);
-  opacity: 1;
+
+/* Collapsed headings sit midway between the rules above and below. */
+.workbench-shell { --desk-group-gap: 0px; --desk-group-heading-height: 48px; }
+.workbench-shell :is(.quick-tag-heading, .todo-heading) {
+  align-items: center;
+  min-height: var(--desk-group-heading-height);
+  padding-block: 4px;
 }
-.workbench-shell .quick-block.is-compact .quick-button-clicks {
-  padding: 1px 4px;
+.workbench-shell :is(.quick-tag-heading, .todo-heading) > :is(.quick-tag-title, h3) {
+  align-self: center;
+}
+.workbench-shell :is(.quick-tag-group, .todo-section) { clip-path: inset(0); }
+
+/* Floating surfaces share the same restrained, opaque visual language. */
+.n-dropdown-menu,
+.n-popover,
+.n-dialog,
+.n-modal .n-card,
+.quick-dialog.n-card,
+.shortcut-help-modal.n-card {
+  background: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 10%, transparent) !important;
+}
+.n-dropdown-option, .n-dropdown-option-body { border-radius: 4px !important; }
+.n-dropdown-option:hover, .n-dropdown-option.n-dropdown-option--pending {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--popover)) !important;
+}
+.companion-popover-shell.n-popover {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--foreground) 10%, transparent) !important;
+}
+.companion-popover-shell.n-popover.is-confirm-danger,
+.companion-popover-shell.n-popover.is-confirm-danger .companion-popover-arrow {
+  background: color-mix(in srgb, var(--danger) 8%, var(--popover)) !important;
 }

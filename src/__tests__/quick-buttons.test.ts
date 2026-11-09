@@ -14,8 +14,6 @@ import {
   groupQuickButtonsByColumn,
   hasOverloadedVisibleQuickButtonGroup,
   QUICK_BUTTON_OTHER_GROUP_ID,
-  quickButtonClickCount,
-  recordQuickButtonClick,
   reorderQuickButton,
   toggleQuickHiddenVisibility,
 } from "../state/quickButtons";
@@ -200,7 +198,7 @@ describe("QuickButtons", () => {
       expect(wrapper.findAll(".quick-button")).toHaveLength(600);
       await wrapper.setProps({ buttons: buttons.map((button, i) => i === 0 ? { ...button, title: "Edited action", clicks: 7 } : button) });
       expect(wrapper.get('.quick-button[data-id="button-0"]').text()).toContain("Edited action");
-      expect(wrapper.get('.quick-button[data-id="button-0"]').text()).toContain("×7");
+      expect(wrapper.get('.quick-button[data-id="button-0"]').text()).not.toContain("×7");
     } finally {
       spy.mockRestore();
       wrapper.unmount();
@@ -295,29 +293,6 @@ describe("QuickButtons", () => {
     expect(hasOverloadedVisibleQuickButtonGroup([...visibleButtons.slice(0, 12), ...hiddenButtons], tags, 12)).toBe(false);
   });
 
-  it("显示真实点击次数并兼容无效历史值", () => {
-    expect(quickButtonClickCount(undefined)).toBe(0);
-    expect(quickButtonClickCount(0)).toBe(0);
-    expect(quickButtonClickCount(1)).toBe(1);
-    expect(quickButtonClickCount(50)).toBe(50);
-    expect(quickButtonClickCount(100)).toBe(100);
-    expect(quickButtonClickCount(132)).toBe(132);
-    expect(quickButtonClickCount(-3)).toBe(0);
-    expect(quickButtonClickCount(2.5)).toBe(2);
-    expect(quickButtonClickCount("x" as unknown)).toBe(0);
-    expect(quickButtonClickCount(NaN)).toBe(0);
-    expect(quickButtonClickCount(Infinity)).toBe(0);
-  });
-
-  it("按钮点击计数 +1：缺省 0→1，已有值 41→42", () => {
-    const fresh: QuickButton = { id: "b1", title: "B", value: "v", type: "text", hidden: false };
-    recordQuickButtonClick(fresh);
-    expect(fresh.clicks).toBe(1);
-    const seeded: QuickButton = { id: "b2", title: "B2", value: "v", type: "text", hidden: false, clicks: 41 };
-    recordQuickButtonClick(seeded);
-    expect(seeded.clicks).toBe(42);
-  });
-
   it("组构建不为标签组携带 usagePercent（染色下沉到按钮级）", () => {
     const groups = buildVisibleQuickButtonGroups(
       [
@@ -337,18 +312,12 @@ describe("QuickButtons", () => {
     expect(groups[1]).not.toHaveProperty("usagePercent");
   });
 
-  it("shows quiet real click counts without changing the button background", async () => {
+  it("does not display legacy click counts", () => {
     const wrapper = mountQuickButtons({ buttons: [
       { id: "used", title: "Used", value: "a", type: "text", hidden: false, clicks: 10 },
-      { id: "unused", title: "Unused", value: "b", type: "text", hidden: false },
-      { id: "many", title: "Many", value: "c", type: "text", hidden: false, clicks: 1234 },
     ] });
-    expect(wrapper.get('[data-id="used"] .quick-button-clicks').text()).toBe("×10");
-    expect(wrapper.find('[data-id="unused"] .quick-button-clicks').exists()).toBe(false);
-    expect(wrapper.get('[data-id="many"] .quick-button-clicks').text()).toBe("×1234");
-    expect(wrapper.get('[data-id="used"]').attributes("style") ?? "").not.toContain("--button-usage");
-    await wrapper.setProps({ buttons: [{ id: "used", title: "Used", value: "a", type: "text", hidden: false, clicks: 11 }] });
-    expect(wrapper.get('.quick-button-clicks').text()).toBe("×11");
+    expect(wrapper.find(".quick-button-clicks").exists()).toBe(false);
+    expect(wrapper.get('[data-id="used"]').text()).toBe("Used");
     wrapper.unmount();
   });
 
@@ -457,7 +426,7 @@ describe("QuickButtons", () => {
     await wrapper.setProps({ compact: true });
     expect(wrapper.findAll(".quick-button-icon")).toHaveLength(2);
     expect(wrapper.findAll(".quick-button-label").map(label => label.text())).toEqual(["短标题", "很长的快捷动作标题用于截断"]);
-    expect(wrapper.get('.quick-button[data-id="a"] .quick-button-clicks').text()).toBe("×3");
+    expect(wrapper.find(".quick-button-clicks").exists()).toBe(false);
     await wrapper.get('.quick-button[data-id="a"]').trigger("click");
     expect(wrapper.emitted("copy")?.[0][0]).toBe("a");
     await wrapper.setProps({ compact: false });
