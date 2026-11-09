@@ -18,7 +18,7 @@ describe("submenu intent", () => {
     vi.useFakeTimers();
     const aim = createMenuAim();
     const menu = document.createElement("div");
-    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.className = "menu-aim-menu n-dropdown-menu";
     menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div><div class="n-dropdown-option"><div class="n-dropdown-option-body"></div></div>';
     document.body.append(menu);
     const submenu = menu.querySelectorAll<HTMLElement>(".n-dropdown-menu")[0];
@@ -41,7 +41,7 @@ describe("submenu intent", () => {
     vi.useFakeTimers();
     const aim = createMenuAim();
     const menu = document.createElement("div");
-    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.className = "menu-aim-menu n-dropdown-menu";
     menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div><div class="n-dropdown-option"><div class="n-dropdown-option-body"></div></div>';
     document.body.append(menu);
     const submenu = menu.querySelectorAll<HTMLElement>(".n-dropdown-menu")[0];
@@ -64,7 +64,7 @@ describe("submenu intent", () => {
     vi.useFakeTimers();
     const aim = createMenuAim();
     const menu = document.createElement("div");
-    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.className = "menu-aim-menu n-dropdown-menu";
     menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div>';
     const gap = document.createElement("div");
     document.body.append(menu, gap);
@@ -89,7 +89,7 @@ describe("submenu intent", () => {
     vi.useFakeTimers();
     const aim = createMenuAim();
     const menu = document.createElement("div");
-    menu.className = "settings-aim-menu n-dropdown-menu";
+    menu.className = "menu-aim-menu n-dropdown-menu";
     menu.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="n-dropdown-menu"></div></div>';
     const gap = document.createElement("div");
     document.body.append(menu, gap);
@@ -105,6 +105,34 @@ describe("submenu intent", () => {
     body.dispatchEvent(new MouseEvent("mouseleave", { clientX: 260, clientY: 130, relatedTarget: gap }));
     vi.advanceTimersByTime(300);
     expect(close).toHaveBeenCalledTimes(1);
+    aim.stop();
+  });
+
+
+  it("protects nested submenus without confusing the parent pending row", () => {
+    vi.useFakeTimers();
+    const aim = createMenuAim();
+    const root = document.createElement("div");
+    root.className = "menu-aim-menu n-dropdown-menu";
+    root.innerHTML = '<div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="menu-aim-menu n-dropdown-menu"><div class="n-dropdown-option"><div class="n-dropdown-option-body n-dropdown-option-body--pending"></div><div class="menu-aim-menu n-dropdown-menu"></div></div><div class="n-dropdown-option"><div class="n-dropdown-option-body"></div></div></div></div>';
+    document.body.append(root);
+    const parent = root.firstElementChild as HTMLElement;
+    const nested = parent.querySelector<HTMLElement>(".n-dropdown-menu")!;
+    const active = nested.firstElementChild as HTMLElement;
+    const submenu = active.querySelector<HTMLElement>(".n-dropdown-menu")!;
+    submenu.getBoundingClientRect = () => ({ left: 400, right: 600, top: 50, bottom: 250, width: 200, height: 200, x: 400, y: 50, toJSON() {} });
+    const candidate = nested.children[1] as HTMLElement;
+    const body = candidate.firstElementChild as HTMLElement;
+    const switchMenu = vi.fn();
+    parent.addEventListener("mousemove", aim.guard, true);
+    candidate.addEventListener("mousemove", aim.guard, true);
+    body.addEventListener("mousemove", switchMenu);
+    aim.start();
+    nested.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 300, clientY: 100 }));
+    body.dispatchEvent(new MouseEvent("mousemove", { bubbles: true, clientX: 340, clientY: 130 }));
+    expect(switchMenu).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(300);
+    expect(switchMenu).toHaveBeenCalledTimes(1);
     aim.stop();
   });
 

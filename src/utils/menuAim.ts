@@ -40,9 +40,11 @@ export function createMenuAim() {
   function guard(event: MouseEvent) {
     if (replaying || !(event.currentTarget instanceof HTMLElement)) return;
     const candidate = event.currentTarget;
-    const menu = candidate.closest('.settings-aim-menu');
+    if (event.target instanceof Element && event.target.closest('.n-dropdown-option') !== candidate) return;
+    const menu = candidate.closest('.menu-aim-menu');
     if (!menu || candidate.closest('.n-dropdown-menu') !== menu) return;
-    const activeBody = menu.querySelector<HTMLElement>('.n-dropdown-option-body--pending');
+    const activeBody = Array.from(menu.querySelectorAll<HTMLElement>('.n-dropdown-option-body--pending'))
+      .find((body) => body.closest('.n-dropdown-menu') === menu);
     const active = activeBody?.parentElement;
     if (!active || active === candidate) { cancel(); return; }
     const submenu = active.querySelector<HTMLElement>('.n-dropdown-menu');
@@ -70,7 +72,8 @@ export function createMenuAim() {
   function guardLeave(event: MouseEvent) {
     if (replaying || !(event.currentTarget instanceof HTMLElement)) return;
     const active = event.currentTarget;
-    const menu = active.closest('.settings-aim-menu');
+    if (event.target instanceof Element && event.target.closest('.n-dropdown-option') !== active) return;
+    const menu = active.closest('.menu-aim-menu');
     if (!menu || active.closest('.n-dropdown-menu') !== menu) return;
     const body = active.querySelector<HTMLElement>(':scope > .n-dropdown-option-body--pending');
     const submenu = active.querySelector<HTMLElement>('.n-dropdown-menu');
@@ -95,4 +98,16 @@ export function createMenuAim() {
   function start() { history = []; document.addEventListener('mousemove', track, true); }
   function stop() { cancel(); history = []; document.removeEventListener('mousemove', track, true); }
   return { start, stop, guard, guardLeave };
+}
+
+/** Shared NDropdown hooks, including each nested submenu. */
+export function menuAimProps(aim: ReturnType<typeof createMenuAim>) {
+  return {
+    menuProps: () => ({ class: "menu-aim-menu" }),
+    nodeProps: () => ({
+      onMouseenterCapture: aim.guard,
+      onMousemoveCapture: aim.guard,
+      onMouseleaveCapture: aim.guardLeave,
+    }) as unknown as Record<string, string>,
+  };
 }

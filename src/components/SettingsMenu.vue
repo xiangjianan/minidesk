@@ -28,7 +28,7 @@ import { getUiText, normalizeLanguage } from "../state/i18n";
 import type { AppLanguage, CompanionCustomGif, CompanionGifTheme, GuideKey, ThemeMode, ZoneKey, ZoneVisibility } from "../types";
 import { CONTEXT_MENU_Z_INDEX } from "../utils/contextMenu";
 import { renderIcon } from "../utils/dropdownIcons";
-import { createMenuAim } from "../utils/menuAim";
+import { createMenuAim, menuAimProps } from "../utils/menuAim";
 
 const props = withDefaults(defineProps<{
   appVersion: string;
@@ -72,8 +72,7 @@ const SUPPORT_AUTHOR_ENABLED = false;
 
 const menuOpen = ref(false);
 const menuAim = createMenuAim();
-const settingsMenuProps = (option: unknown) => option ? {} : { class: "settings-aim-menu" };
-const settingsNodeProps = () => ({ onMouseenterCapture: menuAim.guard, onMousemoveCapture: menuAim.guard, onMouseleaveCapture: menuAim.guardLeave }) as unknown as Record<string, string>;
+const { menuProps: settingsMenuProps, nodeProps: settingsNodeProps } = menuAimProps(menuAim);
 watch(menuOpen, (open) => { if (open) menuAim.start(); else menuAim.stop(); }, { flush: "sync" });
 // NDropdown requests closure after every selection, even when its show is controlled.
 let keepOpenAfterPreferenceSelect = false;
