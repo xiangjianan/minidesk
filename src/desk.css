@@ -1427,11 +1427,13 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
   --desk-group-gap: 10px;
   --desk-group-top: 10px;
   --desk-list-surface: #fff;
-  --desk-list-outline: #e9e9e9;
+  --desk-list-heading: #f8fafb;
+  --desk-list-outline: #e9edef;
 }
 html[data-theme="dark"] .workbench-shell {
-  --desk-list-surface: #242424;
-  --desk-list-outline: #393939;
+  --desk-list-surface: #202020;
+  --desk-list-heading: #252931;
+  --desk-list-outline: #383c42;
 }
 .workbench-shell :is(.quick-tag-group, .todo-section),
 html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section) {
@@ -1443,7 +1445,7 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section) {
 }
 .workbench-shell :is(.quick-tag-heading, .todo-heading),
 .workbench-shell :is(.quick-tag-heading, .todo-heading)::before {
-  background: var(--desk-list-surface);
+  background: var(--desk-list-heading);
 }
 .workbench-shell .quick-tag-clip > .quick-buttons { padding: 4px 8px 12px; }
 .workbench-shell .todo-list { padding: 0 8px 8px; }
@@ -1457,7 +1459,7 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section) {
   overflow: hidden;
 }
 .workbench-shell .todo-content-scroll > .todo-focus-region > .today-focus-section > .today-focus-heading {
-  background: var(--desk-list-surface);
+  background: var(--desk-list-heading);
 }
 .workbench-shell .today-focus-scrollbar .today-focus-list { padding-inline: 8px; }
 .workbench-shell :is(.quick-tag-heading, .todo-heading)::before {
@@ -1468,22 +1470,4 @@ html[data-theme="dark"] .workbench-shell :is(.quick-tag-group, .todo-section) {
 .workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
   border-radius: var(--desk-corner-radius);
   box-shadow: inset 0 0 0 1px var(--desk-list-outline);
-}
-
-/* Barely tinted surfaces distinguish action groups from reminder groups. */
-.workbench-shell .quick-tag-group {
-  --desk-list-surface: #fbfaf8;
-  --desk-list-outline: #eeece9;
-}
-.workbench-shell :is(.todo-section, .today-focus-section) {
-  --desk-list-surface: #f8fafb;
-  --desk-list-outline: #e9edef;
-}
-html[data-theme="dark"] .workbench-shell .quick-tag-group {
-  --desk-list-surface: #292725;
-  --desk-list-outline: #3a3836;
-}
-html[data-theme="dark"] .workbench-shell :is(.todo-section, .today-focus-section) {
-  --desk-list-surface: #25292b;
-  --desk-list-outline: #373c3e;
 }
