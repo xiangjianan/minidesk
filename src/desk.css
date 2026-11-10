@@ -1421,10 +1421,10 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
 .quick-empty-arrow {
   position: absolute;
   top: 28px;
-  right: 76px;
+  right: 74px;
   pointer-events: none;
-  width: 48px;
-  height: 36px;
+  width: 56px;
+  height: 44px;
   color: color-mix(in srgb, var(--muted) 68%, transparent);
   fill: none;
   stroke: currentColor;
