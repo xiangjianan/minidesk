@@ -692,7 +692,7 @@ export const UI_TEXT = {
     desk: {
       reminders: "提醒事项",
       notes: "记事本",
-      notesEmpty: "点击这里，记录想法、笔记或待整理的内容。",
+      notesEmpty: "记录想法、笔记",
       aiActions: "AI 助手",
       selectToPolish: "选中文字后润色",
       addReminder: "添加提醒",
@@ -701,7 +701,7 @@ export const UI_TEXT = {
       newList: "新建列表",
       menu: "快捷动作菜单",
       searchPlaceholder: "搜索快捷动作",
-      emptyHint: "点击列表右侧的 +，添加常用链接、文本或应用。",
+      emptyHint: "点击 + 添加快捷动作",
       list: "快捷按钮列表",
       add: "新增",
       showHidden: "查看隐藏",
@@ -768,7 +768,7 @@ export const UI_TEXT = {
     },
     images: {
       list: "图片列表",
-      emptyHint: "复制图片后按 Ctrl / ⌘ + V 粘贴，也可以拖入图片。",
+      emptyHint: "Ctrl / ⌘ + V 粘贴，或拖入图片",
       thumbnailAlt: "截图缩略图",
       loading: "图片载入中",
       pasteImage: "粘贴图片",
@@ -1153,7 +1153,7 @@ export const UI_TEXT = {
     desk: {
       reminders: "Reminders",
       notes: "Notepad",
-      notesEmpty: "Click here to jot down ideas, notes, or anything to organize later.",
+      notesEmpty: "Capture ideas and notes",
       aiActions: "AI assistant",
       selectToPolish: "Select text to polish",
       addReminder: "Add reminder",
@@ -1162,7 +1162,7 @@ export const UI_TEXT = {
       newList: "New list",
       menu: "Quick actions menu",
       searchPlaceholder: "Search quick actions",
-      emptyHint: "Click + next to the list to add links, text, or apps you use often.",
+      emptyHint: "Click + to add a quick action",
       list: "Quick buttons list",
       add: "Add",
       showHidden: "View hidden",
@@ -1229,7 +1229,7 @@ export const UI_TEXT = {
     },
     images: {
       list: "Image list",
-      emptyHint: "Copy an image and press Ctrl / ⌘ + V to paste, or drag it here.",
+      emptyHint: "Paste with Ctrl / ⌘ + V, or drop an image",
       thumbnailAlt: "Screenshot thumbnail",
       loading: "Loading image",
       pasteImage: "Paste image",
