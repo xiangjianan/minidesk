@@ -3166,8 +3166,17 @@ button.companion-undo-button {
 }
 
 .companion-actions .n-button {
-  flex: 1 1 0;
-  min-width: 0;
+  flex: 1 1 auto;
+  min-width: min-content;
+  max-width: 100%;
+  height: auto;
+  min-height: var(--n-height);
+}
+
+.companion-actions .n-button__content {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 .companion-action-button {
