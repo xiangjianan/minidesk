@@ -55,6 +55,7 @@ import {
   starTodo,
   todoKey,
   updateTodoFocus,
+  hasTodoFocus,
   updateTodoText,
 } from "./state/todos";
 import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY } from "./state/defaults";
@@ -1593,6 +1594,8 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
       }
     }
     Object.assign(state, nextState);
+    // A cancellation in another window must not leave a timer running here.
+    if (focusSession.value && !hasTodoFocus(focusTodo.value)) discardFocusSession();
     resetTextGenerationBaseline();
     applyTheme();
     lastUndoSnapshot.value = createUndoSnapshot();
@@ -2496,6 +2499,10 @@ async function openFocusNow(period: TodoPeriod, id: string): Promise<void> {
       });
     }
   }
+  if (!hasTodoFocus(todo)) {
+    activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { focusStarted: true });
+    persistNow("all", { recordCheckpoint: false });
+  }
   focusSession.value = { period, id, startedAt: Date.now() };
   window.clearInterval(focusCheckpointTimer);
   focusCheckpointTimer = window.setInterval(() => mergeFocusElapsed(true), FOCUS_CHECKPOINT_MS);
@@ -2537,6 +2544,29 @@ watch(focusTodo, (todo, was) => {
   if (todo || !was) return;
   discardFocusSession();
 });
+
+/** 取消专注会清空计时、笔记和图片；图片载荷遵循现有延迟回收机制。 */
+function cancelTodoFocus(period: TodoPeriod, id: string, anchor?: HTMLElement): void {
+  const workspaceId = activeWorkspace.value.id;
+  if (!getTodos(period).some((todo) => todo.id === id)) return;
+  requestConfirmation("confirmCancelFocus", anchor, () => {
+    if (activeWorkspace.value.id !== workspaceId) return;
+    const todo = getTodos(period).find((item) => item.id === id);
+    if (!todo) return;
+    if (focusSession.value?.period === period && focusSession.value.id === id) discardFocusSession();
+    const payloadIds = collectTodoFocusPayloadIds([todo]);
+    activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { resetFocus: true });
+    persistNow();
+    payloadIds.forEach(scheduleImagePayloadDeletion);
+    showBubbleText(uiText.value.todo.focusCancelDone, anchor);
+  }, undefined, {
+    confirmText: uiText.value.todo.focusCancel,
+    confirmHint: uiText.value.todo.focusCancelHint,
+    cancelText: uiText.value.common.cancel,
+    danger: true,
+    highlightTarget: anchor?.closest<HTMLElement>(".todo-item, .today-focus-item") ?? anchor,
+  });
+}
 
 /** 专注随手记：与空间便签同一文本管线（generation 基线 + 3s 防抖冲刷）。 */
 function updateFocusNotes(period: TodoPeriod, id: string, lines: LineItem[]): void {
@@ -4262,6 +4292,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @toggle-completed-visibility="toggleCompletedVisibility"
           @blur-empty="blurEmptyTodo"
           @focus-now="openFocusNow"
+          @cancel-focus="cancelTodoFocus"
           @blur="handleCompanionBlur"
           @move="moveTodo"
           @move-list-to-workspace="moveTodoListAcrossWorkspaces"

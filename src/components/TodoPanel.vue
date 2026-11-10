@@ -55,7 +55,7 @@ import type {
   TodoStarChange,
   WorkspaceMoveTarget,
 } from "../types";
-import { TODO_DENSITY_THRESHOLD, formatFocusDuration, getOrderedTodos, getTodoDropMoveTarget, getTodoReorderTarget, todoKey } from "../state/todos";
+import { TODO_DENSITY_THRESHOLD, formatFocusDuration, hasTodoFocus, getOrderedTodos, getTodoDropMoveTarget, getTodoReorderTarget, todoKey } from "../state/todos";
 import { clampCaret } from "../utils/caret";
 import { splitDroppedTodoText } from "../utils/textEditor";
 import { copySelection, copyTextToClipboard, getSelectionRange, probeClipboardForTextPaste } from "../utils/clipboard";
@@ -106,6 +106,7 @@ const emit = defineEmits<{
   star: [change: TodoStarChange];
   notify: [period: TodoPeriod, id: string, notifyAt: number | undefined, anchor?: HTMLElement];
   focusNow: [period: TodoPeriod, id: string];
+  cancelFocus: [period: TodoPeriod, id: string, anchor?: HTMLElement];
   remove: [period: TodoPeriod, id: string, anchor?: HTMLElement];
   clearCompleted: [period: TodoPeriod, anchor?: HTMLElement];
   clearAllCompleted: [anchor?: HTMLElement];
@@ -362,7 +363,8 @@ const menuOptions = computed<DropdownOption[]>(() => {
         children: POLISH_STYLE_ENTRIES.map(({ key, labelKey }) => ({ label: uiText.value.common[labelKey], key })),
       });
     }
-    options.push({ label: uiText.value.todo.focusNow, key: "focus-now", icon: renderIcon(TimerOutline) });
+    options.push({ label: hasTodoFocus(todo) ? uiText.value.todo.focusContinue : uiText.value.todo.focusNow, key: "focus-now", icon: renderIcon(TimerOutline) });
+    if (hasTodoFocus(todo)) options.push({ label: uiText.value.todo.focusCancel, key: "cancel-focus", icon: renderIcon(TrashOutline, true) });
     options.push({
       label: isValidNotifyAt(todo?.notifyAt) ? uiText.value.todo.editNotify : uiText.value.todo.setNotify,
       key: "notify",
@@ -435,7 +437,7 @@ const contentTodoLists = computed<{ id: TodoListId }[]>((previous) => {
 // invalidate the memo, while changing only column assignments keeps it stable.
 const todoRenderSignatures = computed<Record<TodoListId, unknown[][]>>((previous) => Object.fromEntries(
   contentTodoLists.value.map(({ id }) => {
-    const next = getTodos(id).map(todo => [todo.id, todo.text, todo.done, todo.starred, todo.notifyAt, todo.focusElapsedMs]);
+    const next = getTodos(id).map(todo => [todo.id, todo.text, todo.done, todo.starred, todo.notifyAt, todo.focusElapsedMs, todo.focusStarted, todo.focusNotes?.length, todo.focusImages?.length]);
     const cached = previous?.[id];
     return [id, cached && cached.length === next.length && next.every((fields, index) =>
       fields.every((value, field) => value === cached[index]?.[field]),
@@ -1482,6 +1484,11 @@ async function handleMenuSelect(key: string): Promise<void> {
     emit("focusNow", period, id);
     return;
   }
+  if (key === "cancel-focus" && id) {
+    closeMenu();
+    emit("cancelFocus", period, id, anchor);
+    return;
+  }
   if (key.startsWith("move-list-ws:")) {
     closeMenu();
     emit("moveListToWorkspace", period, key.slice("move-list-ws:".length));
@@ -2143,7 +2150,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               <NIcon v-else class="todo-notify-icon" :component="AlarmOutline" />
             </button>
             <button
-              v-if="(item.todo.focusElapsedMs ?? 0) > 0"
+              v-if="hasTodoFocus(item.todo)"
               class="todo-focus-badge"
               type="button"
               :aria-label="uiText.todo.focusBadgeAria.replace('{time}', formatFocusDuration(item.todo.focusElapsedMs ?? 0))"
@@ -2367,7 +2374,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   <NIcon v-else class="todo-notify-icon" :component="AlarmOutline" />
                 </button>
                 <button
-                  v-if="(entry.todo.focusElapsedMs ?? 0) > 0"
+                  v-if="hasTodoFocus(entry.todo)"
                   class="todo-focus-badge"
                   type="button"
                   :aria-label="uiText.todo.focusBadgeAria.replace('{time}', formatFocusDuration(entry.todo.focusElapsedMs ?? 0))"

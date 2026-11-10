@@ -5503,6 +5503,17 @@ describe("TodoPanel 现在做这个入口", () => {
     wrapper.unmount();
   });
 
+  it("已开始专注的提醒显示继续和取消，并在零时长显示计时按钮", async () => {
+    const wrapper = mountFocusPanel({ morning: [{ id: "t1", text: "任务", done: false, focusStarted: true }], noon: [], evening: [] });
+    expect(wrapper.get(".todo-focus-badge").text()).toContain("0:00");
+    await wrapper.get(".todo-item").trigger("contextmenu");
+    expect(wrapper.get('[data-key="focus-now"]').text()).toBe("继续做这个");
+    expect(wrapper.get('[data-key="cancel-focus"]').text()).toBe("取消做这个");
+    await wrapper.get('[data-key="cancel-focus"]').trigger("click");
+    expect(wrapper.emitted("cancelFocus")?.[0]?.slice(0, 2)).toEqual(["morning", "t1"]);
+    wrapper.unmount();
+  });
+
   it("已完成的提醒同样显示「现在做这个」入口（完成不清除数据）", async () => {
     const wrapper = mountFocusPanel({
       morning: [{ id: "t1", text: "任务", done: true }],

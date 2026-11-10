@@ -7201,19 +7201,19 @@ html[data-theme="dark"] .text-editor-textarea::selection {
 }
 
 .today-focus-item:has(.todo-focus-badge) {
-  grid-template-columns: 54px minmax(0, 1fr) 26px auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) 26px auto 26px;
 }
 
 .today-focus-item.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 54px minmax(0, 1fr) minmax(0, 64px) auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(0, 64px) auto 26px;
 }
 
 .today-focus-item.has-link:has(.todo-focus-badge) {
-  grid-template-columns: 54px minmax(0, 1fr) 26px 26px auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) 26px 26px auto 26px;
 }
 
 .today-focus-item.has-link.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 54px minmax(0, 1fr) 26px minmax(0, 64px) auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) 26px minmax(0, 64px) auto 26px;
 }
 
 .today-focus-item:has(.todo-focus-badge) .todo-star-button {

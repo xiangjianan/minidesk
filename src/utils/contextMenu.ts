@@ -22,6 +22,7 @@ function resolveOptionLabel(label: DropdownOption["label"]): string {
  */
 export function renderPolishMenuLabel(option: DropdownOption): VNodeChild {
   const key = option?.key;
+  if (key === "cancel-focus") return h("span", { style: { color: "var(--danger)" } }, resolveOptionLabel(option.label));
   if (typeof key === "string" && POLISH_MENU_KEYS.has(key)) {
     return h("span", { class: "polish-menu-flow" }, resolveOptionLabel(option.label));
   }

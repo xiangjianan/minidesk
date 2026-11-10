@@ -6489,6 +6489,41 @@ describe("App shell", () => {
     }
   });
 
+  it("取消专注需确认，确认后清除计时和内容并延迟回收图片", async () => {
+    vi.useFakeTimers();
+    const restoreIndexedDb = installMemoryImageDb();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos: { morning: [{
+      id: "t1", text: "专注任务", done: false, focusStarted: true, focusElapsedMs: 5000,
+      focusNotes: [{ id: "note-1", text: "笔记" }],
+      focusImages: [{ id: "img-1", payloadId: "pay-1", createdAt: 9 }],
+    }] } }));
+    const deleteSpy = vi.spyOn(imageState, "deleteStoredImage").mockResolvedValue(undefined);
+    const wrapper = mountApp();
+    try {
+      const panel = wrapper.getComponent(TodoPanel);
+      const anchor = wrapper.get(".todo-item").element as HTMLElement;
+      panel.vm.$emit("cancelFocus", "morning", "t1", anchor);
+      await wrapper.vm.$nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      expect(wrapper.get('[data-testid="companion-yes"]').text()).toContain("取消做这个");
+      await wrapper.get('[data-testid="companion-no"]').trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(panel.props("todos").morning[0].focusElapsedMs).toBe(5000);
+      panel.vm.$emit("cancelFocus", "morning", "t1", anchor);
+      await wrapper.vm.$nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await flushPromises();
+      const todo = panel.props("todos").morning[0];
+      expect(todo).not.toHaveProperty("focusStarted");
+      expect(todo).not.toHaveProperty("focusElapsedMs");
+      expect(todo).not.toHaveProperty("focusNotes");
+      expect(todo).not.toHaveProperty("focusImages");
+      await vi.advanceTimersByTimeAsync(8500);
+      expect(deleteSpy).toHaveBeenCalledWith("pay-1");
+    } finally { wrapper.unmount(); restoreIndexedDb(); vi.useRealTimers(); }
+  });
+
   it("「现在做这个」端到端：跨 checkpoint 计时落盘、关窗落徽标、重开续跳不归零", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-02T09:00:00Z").getTime());
@@ -6506,6 +6541,8 @@ describe("App shell", () => {
       await flushPromises();
       await wrapper.vm.$nextTick();
       expect(wrapper.get(".focus-now-timer").text()).toBe("0:00:00");
+      expect(wrapper.get(".todo-focus-badge").text()).toContain("0:00");
+      expect(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}").workspaces[0].todos.morning[0].focusStarted).toBe(true);
 
       // 前进 90s（跨过 60s checkpoint）：App 把首段增量落盘，弹窗计时继续推进。
       await vi.advanceTimersByTimeAsync(90_000);
@@ -6718,6 +6755,30 @@ describe("App shell", () => {
       wrapper.unmount();
       restoreIndexedDb();
     }
+  });
+
+  it("其他窗口取消专注后关闭本窗口会话，不重新写入计时", async () => {
+    vi.useFakeTimers();
+    const workspace = defaultWorkspace();
+    workspace.todos = { morning: [{ id: "t1", text: "任务", done: false, focusStarted: true, focusElapsedMs: 5000 }] };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ sync: { revision: 1, clientId: "a" }, workspaces: [workspace] }));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(TodoPanel).vm.$emit("focusNow", "morning", "t1");
+      await flushPromises();
+      expect(wrapper.find(".focus-now-timer").exists()).toBe(true);
+      const newer = structuredClone(workspace);
+      delete newer.todos.morning[0].focusStarted;
+      delete newer.todos.morning[0].focusElapsedMs;
+      const raw = JSON.stringify({ sync: { revision: 2, clientId: "b" }, workspaces: [newer] });
+      localStorage.setItem(STORAGE_KEY, raw);
+      window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY, newValue: raw }));
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find(".focus-now-timer").exists()).toBe(false);
+      await vi.advanceTimersByTimeAsync(61_000);
+      expect(wrapper.getComponent(TodoPanel).props("todos").morning[0].focusElapsedMs).toBeUndefined();
+    } finally { wrapper.unmount(); vi.useRealTimers(); }
   });
 
   it("专注笔记失焦立即保存，供其他窗口同步", async () => {
