@@ -1417,6 +1417,7 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
   pointer-events: none;
 }
 .image-empty-hint { padding: 14px 4px 0; white-space: pre-line; }
-.quick-empty-hint { padding: 4px 4px 12px; text-align: center; }
+.workbench-shell .quick-tag-clip:has(> .quick-empty-hint) > .quick-buttons { padding: 0; }
+.quick-empty-hint { padding: 6px 4px 12px; line-height: 1.85; text-align: center; }
 /* Leaving rows retain the same horizontal inset as the workbench list. */
 .workbench-shell .todo-list > .todo-move-leave-active { left: 0; right: 0; }
