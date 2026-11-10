@@ -75,7 +75,7 @@ function stopDisplayTimer(): void {
 onMounted(() => {
   if (props.show) {
     startDisplayTimer();
-    void nextTick(() => { bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0; });
+    void focusNotesOnOpen();
   }
 });
 
@@ -102,6 +102,18 @@ const bodyWidth = ref(0);
 const imagesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * imageWidth.value / 100 < 100);
 const maxImageWidth = computed(() => bodyWidth.value > 0 ? Math.max(0, (bodyWidth.value - 56) / bodyWidth.value * 100) : 100);
 const notesCollapsed = computed(() => bodyWidth.value > 0 && bodyWidth.value * (1 - imageWidth.value / 100) - 12 < 100);
+
+async function focusNotesOnOpen(): Promise<void> {
+  await nextTick();
+  if (!props.show) return;
+  bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0;
+  if (notesCollapsed.value) {
+    imageWidth.value = 15;
+    await nextTick();
+  }
+  if (props.show) textPanelRef.value?.focusEditor?.();
+}
+
 let resizing = false;
 
 function resizeImages(clientX: number): void {
@@ -323,7 +335,7 @@ watch(() => props.images.some((image) => image.id === activePreviewId.value), (e
 watch(() => props.show, (visible) => {
   if (visible) {
     imageWidth.value = props.initialImageWidth ?? 15;
-    void nextTick(() => { bodyWidth.value = bodyRef.value?.getBoundingClientRect().width ?? 0; });
+    void focusNotesOnOpen();
     // 重开弹窗重置段起点与刻度：隐藏期间的空闲间隔不计入专注时长
     //（关闭时增量已并入 App 的 baseMs，显示从新 baseMs 重新起步）。
     segmentStartAt.value = Date.now();
@@ -360,6 +372,7 @@ function handleModalShow(value: boolean): void {
     class="focus-now-modal"
     preset="card"
     :closable="false"
+    :auto-focus="false"
     :aria-label="uiText.todo.focusDoing"
     :mask-closable="false"
     :close-on-esc="!activePreviewId || notesCollapsed"

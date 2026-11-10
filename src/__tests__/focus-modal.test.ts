@@ -44,6 +44,28 @@ describe("TodoFocusModal", () => {
     vi.useRealTimers();
   });
 
+  it("打开和重新打开时聚焦记事本，可立即输入", async () => {
+    const wrapper = mount(TodoFocusModal, {
+      attachTo: document.body,
+      props: { show: false, title: "任务", baseMs: 0, notes: [], images: [] },
+      global: { stubs: { ImagePanel: true, ImageEditor: true } },
+    });
+    try {
+      await wrapper.setProps({ show: true });
+      await nextTick();
+      const textarea = wrapper.get("textarea");
+      expect(document.activeElement).toBe(textarea.element);
+      expect((textarea.element as HTMLTextAreaElement).readOnly).toBe(false);
+      await textarea.setValue("直接输入");
+      expect(wrapper.emitted("notesUpdate")?.at(-1)?.[0]).toMatchObject([{ text: "直接输入" }]);
+      await wrapper.setProps({ show: false });
+      await wrapper.setProps({ show: true, notes: [{ text: "之前的笔记", indent: 0 }] });
+      await nextTick();
+      expect(document.activeElement).toBe(wrapper.get("textarea").element);
+      expect((wrapper.get("textarea").element as HTMLTextAreaElement).readOnly).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+
   it("通过拖拽和方向键调整图片区域宽度，并限制范围", async () => {
     const wrapper = mountModal();
     const body = wrapper.get(".focus-now-body");
