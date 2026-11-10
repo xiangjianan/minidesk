@@ -4446,7 +4446,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
-    <NModal :show="exportWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
+    <NModal :show="exportWorkspaceId !== null" :auto-focus="false" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
       <p class="workspace-export-hint">{{ uiText.app.exportScopeHint }}</p>
       <p>{{ uiText.app.exportChooseZones }}</p>
       <div style="display: flex; flex-direction: column; gap: 12px; margin: 16px 0;">

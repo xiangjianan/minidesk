@@ -7736,6 +7736,9 @@ html[data-theme="dark"] {
   --n-text-color-hover: var(--dialog-action-primary-text) !important;
   --n-text-color-pressed: var(--dialog-action-primary-text) !important;
   --n-text-color-focus: var(--dialog-action-primary-text) !important;
+  --n-color-disabled: var(--dialog-action-primary) !important;
+  --n-text-color-disabled: var(--dialog-action-primary-text) !important;
+  --n-border-disabled: 1px solid var(--dialog-action-primary) !important;
   color: var(--dialog-action-primary-text) !important;
 }
 :is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--primary-type, .quick-dialog-submit, .companion-action-button[data-testid="companion-yes"]:not(.is-danger)) .n-button__content {
