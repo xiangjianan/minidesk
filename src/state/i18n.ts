@@ -434,6 +434,7 @@ export const UI_TEXT = {
     common: {
       hideHeader: "收起顶部栏",
       showHeader: "展开顶部栏",
+      emptyWorkbench: "这里什么都没有，像刚开始的时候",
       tips: "Tips",
       copy: "复制",
       paste: "粘贴",
@@ -895,6 +896,7 @@ export const UI_TEXT = {
     common: {
       hideHeader: "Collapse top bar",
       showHeader: "Expand top bar",
+      emptyWorkbench: "There is nothing here, just like when it all began.",
       tips: "Tips",
       copy: "Copy",
       paste: "Paste",
