@@ -23,6 +23,11 @@ afterEach(() => {
 });
 
 describe("WorkbenchShell", () => {
+  it("keeps the empty message above the workbench without blocking interaction", () => {
+    const css = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expect(css).toMatch(/\.empty-workbench-message\s*\{[^}]*z-index:\s*1[^}]*pointer-events:\s*none/s);
+  });
+
   it("shows the empty message only when all areas and the header are hidden", async () => {
     const hidden = { assets: false, notes: false, tasks: false, workspace: false };
     const wrapper = mount(WorkbenchShell, { props: { title: "MiniDesk", saveStatusLabel: "", zoneVisibility: hidden } });
