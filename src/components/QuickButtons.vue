@@ -1056,6 +1056,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
                 </span>
               </button>
             </MemoTransitionGroup>
+            <p v-if="buttons.length === 0 && !globalSearchNormalized && group.id === groupedButtons[0]?.id" class="workbench-empty-hint quick-empty-hint">{{ uiText.quick.emptyHint }}</p>
             </div>
           </div>
         </section>
