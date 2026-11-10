@@ -1026,7 +1026,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 }
 
 .workbench-shell .todo-add-row {
-  border: 1px dashed color-mix(in srgb, var(--line-control) 80%, transparent);
+  border: 0;
   color: var(--desk-zone-accent);
 }
 
@@ -1417,24 +1417,6 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
   pointer-events: none;
 }
 .image-empty-hint { padding: 14px 4px 0; white-space: pre-line; }
-.quick-empty-hint { position: relative; padding: 10px 4px 12px; text-align: center; }
-.quick-empty-arrow {
-  position: absolute;
-  top: 37px;
-  right: 78px;
-  pointer-events: none;
-  width: 56px;
-  height: 44px;
-  color: color-mix(in srgb, var(--muted) 68%, transparent);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-dasharray: 2 3;
-}
-
-.quick-empty-arrow-tip { stroke-dasharray: none; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
-
+.quick-empty-hint { padding: 4px 4px 12px; text-align: center; }
 /* Leaving rows retain the same horizontal inset as the workbench list. */
 .workbench-shell .todo-list > .todo-move-leave-active { left: 0; right: 0; }
