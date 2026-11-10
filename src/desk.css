@@ -1190,3 +1190,5 @@ html[data-theme="dark"] .quick-color-custom-preview {
 }
 .image-list-scrollbar:has(.image-empty-hint) .image-list { display: none; }
 .image-empty-hint { padding-block: 0; }
+/* Center empty-image guidance across the visible image column. */
+.image-empty-hint { width: 100%; padding-inline: 4px 18px; text-align: center; }

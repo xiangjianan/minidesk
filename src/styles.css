@@ -7697,3 +7697,121 @@ button.focus-now-divider {
 /* Brief data guidance inside the settings submenu and export dialog. */
 .settings-data-hint { max-width: 220px; padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; white-space: normal; }
 .workspace-export-hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+
+/* Dialog actions share one geometry and the current theme's colors. */
+:root {
+  --dialog-radius: 10px;
+  --dialog-neutral: #f3f5f7;
+  --dialog-neutral-hover: #e8edf1;
+  --dialog-border: #dce2e7;
+  --dialog-primary: #3f6887;
+  --dialog-primary-hover: #335a77;
+  --dialog-primary-text: #fff;
+  --dialog-danger-bg: #fff1f0;
+  --dialog-danger-hover: #ffe4e1;
+  --dialog-danger-border: #e7b5ae;
+}
+html[data-theme="dark"] {
+  --dialog-neutral: #373c43;
+  --dialog-neutral-hover: #444b54;
+  --dialog-border: #535c65;
+  --dialog-primary: #9cbcd5;
+  --dialog-primary-hover: #b7d1e5;
+  --dialog-primary-text: #20272d;
+  --dialog-danger-bg: #49302f;
+  --dialog-danger-hover: #5a3937;
+  --dialog-danger-border: #a86661;
+}
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button {
+  --n-border-radius: var(--dialog-radius) !important;
+  --n-color: var(--dialog-neutral) !important;
+  --n-color-hover: var(--dialog-neutral-hover) !important;
+  --n-color-pressed: var(--dialog-neutral-hover) !important;
+  --n-color-focus: var(--dialog-neutral) !important;
+  --n-border: 1px solid var(--dialog-border) !important;
+  --n-border-hover: 1px solid var(--dialog-border) !important;
+  --n-border-pressed: 1px solid var(--dialog-border) !important;
+  --n-border-focus: 1px solid var(--dialog-border) !important;
+  --n-text-color: var(--text) !important;
+  --n-text-color-hover: var(--text) !important;
+  --n-text-color-pressed: var(--text) !important;
+  --n-text-color-focus: var(--text) !important;
+  min-width: 0;
+  height: auto;
+  min-height: 34px;
+  padding: 5px 12px !important;
+  border-radius: 10px !important;
+  color: var(--text) !important;
+  box-shadow: none;
+}
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button :is(.n-button__border, .n-button__state-border) { border-radius: 10px !important; }
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button .n-button__content { color: inherit !important; white-space: normal; overflow-wrap: anywhere; text-align: center; }
+:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--primary-type, .quick-dialog-submit, [data-testid="companion-yes"]:not(.is-danger)) {
+  --n-color: var(--dialog-primary) !important;
+  --n-color-hover: var(--dialog-primary-hover) !important;
+  --n-color-pressed: var(--dialog-primary-hover) !important;
+  --n-color-focus: var(--dialog-primary) !important;
+  --n-border: 1px solid var(--dialog-primary) !important;
+  --n-border-hover: 1px solid var(--dialog-primary-hover) !important;
+  --n-border-pressed: 1px solid var(--dialog-primary-hover) !important;
+  --n-border-focus: 1px solid var(--dialog-primary) !important;
+  --n-text-color: var(--dialog-primary-text) !important;
+  --n-text-color-hover: var(--dialog-primary-text) !important;
+  --n-text-color-pressed: var(--dialog-primary-text) !important;
+  --n-text-color-focus: var(--dialog-primary-text) !important;
+  color: var(--dialog-primary-text) !important;
+}
+:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--error-type, .is-danger) {
+  --n-color: var(--dialog-danger-bg) !important;
+  --n-color-hover: var(--dialog-danger-hover) !important;
+  --n-color-pressed: var(--dialog-danger-hover) !important;
+  --n-color-focus: var(--dialog-danger-bg) !important;
+  --n-border: 1px solid var(--dialog-danger-border) !important;
+  --n-border-hover: 1px solid var(--danger) !important;
+  --n-border-pressed: 1px solid var(--danger) !important;
+  --n-border-focus: 1px solid var(--dialog-danger-border) !important;
+  --n-text-color: var(--danger) !important;
+  --n-text-color-hover: var(--danger) !important;
+  --n-text-color-pressed: var(--danger) !important;
+  --n-text-color-focus: var(--danger) !important;
+  color: var(--danger) !important;
+}
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button.n-button--disabled {
+  --n-color-disabled: var(--dialog-neutral) !important;
+  --n-border-disabled: 1px solid var(--dialog-border) !important;
+  --n-text-color-disabled: var(--muted) !important;
+  color: var(--muted) !important;
+  opacity: 0.65;
+}
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+:is(.notify-panel-actions > .notify-panel-action, .image-editor-actions > .image-editor-cancel, .image-editor-actions > .image-editor-save) {
+  min-height: 34px;
+  height: auto;
+  padding: 5px 12px;
+  border: 1px solid var(--dialog-border);
+  border-radius: 10px;
+  background: var(--dialog-neutral);
+  color: var(--text);
+  font: inherit;
+}
+:is(.notify-panel-actions > .notify-panel-action, .image-editor-actions > .image-editor-cancel):hover:not(:disabled) { background: var(--dialog-neutral-hover); }
+:is(.notify-panel-actions > .notify-panel-action.is-save, .image-editor-actions > .image-editor-save) {
+  border-color: var(--dialog-primary);
+  background: var(--dialog-primary);
+  color: var(--dialog-primary-text);
+}
+:is(.notify-panel-actions > .notify-panel-action.is-save, .image-editor-actions > .image-editor-save):hover:not(:disabled) { background: var(--dialog-primary-hover); }
+.notify-panel-actions > .notify-panel-action.is-danger { border-color: var(--dialog-danger-border); background: var(--dialog-danger-bg); color: var(--danger); }
+.notify-panel-actions > .notify-panel-action.is-danger:hover:not(:disabled) { background: var(--dialog-danger-hover); }
+:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button:not(.n-button--primary-type):not(.n-button--error-type):not(.quick-dialog-submit):not(.is-danger):not([data-testid="companion-yes"]) {
+  --n-color: var(--dialog-neutral) !important;
+  --n-color-hover: var(--dialog-neutral-hover) !important;
+  --n-color-pressed: var(--dialog-neutral-hover) !important;
+  --n-color-focus: var(--dialog-neutral) !important;
+  --n-border: 1px solid var(--dialog-border) !important;
+  --n-border-hover: 1px solid var(--dialog-border) !important;
+  --n-border-pressed: 1px solid var(--dialog-border) !important;
+  --n-border-focus: 1px solid var(--dialog-border) !important;
+}
+.dialog-actions > .quick-dialog-submit.n-button:hover:not(.n-button--disabled) { background: var(--dialog-primary-hover) !important; }
