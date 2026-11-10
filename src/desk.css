@@ -1434,4 +1434,7 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
   stroke-dasharray: 2 3;
 }
 
-.quick-empty-arrow-tip { stroke-dasharray: none; stroke-linejoin: round; stroke-linecap: round; }
+.quick-empty-arrow-tip { stroke-dasharray: none; stroke-width: 1; stroke-linejoin: round; stroke-linecap: round; }
+
+/* Leaving rows retain the same horizontal inset as the workbench list. */
+.workbench-shell .todo-list > .todo-move-leave-active { left: 0; right: 0; }
