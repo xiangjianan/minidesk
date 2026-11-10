@@ -623,10 +623,34 @@ function handleColumnBlankClick(event: MouseEvent, column: number): void {
   handleListClick(event, list.id);
 }
 
+let filledTodoBeforePointerDown: HTMLInputElement | null = null;
+
+function handlePanelPointerDown(event: PointerEvent): void {
+  if (menu.value) exclusiveMenu.handleClickOutside(event);
+  const active = document.activeElement;
+  const target = event.target as HTMLElement;
+  filledTodoBeforePointerDown = active instanceof HTMLInputElement
+    && panelRef.value?.contains(active)
+    && active.matches(".todo-input, .today-focus-input")
+    && active.value.trim()
+    && !target.closest("button, input, textarea, .todo-item, .today-focus-item, .todo-completed-divider")
+    ? active : null;
+}
+
 function handleListClick(event: MouseEvent, period: TodoPeriod): void {
   const target = event.target as HTMLElement;
   if (target.closest("button, input, textarea, .todo-item, .todo-completed-divider")) return;
   event.stopPropagation();
+  const active = document.activeElement;
+  const filledInput = filledTodoBeforePointerDown ?? (active instanceof HTMLInputElement
+    && panelRef.value?.contains(active)
+    && active.matches(".todo-input, .today-focus-input")
+    && active.value.trim() ? active : null);
+  filledTodoBeforePointerDown = null;
+  if (filledInput) {
+    filledInput.blur();
+    return;
+  }
   emitDeclutterPrompt(period, event.currentTarget as HTMLElement);
   emit("create", period);
 }
@@ -2053,7 +2077,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
 </script>
 
 <template>
-  <section ref="panelRef" class="panel todo-panel" aria-labelledby="todo-title" @pointerdown.capture="menu && exclusiveMenu.handleClickOutside($event)" @contextmenu="openPanelMenu" @dragleave="handleTodoDragLeave" @drop="handleTodoDragLeave" @dragend="handleTodoDragEnd">
+  <section ref="panelRef" class="panel todo-panel" aria-labelledby="todo-title" @pointerdown.capture="handlePanelPointerDown" @contextmenu="openPanelMenu" @dragleave="handleTodoDragLeave" @drop="handleTodoDragLeave" @dragend="handleTodoDragEnd">
     <div class="panel-header desk-zone-heading">
       <h2 id="todo-title"><NIcon :component="CheckboxOutline" /><span>{{ uiText.desk.reminders }}</span></h2>
       <div class="header-actions">

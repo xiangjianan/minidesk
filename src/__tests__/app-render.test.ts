@@ -930,6 +930,29 @@ describe("App shell", () => {
     }
   });
 
+  it("clicking blank space after typing only blurs the reminder; the add button still creates one", async () => {
+    const wrapper = mountApp();
+    try {
+      const blank = wrapper.get('[data-testid="todo-list-morning"]');
+      await blank.trigger("click");
+      await wrapper.vm.$nextTick();
+      const input = wrapper.get('[data-testid="todo-input-morning"]');
+      await input.setValue("已输入的提醒");
+      expect(document.activeElement).toBe(input.element);
+      // A real pointer click blurs the input between pointerdown and click.
+      await blank.trigger("pointerdown");
+      (input.element as HTMLInputElement).blur();
+      await blank.trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(1);
+      expect((wrapper.get('[data-testid="todo-input-morning"]').element as HTMLInputElement).value).toBe("已输入的提醒");
+      expect(document.activeElement).not.toBe(input.element);
+      await wrapper.get('.todo-section[data-list-id="morning"] .todo-add-row').trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(2);
+    } finally { wrapper.unmount(); }
+  });
+
   it("cancels the pending blank reminder from same-list blank space even after the input lost focus", async () => {
     vi.useFakeTimers();
     const wrapper = mountApp();
