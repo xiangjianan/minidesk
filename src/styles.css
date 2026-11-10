@@ -7815,3 +7815,12 @@ html[data-theme="dark"] {
   --n-border-focus: 1px solid var(--dialog-border) !important;
 }
 .dialog-actions > .quick-dialog-submit.n-button:hover:not(.n-button--disabled) { background: var(--dialog-primary-hover) !important; }
+
+/* Give two-button confirmations enough room for a single-line label. */
+.companion-actions:not(:has([data-testid="companion-secondary"])) {
+  min-width: min(210px, calc(100vw - 56px));
+}
+.companion-actions:not(:has([data-testid="companion-secondary"])) > .n-button .n-button__content {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
