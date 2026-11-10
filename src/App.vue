@@ -4569,7 +4569,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </label>
         <div class="dialog-actions">
           <NButton @click="workspaceDialogVisible = false">{{ uiText.common.cancel }}</NButton>
-          <NButton type="primary" :disabled="!workspaceDraftTitle.trim()" @click="confirmWorkspaceDialog">{{ uiText.common.confirm }}</NButton>
+          <NButton type="primary" :disabled="!workspaceDraftTitle.trim()" @click="confirmWorkspaceDialog">{{ uiText.common.save }}</NButton>
         </div>
       </div>
     </NModal>

@@ -86,6 +86,7 @@ describe("reminder list names", () => {
       } },
     });
     await wrapper.vm.open();
+    expect(wrapper.get(".todo-list-create-confirm").text()).toBe(language === "zh" ? "保存" : "Save");
     expect(wrapper.get(".todo-list-create-confirm").attributes("disabled")).toBeDefined();
     await wrapper.get("input").setValue(" Work ");
     expect(wrapper.get(".todo-list-create-confirm").attributes("disabled")).toBeDefined();

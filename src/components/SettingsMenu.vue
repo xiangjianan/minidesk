@@ -380,7 +380,7 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
     </label>
     <div class="dialog-actions">
       <NButton class="quick-dialog-action gif-theme-custom-cancel" @click="closeCustomGifDialog">{{ text.common.cancel }}</NButton>
-      <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" @click="confirmCustomGif">{{ text.common.confirm }}</NButton>
+      <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" @click="confirmCustomGif">{{ text.common.save }}</NButton>
     </div>
   </section>
   </NModal>
