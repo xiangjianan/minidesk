@@ -4473,7 +4473,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         <NButton type="primary" data-testid="update-check-apply" @click="updateStaticVersion">{{ uiText.updateCheck.update }}</NButton>
       </div>
     </NModal>
-    <NModal :show="importConflict !== null" preset="card" class="workspace-dialog-modal" :title="uiText.app.importConflictTitle" style="max-width: 440px; width: calc(100vw - 32px)" :mask-closable="false" @update:show="(show: boolean) => { if (!show) { importConflict?.cancel(); importConflict = null; } }">
+    <NModal :show="importConflict !== null" :auto-focus="false" preset="card" class="workspace-dialog-modal" :title="uiText.app.importConflictTitle" style="max-width: 440px; width: calc(100vw - 32px)" :mask-closable="false" @update:show="(show: boolean) => { if (!show) { importConflict?.cancel(); importConflict = null; } }">
       <template v-if="importConflict && importPreview">
         <p>{{ uiText.app.importConflictDescription }}</p>
         <p data-testid="import-preview">{{ uiText.app.importPreview.replace("{added}", String(importPreview.added)).replace("{skipped}", String(importPreview.skipped)).replace("{conflicts}", String(importPreview.conflicts)) }}</p>
