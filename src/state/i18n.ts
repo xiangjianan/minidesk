@@ -768,7 +768,7 @@ export const UI_TEXT = {
     },
     images: {
       list: "图片列表",
-      emptyHint: "Ctrl/⌘ + v 粘贴\n或拖入图片",
+      emptyHint: "Ctrl/⌘ + V 粘贴\n或拖入图片",
       thumbnailAlt: "截图缩略图",
       loading: "图片载入中",
       pasteImage: "粘贴图片",
@@ -1229,7 +1229,7 @@ export const UI_TEXT = {
     },
     images: {
       list: "Image list",
-      emptyHint: "Ctrl/⌘ + v to paste\nor drop an image",
+      emptyHint: "Ctrl/⌘ + V to paste\nor drop an image",
       thumbnailAlt: "Screenshot thumbnail",
       loading: "Loading image",
       pasteImage: "Paste image",
