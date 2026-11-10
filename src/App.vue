@@ -316,6 +316,7 @@ async function confirmImportMerge(): Promise<void> {
   await pending.finish(result.workspace, false);
 }
 const exportWorkspaceId = ref<string | null>(null);
+const workspaceExporting = ref(false);
 const exportAnchor = ref<HTMLElement>();
 const exportZones = ref<ZoneKey[]>(["assets", "notes", "tasks", "workspace"]);
 const exportZoneKeys: ZoneKey[] = ["assets", "notes", "tasks", "workspace"];
@@ -1031,28 +1032,51 @@ function exportWorkspaceById(id: string, anchor?: HTMLElement): void {
   exportZones.value = [...exportZoneKeys];
 }
 
-function confirmWorkspaceExport(): void {
+async function confirmWorkspaceExport(): Promise<void> {
   const workspace = state.workspaces.find((item) => item.id === exportWorkspaceId.value);
-  if (!workspace || exportZones.value.length === 0) return;
+  if (!workspace || exportZones.value.length === 0 || workspaceExporting.value) return;
+  const workspaceId = workspace.id;
+  const zones = [...exportZones.value];
   const serialized = getSerializableWorkspace(workspace, { includeImageData: true, omitInbox: true });
   const empty = defaultWorkspace(workspace.id, state.language);
-  if (!exportZones.value.includes("assets")) serialized.images = [];
-  if (!exportZones.value.includes("notes")) {
+  if (!zones.includes("assets")) serialized.images = [];
+  if (!zones.includes("notes")) {
     Object.assign(serialized, { quickTags: empty.quickTags, quickButtons: [], quickOtherCollapsed: false, showHiddenQuickButtons: false, quickCompact: false, quickLayoutManual: false });
   }
-  if (!exportZones.value.includes("tasks")) {
+  if (!zones.includes("tasks")) {
     Object.assign(serialized, { todoLists: empty.todoLists, todos: empty.todos, showCompletedTodos: empty.showCompletedTodos, todoLayoutManual: false, todoMaxColumns: empty.todoMaxColumns, todoListOrder: undefined, todoColumnLayouts: undefined });
   }
-  if (!exportZones.value.includes("workspace")) {
+  if (!zones.includes("workspace")) {
     Object.assign(serialized, { noteLines: [], workspaceLines: [], storageLines: [], spaces: empty.spaces, activeSpaceId: empty.activeSpaceId });
   }
   const excludedTitles: Record<ZoneKey, string[]> = { assets: ["image-title"], notes: ["quick-title"], tasks: ["todo-morning-title", "todo-noon-title", "todo-evening-title"], workspace: ["workspace-title", "storage-title", "note-title"] };
-  for (const zone of exportZoneKeys) if (!exportZones.value.includes(zone)) {
+  for (const zone of exportZoneKeys) if (!zones.includes(zone)) {
     for (const key of excludedTitles[zone]) delete serialized.customTitles[key];
+  }
+  // Focus images and inactive workspace images may only exist in IndexedDB.
+  // Embed every selected payload before generating a portable backup.
+  const imageLists = [serialized.images, ...Object.values(serialized.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))];
+  const images = imageLists.flat();
+  if (images.some((image) => !image.src)) {
+    workspaceExporting.value = true;
+    try {
+      const hydrated = await hydrateStoredImages(images);
+      if (exportWorkspaceId.value !== workspaceId) return;
+      if (hydrated.some((image) => !image.src)) throw new Error("Image payload missing");
+      let index = 0;
+      for (const list of imageLists) {
+        for (let i = 0; i < list.length; i++) list[i] = hydrated[index++];
+      }
+    } catch {
+      showBubble("imageReadFailed", exportAnchor.value, { hideCompanionAfter: true });
+      return;
+    } finally {
+      workspaceExporting.value = false;
+    }
   }
   const ratios = readWorkbenchWidthRatios(workspace.id);
   if (ratios) serialized.zoneWidthRatios = ratios;
-  const content = JSON.stringify({ miniDeskWorkspaceExport: true, version: 1, zones: exportZones.value, workspace: serialized }, null, 2);
+  const content = JSON.stringify({ miniDeskWorkspaceExport: true, version: 1, zones, workspace: serialized }, null, 2);
   const title = getWorkspaceBoardTitle(workspace);
   downloadExportFile(content, `mini-desk-${slugifyTitle(title)}-${exportTimestamp(new Date())}.json`);
   exportWorkspaceId.value = null;
@@ -4523,7 +4547,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       </div>
       <div class="dialog-actions">
         <NButton @click="exportWorkspaceId = null">{{ uiText.common.cancel }}</NButton>
-        <NButton type="primary" data-testid="confirm-workspace-export" :disabled="exportZones.length === 0" @click="confirmWorkspaceExport">{{ uiText.common.confirm }}</NButton>
+        <NButton type="primary" data-testid="confirm-workspace-export" :disabled="exportZones.length === 0 || workspaceExporting" @click="confirmWorkspaceExport">{{ uiText.common.confirm }}</NButton>
       </div>
     </NModal>
     <NModal

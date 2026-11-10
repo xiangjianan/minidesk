@@ -281,7 +281,7 @@ describe("App shell", () => {
     expect(wrapper.find(".image-empty").exists()).toBe(false);
     expect(wrapper.find(".empty-hint").exists()).toBe(false);
     expect(wrapper.find(".todo-empty-hint").text()).toBe("");
-    expect(wrapper.findAll("textarea").every((textarea) => !textarea.attributes("placeholder"))).toBe(true);
+    expect(wrapper.get(".space-text-panel textarea").attributes("placeholder")).toBe("记录想法、笔记");
 
     wrapper.unmount();
   });
@@ -7039,6 +7039,58 @@ describe("App shell", () => {
       wrapper.unmount();
       restoreIndexedDb();
     }
+  });
+
+  it("导出并重新导入未打开的专注图片，图片载荷可在新空间中恢复", async () => {
+    const restoreIndexedDb = installMemoryImageDb();
+    let exportedBlob: Blob | undefined;
+    Object.assign(URL, { createObjectURL: vi.fn((blob: Blob) => { exportedBlob = blob; return "blob:export"; }), revokeObjectURL: vi.fn() });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const workspace = defaultWorkspace();
+    workspace.todos.morning = [{ id: "t1", text: "带专注图片", done: false, focusStarted: true,
+      focusImages: [{ id: "focus-image", payloadId: "focus-payload", createdAt: 9 }] }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace] }));
+    await storeImagePayload({ id: "focus-image", payloadId: "focus-payload", src: "data:image/png;base64,Zm9jdXM=", createdAt: 9 });
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(SettingsMenu).vm.$emit("exportWorkspace");
+      await nextTick();
+      (document.querySelector('[data-testid="confirm-workspace-export"]') as HTMLElement).click();
+      await vi.waitFor(() => expect(exportedBlob).toBeDefined());
+      const content = await exportedBlob!.text();
+      expect(JSON.parse(content).workspace.todos.morning[0].focusImages[0].src).toBe("data:image/png;base64,Zm9jdXM=");
+      wrapper.getComponent(SettingsMenu).vm.$emit("import");
+      const input = wrapper.get('input[type="file"]').element as HTMLInputElement;
+      Object.defineProperty(input, "files", { value: [new File([content], "backup.json", { type: "application/json" })], configurable: true });
+      await wrapper.get('input[type="file"]').trigger("change");
+      await vi.waitFor(() => expect(document.querySelector('[data-testid="import-add"]')).not.toBeNull());
+      (document.querySelector('[data-testid="import-add"]') as HTMLElement).click();
+      await vi.waitFor(() => expect(loadState().workspaces).toHaveLength(2));
+      const imported = loadState().workspaces[1].todos.morning[0].focusImages![0];
+      expect(imported.payloadId).not.toBe("focus-payload");
+      await expect(getStoredImagePayload(imported)).resolves.toBe("data:image/png;base64,Zm9jdXM=");
+    } finally { wrapper.unmount(); restoreIndexedDb(); }
+  });
+
+  it("无法读取专注图片时不生成缺少图片的空间备份", async () => {
+    const restoreIndexedDb = installMemoryImageDb();
+    const createObjectURL = vi.fn(() => "blob:export");
+    Object.assign(URL, { createObjectURL, revokeObjectURL: vi.fn() });
+    const workspace = defaultWorkspace();
+    workspace.todos.morning = [{ id: "t1", text: "缺少图片", done: false,
+      focusImages: [{ id: "missing", payloadId: "missing-payload", createdAt: 9 }] }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace] }));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(SettingsMenu).vm.$emit("exportWorkspace");
+      await nextTick();
+      (document.querySelector('[data-testid="confirm-workspace-export"]') as HTMLElement).click();
+      await vi.waitFor(() => expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(true));
+      expect(createObjectURL).not.toHaveBeenCalled();
+      expect(document.querySelector('[data-testid="confirm-workspace-export"]')).not.toBeNull();
+    } finally { wrapper.unmount(); restoreIndexedDb(); }
   });
 
   it("导入带 focusImages 内联载荷的工作区时把载荷写入 IndexedDB", async () => {
