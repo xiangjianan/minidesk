@@ -1212,6 +1212,11 @@ html[data-theme="dark"] .quick-color-custom-preview {
   box-shadow: none;
   border-bottom: 1px solid var(--desk-edge);
 }
+/* Only separate neighboring lists; each column ends without a rule. */
+.workbench-shell .quick-tag-column > .quick-tag-group:not(:has(~ .quick-tag-group)),
+.workbench-shell .todo-column > .todo-section:not(:has(~ .todo-section)) {
+  border-bottom: 0;
+}
 .workbench-shell :is(.quick-tag-heading, .todo-heading)::before {
   border-radius: 0;
   background: var(--desk-group-surface);
