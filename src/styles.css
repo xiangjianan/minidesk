@@ -7671,6 +7671,8 @@ button.focus-now-divider {
 .workspace-export-hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 
 /* A single high-contrast selection treatment, including the mirrored editor. */
+:root { --selection-background: #000; --selection-text: #fff; }
+html[data-theme="dark"] { --selection-background: #fff; --selection-text: #000; }
 ::selection,
 .n-input .n-input__input-el::selection,
 .n-input .n-input__textarea-el::selection,
@@ -7680,9 +7682,9 @@ html[data-theme="dark"] .n-input .n-input__textarea-el::selection,
 .today-focus-item .today-focus-input::selection,
 .text-editor-textarea::selection,
 html[data-theme="dark"] .text-editor-textarea::selection {
-  color: #fff;
-  -webkit-text-fill-color: #fff;
-  background: #000;
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
+  background: var(--selection-background);
 }
 
 /* Dialog actions share the workbench button geometry and clear roles. */
