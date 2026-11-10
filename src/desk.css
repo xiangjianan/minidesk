@@ -1180,3 +1180,13 @@ html[data-theme="dark"] .quick-color-custom-preview {
 .quick-empty-hint { padding: 12px 16px 8px; line-height: 1.85; text-align: center; }
 /* Match the in-flow list inset while a reminder fades out. */
 .workbench-shell .todo-list > .todo-move-leave-active { left: 8px; right: 8px; }
+
+/* Center the image guidance within the available empty image area. */
+.image-list-scrollbar:has(.image-empty-hint) .n-scrollbar-content {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.image-list-scrollbar:has(.image-empty-hint) .image-list { display: none; }
+.image-empty-hint { padding-block: 0; }
