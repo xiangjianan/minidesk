@@ -7663,7 +7663,6 @@ button.focus-now-divider {
 .focus-now-divider:hover::before,
 .focus-now-divider:focus-visible::before,
 .focus-now-divider:active::before {
-  width: 3px;
   background: linear-gradient(to bottom,
     var(--line-subtle) 0 calc(50% - 44px),
     color-mix(in srgb, var(--muted) 24%, transparent) calc(50% - 44px) calc(50% + 44px),
