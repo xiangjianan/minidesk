@@ -642,7 +642,8 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   min-height: 34px;
   padding: 0;
 }
-.workbench-zone-assets .image-panel .header-actions .count { padding-inline: 2px; font-size: 12px; }
+.workbench-zone-assets .image-panel .header-actions .count { padding-inline: 2px; }
+:is(.workbench-zone-assets, .focus-now-images) .image-panel .header-actions .count { font-size: 12px; }
 @container (max-width: 145px) {
   .workbench-zone-assets .panel-header { flex-wrap: wrap; }
 }
