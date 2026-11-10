@@ -1453,7 +1453,11 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "general", title: "常用" }] });
     await wrapper.get(".quick-add-button").trigger("click");
     expect(wrapper.get(".quick-list-dialog").text()).toContain("新建列表");
+    expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
+    await wrapper.get(".quick-list-dialog input").setValue("常用");
+    expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
     await wrapper.get(".quick-list-dialog input").setValue("工作");
+    expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeUndefined();
     await wrapper.get(".quick-list-dialog form").trigger("submit");
     expect(wrapper.emitted("saveTag")?.[0]).toEqual([{ id: undefined, title: "工作", backgroundColor: "#3b82f6" }]);
     expect(wrapper.find(".quick-form").exists()).toBe(false);

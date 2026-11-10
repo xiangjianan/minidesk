@@ -660,6 +660,7 @@ describe("TodoPanel", () => {
     expect(dialog?.closest(".workbench-zone, .todo-panel")).toBeNull();
     (dialog?.querySelector(".todo-list-create-input") as HTMLInputElement | null)!.value = "工作提醒";
     dialog?.querySelector<HTMLInputElement>(".todo-list-create-input")?.dispatchEvent(new Event("input", { bubbles: true }));
+    await nextTick();
     dialog?.querySelector<HTMLButtonElement>(".todo-list-create-confirm")?.click();
     await nextTick();
 
@@ -710,6 +711,7 @@ describe("TodoPanel", () => {
 
     input!.value = "会议";
     input!.dispatchEvent(new Event("input", { bubbles: true }));
+    await nextTick();
     dialog?.querySelector<HTMLButtonElement>(".todo-list-create-confirm")?.click();
     await nextTick();
 
