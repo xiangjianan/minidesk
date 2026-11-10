@@ -180,7 +180,7 @@ html[data-theme="dark"] .focus-now-images {
 }
 
 /* Preserve card alignment while leaving room for the hover ring inside the scroll clip. */
-.workbench-zone-assets > .image-panel { overflow: visible; }
+.workbench-zone-assets > .image-panel { overflow: visible; --desk-card-shadow: none; }
 :is(.workbench-zone-assets, .focus-now-images) .image-list-scrollbar { width: calc(100% + 14px); margin-inline-start: -2px; }
 :is(.workbench-zone-assets, .focus-now-images) .image-list-scrollbar .image-list { padding-inline: 2px 12px; }
 :is(.workbench-shell, .focus-now-images) .image-list { padding: calc(var(--desk-group-top, 0px) + 2px) 0 16px; gap: 14px; }
