@@ -974,9 +974,9 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
             />
             <span v-else class="quick-tag-title">{{ group.title }}</span>
 
-            <svg v-if="!globalSearchNormalized && !group.collapsed && editingTagId !== group.id && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" class="quick-empty-arrow" viewBox="0 0 42 34" aria-hidden="true">
-              <path d="M4 30 C16 31 28 28 28 22 C28 14 17 16 19 22 C21 28 33 19 34 7" />
-              <path d="M30 10 L34 6 L38 10" />
+            <svg v-if="!globalSearchNormalized && !group.collapsed && editingTagId !== group.id && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" class="quick-empty-arrow" viewBox="0 0 56 44" aria-hidden="true">
+              <path d="M3 40 C15 42 33 40 37 31 C42 20 28 16 24 24 C20 32 31 36 39 29 C45 24 46 16 46 6" />
+              <path class="quick-empty-arrow-tip" d="M42 10 L46 6 L50 10" />
             </svg>
             <span v-if="editingTagId !== group.id" class="quick-tag-count">{{ group.buttons.length }}</span>
             <button
