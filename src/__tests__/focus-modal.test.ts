@@ -172,7 +172,7 @@ describe("TodoFocusModal", () => {
     const wrapper = mountModal();
     const textPanel = wrapper.findComponent({ name: "TextPanel" });
     expect(textPanel.props("lines")).toEqual([{ text: "第一行", indent: 0 }]);
-    expect(textPanel.props("placeholder")).toContain("左边贴图");
+    expect(textPanel.props("placeholder")).toBe("记录想法、笔记");
     textPanel.vm.$emit("update", [{ text: "新", indent: 0 }]);
     await nextTick();
     expect(wrapper.emitted("notesUpdate")?.[0]).toEqual([[{ text: "新", indent: 0 }]]);

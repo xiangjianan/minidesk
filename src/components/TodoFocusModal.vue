@@ -460,7 +460,7 @@ function handleModalShow(value: boolean): void {
             title-id="focus-now-notes-title"
             :title="uiText.todo.focusDoing"
             :lines="notes"
-            :placeholder="uiText.todo.focusNotesPlaceholder"
+            :placeholder="uiText.desk.notesEmpty"
             :language="language"
             :polish="polish"
             hide-header
