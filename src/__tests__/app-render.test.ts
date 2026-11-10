@@ -6524,6 +6524,38 @@ describe("App shell", () => {
     } finally { wrapper.unmount(); restoreIndexedDb(); vi.useRealTimers(); }
   });
 
+  it("撤销取消专注会恢复计时、笔记和贴图，并保留图片载荷", async () => {
+    vi.useFakeTimers();
+    const restoreIndexedDb = installMemoryImageDb();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ todos: { morning: [{
+      id: "t1", text: "专注任务", done: false, focusStarted: true, focusElapsedMs: 5000,
+      focusNotes: [{ id: "note-1", text: "笔记" }],
+      focusImages: [{ id: "img-1", payloadId: "pay-1", createdAt: 9 }],
+    }] } }));
+    const deleteSpy = vi.spyOn(imageState, "deleteStoredImage").mockResolvedValue(undefined);
+    const wrapper = mountApp();
+    try {
+      const panel = wrapper.getComponent(TodoPanel);
+      const anchor = wrapper.get(".todo-item").element as HTMLElement;
+      panel.vm.$emit("cancelFocus", "morning", "t1", anchor);
+      await wrapper.vm.$nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await flushPromises();
+      await vi.advanceTimersByTimeAsync(200);
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("取消做这个成功");
+      await wrapper.get('[data-testid="companion-action"]').trigger("click");
+      await flushPromises();
+      expect(panel.props("todos").morning[0]).toMatchObject({
+        focusStarted: true, focusElapsedMs: 5000,
+        focusNotes: [{ text: "笔记" }],
+        focusImages: [{ id: "img-1", payloadId: "pay-1", createdAt: 9 }],
+      });
+      await vi.advanceTimersByTimeAsync(10000);
+      expect(deleteSpy).not.toHaveBeenCalledWith("pay-1");
+    } finally { wrapper.unmount(); restoreIndexedDb(); vi.useRealTimers(); }
+  });
+
   it("「现在做这个」端到端：跨 checkpoint 计时落盘、关窗落徽标、重开续跳不归零", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-02T09:00:00Z").getTime());

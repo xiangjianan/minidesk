@@ -2555,10 +2555,22 @@ function cancelTodoFocus(period: TodoPeriod, id: string, anchor?: HTMLElement): 
     if (!todo) return;
     if (focusSession.value?.period === period && focusSession.value.id === id) discardFocusSession();
     const payloadIds = collectTodoFocusPayloadIds([todo]);
+    const savedFocus = JSON.parse(JSON.stringify({
+      focusStarted: todo.focusStarted,
+      focusElapsedMs: todo.focusElapsedMs,
+      focusNotes: todo.focusNotes,
+      focusImages: todo.focusImages,
+    })) as Pick<TodoItem, "focusStarted" | "focusElapsedMs" | "focusNotes" | "focusImages">;
     activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { resetFocus: true });
     persistNow();
-    payloadIds.forEach(scheduleImagePayloadDeletion);
-    showBubbleText(uiText.value.todo.focusCancelDone, anchor);
+    const cleanup = () => payloadIds.forEach(scheduleImagePayloadDeletion);
+    showDeleteUndo(uiText.value.todo.focusCancelDone, anchor, () => {
+      const workspace = state.workspaces.find((item) => item.id === workspaceId);
+      const current = workspace?.todos[period]?.find((item) => item.id === id);
+      if (!current || hasTodoFocus(current)) { cleanup(); return; }
+      Object.assign(current, savedFocus);
+      persistNow();
+    }, cleanup);
   }, undefined, {
     confirmText: uiText.value.todo.focusCancel,
     confirmHint: uiText.value.todo.focusCancelHint,
