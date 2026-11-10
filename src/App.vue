@@ -328,6 +328,7 @@ const inboxPairTarget = computed(() => state.workspaces.find((workspace) => work
 const imagePayloadPruneTimer = ref<number | undefined>();
 const emptyTodoRemovalTimers = new Map<string, number>();
 const pendingImagePayloadDeletions = new Map<string, number>();
+const pendingClearPayloadIds = new Set<string>();
 const shortcutHelpVisible = ref(false);
 const supportDialogVisible = ref(false);
 const updateCheckVisible = ref(false);
@@ -1333,7 +1334,11 @@ function handleGuideClick(key: GuideKey, anchor?: HTMLElement, immediate = false
 function showAreaGuide(key: GuideKey, anchor?: HTMLElement): void {
   if (bubbleVisible.value && bubbleMessage.value) return;
   if (isGuideAreaEmpty(key, anchor)) {
-    showGuideBubble(key, anchor, false);
+    const workspace = activeWorkspace.value;
+    const emptyBoard = workspace.images.length === 0 && workspace.quickButtons.length === 0
+      && Object.values(workspace.todos).every((todos) => todos.every((todo) => !todo.text.trim()))
+      && workspace.spaces.every((space) => !hasLineContent(space.lines));
+    if (!emptyBoard) showGuideBubble(key, anchor, false);
     return;
   }
   showCompanion(key);
@@ -1460,7 +1465,7 @@ function scheduleImagePayloadPrune(): void {
 }
 
 function isImagePayloadRetained(payloadId: string): boolean {
-  return state.workspaces.some((workspace) =>
+  return pendingClearPayloadIds.has(payloadId) || state.workspaces.some((workspace) =>
     workspace.images.some((image) => getImagePayloadId(image) === payloadId) ||
     Object.values(workspace.todos).some((todos) =>
       todos.some((todo) => (todo.focusImages ?? []).some((image) => getImagePayloadId(image) === payloadId))),
@@ -1496,6 +1501,7 @@ function collectRetainedImagePayloadIds(): Set<string> {
       for (const id of collectTodoFocusPayloadIds(todos)) retained.add(id);
     }
   }
+  pendingClearPayloadIds.forEach((id) => retained.add(id));
   // Snapshots carry pre-extracted payload-id sets, so retention checks no longer
   // re-parse every historical snapshot string on each save.
   for (const snapshot of undoSnapshots.value) {
@@ -3295,6 +3301,9 @@ function clearData(anchor?: HTMLElement): void {
         ...Object.values(workspace.todos).flatMap((todos) => collectTodoFocusPayloadIds(todos)),
       ]);
       const inboxCode = workspace.inbox?.code;
+      const savedWorkspace = JSON.parse(JSON.stringify(workspace)) as WorkspaceData;
+      const savedWidths = readWorkbenchWidthRatios(workspaceId);
+      payloadIds.forEach((id) => pendingClearPayloadIds.add(id));
       window.clearTimeout(textSaveTimer.value);
       textSaveTimer.value = undefined;
       emptyTodoRemovalTimers.forEach((timer) => window.clearTimeout(timer));
@@ -3311,10 +3320,27 @@ function clearData(anchor?: HTMLElement): void {
       persistNow();
       refreshTodoNotifications();
       lastUndoSnapshot.value = createUndoSnapshot();
-      payloadIds.forEach((id) => scheduleImagePayloadDeletion(id));
-      if (inboxCode && !state.workspaces.some((item) => item.inbox?.code === inboxCode)) void revokeInbox(inboxCode);
+      const clearedState = JSON.stringify(state.workspaces[index]);
       boardEpoch.value += 1;
-      showBubble("dataCleared", anchor, { hideCompanionAfter: true });
+      const cleanup = () => {
+        payloadIds.forEach((id) => { pendingClearPayloadIds.delete(id); scheduleImagePayloadDeletion(id); });
+        if (inboxCode && !state.workspaces.some((item) => item.inbox?.code === inboxCode)) void revokeInbox(inboxCode);
+      };
+      showDeleteUndo(uiText.value.settings.clearDataDone, anchor, () => {
+        const currentIndex = state.workspaces.findIndex((item) => item.id === workspaceId);
+        if (currentIndex < 0 || JSON.stringify(state.workspaces[currentIndex]) !== clearedState) {
+          cleanup();
+          showBubbleText(uiText.value.settings.clearUndoUnavailable, anchor, { hideCompanionAfter: true });
+          return;
+        }
+        payloadIds.forEach((id) => pendingClearPayloadIds.delete(id));
+        state.workspaces.splice(currentIndex, 1, savedWorkspace);
+        if (savedWidths) restoreWorkbenchWidthRatios(workspaceId, savedWidths);
+        resetTextGenerationBaseline();
+        persistNow();
+        refreshTodoNotifications();
+        boardEpoch.value += 1;
+      }, cleanup);
     },
     undefined,
     { confirmText: uiText.value.settings.clearData, cancelText: uiText.value.common.cancel, danger: true, confirmHint: uiText.value.settings.clearDataHint, highlightTarget: null },

@@ -1756,7 +1756,7 @@ describe("App shell", () => {
     wrapper.unmount();
   });
 
-  it("shows an empty editor Tips bubble on focus and the save bubble on Ctrl+S", async () => {
+  it("does not show Tips in an empty editor, and still shows the save bubble on Ctrl+S", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     const wrapper = mountApp();
@@ -1764,13 +1764,9 @@ describe("App shell", () => {
     try {
       await wrapper.get("textarea").trigger("focus");
 
-      expect(wrapper.find(".focus-companion.is-visible img").exists()).toBe(true);
-      expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
-
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
-
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/工作空间|空间标签|缩进|步骤/);
+      expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
 
       window.dispatchEvent(
         new KeyboardEvent("keydown", {
@@ -1795,6 +1791,8 @@ describe("App shell", () => {
     vi.useFakeTimers();
     // 指南气泡的文案是从数组里随机挑的：固定随机数，让首个气泡可断言。
     vi.spyOn(Math, "random").mockReturnValue(0);
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
 
     try {
@@ -1830,6 +1828,8 @@ describe("App shell", () => {
 
   it("does not hide and re-show the GIF as a Tips message expires", async () => {
     vi.useFakeTimers();
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
     try {
       await wrapper.get("textarea").trigger("focus");
@@ -2909,6 +2909,8 @@ describe("App shell", () => {
   });
 
   it("does not show the companion GIF after toggling the theme", async () => {
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
 
     await wrapper.get("textarea").trigger("focus");
@@ -7792,7 +7794,7 @@ describe("App shell", () => {
       expect(loadState().theme).toBe("dark");
       // in-memory board reset to defaults
       expect(wrapper.text()).not.toContain("待清空");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/清空|已重置|数据|初始|清理|整理/);
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/清除成功/);
       // the workbench shell remounts so its entrance animation replays
       const gridAfter = wrapper.find(".workbench-grid").element;
       expect(gridAfter).not.toBe(gridBefore);
@@ -7801,6 +7803,40 @@ describe("App shell", () => {
       vi.unstubAllGlobals();
       vi.useRealTimers();
     }
+  });
+
+  it("撤销清空空间会恢复内容、贴图、布局和配对", async () => {
+    vi.useFakeTimers();
+    const restoreIndexedDb = installMemoryImageDb();
+    const workspace = defaultWorkspace();
+    workspace.images = [{ id: "image-1", src: "data:image/png;base64,YQ==", createdAt: 1 }];
+    workspace.todos.morning = [{ id: "t1", text: "提醒", done: false, focusStarted: true, focusNotes: [{ text: "专注笔记", indent: 0 }], focusImages: [{ id: "focus-image", payloadId: "focus-payload", createdAt: 2 }] }];
+    workspace.inbox = { code: "AB2CDE4FGHJK", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 7 };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace] }));
+    localStorage.setItem(`mini-desk-workbench-widths:${workspace.id}`, JSON.stringify([10, 20, 30, 40]));
+    const deleteSpy = vi.spyOn(imageState, "deleteStoredImage").mockResolvedValue(undefined);
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(SettingsMenu).vm.$emit("clearData");
+      await nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await flushPromises();
+      await vi.advanceTimersByTimeAsync(200);
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/清除成功/);
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
+      expect(revokeInboxKey).not.toHaveBeenCalled();
+      await wrapper.get('[data-testid="companion-action"]').trigger("click");
+      await flushPromises();
+      const restored = loadState().workspaces[0];
+      expect(restored.todos.morning[0]).toMatchObject({ text: "提醒", focusStarted: true, focusNotes: [{ text: "专注笔记" }], focusImages: [{ payloadId: "focus-payload" }] });
+      expect(restored.images[0].id).toBe("image-1");
+      expect(restored.inbox?.code).toBe("AB2CDE4FGHJK");
+      expect(JSON.parse(localStorage.getItem(`mini-desk-workbench-widths:${workspace.id}`)!)).toEqual([1000, 2000, 3000, 4000]);
+      await vi.advanceTimersByTimeAsync(10000);
+      expect(deleteSpy).not.toHaveBeenCalledWith("focus-payload");
+      expect(revokeInboxKey).not.toHaveBeenCalled();
+    } finally { wrapper.unmount(); restoreIndexedDb(); vi.useRealTimers(); }
   });
 
   it("accepts imports that only configure reminder lists", async () => {
@@ -8719,6 +8755,8 @@ describe("App shell", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-05-20T00:00:00.000Z"));
     vi.spyOn(Math, "random").mockReturnValue(0);
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
 
     try {
@@ -8769,70 +8807,16 @@ describe("App shell", () => {
     }
   });
 
-  it("keeps the current blank-area Tips for quick links, images, and todos while repeated clicks happen before expiry", async () => {
-    vi.useFakeTimers();
+  it("does not show automatic Tips when all four areas are empty", async () => {
+    const wrapper = mountApp();
     try {
-      const scenarios = [
-        { key: "quickButtons", component: QuickButtons, pattern: /快捷|按钮|复制|动作/ },
-        { key: "images", component: ImagePanel, pattern: /截图区|图片|Ctrl\+V|方向键|右键|删除|预览|Esc/ },
-        { key: "todos", component: TodoPanel, pattern: /提醒|事项|完成|星标|右键|拖动|已完成/ },
-      ] as const;
-
-      for (const scenario of scenarios) {
-        const randomSpy = vi.spyOn(Math, "random");
-        randomSpy
-          .mockReturnValueOnce(0)
-          .mockReturnValueOnce(0)
-          .mockReturnValueOnce(0.8)
-          .mockReturnValueOnce(0.8);
-        const wrapper = mountApp();
-
-        try {
-          const component = wrapper.getComponent(scenario.component);
-          vi.spyOn(component.element, "getBoundingClientRect").mockReturnValue({
-            x: 128,
-            y: 0,
-            width: 300,
-            height: 360,
-            top: 0,
-            left: 128,
-            right: 428,
-            bottom: 360,
-            toJSON: () => ({}),
-          });
-
-          component.vm.$emit("guide", scenario.key, component.element as HTMLElement);
-          await wrapper.vm.$nextTick();
-          await vi.advanceTimersByTimeAsync(200);
-          await wrapper.vm.$nextTick();
-          const firstTips = wrapper.get('[data-testid="companion-confirm"]').text();
-          expect(firstTips).toMatch(scenario.pattern);
-
-          component.vm.$emit("guide", scenario.key, component.element as HTMLElement);
-          await wrapper.vm.$nextTick();
-          await vi.advanceTimersByTimeAsync(200);
-          await wrapper.vm.$nextTick();
-
-          expect(wrapper.get('[data-testid="companion-confirm"]').text()).toBe(firstTips);
-
-          await vi.advanceTimersByTimeAsync(4860);
-          await wrapper.vm.$nextTick();
-          expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
-
-          component.vm.$emit("guide", scenario.key, component.element as HTMLElement);
-          await wrapper.vm.$nextTick();
-          await vi.advanceTimersByTimeAsync(200);
-          await wrapper.vm.$nextTick();
-
-          expect(wrapper.get('[data-testid="companion-confirm"]').text()).not.toBe(firstTips);
-        } finally {
-          wrapper.unmount();
-          randomSpy.mockRestore();
-        }
+      for (const [componentType, key] of [[QuickButtons, "quickButtons"], [ImagePanel, "images"], [TodoPanel, "todos"], [SpacePanel, "workspace"]] as const) {
+        const component = wrapper.getComponent(componentType);
+        component.vm.$emit("guide", key, component.element as HTMLElement);
+        await wrapper.vm.$nextTick();
+        expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
       }
-    } finally {
-      vi.useRealTimers();
-    }
+    } finally { wrapper.unmount(); }
   });
 
   it("keeps quick-link Tips when focusing the notebook until expiry", async () => {
@@ -9059,6 +9043,8 @@ describe("App shell", () => {
   });
 
   it("moves the companion to the screen corner when the todo section is focused", async () => {
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
     const todoList = wrapper.get('[data-testid="todo-list-morning"]');
 
@@ -9368,6 +9354,8 @@ describe("App shell", () => {
     vi.useFakeTimers();
     // 从明确的浅色起始态切换，验证「浅→深」GIF 资产切换不受默认 auto 模式影响。
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme: "light" }));
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
 
     try {
@@ -9577,6 +9565,8 @@ describe("App shell", () => {
 
   it("clears the in-flight bubble immediately when the gif theme switches to none", async () => {
     vi.useFakeTimers();
+    // Keep another area populated so automatic empty-area tips remain enabled.
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"), quickButtons: [{ id: "seed", title: "Seed", value: "text", type: "text" }] }));
     const wrapper = mountApp();
 
     try {
@@ -10446,6 +10436,9 @@ describe("App inbox revoke wiring", () => {
       expect(loadState().workspaces[0].inbox).toBeUndefined();
       expect(loadState().workspaces[1].inbox?.code).toBe("ZZ9YXW8VTSRQ");
       expect(loadState().workspaces[1].todos.morning[0]?.text).toBe("其他空间提醒");
+      expect(revokeInboxKey).not.toHaveBeenCalled();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "s", ctrlKey: true }));
+      await flushAsyncComponents();
       expect(revokeInboxKey).toHaveBeenCalledTimes(1);
       for (const [keyHash] of vi.mocked(revokeInboxKey).mock.calls) {
         expect(keyHash).toMatch(/^[0-9a-f]{64}$/);
