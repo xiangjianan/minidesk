@@ -1416,5 +1416,5 @@ html[data-theme="dark"] .focus-now-modal { --desk-selection-border: #ededed; }
   overflow-wrap: anywhere;
   pointer-events: none;
 }
-.image-empty-hint { padding: 14px 8px 0; }
+.image-empty-hint { padding: 14px 4px 0; white-space: pre-line; }
 .quick-empty-hint { padding: 0 4px 12px; text-align: center; }
