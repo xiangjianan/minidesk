@@ -146,6 +146,24 @@ function readSource(path: string): string {
 }
 
 describe("QuickButtons", () => {
+  it("guides the last empty list even when earlier lists have actions", async () => {
+    const wrapper = mountQuickButtons({
+      tags: [{ id: "first", title: "常用" }, { id: "last", title: "工作" }],
+      buttons: [{ id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" }],
+    });
+    try {
+      expect(wrapper.find('[data-tag-id="first"] .quick-empty-hint').exists()).toBe(false);
+      expect(wrapper.get('[data-tag-id="last"] .quick-empty-hint').text()).toContain("添加快捷动作");
+      expect(wrapper.find('[data-tag-id="last"] .quick-empty-arrow').exists()).toBe(true);
+      await wrapper.setProps({ buttons: [
+        { id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" },
+        { id: "two", title: "文本", value: "内容", type: "text", hidden: false, tagId: "last" },
+      ] });
+      expect(wrapper.find(".quick-empty-hint").exists()).toBe(false);
+      expect(wrapper.find(".quick-empty-arrow").exists()).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+
   it("keeps the overflow scrollbar visible independently of hover", () => {
     const wrapper = mountQuickButtons();
     expect(wrapper.findComponent({ name: "Scrollbar" }).props("trigger")).toBe("none");
