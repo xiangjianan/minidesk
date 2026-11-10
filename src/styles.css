@@ -8,17 +8,17 @@
   --card: #ffffff;
   --popover: #ffffff;
   --popover-foreground: #111827;
-  --primary: #303030;
+  --primary: #3f6887;
   --primary-foreground: #ffffff;
   --secondary: #ececee;
   --secondary-foreground: #18181b;
   --muted-surface: #f2f2f4;
   --muted-foreground: #71717a;
-  --accent: #f1f1f1;
-  --accent-foreground: #303030;
+  --accent: #e4edf3;
+  --accent-foreground: #355b78;
   --destructive: #b42318;
   --border: rgba(60, 60, 67, 0.14);
-  --ring: #555555;
+  --ring: #3f6887;
   --bg: #fcfcfe;
   --panel: #ffffff;
   --text: #1d1d1f;
@@ -27,7 +27,7 @@
   --line-section: rgba(60, 60, 67, 0.14);
   --line-subtle: rgba(60, 60, 67, 0.09);
   --line-control: rgba(60, 60, 67, 0.22);
-  --line-focus: #555555;
+  --line-focus: #3f6887;
   --input: #ffffff;
   --button: #ffffff;
   --button-hover: color-mix(in srgb, #ffffff 88%, var(--primary) 12%);
@@ -51,8 +51,8 @@
   --shadow-companion: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.10);
   --shadow-float: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 20px rgba(15, 23, 42, 0.08), 0 24px 48px rgba(15, 23, 42, 0.06);
   /* 手机端首页（OpenDesign 原型）补充 token：实心动作蓝（加深保证白字对比）、小号蓝字、成功/实心危险与大圆角卡。 */
-  --action: #303030;
-  --link: #424242;
+  --action: #3f6887;
+  --link: #355b78;
   --ok: #1e7f36;
   --danger-fill: #b42318;
   --radius-card: 18px;
@@ -3173,7 +3173,6 @@ button.companion-undo-button {
   min-height: var(--n-height);
   padding-block: 4px;
 }
-
 .companion-actions .n-button__content {
   white-space: normal;
   overflow-wrap: anywhere;
@@ -5144,6 +5143,25 @@ button.quick-button {
 .quick-button:focus-visible {
   color: var(--foreground);
   background: var(--button-hover);
+}
+
+/* A quiet count in a reserved corner; usage never changes the background. */
+.quick-button { position: relative; }
+.quick-button:has(.quick-button-clicks) .quick-button-content { padding-inline-end: 34px; }
+.quick-button-clicks {
+  position: absolute;
+  right: 7px;
+  bottom: 4px;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+  opacity: 0.65;
+  font-size: 10px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
 }
 
 /* Animate tag groups sliding into place when the tag list is reordered. */
@@ -7679,161 +7697,3 @@ button.focus-now-divider {
 /* Brief data guidance inside the settings submenu and export dialog. */
 .settings-data-hint { max-width: 220px; padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; white-space: normal; }
 .workspace-export-hint { margin: 0 0 12px; color: var(--muted); font-size: 12px; line-height: 1.5; }
-
-/* A single high-contrast selection treatment, including the mirrored editor. */
-:root { --selection-background: #000; --selection-text: #fff; }
-html[data-theme="dark"] { --selection-background: #fff; --selection-text: #000; }
-::selection,
-.n-input .n-input__input-el::selection,
-.n-input .n-input__textarea-el::selection,
-html[data-theme="dark"] .n-input .n-input__input-el::selection,
-html[data-theme="dark"] .n-input .n-input__textarea-el::selection,
-.todo-item.is-starred .todo-input::selection,
-.today-focus-item .today-focus-input::selection,
-.text-editor-textarea::selection,
-html[data-theme="dark"] .text-editor-textarea::selection {
-  color: var(--selection-text);
-  -webkit-text-fill-color: var(--selection-text);
-  background: var(--selection-background);
-}
-
-/* Dialog actions share the workbench button geometry and clear roles. */
-:root {
-  --dialog-action-radius: 8px;
-  --dialog-action-neutral: #f4f4f4;
-  --dialog-action-neutral-hover: #eaeaea;
-  --dialog-action-border: #e1e1e1;
-  --dialog-action-primary: #222;
-  --dialog-action-primary-text: #fff;
-  --dialog-action-primary-hover: #444;
-}
-html[data-theme="dark"] {
-  --dialog-action-neutral: #303030;
-  --dialog-action-neutral-hover: #3c3c3c;
-  --dialog-action-border: #505050;
-  --dialog-action-primary: #f0f0f0;
-  --dialog-action-primary-text: #202020;
-  --dialog-action-primary-hover: #d6d6d6;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button {
-  --n-border-radius: var(--dialog-action-radius) !important;
-  --n-color: var(--dialog-action-neutral) !important;
-  --n-color-hover: var(--dialog-action-neutral-hover) !important;
-  --n-color-pressed: var(--dialog-action-neutral-hover) !important;
-  --n-color-focus: var(--dialog-action-neutral) !important;
-  --n-border: 1px solid var(--dialog-action-border) !important;
-  --n-border-hover: 1px solid var(--dialog-action-border) !important;
-  --n-border-pressed: 1px solid var(--dialog-action-border) !important;
-  --n-border-focus: 1px solid var(--dialog-action-border) !important;
-  --n-text-color: var(--text) !important;
-  --n-text-color-hover: var(--text) !important;
-  --n-text-color-pressed: var(--text) !important;
-  --n-text-color-focus: var(--text) !important;
-  border-radius: var(--dialog-action-radius) !important;
-  box-shadow: none;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button :is(.n-button__border, .n-button__state-border) {
-  border-radius: var(--dialog-action-radius) !important;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--primary-type, .quick-dialog-submit, .companion-action-button[data-testid="companion-yes"]:not(.is-danger)) {
-  --n-color: var(--dialog-action-primary) !important;
-  --n-color-hover: var(--dialog-action-primary-hover) !important;
-  --n-color-pressed: var(--dialog-action-primary-hover) !important;
-  --n-color-focus: var(--dialog-action-primary) !important;
-  --n-border: 1px solid var(--dialog-action-primary) !important;
-  --n-border-hover: 1px solid var(--dialog-action-primary-hover) !important;
-  --n-border-pressed: 1px solid var(--dialog-action-primary-hover) !important;
-  --n-border-focus: 1px solid var(--dialog-action-primary) !important;
-  --n-text-color: var(--dialog-action-primary-text) !important;
-  --n-text-color-hover: var(--dialog-action-primary-text) !important;
-  --n-text-color-pressed: var(--dialog-action-primary-text) !important;
-  --n-text-color-focus: var(--dialog-action-primary-text) !important;
-  --n-color-disabled: var(--dialog-action-primary) !important;
-  --n-text-color-disabled: var(--dialog-action-primary-text) !important;
-  --n-border-disabled: 1px solid var(--dialog-action-primary) !important;
-  color: var(--dialog-action-primary-text) !important;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--primary-type, .quick-dialog-submit, .companion-action-button[data-testid="companion-yes"]:not(.is-danger)) .n-button__content {
-  color: var(--dialog-action-primary-text) !important;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--primary-type, .quick-dialog-submit, .companion-action-button[data-testid="companion-yes"]:not(.is-danger)):hover:not(.n-button--disabled) {
-  background: var(--dialog-action-primary-hover) !important;
-}
-:is(.dialog-actions, .workspace-inbox-footer, .companion-actions) > :is(.n-button--error-type, .companion-action-button.is-danger) {
-  --n-color: color-mix(in srgb, var(--danger) 8%, var(--popover)) !important;
-  --n-color-hover: color-mix(in srgb, var(--danger) 16%, var(--popover)) !important;
-  --n-color-pressed: color-mix(in srgb, var(--danger) 20%, var(--popover)) !important;
-  --n-color-focus: color-mix(in srgb, var(--danger) 8%, var(--popover)) !important;
-  --n-border: 1px solid var(--danger) !important;
-  --n-border-hover: 1px solid var(--danger) !important;
-  --n-border-pressed: 1px solid var(--danger) !important;
-  --n-border-focus: 1px solid var(--danger) !important;
-  --n-text-color: var(--danger) !important;
-  --n-text-color-hover: var(--danger) !important;
-  --n-text-color-pressed: var(--danger) !important;
-  --n-text-color-focus: var(--danger) !important;
-}
-button.notify-panel-preset,
-button.notify-panel-action {
-  border: 1px solid var(--dialog-action-border);
-  border-radius: var(--dialog-action-radius);
-  background: var(--dialog-action-neutral);
-  color: var(--text);
-  box-shadow: none;
-}
-button.notify-panel-preset:hover,
-button.notify-panel-action:hover:not(:disabled) {
-  background: var(--dialog-action-neutral-hover);
-  color: var(--text);
-}
-button.notify-panel-action.is-save {
-  background: var(--dialog-action-primary);
-  border-color: var(--dialog-action-primary);
-  color: var(--dialog-action-primary-text);
-}
-button.notify-panel-action.is-save:hover:not(:disabled) {
-  background: var(--dialog-action-primary-hover);
-  border-color: var(--dialog-action-primary-hover);
-  color: var(--dialog-action-primary-text);
-}
-button.notify-panel-action.is-danger {
-  color: var(--danger);
-  border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 8%, var(--popover));
-}
-button.notify-panel-action.is-danger:hover:not(:disabled) {
-  color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 16%, var(--popover));
-}
-/* Override generic Naive UI default-button variables for neutral footer actions. */
-:is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button:not(.n-button--primary-type):not(.n-button--error-type):not(.quick-dialog-submit):not(.is-danger):not([data-testid="companion-yes"]) {
-  --n-color: var(--dialog-action-neutral) !important;
-  --n-color-hover: var(--dialog-action-neutral-hover) !important;
-  --n-color-pressed: var(--dialog-action-neutral-hover) !important;
-  --n-color-focus: var(--dialog-action-neutral) !important;
-  --n-border: 1px solid var(--dialog-action-border) !important;
-  --n-border-hover: 1px solid var(--dialog-action-border) !important;
-  --n-border-pressed: 1px solid var(--dialog-action-border) !important;
-  --n-border-focus: 1px solid var(--dialog-action-border) !important;
-}
-.mobile-home-sheet-actions .mobile-home-btn-quiet,
-.image-editor-actions .image-editor-cancel {
-  border: 1px solid var(--dialog-action-border);
-  border-radius: var(--dialog-action-radius);
-  background: var(--dialog-action-neutral);
-  color: var(--text);
-}
-.mobile-home-sheet-actions .mobile-home-btn-danger {
-  border-radius: var(--dialog-action-radius);
-}
-.image-editor-actions .image-editor-save {
-  border: 1px solid var(--dialog-action-primary);
-  border-radius: var(--dialog-action-radius);
-  background: var(--dialog-action-primary);
-  color: var(--dialog-action-primary-text);
-}
-.image-editor-actions .image-editor-cancel:hover { background: var(--dialog-action-neutral-hover); }
-.image-editor-actions .image-editor-save:hover {
-  background: var(--dialog-action-primary-hover);
-  border-color: var(--dialog-action-primary-hover);
-}
