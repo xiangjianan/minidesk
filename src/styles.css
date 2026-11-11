@@ -4812,8 +4812,8 @@ button.workbench-resizer {
 }
 
 ::selection {
-  color: var(--text);
-  background: color-mix(in srgb, var(--primary) 26%, transparent);
+  color: var(--selection-text);
+  background: var(--selection-bg);
 }
 
 :focus-visible:where(:not([data-pointer-focus])) {
@@ -4846,13 +4846,9 @@ textarea:focus,
 
 .n-input .n-input__input-el::selection,
 .n-input .n-input__textarea-el::selection {
-  color: var(--text);
-  background: color-mix(in srgb, var(--primary) 26%, transparent);
-}
-
-html[data-theme="dark"] .n-input .n-input__input-el::selection,
-html[data-theme="dark"] .n-input .n-input__textarea-el::selection {
-  background: color-mix(in srgb, var(--primary) 38%, transparent);
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
+  background: var(--selection-bg);
 }
 
 .n-input .n-input__input-el:focus,
@@ -7133,7 +7129,7 @@ button.mobile-inbox-revoked-change {
 .text-editor-textarea::selection {
   color: #fff;
   -webkit-text-fill-color: #fff;
-  background: color-mix(in srgb, var(--selection-bg) 82%, transparent);
+  background: var(--selection-bg);
 }
 
 .text-selection-mirror { z-index: 2; color: transparent; }
