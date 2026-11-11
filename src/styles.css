@@ -7126,14 +7126,27 @@ button.mobile-inbox-revoked-change {
   overflow-anchor: none;
   pointer-events: none;
   color: var(--text);
-  z-index: 0;
+  z-index: 2;
 }
 
-/* 让镜像层的标记颜色在选区下仍然清晰可辨。 */
+/* 选区背景由输入框绘制，文字由上方镜像层绘制。 */
 .text-editor-textarea::selection {
-  color: #111;
-  -webkit-text-fill-color: #111;
-  background: color-mix(in srgb, var(--selection-bg) 60%, transparent);
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  background: color-mix(in srgb, var(--selection-bg) 82%, transparent);
+}
+
+.text-mirror .is-selected.is-selected {
+  color: var(--selection-text);
+  background: transparent;
+}
+
+.text-mirror .is-selected[class*="mark-highlight-"] {
+  color: #fff17a;
+}
+
+html[data-theme="dark"] .text-mirror .is-selected[class*="mark-highlight-"] {
+  color: #624100;
 }
 
 .text-mirror .mark-strike {

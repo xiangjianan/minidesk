@@ -2110,6 +2110,25 @@ describe("TextPanel", () => {
     expect(wrapper.get(".text-mirror .mark-strike").text()).toBe("普通");
   });
 
+  it("只标记选区内的高亮文字，并在取消选中后恢复", async () => {
+    const wrapper = mount(TextPanel, {
+      attachTo: document.body,
+      props: { titleId: "title", title: "笔记", lines: [{ text: "abcdef", indent: 0, marks: [
+        { type: "highlight", start: 1, end: 5, color: "amber" },
+      ] }] },
+    });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(2, 4);
+    await wrapper.get("textarea").trigger("select");
+    expect(wrapper.get(".text-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
+    expect(wrapper.findAll(".text-mirror .mark-highlight-amber:not(.is-selected)").map((item) => item.text())).toEqual(["b", "e"]);
+    textarea.setSelectionRange(4, 4);
+    await wrapper.get("textarea").trigger("select");
+    expect(wrapper.find(".text-mirror .is-selected").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it("textarea 滚动时镜像层同步 scrollTop", async () => {
     const wrapper = mount(TextPanel, {
       props: { titleId: "workspace-title", title: "工作空间", lines: [{ text: "a", indent: 0 }] },
