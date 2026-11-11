@@ -7126,28 +7126,24 @@ button.mobile-inbox-revoked-change {
   overflow-anchor: none;
   pointer-events: none;
   color: var(--text);
-  z-index: 2;
+  z-index: 0;
 }
 
-/* 选区背景由输入框绘制，文字由上方镜像层绘制。 */
+/* 普通选区由输入框直接绘制，避免拖选时镜像层更新带来的闪烁。 */
 .text-editor-textarea::selection {
-  color: transparent;
-  -webkit-text-fill-color: transparent;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
   background: color-mix(in srgb, var(--selection-bg) 82%, transparent);
 }
 
-.text-mirror .is-selected.is-selected {
-  color: var(--selection-text);
-  background: transparent;
-}
-
-.text-mirror .is-selected[class*="mark-highlight-"] {
-  color: #fff17a;
-}
-
-html[data-theme="dark"] .text-mirror .is-selected[class*="mark-highlight-"] {
-  color: #624100;
-}
+.text-selection-mirror { z-index: 2; color: transparent; }
+.text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"] { color: #fff !important; border-radius: 0; }
+.text-selection-mirror .is-selected.mark-highlight-amber { background: #9a6700 !important; }
+.text-selection-mirror .is-selected.mark-highlight-rose { background: #b83e50 !important; }
+.text-selection-mirror .is-selected.mark-highlight-green { background: #28783f !important; }
+.text-selection-mirror .is-selected.mark-highlight-blue { background: #2164a5 !important; }
+.text-selection-mirror .is-selected.mark-highlight-violet { background: #8046a6 !important; }
 
 .text-mirror .mark-strike {
   text-decoration: line-through;

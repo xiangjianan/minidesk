@@ -71,11 +71,13 @@ const text = ref(initialEditorState.text);
 const editorMarks = ref<TextMark[]>(initialEditorState.marks);
 const committedText = ref(initialEditorState.text);
 const mirrorRef = ref<HTMLElement | null>(null);
+const selectionMirrorRef = ref<HTMLElement | null>(null);
+const baseMirrorSegments = computed(() => buildMirrorSegments(text.value, editorMarks.value));
 const visibleSelection = ref<{ start: number; end: number } | null>(null);
 const mirrorSegments = computed(() => {
   const selection = focused.value ? visibleSelection.value : null;
   let offset = 0;
-  return buildMirrorSegments(text.value, editorMarks.value).flatMap((segment) => {
+  return baseMirrorSegments.value.flatMap((segment) => {
     const start = offset;
     const end = start + segment.chunk.length;
     offset = end;
@@ -141,6 +143,7 @@ function mirrorSegmentClasses(segment: MirrorSegment & { selected?: boolean }): 
 function syncMirrorScroll(event: Event): void {
   const textarea = event.currentTarget as HTMLTextAreaElement;
   if (mirrorRef.value) mirrorRef.value.scrollTop = textarea.scrollTop;
+  if (selectionMirrorRef.value) selectionMirrorRef.value.scrollTop = textarea.scrollTop;
 }
 
 let isUnmounted = false;
@@ -445,6 +448,7 @@ function revealCaretInTextarea(textarea: HTMLTextAreaElement): void {
   if (Math.abs(next - textarea.scrollTop) < 1) return;
   textarea.scrollTop = next;
   if (mirrorRef.value) mirrorRef.value.scrollTop = textarea.scrollTop;
+  if (selectionMirrorRef.value) selectionMirrorRef.value.scrollTop = textarea.scrollTop;
 }
 
 /**
@@ -1077,6 +1081,7 @@ function normalizeTextareaText(textarea: HTMLTextAreaElement): void {
     const nextSelectionEnd = getAdjustedSelectionOffset(raw, normalized, selectionEnd);
     textarea.value = normalized;
     if (mirrorRef.value) mirrorRef.value.scrollTop = textarea.scrollTop;
+    if (selectionMirrorRef.value) selectionMirrorRef.value.scrollTop = textarea.scrollTop;
     textarea.setSelectionRange(nextSelectionStart, nextSelectionEnd);
   }
   // Keep the structural edit separate from cascading renumbering when mapping
@@ -1168,6 +1173,7 @@ function restoreEditorSnapshot(textarea: HTMLTextAreaElement, previous: EditorSn
   text.value = previous.text;
   textarea.value = previous.text;
   if (mirrorRef.value) mirrorRef.value.scrollTop = textarea.scrollTop;
+  if (selectionMirrorRef.value) selectionMirrorRef.value.scrollTop = textarea.scrollTop;
   lastUndoState.value = { text: previous.text, marks: [...previous.marks] };
   const caret = Math.min(previous.text.length, textarea.selectionStart ?? previous.text.length);
   textarea.setSelectionRange(caret, caret);
@@ -1207,6 +1213,11 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
     </div>
     <div class="text-editor-frame" @contextmenu="openTextMenu" @dragover="handleDragOver" @drop="handleExternalTextDrop">
       <div ref="mirrorRef" class="text-mirror" aria-hidden="true"><span
+        v-for="(segment, index) in baseMirrorSegments"
+        :key="index"
+        :class="mirrorSegmentClasses(segment)"
+      >{{ segment.chunk }}</span><span v-if="hasTrailingLineBreak" class="mirror-trailing-pad">&#8203;</span></div>
+      <div ref="selectionMirrorRef" class="text-mirror text-selection-mirror" aria-hidden="true"><span
         v-for="(segment, index) in mirrorSegments"
         :key="index"
         :class="mirrorSegmentClasses(segment)"

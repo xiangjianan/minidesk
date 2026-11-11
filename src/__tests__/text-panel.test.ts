@@ -2121,8 +2121,8 @@ describe("TextPanel", () => {
     textarea.focus();
     textarea.setSelectionRange(2, 4);
     await wrapper.get("textarea").trigger("select");
-    expect(wrapper.get(".text-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
-    expect(wrapper.findAll(".text-mirror .mark-highlight-amber:not(.is-selected)").map((item) => item.text())).toEqual(["b", "e"]);
+    expect(wrapper.get(".text-selection-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
+    expect(wrapper.findAll(".text-selection-mirror .mark-highlight-amber:not(.is-selected)").map((item) => item.text())).toEqual(["b", "e"]);
     textarea.setSelectionRange(4, 4);
     await wrapper.get("textarea").trigger("select");
     expect(wrapper.find(".text-mirror .is-selected").exists()).toBe(false);
