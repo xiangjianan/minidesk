@@ -15,6 +15,15 @@ export function guardSelectionOrigin(doc: Document): void {
     const editable = target.closest('input, textarea, [contenteditable]:not([contenteditable="false"])');
     const hasDirectText = Array.from(target.childNodes).some(node => node.nodeType === 3 && node.textContent?.trim());
     blockBlankSelection = Boolean(target.closest('.workbench-shell') && !editable && !hasDirectText);
+    const active = doc.activeElement;
+    if (blockBlankSelection && !target.closest('button, a, [role="button"], [role="menu"], [role="menuitem"]') &&
+        (active instanceof HTMLTextAreaElement || active instanceof HTMLInputElement) &&
+        active.matches('.text-editor-textarea, .todo-input, .today-focus-input') &&
+        active.selectionStart !== active.selectionEnd) {
+      const caret = active.selectionStart ?? 0;
+      active.setSelectionRange(caret, caret);
+      active.dispatchEvent(new Event('select', { bubbles: true }));
+    }
   }, true);
   doc.addEventListener('selectstart', (event) => {
     if (blockBlankSelection) event.preventDefault();

@@ -7134,6 +7134,8 @@ button.mobile-inbox-revoked-change {
 
 .text-selection-mirror { z-index: 2; color: transparent; }
 .text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
+/* 渐变高亮无法插值；底色和文字也同步切换，避免主题过渡时短暂露出错色。 */
+html.theme-switching .text-selection-mirror .is-selected[class*="mark-highlight-"] { transition: none !important; }
 .text-selection-mirror .is-selected[class*="mark-highlight-"] { color: var(--text) !important; border-radius: 0; }
 .text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-amber { color: var(--mark-text-amber) !important; }
 .text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-rose { color: var(--mark-text-rose) !important; }

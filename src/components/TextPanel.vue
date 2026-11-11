@@ -827,6 +827,7 @@ function rememberCaret(event: MouseEvent): void {
 function rememberSelection(event: Event): void {
   const textarea = event.currentTarget as HTMLTextAreaElement;
   syncVisibleSelection(textarea);
+  if (!hasSelection(textarea)) lastTextSelection.value = null;
   rememberTextSelection(textarea);
   textarea.draggable = hasSelection(textarea);
   // 仅当 textarea 仍持焦点（用户正在拖选）才借此进入编辑态：浏览器在失焦后
