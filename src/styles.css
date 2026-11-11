@@ -7129,11 +7129,11 @@ button.mobile-inbox-revoked-change {
   z-index: 0;
 }
 
-/* 选中文字由输入层绘制，实色背景暂时覆盖镜像中的格式。 */
+/* 选区保留少量透明度，让镜像层的高亮颜色透出。 */
 .text-editor-textarea::selection {
   color: var(--selection-text);
   -webkit-text-fill-color: var(--selection-text);
-  background: var(--selection-bg);
+  background: color-mix(in srgb, var(--selection-bg) 82%, transparent);
 }
 
 .text-mirror .mark-strike {

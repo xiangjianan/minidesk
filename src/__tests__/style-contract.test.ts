@@ -531,7 +531,7 @@ describe("workbench style contract", () => {
     expectSelectorBody(styles, ".text-mirror", "pointer-events: none");
     // 选区由输入层绘制，文字和背景使用主题对应的颜色。
     expectSelectorBody(styles, ".text-editor-textarea::selection", "color: var(--selection-text)");
-    expectSelectorBody(styles, ".text-editor-textarea::selection", "background: var(--selection-bg)");
+    expectSelectorBody(styles, ".text-editor-textarea::selection", "background: color-mix(in srgb, var(--selection-bg) 82%, transparent)");
   });
 
   it("never paints the focus ring on quick add buttons after dialog focus restore", () => {
