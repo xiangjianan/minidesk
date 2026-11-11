@@ -5867,6 +5867,7 @@ html:not([data-theme="dark"]) .preview-toolbar-group {
 }
 
 .image-editor-actions {
+  flex-shrink: 0;
   margin-left: auto;
 }
 
@@ -5880,6 +5881,7 @@ html:not([data-theme="dark"]) .preview-toolbar-group {
   background: transparent;
   color: var(--text);
   font-size: var(--app-font-size);
+  white-space: nowrap;
   cursor: pointer;
 }
 
