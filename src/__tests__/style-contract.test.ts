@@ -529,9 +529,9 @@ describe("workbench style contract", () => {
     expectSelectorBody(styles, ".text-editor-textarea", "display: block");
     expectSelectorBody(styles, ".text-mirror", "position: absolute");
     expectSelectorBody(styles, ".text-mirror", "pointer-events: none");
-    // 选区必须半透明且字色透明：不透明选区底会盖住镜像层的格式标注（高亮/划线/文字色）。
-    expectSelectorBody(styles, ".text-editor-textarea::selection", "color: transparent");
-    expectSelectorBody(styles, ".text-editor-textarea::selection", "color-mix(in srgb, var(--primary) 26%, transparent)");
+    // 选区由输入层绘制，文字和背景使用主题对应的颜色。
+    expectSelectorBody(styles, ".text-editor-textarea::selection", "color: var(--selection-text)");
+    expectSelectorBody(styles, ".text-editor-textarea::selection", "background: var(--selection-bg)");
   });
 
   it("never paints the focus ring on quick add buttons after dialog focus restore", () => {

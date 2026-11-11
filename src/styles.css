@@ -2723,9 +2723,9 @@ button.todo-star-button {
 
 .todo-item.is-starred .todo-input::selection,
 .today-focus-item .today-focus-input::selection {
-  color: var(--text);
-  -webkit-text-fill-color: var(--text);
-  background: color-mix(in srgb, var(--primary) 26%, transparent);
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
+  background: var(--selection-bg);
 }
 
 .todo-item.is-starred.is-done .todo-input,
@@ -7129,16 +7129,11 @@ button.mobile-inbox-revoked-change {
   z-index: 0;
 }
 
-/* 选区半透明化：原生选区画在 textarea 层（镜像之上），全局 ::selection 的近实底会把
-   高亮/文字颜色糊成一片且白字与镜像字形重影——透明字色防重影，半透明底让格式透出来。 */
+/* 选中文字由输入层绘制，实色背景暂时覆盖镜像中的格式。 */
 .text-editor-textarea::selection {
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  background: color-mix(in srgb, var(--primary) 26%, transparent);
-}
-
-html[data-theme="dark"] .text-editor-textarea::selection {
-  background: color-mix(in srgb, var(--primary) 38%, transparent);
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
+  background: var(--selection-bg);
 }
 
 .text-mirror .mark-strike {
@@ -7826,11 +7821,19 @@ html[data-theme="dark"] {
   overflow-wrap: normal;
 }
 
-/* Selection colors match the notebook in both themes. */
-html[data-theme="dark"] ::selection,
-html[data-theme="dark"] .todo-item.is-starred .todo-input::selection,
-html[data-theme="dark"] .today-focus-item .today-focus-input::selection {
-  background: color-mix(in srgb, var(--primary) 38%, transparent);
+/* Text selection shares the dialog accent while keeping each theme legible. */
+:root {
+  --selection-bg: #3976d2;
+  --selection-text: #fff;
+}
+html[data-theme="dark"] {
+  --selection-bg: #9cbcd5;
+  --selection-text: #111;
+}
+:is(.todo-input, .today-focus-input)::selection {
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
+  background: var(--selection-bg);
 }
 
 .space-panel .desk-paste-button,
