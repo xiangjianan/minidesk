@@ -7425,6 +7425,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   border-radius: 999px;
   transform: translate(-50%, -50%);
   background: transparent;
+  transition: background-color var(--motion-fast) ease;
 }
 .focus-now-divider:hover::before,
 .focus-now-divider:focus-visible::before {
@@ -7440,6 +7441,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   font-size: 20px;
   opacity: 0;
   pointer-events: none;
+  transition: opacity 160ms ease;
 }
 .focus-now-divider:hover::after,
 .focus-now-divider:focus-visible::after,
@@ -7653,22 +7655,10 @@ button.focus-now-divider {
   cursor: col-resize;
   border-radius: 0;
   overflow: visible;
+  background: linear-gradient(to right, transparent calc(50% - 0.5px), var(--line-subtle) calc(50% - 0.5px), var(--line-subtle) calc(50% + 0.5px), transparent calc(50% + 0.5px));
 }
-.focus-now-divider::before {
-  top: 0;
-  width: 1px;
-  height: 100%;
-  border-radius: 0;
-  transform: translateX(-50%);
-  background: var(--line-subtle);
-}
-.focus-now-divider:hover::before,
-.focus-now-divider:focus-visible::before,
 .focus-now-divider:active::before {
-  background: linear-gradient(to bottom,
-    var(--line-subtle) 0 calc(50% - 44px),
-    color-mix(in srgb, var(--muted) 24%, transparent) calc(50% - 44px) calc(50% + 44px),
-    var(--line-subtle) calc(50% + 44px) 100%);
+  background: color-mix(in srgb, var(--muted) 40%, transparent);
 }
 .focus-now-divider::after { text-align: center; line-height: 20px; }
 .focus-now-notes { border: 0; border-radius: 0; padding: 0 18px 16px; background: transparent; }

@@ -8,6 +8,16 @@ function expectSelectorBody(styles: string, selector: string, text: string): voi
 }
 
 describe("workbench style contract", () => {
+  it("matches the focus divider handle to the workbench resizer", () => {
+    const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expectSelectorBody(styles, "button.focus-now-divider", "var(--line-subtle)");
+    expectSelectorBody(styles, ".focus-now-divider::before", "width: 3px; height: 88px");
+    expectSelectorBody(desk, ".workbench-shell .workbench-resizer::before", "width: 3px; height: 88px");
+    expectSelectorBody(styles, ".focus-now-divider::after", 'content: "‹ ›"');
+    expectSelectorBody(styles, ".focus-now-divider:active::before", "var(--muted) 40%");
+  });
+
   it("keeps image sorting motion above the workbench hover transition", () => {
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
     for (const phase of ["move", "enter-active", "leave-active"]) {
