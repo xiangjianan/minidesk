@@ -2120,7 +2120,7 @@ describe("TextPanel", () => {
     const textarea = wrapper.get("textarea").element;
     textarea.focus();
     textarea.setSelectionRange(2, 4);
-    await wrapper.get("textarea").trigger("select");
+    await wrapper.get("textarea").trigger("selectionchange");
     expect(wrapper.get(".text-selection-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
     expect(wrapper.findAll(".text-selection-mirror .mark-highlight-amber:not(.is-selected)").map((item) => item.text())).toEqual(["b", "e"]);
     textarea.setSelectionRange(4, 4);

@@ -160,10 +160,19 @@ function handleTextDragEnd(): void {
   handleDragLeaveClear();
 }
 
-onMounted(exclusiveMenu.mount);
+function syncActiveSelection(): void {
+  const textarea = textareaRef.value;
+  if (textarea && document.activeElement === textarea) syncVisibleSelection(textarea);
+}
+
+onMounted(() => {
+  exclusiveMenu.mount();
+  document.addEventListener("selectionchange", syncActiveSelection);
+});
 onUnmounted(() => {
   isUnmounted = true;
   clearTextDragPreview();
+  document.removeEventListener("selectionchange", syncActiveSelection);
   exclusiveMenu.unmount();
 });
 
@@ -1242,6 +1251,7 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
         @wheel="handleTextareaWheel"
         @scroll="syncMirrorScroll"
         @select="rememberSelection"
+        @selectionchange="syncActiveSelection"
         @click="startEditing"
         @dblclick="startEditing"
         @focus="handleFocus"

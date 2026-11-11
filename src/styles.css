@@ -7139,11 +7139,11 @@ button.mobile-inbox-revoked-change {
 .text-selection-mirror { z-index: 2; color: transparent; }
 .text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
 .text-selection-mirror .is-selected[class*="mark-highlight-"] { color: #fff !important; border-radius: 0; }
-.text-selection-mirror .is-selected.mark-highlight-amber { background: #9a6700 !important; }
-.text-selection-mirror .is-selected.mark-highlight-rose { background: #b83e50 !important; }
-.text-selection-mirror .is-selected.mark-highlight-green { background: #28783f !important; }
-.text-selection-mirror .is-selected.mark-highlight-blue { background: #2164a5 !important; }
-.text-selection-mirror .is-selected.mark-highlight-violet { background: #8046a6 !important; }
+.text-selection-mirror .is-selected.mark-highlight-amber { background: linear-gradient(var(--mark-highlight-amber), var(--mark-highlight-amber)), var(--card) !important; }
+.text-selection-mirror .is-selected.mark-highlight-rose { background: linear-gradient(var(--mark-highlight-rose), var(--mark-highlight-rose)), var(--card) !important; }
+.text-selection-mirror .is-selected.mark-highlight-green { background: linear-gradient(var(--mark-highlight-green), var(--mark-highlight-green)), var(--card) !important; }
+.text-selection-mirror .is-selected.mark-highlight-blue { background: linear-gradient(var(--mark-highlight-blue), var(--mark-highlight-blue)), var(--card) !important; }
+.text-selection-mirror .is-selected.mark-highlight-violet { background: linear-gradient(var(--mark-highlight-violet), var(--mark-highlight-violet)), var(--card) !important; }
 
 .text-mirror .mark-strike {
   text-decoration: line-through;
