@@ -7697,8 +7697,8 @@ button.focus-now-divider {
   --dialog-neutral: #f8fafc;
   --dialog-neutral-hover: #edf3f8;
   --dialog-border: #dfe8ef;
-  --dialog-primary: #426fbe;
-  --dialog-primary-hover: #385fa5;
+  --dialog-primary: #3976d2;
+  --dialog-primary-hover: #3068bd;
   --dialog-primary-text: #fff;
   --dialog-danger-bg: #fff1f0;
   --dialog-danger-hover: #ffe4e1;
@@ -7714,6 +7714,11 @@ html[data-theme="dark"] {
   --dialog-danger-bg: #49302f;
   --dialog-danger-hover: #5a3937;
   --dialog-danger-border: #a86661;
+}
+.n-modal .n-checkbox {
+  --n-color-checked: var(--dialog-primary) !important;
+  --n-border-checked: 1px solid var(--dialog-primary) !important;
+  --n-check-mark-color: var(--dialog-primary-text) !important;
 }
 :is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button {
   --n-border-radius: var(--dialog-radius) !important;
