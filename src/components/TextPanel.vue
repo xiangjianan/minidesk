@@ -75,7 +75,7 @@ const selectionMirrorRef = ref<HTMLElement | null>(null);
 const baseMirrorSegments = computed(() => buildMirrorSegments(text.value, editorMarks.value));
 const visibleSelection = ref<{ start: number; end: number } | null>(null);
 const mirrorSegments = computed(() => {
-  const selection = focused.value ? visibleSelection.value : null;
+  const selection = visibleSelection.value;
   let offset = 0;
   return baseMirrorSegments.value.flatMap((segment) => {
     const start = offset;
@@ -561,7 +561,7 @@ function handleFocus(event: FocusEvent): void {
 
 function handleBlur(event: FocusEvent): void {
   focused.value = false;
-  visibleSelection.value = null;
+  syncVisibleSelection(event.currentTarget as HTMLTextAreaElement);
   if (editing.value) update();
   editing.value = false;
   emit("blur", event.currentTarget as HTMLElement);

@@ -7138,7 +7138,15 @@ button.mobile-inbox-revoked-change {
 
 .text-selection-mirror { z-index: 2; color: transparent; }
 .text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
-.text-selection-mirror .is-selected[class*="mark-highlight-"] { color: #fff !important; border-radius: 0; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"] { color: var(--text) !important; border-radius: 0; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-amber { color: var(--mark-text-amber) !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-rose { color: var(--mark-text-rose) !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-green { color: var(--mark-text-green) !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-blue { color: var(--mark-text-blue) !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-text-violet { color: var(--mark-text-violet) !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-strike { text-decoration: line-through !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-underline { text-decoration: underline !important; }
+.text-selection-mirror .is-selected[class*="mark-highlight-"].mark-strike.mark-underline { text-decoration: underline line-through !important; }
 .text-selection-mirror .is-selected.mark-highlight-amber { background: linear-gradient(var(--mark-highlight-amber), var(--mark-highlight-amber)), var(--card) !important; }
 .text-selection-mirror .is-selected.mark-highlight-rose { background: linear-gradient(var(--mark-highlight-rose), var(--mark-highlight-rose)), var(--card) !important; }
 .text-selection-mirror .is-selected.mark-highlight-green { background: linear-gradient(var(--mark-highlight-green), var(--mark-highlight-green)), var(--card) !important; }

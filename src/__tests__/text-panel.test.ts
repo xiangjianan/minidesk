@@ -2115,6 +2115,7 @@ describe("TextPanel", () => {
       attachTo: document.body,
       props: { titleId: "title", title: "笔记", lines: [{ text: "abcdef", indent: 0, marks: [
         { type: "highlight", start: 1, end: 5, color: "amber" },
+        { type: "color", start: 1, end: 5, color: "rose" },
       ] }] },
     });
     const textarea = wrapper.get("textarea").element;
@@ -2122,7 +2123,12 @@ describe("TextPanel", () => {
     textarea.setSelectionRange(2, 4);
     await wrapper.get("textarea").trigger("selectionchange");
     expect(wrapper.get(".text-selection-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
+    expect(wrapper.get(".text-selection-mirror .is-selected.mark-highlight-amber").classes()).toContain("mark-text-rose");
     expect(wrapper.findAll(".text-selection-mirror .mark-highlight-amber:not(.is-selected)").map((item) => item.text())).toEqual(["b", "e"]);
+    textarea.blur();
+    await wrapper.vm.$nextTick();
+    expect(wrapper.get(".text-selection-mirror .is-selected.mark-highlight-amber").text()).toBe("cd");
+    textarea.focus();
     textarea.setSelectionRange(4, 4);
     await wrapper.get("textarea").trigger("select");
     expect(wrapper.find(".text-mirror .is-selected").exists()).toBe(false);
