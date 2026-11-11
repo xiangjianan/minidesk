@@ -7153,6 +7153,17 @@ button.mobile-inbox-revoked-change {
 .text-selection-mirror .is-selected.mark-highlight-blue { background: linear-gradient(var(--mark-highlight-blue), var(--mark-highlight-blue)), var(--card) !important; }
 .text-selection-mirror .is-selected.mark-highlight-violet { background: linear-gradient(var(--mark-highlight-violet), var(--mark-highlight-violet)), var(--card) !important; }
 
+/* 浅色主题下选中高亮时稍微淡化原色，并保留不透明底层遮住蓝色选区。 */
+html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"] {
+  color: #fff !important;
+  background: linear-gradient(var(--selected-highlight), var(--selected-highlight)), var(--card) !important;
+}
+html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-amber { --selected-highlight: color-mix(in srgb, var(--mark-highlight-amber) 80%, transparent); }
+html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-rose { --selected-highlight: color-mix(in srgb, var(--mark-highlight-rose) 80%, transparent); }
+html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-green { --selected-highlight: color-mix(in srgb, var(--mark-highlight-green) 80%, transparent); }
+html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-blue { --selected-highlight: color-mix(in srgb, var(--mark-highlight-blue) 80%, transparent); }
+html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-violet { --selected-highlight: color-mix(in srgb, var(--mark-highlight-violet) 80%, transparent); }
+
 .text-mirror .mark-strike {
   text-decoration: line-through;
 }
