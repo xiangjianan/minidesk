@@ -5162,6 +5162,8 @@ button.quick-button {
   line-height: 1.2;
   font-variant-numeric: tabular-nums;
   pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 /* Animate tag groups sliding into place when the tag list is reordered. */
