@@ -7715,6 +7715,9 @@ html[data-theme="dark"] {
   --dialog-danger-hover: #5a3937;
   --dialog-danger-border: #a86661;
 }
+.n-checkbox {
+  --n-box-shadow-focus: none !important;
+}
 .n-modal .n-checkbox {
   --n-color-checked: var(--dialog-primary) !important;
   --n-border-checked: 1px solid var(--dialog-primary) !important;
