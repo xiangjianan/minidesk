@@ -530,11 +530,13 @@ describe("workbench style contract", () => {
     expectSelectorBody(styles, ".text-mirror", "position: absolute");
     expectSelectorBody(styles, ".text-mirror", "pointer-events: none");
     // 选区由输入层绘制，文字和背景使用主题对应的颜色。
-    expectSelectorBody(styles, ".text-editor-textarea::selection", "color: #fff");
+    expectSelectorBody(styles, ".text-editor-textarea::selection", "color: var(--selection-text)");
     expectSelectorBody(styles, ".text-editor-textarea::selection", "background: var(--selection-bg)");
     expectSelectorBody(styles, "::selection", "background: var(--selection-bg)");
     expectSelectorBody(styles, 'html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"]', "color: var(--text)");
     expectSelectorBody(styles, 'html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"]', "var(--selected-highlight)");
+    expectSelectorBody(styles, 'html[data-theme="dark"] .text-selection-mirror .is-selected[class*="mark-highlight-"]', "color: #fff");
+    expectSelectorBody(styles, 'html[data-theme="dark"] .text-selection-mirror .is-selected[class*="mark-highlight-"]', "var(--selected-highlight)");
   });
 
   it("never paints the focus ring on quick add buttons after dialog focus restore", () => {

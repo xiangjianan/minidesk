@@ -7127,8 +7127,8 @@ button.mobile-inbox-revoked-change {
 
 /* 普通选区由输入框直接绘制，避免拖选时镜像层更新带来的闪烁。 */
 .text-editor-textarea::selection {
-  color: #fff;
-  -webkit-text-fill-color: #fff;
+  color: var(--selection-text);
+  -webkit-text-fill-color: var(--selection-text);
   background: var(--selection-bg);
 }
 
@@ -7159,6 +7159,17 @@ html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-rose { --se
 html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-green { --selected-highlight: color-mix(in srgb, var(--mark-highlight-green) 80%, transparent); }
 html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-blue { --selected-highlight: color-mix(in srgb, var(--mark-highlight-blue) 80%, transparent); }
 html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-violet { --selected-highlight: color-mix(in srgb, var(--mark-highlight-violet) 80%, transparent); }
+
+/* 暗色主题保留高亮色相，稍微提亮，并让选中高亮文字统一为白色。 */
+html[data-theme="dark"] .text-selection-mirror .is-selected[class*="mark-highlight-"] {
+  color: #fff !important;
+  background: linear-gradient(rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.06)), linear-gradient(var(--selected-highlight), var(--selected-highlight)), var(--card) !important;
+}
+html[data-theme="dark"] .text-selection-mirror .mark-highlight-amber { --selected-highlight: var(--mark-highlight-amber); }
+html[data-theme="dark"] .text-selection-mirror .mark-highlight-rose { --selected-highlight: var(--mark-highlight-rose); }
+html[data-theme="dark"] .text-selection-mirror .mark-highlight-green { --selected-highlight: var(--mark-highlight-green); }
+html[data-theme="dark"] .text-selection-mirror .mark-highlight-blue { --selected-highlight: var(--mark-highlight-blue); }
+html[data-theme="dark"] .text-selection-mirror .mark-highlight-violet { --selected-highlight: var(--mark-highlight-violet); }
 
 .text-mirror .mark-strike {
   text-decoration: line-through;
