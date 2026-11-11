@@ -7155,7 +7155,7 @@ button.mobile-inbox-revoked-change {
 
 /* 浅色主题下选中高亮时稍微淡化原色，并保留不透明底层遮住蓝色选区。 */
 html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"] {
-  color: #fff !important;
+  color: var(--text) !important;
   background: linear-gradient(var(--selected-highlight), var(--selected-highlight)), var(--card) !important;
 }
 html:not([data-theme="dark"]) .text-selection-mirror .mark-highlight-amber { --selected-highlight: color-mix(in srgb, var(--mark-highlight-amber) 80%, transparent); }

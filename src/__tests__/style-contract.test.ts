@@ -532,7 +532,7 @@ describe("workbench style contract", () => {
     // 选区由输入层绘制，文字和背景使用主题对应的颜色。
     expectSelectorBody(styles, ".text-editor-textarea::selection", "color: #fff");
     expectSelectorBody(styles, ".text-editor-textarea::selection", "background: color-mix(in srgb, var(--selection-bg) 82%, transparent)");
-    expectSelectorBody(styles, 'html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"]', "color: #fff");
+    expectSelectorBody(styles, 'html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"]', "color: var(--text)");
     expectSelectorBody(styles, 'html:not([data-theme="dark"]) .text-selection-mirror .is-selected[class*="mark-highlight-"]', "var(--selected-highlight)");
   });
 
