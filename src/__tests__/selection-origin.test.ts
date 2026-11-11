@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { guardSelectionOrigin } from '../utils/selectionOrigin';
 
 describe('selection drag origin', () => {
-  it('clears notebook and reminder selections on blank workbench clicks, while preserving menu interactions', () => {
-    document.body.innerHTML = '<main class="workbench-shell"><textarea class="text-editor-textarea">notebook</textarea><input class="todo-input" value="reminder"><div class="blank"></div><button><span class="icon"></span></button></main>';
+  it('clears selections on other clicks, including after focus leaves the editor, while preserving context menus', () => {
+    document.body.innerHTML = '<main class="workbench-shell"><textarea class="text-editor-textarea">notebook</textarea><input class="todo-input" value="reminder"><div class="blank"></div><button><span class="icon"></span></button><div class="n-dropdown-menu"><div role="menuitem">Copy</div></div></main>';
     guardSelectionOrigin(document);
     const blank = document.querySelector('.blank')!;
     const icon = document.querySelector('.icon')!;
@@ -12,13 +12,19 @@ describe('selection drag origin', () => {
       field.setSelectionRange(1, 4);
       let selects = 0;
       field.addEventListener('select', () => selects++);
-      icon.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
+      field.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
       expect([field.selectionStart, field.selectionEnd]).toEqual([1, 4]);
       blank.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 2 }));
       expect([field.selectionStart, field.selectionEnd]).toEqual([1, 4]);
+      document.querySelector('[role="menuitem"]')!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
+      expect([field.selectionStart, field.selectionEnd]).toEqual([1, 4]);
+      icon.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
+      expect([field.selectionStart, field.selectionEnd]).toEqual([1, 1]);
+      field.setSelectionRange(1, 4);
+      (icon.parentElement as HTMLButtonElement).focus();
       blank.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0 }));
       expect([field.selectionStart, field.selectionEnd]).toEqual([1, 1]);
-      expect(selects).toBe(1);
+      expect(selects).toBe(2);
     }
     document.body.innerHTML = '';
   });

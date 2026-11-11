@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import TextPanel from "../components/TextPanel.vue";
+import { guardSelectionOrigin } from "../utils/selectionOrigin";
 import type { PolishResult } from "../sync/polishClient";
 import type { LineItem } from "../types";
 import { menuDropdownStub } from "./helpers/menu-dropdown-stub";
@@ -2133,6 +2134,29 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("select");
     expect(wrapper.find(".text-mirror .is-selected").exists()).toBe(false);
     wrapper.unmount();
+  });
+
+  it("clears the highlighted selection mirror when another control is pressed", async () => {
+    guardSelectionOrigin(document);
+    const button = document.createElement("button");
+    document.body.appendChild(button);
+    const wrapper = mount(TextPanel, {
+      attachTo: document.body,
+      props: { titleId: "title", title: "笔记", lines: [{ text: "abcdef", indent: 0, marks: [
+        { type: "highlight", start: 1, end: 5, color: "amber" },
+      ] }] },
+    });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(2, 4);
+    await wrapper.get("textarea").trigger("select");
+    expect(wrapper.find(".text-selection-mirror .is-selected").exists()).toBe(true);
+    button.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, button: 0 }));
+    await wrapper.vm.$nextTick();
+    expect([textarea.selectionStart, textarea.selectionEnd]).toEqual([2, 2]);
+    expect(wrapper.find(".text-selection-mirror .is-selected").exists()).toBe(false);
+    wrapper.unmount();
+    button.remove();
   });
 
   it("textarea 滚动时镜像层同步 scrollTop", async () => {
