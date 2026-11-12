@@ -7596,7 +7596,8 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
 }
 
 :root :is(.todo-heading, .quick-tag-heading, .space-tab).is-sort-drop-target,
-:root :is(.todo-section, .quick-tag-group).drag-hover > :is(.todo-heading, .quick-tag-heading) {
+:root .todo-section.is-collapsed.drag-hover > .todo-heading,
+:root .quick-tag-group.drag-hover:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading {
   background: color-mix(in srgb, var(--line-focus) 12%, var(--card));
   outline: 2px solid var(--line-focus);
   outline-offset: -2px;
@@ -7809,6 +7810,18 @@ html[data-theme="dark"] {
   --n-text-color-pressed: var(--danger) !important;
   --n-text-color-focus: var(--danger) !important;
   color: var(--danger) !important;
+}
+/* Match the reminder time picker's clear action, including Naive's button chrome. */
+.companion-actions > .n-button.is-danger {
+  background: var(--dialog-danger-bg) !important;
+  border: 1px solid var(--dialog-danger-border) !important;
+  color: var(--danger) !important;
+}
+.companion-actions > .n-button.is-danger:hover {
+  background: var(--dialog-danger-hover) !important;
+}
+.companion-actions > .n-button.is-danger :is(.n-button__border, .n-button__state-border) {
+  border-color: transparent !important;
 }
 :is(.dialog-actions, .workspace-inbox-footer, .support-footer, .companion-actions) > .n-button.n-button--disabled {
   --n-color-disabled: var(--dialog-neutral) !important;
