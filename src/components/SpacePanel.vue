@@ -20,6 +20,7 @@ import type { AppLanguage, GuideKey, LineItem, WorkspaceMoveTarget, WorkspaceSpa
 import { getUiText } from "../state/i18n";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
 import { renderIcon, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
+import { appendContinuingListFormat } from "../utils/textEditor";
 import { isImeComposing } from "../utils/ime";
 import type { PolishKind, PolishResult, PolishStyle } from "../sync/polishClient";
 import type { SmartPastePhase } from "../utils/smartPaste";
@@ -61,6 +62,7 @@ const titleComposing = ref(false);
 const draggedSpaceId = ref<string | null>(null);
 // 提醒事项拖到笔记本上时高亮整个面板；只在待办拖拽（application/x-todo-id）时生效。
 const todoDropHover = ref(false);
+const dragHoverTabId = ref<string | null>(null);
 const suppressTabCommitTransition = ref(false);
 const menu = ref<{ x: number; y: number; spaceId: string; anchor?: HTMLElement } | null>(null);
 const textPanelRef = ref<{ focusEditor: () => void; appendSmartPaste: () => Promise<void>; appendPaste: () => Promise<void>; scrollToEnd: () => void } | null>(null);
@@ -203,6 +205,8 @@ function cancelEditingForTab(id: string): void {
 
 function activateTab(id: string): void {
   cancelEditingForTab(id);
+  closeMenu();
+  exclusiveMenu.notifyOpen();
   emit("activate", id);
 }
 
@@ -292,8 +296,19 @@ function handleDragStart(event: DragEvent, id: string): void {
 
 function handleDrop(event: DragEvent, id: string): void {
   const dragId = draggedSpaceId.value;
-  // 非空间排序的落点（如提醒事项拖入）不拦截，交给面板级的 drop 处理。
-  if (!dragId || dragId === id) return;
+  dragHoverTabId.value = null;
+  if (!dragId) {
+    const transfer = event.dataTransfer;
+    const text = transfer?.getData("application/x-todo-text") || transfer?.getData("application/x-quick-text") || transfer?.getData("text/plain");
+    const space = props.spaces.find((item) => item.id === id);
+    if (!text?.trim() || !space) return;
+    event.preventDefault();
+    event.stopPropagation();
+    emit("update", id, appendContinuingListFormat(space.lines, text));
+    todoDropHover.value = false;
+    return;
+  }
+  if (dragId === id) return;
   event.preventDefault();
   event.stopPropagation();
   emit("reorder", dragId, id);
@@ -390,7 +405,7 @@ onUnmounted(() => disposeSort?.());
               v-if="editingSpaceId !== space.id"
               :key="space.id"
               class="space-tab"
-              :class="{ 'is-active': space.id === activeSpaceId, 'is-dragging': draggedSpaceId === space.id }"
+              :class="{ 'is-active': space.id === activeSpaceId, 'is-dragging': draggedSpaceId === space.id, 'is-sort-drop-target': dragHoverTabId === space.id }"
               type="button"
               role="tab"
               draggable="true"
@@ -402,7 +417,8 @@ onUnmounted(() => disposeSort?.());
               @contextmenu.stop.prevent="openTabMenu($event, space.id)"
               @dragstart="handleDragStart($event, space.id)"
               @dragend="draggedSpaceId = null"
-              @dragover.prevent
+              @dragover.prevent="dragHoverTabId = !draggedSpaceId && Array.from($event.dataTransfer?.types ?? []).some(type => ['text/plain', 'application/x-todo-text', 'application/x-quick-text'].includes(type)) ? space.id : null"
+              @dragleave="dragHoverTabId = null"
               @drop="handleDrop($event, space.id)"
             >
               {{ space.title }}

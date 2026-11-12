@@ -75,9 +75,12 @@ export function createSortGap(source: HTMLElement, selector: string) {
   function update(root: HTMLElement, x: number, y: number) {
     clearCollapsedTarget();
     const hit = document.elementFromPoint?.(x, y);
+    const groupSelector = selector === '.todo-item' ? '.todo-section' : selector === '.quick-button' ? '.quick-tag-group' : '';
+    const gapGroup = groupSelector ? gap.closest(groupSelector) : null;
+    gap.style.display = gapGroup && !gapGroup.contains(hit) ? 'none' : '';
     if (!root.contains(hit)) return;
     // Enter a closed group only through its actually hit, visible heading.
-    // Keep the source gap visible; the heading highlights the destination.
+    // Hide the previous gap while the heading highlights the destination.
     const hitHeading = selector === '.todo-item'
       ? hit?.closest<HTMLElement>('.todo-section.is-collapsed > .todo-heading')
       : selector === '.quick-button'

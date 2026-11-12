@@ -27,6 +27,7 @@ import {
 const props = withDefaults(defineProps<{
   title: string;
   saveStatusLabel: string;
+  crowded?: boolean;
   language?: AppLanguage;
   assetsTitle?: string;
   notesTitle?: string;
@@ -40,6 +41,7 @@ const props = withDefaults(defineProps<{
   inboxSyncEnabled?: boolean;
   inboxSyncing?: boolean;
 }>(), {
+  crowded: false,
   language: DEFAULT_LANGUAGE,
   assetsTitle: "",
   notesTitle: "",
@@ -129,7 +131,7 @@ let observedGridWidth = 0;
 // header 的 200ms 离场过渡会把导航栏画在屏幕上（刷新闪现）。
 // readStoredHeaderHidden 是函数声明，提升后可在此直接调用。
 const headerHidden = ref(readStoredHeaderHidden());
-const showEmptyWorkbench = computed(() => headerHidden.value && !Object.values(props.zoneVisibility).some(Boolean));
+const showEmptyWorkbench = computed(() => props.crowded && headerHidden.value && !Object.values(props.zoneVisibility).some(Boolean));
 const headerHideButton = ref<HTMLButtonElement | null>(null);
 const headerRevealPosition = ref({ right: "126px", top: "10px" });
 const columnWidths = ref<number[]>([]);

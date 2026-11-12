@@ -714,6 +714,7 @@ function handleExternalQuickDrop(event: DragEvent, groupId: string): boolean {
   dragHoverGroupId.value = null;
   const text = readQuickDropText(event.dataTransfer);
   if (!text.trim()) return false;
+  if (groupedButtons.value.find((group) => group.id === groupId)?.collapsed) emit("toggleTagCollapsed", groupId);
   emit("save", buildQuickDropPayload(text, groupId));
   return true;
 }

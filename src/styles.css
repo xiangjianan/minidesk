@@ -7595,7 +7595,8 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   outline-offset: -1px;
 }
 
-:root :is(.todo-heading, .quick-tag-heading).is-sort-drop-target {
+:root :is(.todo-heading, .quick-tag-heading, .space-tab).is-sort-drop-target,
+:root :is(.todo-section, .quick-tag-group).drag-hover > :is(.todo-heading, .quick-tag-heading) {
   background: color-mix(in srgb, var(--line-focus) 12%, var(--card));
   outline: 2px solid var(--line-focus);
   outline-offset: -2px;
@@ -7886,3 +7887,6 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
   -webkit-user-select: none;
   user-select: none;
 }
+
+.import-conflict-actions { flex-wrap: wrap; }
+.import-conflict-actions > .n-button { flex: 1 0 auto; white-space: nowrap; }
