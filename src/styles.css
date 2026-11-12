@@ -3148,7 +3148,7 @@ button.companion-undo-button {
 
 .companion-popover-shell.n-popover.is-confirm-danger,
 .companion-popover-shell.n-popover.is-confirm-danger .companion-popover-arrow {
-  background: color-mix(in srgb, var(--popover) 50%, var(--dialog-danger-bg)) !important;
+  background: color-mix(in srgb, var(--popover) 25%, var(--dialog-danger-bg)) !important;
 }
 
 .companion-popover-shell.n-popover.is-replacing {
@@ -7141,6 +7141,10 @@ button.mobile-inbox-revoked-change {
 
 .text-selection-mirror { z-index: 2; color: transparent; }
 .text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
+/* 在线条镜像中保持字形透明，只将选中文字的线条绘制在原生蓝色选区之上。 */
+.text-selection-mirror .is-selected.mark-strike:not([class*="mark-highlight-"]) { text-decoration: line-through !important; text-decoration-color: var(--selection-text) !important; }
+.text-selection-mirror .is-selected.mark-underline:not([class*="mark-highlight-"]) { text-decoration: underline !important; text-decoration-color: var(--selection-text) !important; }
+.text-selection-mirror .is-selected.mark-strike.mark-underline:not([class*="mark-highlight-"]) { text-decoration: underline line-through !important; }
 /* 渐变高亮无法插值；底色和文字也同步切换，避免主题过渡时短暂露出错色。 */
 html.theme-switching .text-selection-mirror .is-selected[class*="mark-highlight-"] { transition: none !important; }
 .text-selection-mirror .is-selected[class*="mark-highlight-"] { color: var(--text) !important; border-radius: 0; }
