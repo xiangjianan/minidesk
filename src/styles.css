@@ -3148,7 +3148,7 @@ button.companion-undo-button {
 
 .companion-popover-shell.n-popover.is-confirm-danger,
 .companion-popover-shell.n-popover.is-confirm-danger .companion-popover-arrow {
-  background: color-mix(in srgb, var(--popover) 25%, var(--dialog-danger-bg)) !important;
+  background: var(--dialog-danger-bg) !important;
 }
 
 .companion-popover-shell.n-popover.is-replacing {
