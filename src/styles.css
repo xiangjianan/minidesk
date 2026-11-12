@@ -7912,3 +7912,57 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
 
 .import-conflict-actions { flex-wrap: wrap; }
 .import-conflict-actions > .n-button { flex: 1 0 auto; white-space: nowrap; }
+
+/* 图片预览与编辑工具栏中的圆形玻璃按钮。 */
+.preview-toolbar-button,
+.image-editor--preview :is(.image-editor-tool, .image-editor-reset) {
+  flex: 0 0 auto;
+  padding: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--material-elevated) 30%, transparent);
+}
+.preview-toolbar-button:hover:not(:disabled),
+.preview-toolbar-button:focus-visible,
+.image-editor--preview :is(.image-editor-tool, .image-editor-reset):hover:not(:disabled),
+.image-editor--preview :is(.image-editor-tool, .image-editor-reset):focus-visible {
+  background: color-mix(in srgb, var(--material-elevated) 55%, transparent);
+}
+.image-editor--preview .image-editor-tool.is-active {
+  background: color-mix(in srgb, var(--line-focus) 25%, transparent);
+}
+.image-editor--preview .image-editor-actions > :is(.image-editor-cancel, .image-editor-save) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--material-elevated) 35%, transparent);
+  color: var(--text);
+}
+.image-editor--preview .image-editor-actions > :is(.image-editor-cancel, .image-editor-save):hover {
+  background: color-mix(in srgb, var(--material-elevated) 60%, transparent);
+}
+.image-editor--preview .image-editor-actions > .image-editor-save {
+  border-color: color-mix(in srgb, var(--line-focus) 70%, transparent);
+  background: color-mix(in srgb, var(--line-focus) 22%, transparent);
+  color: var(--text);
+}
+.image-editor--preview .image-editor-actions > .image-editor-save:hover {
+  background: color-mix(in srgb, var(--line-focus) 35%, transparent);
+}
+@media (prefers-reduced-transparency: reduce) {
+  .preview-toolbar-button,
+  .image-editor--preview :is(.image-editor-tool, .image-editor-reset),
+  .image-editor--preview .image-editor-actions > :is(.image-editor-cancel, .image-editor-save) {
+    background: var(--card);
+  }
+}
+.image-editor--preview .image-editor-color {
+  flex: 0 0 22px;
+  border-radius: 50%;
+}
