@@ -7914,15 +7914,16 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
 .import-conflict-actions > .n-button { flex: 1 0 auto; white-space: nowrap; }
 
 /* 图片预览与编辑工具栏中的圆形玻璃按钮。 */
-.preview-toolbar-button,
+button.preview-toolbar-button,
 .image-editor--preview :is(.image-editor-tool, .image-editor-reset) {
   flex: 0 0 auto;
   padding: 0;
   border-radius: 50%;
   background: color-mix(in srgb, var(--material-elevated) 30%, transparent);
 }
-.preview-toolbar-button:hover:not(:disabled),
-.preview-toolbar-button:focus-visible,
+button.preview-toolbar-button { background: transparent; }
+button.preview-toolbar-button:hover:not(:disabled),
+button.preview-toolbar-button:focus-visible:not(:disabled),
 .image-editor--preview :is(.image-editor-tool, .image-editor-reset):hover:not(:disabled),
 .image-editor--preview :is(.image-editor-tool, .image-editor-reset):focus-visible {
   background: color-mix(in srgb, var(--material-elevated) 55%, transparent);
@@ -7934,13 +7935,13 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  flex: 0 0 44px;
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  padding: 0;
-  border-radius: 50%;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 52px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
   background: color-mix(in srgb, var(--material-elevated) 35%, transparent);
   color: var(--text);
 }
@@ -7956,7 +7957,6 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
   background: color-mix(in srgb, var(--line-focus) 35%, transparent);
 }
 @media (prefers-reduced-transparency: reduce) {
-  .preview-toolbar-button,
   .image-editor--preview :is(.image-editor-tool, .image-editor-reset),
   .image-editor--preview .image-editor-actions > :is(.image-editor-cancel, .image-editor-save) {
     background: var(--card);
@@ -7964,5 +7964,15 @@ html.selection-outside-todos :is(.todo-input, .today-focus-input) {
 }
 .image-editor--preview .image-editor-color {
   flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
   border-radius: 50%;
+}
+@media (prefers-reduced-transparency: reduce) {
+  button.preview-toolbar-button { background: transparent !important; }
+  button.preview-toolbar-button:hover:not(:disabled),
+  button.preview-toolbar-button:focus-visible:not(:disabled) { background: var(--card) !important; }
 }
