@@ -456,11 +456,9 @@ describe("workbench style contract", () => {
     expect(space).not.toContain("polish-menu-flow");
     expectSelectorBody(desk, ".workbench-shell .desk-ai-button", "color: var(--muted)");
     expectSelectorBody(desk, ".workbench-shell .desk-ai-button:hover", "color: var(--primary)");
-    // 悬浮动效：便签头部智能粘贴入口
-    // 图标循环变色、文字渐变滚动；平时保持中性灰。
-    expect(desk).toContain("@keyframes smart-paste-icon-flow");
-    expectSelectorBody(desk, ".workbench-shell .desk-ai-button:hover .n-icon", "animation: smart-paste-icon-flow 4.8s linear infinite");
-    expectSelectorBody(desk, ".workbench-shell .desk-smart-paste:hover > span", "animation: starred-text-flow 4.8s linear infinite");
+    // Hover feedback stays consistent with the other workbench controls.
+    expect(desk).not.toContain("@keyframes smart-paste-icon-flow");
+    expect(desk).not.toContain(".workbench-shell .desk-smart-paste:hover > span");
     // 智能粘贴使用带星星的共享剪贴板图标。
     expect(text).toContain('key: "smart-paste", disabled: !menu.value?.canPaste, icon: renderIcon(SmartPasteIcon)');
     expect(todo).not.toContain("ColorWandOutline");
