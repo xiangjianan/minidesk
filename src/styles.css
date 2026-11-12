@@ -7588,9 +7588,7 @@ body:has(.image-preview) .n-modal-container:has(.focus-now-modal) .n-modal-mask 
   outline-offset: -1px;
 }
 
-:root :is(.todo-heading, .quick-tag-heading, .space-tab).is-sort-drop-target,
-:root .todo-section.is-collapsed.drag-hover > .todo-heading,
-:root .quick-tag-group.drag-hover:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading {
+:root :is(.todo-heading, .quick-tag-heading, .space-tab).is-sort-drop-target {
   background: color-mix(in srgb, var(--line-focus) 12%, var(--card));
   outline: none;
   box-shadow: inset 0 0 0 2px var(--line-focus);

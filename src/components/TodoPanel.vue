@@ -2237,6 +2237,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
       >
         <div
           class="todo-heading"
+          :class="{ 'is-sort-drop-target': list.collapsed && dragHoverListId === list.id }"
           :draggable="!isListTitleEditing(list.id)"
           @contextmenu="openHeadingActions($event, list.id)"
           @dragstart="handleListDragStart($event, list.id)"
