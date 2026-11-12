@@ -3146,6 +3146,11 @@ button.companion-undo-button {
   transition: opacity 0.26s ease, transform 0.26s ease;
 }
 
+.companion-popover-shell.n-popover.is-confirm-danger,
+.companion-popover-shell.n-popover.is-confirm-danger .companion-popover-arrow {
+  background: color-mix(in srgb, var(--popover) 50%, var(--dialog-danger-bg)) !important;
+}
+
 .companion-popover-shell.n-popover.is-replacing {
   transition-duration: 0.18s;
 }
