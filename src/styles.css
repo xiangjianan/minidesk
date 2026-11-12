@@ -1121,6 +1121,7 @@ button.image-card {
   flex-direction: column;
   flex-shrink: 0;
   gap: 0;
+  transition: background-color var(--motion-fast) ease;
 }
 
 .quick-tag-content {
@@ -1131,7 +1132,8 @@ button.image-card {
   opacity: 1;
   transition:
     grid-template-rows var(--motion-medium) var(--motion-ease),
-    opacity var(--motion-fast) ease;
+    opacity var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
 }
 
 .quick-tag-clip {
@@ -1174,6 +1176,12 @@ button.image-card {
   line-height: 1.4;
   cursor: grab;
   user-select: none;
+}
+
+:is(.todo-heading, .quick-tag-heading) {
+  outline: 2px solid transparent;
+  outline-offset: -2px;
+  transition: outline-color var(--motion-fast) ease, background-color var(--motion-fast) ease;
 }
 
 .quick-tag-heading.is-static {
@@ -1777,7 +1785,8 @@ button.quick-button {
   overflow: hidden;
   transition:
     grid-template-rows var(--motion-medium) var(--motion-ease),
-    opacity var(--motion-fast) ease;
+    opacity var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
 }
 
 .todo-list-shell.is-hidden {
