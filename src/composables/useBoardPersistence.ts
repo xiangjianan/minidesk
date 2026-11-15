@@ -20,6 +20,8 @@ export interface BoardPersistenceDeps {
   onBeforeSave: () => void;
   /** Conflict path: show the toast + mark dirty. */
   onConflict: () => void;
+  /** The browser rejected a write; leave edits pending for a later retry. */
+  onSaveError: (error: unknown) => void;
   /** Save succeeded: merge visible images when the save merged cross-tab state. */
   onMerged: (savedImages: unknown[]) => void;
   /** Save succeeded: broadcast to other tabs. */
@@ -120,13 +122,21 @@ export function useBoardPersistence(deps: BoardPersistenceDeps) {
       textSaveTimer.value = undefined;
       flushTodoSave();
     }
-    const result = saveStateWithConflictCheck(deps.state, {
-      clientId: deps.clientId,
-      force: options.force,
-      scope,
-      imagePlacement: options.imagePlacement,
-      imageReplacement: options.imageReplacement,
-    });
+    let result: ReturnType<typeof saveStateWithConflictCheck>;
+    try {
+      result = saveStateWithConflictCheck(deps.state, {
+        clientId: deps.clientId,
+        force: options.force,
+        scope,
+        imagePlacement: options.imagePlacement,
+        imageReplacement: options.imageReplacement,
+      });
+    } catch (error) {
+      window.clearTimeout(saveStatusTimer.value);
+      saveStatus.value = "dirty";
+      deps.onSaveError(error);
+      return false;
+    }
     if (result.status === "conflict") {
       window.clearTimeout(saveStatusTimer.value);
       saveStatus.value = "dirty";

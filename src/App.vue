@@ -194,6 +194,7 @@ const {
   clientId: syncClientId,
   onBeforeSave: recordUndoCheckpoint,
   onConflict: () => showToast("stateConflict"),
+  onSaveError: () => showBubbleText(uiText.value.app.storageSaveFailed, undefined, { force: true, hideCompanionAfter: true }, 8000),
   onMerged: (savedImages) => {
     activeWorkspace.value.images = mergeVisibleImages(savedImages as StoredImage[], activeWorkspace.value.images);
   },
