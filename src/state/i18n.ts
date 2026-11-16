@@ -875,6 +875,9 @@ export const UI_TEXT = {
       today: "今天",
       openLink: "打开提醒中的链接",
       notifyPresets: {
+        settings: "设置预设提醒时间",
+        hint: "设置常用时段，提醒将使用下一次到达的时间。",
+        reset: "恢复默认",
         relativeLabel: "稍后",
         timeLabel: "时段",
         in15m: "15 分钟",
@@ -1390,6 +1393,9 @@ export const UI_TEXT = {
       today: "Today",
       openLink: "Open link in reminder",
       notifyPresets: {
+        settings: "Set preset reminder times",
+        hint: "Choose your usual times. Reminders use the next occurrence.",
+        reset: "Restore defaults",
         relativeLabel: "Later",
         timeLabel: "Time",
         in15m: "15 min",

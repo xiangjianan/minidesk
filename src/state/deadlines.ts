@@ -56,23 +56,33 @@ export interface NotifyPreset {
  * still ahead, otherwise the same hour tomorrow. Picked presets commit
  * immediately; the user can still shift the date via the picker.
  */
-export function getNotifyPresets(now = new Date()): NotifyPreset[] {
+export const DEFAULT_NOTIFY_PRESET_TIMES = ["09:00", "12:00", "15:00", "18:00", "21:00"];
+
+export function normalizeNotifyPresetTimes(value: unknown): string[] {
+  if (!Array.isArray(value) || value.length !== 5 || !value.every((time) => typeof time === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time))) {
+    return [...DEFAULT_NOTIFY_PRESET_TIMES];
+  }
+  return [...value];
+}
+
+export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOTIFY_PRESET_TIMES): NotifyPreset[] {
+  const slots = normalizeNotifyPresetTimes(times).map((time) => time.split(":").map(Number));
   const inMinutes = (minutes: number): number => {
     const next = new Date(now.getTime() + minutes * 60 * 1000);
     next.setSeconds(0, 0);
     return next.getTime();
   };
 
-  const todayAt = (hour: number): number =>
-    new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, 0, 0, 0).getTime();
+  const todayAt = (hour: number, minute: number): number =>
+    new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0).getTime();
 
   // Today's slot while it is still ahead; a slot that has already arrived
   // (>= now, so exactly-at-the-hour counts as passed) rolls to tomorrow.
-  const nextAt = (hour: number): number => {
-    const today = todayAt(hour);
+  const nextAt = (hour: number, minute: number): number => {
+    const today = todayAt(hour, minute);
     return today > now.getTime()
       ? today
-      : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, hour, 0, 0, 0).getTime();
+      : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, hour, minute, 0, 0).getTime();
   };
 
   return [
@@ -81,11 +91,11 @@ export function getNotifyPresets(now = new Date()): NotifyPreset[] {
     { key: "in1h", group: "relative", at: inMinutes(60) },
     { key: "in2h", group: "relative", at: inMinutes(120) },
     { key: "in4h", group: "relative", at: inMinutes(240) },
-    { key: "at9", group: "time", at: nextAt(9) },
-    { key: "at12", group: "time", at: nextAt(12) },
-    { key: "at15", group: "time", at: nextAt(15) },
-    { key: "at18", group: "time", at: nextAt(18) },
-    { key: "at21", group: "time", at: nextAt(21) },
+    { key: "at9", group: "time", at: nextAt(slots[0][0], slots[0][1]) },
+    { key: "at12", group: "time", at: nextAt(slots[1][0], slots[1][1]) },
+    { key: "at15", group: "time", at: nextAt(slots[2][0], slots[2][1]) },
+    { key: "at18", group: "time", at: nextAt(slots[3][0], slots[3][1]) },
+    { key: "at21", group: "time", at: nextAt(slots[4][0], slots[4][1]) },
   ];
 }
 

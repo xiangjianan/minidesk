@@ -29,7 +29,7 @@ import {
   Trash2 as TrashOutline,
   EllipsisVertical,
 } from "lucide-vue-next";
-import { NDatePicker, NIcon } from "naive-ui";
+import { NDatePicker, NIcon, NModal, NButton } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
 import { DEFAULT_TODO_LISTS, GUIDE_MENU_OPTION } from "../state/defaults";
 import { LEGACY_TODO_TITLE_IDS } from "../state/storage";
@@ -38,6 +38,8 @@ import {
   getDefaultNotifyDateTimeValue,
   getNotifyDisplay,
   getNotifyPresets,
+  normalizeNotifyPresetTimes,
+  DEFAULT_NOTIFY_PRESET_TIMES,
   isValidNotifyAt,
   withDefaultNotifyTime,
   type NotifyDisplay,
@@ -75,6 +77,7 @@ import { computePanelColumnCount, normalizeTodoMaxColumns, TODO_COLUMN_LIMIT_OPT
 const props = withDefaults(defineProps<{
   todoLists?: TodoListConfig[];
   maxColumns?: number;
+  notifyPresetTimes?: string[];
   todos: TodoMap;
   titles: Record<string, string>;
   showCompleted?: TodoCompletedVisibility;
@@ -99,6 +102,7 @@ const emit = defineEmits<{
   deleteList: [listId: TodoListId, anchor?: HTMLElement];
   columnCountChange: [count: number];
   maxColumnsChange: [count: number];
+  notifyPresetTimesChange: [times: string[]];
   assignListColumn: [draggedId: TodoListId, targetColumn: number, anchorId: TodoListId | null, insertBefore: boolean];
   create: [period: TodoPeriod, afterId?: string];
   update: [period: TodoPeriod, id: string, text: string];
@@ -168,9 +172,11 @@ const notifyPicker = ref<{
 const notifyPickerDrafts = ref<Record<string, number>>({});
 // Quick deadline presets refresh each time the picker opens so the relative
 // durations and today-vs-tomorrow time slots stay current.
+const presetSettingsOpen = ref(false);
+const presetTimesDraft = ref<string[]>([]);
 const notifyPresets = computed(() => {
   if (!notifyPicker.value) return [];
-  return getNotifyPresets();
+  return getNotifyPresets(new Date(), props.notifyPresetTimes);
 });
 const relativeNotifyPresets = computed(() => notifyPresets.value.filter((preset) => preset.group === "relative"));
 const timeNotifyPresets = computed(() => notifyPresets.value.filter((preset) => preset.group === "time"));
@@ -344,6 +350,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
   const options: DropdownOption[] = [];
   const todo = getMenuTodo();
   if (!menu.value?.id) {
+    options.push({ label: uiText.value.todo.notifyPresets.settings, key: "preset-settings", icon: renderIcon(AlarmOutline) });
     options.push({ label: uiText.value.todo.newList, key: "create-list", icon: renderIcon(AddOutline) });
     options.push({ label: uiText.value.todo.clearAllCompleted, key: "clear-all-completed", icon: renderIcon(CheckmarkDoneOutline) });
   }
@@ -1483,6 +1490,12 @@ function handleFloatingEditorOutsidePointerDown(event: PointerEvent): void {
 async function handleMenuSelect(key: string): Promise<void> {
   if (!menu.value) return;
   const { period, id, anchor, target, x, y, pasteAtCaret, selection } = menu.value;
+  if (key === "preset-settings") {
+    presetTimesDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes);
+    presetSettingsOpen.value = true;
+    closeMenu();
+    return;
+  }
   if (key === "clear-all-completed") {
     closeMenu();
     emit("clearAllCompleted", anchor);
@@ -2552,7 +2565,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                 class="notify-panel-preset"
                 @click="confirmNotifyPicker(preset.at)"
               >
-                {{ uiText.todo.notifyPresets[preset.key] }}
+                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[timeNotifyPresets.indexOf(preset)] }}
               </button>
             </div>
           </div>
@@ -2572,6 +2585,20 @@ onUnmounted(() => focusRegionAnimation?.cancel());
       @confirm="(anchor, title, id) => id ? handleListTitleUpdate(id, title) : emit('createList', anchor, title)"
     />
 
+    <NModal v-model:show="presetSettingsOpen" preset="card" class="quick-dialog" :title="uiText.todo.notifyPresets.settings" style="width: min(400px, calc(100vw - 32px))">
+      <p>{{ uiText.todo.notifyPresets.hint }}</p>
+      <div class="notify-preset-settings">
+        <label v-for="(_, index) in presetTimesDraft" :key="index">
+          <span>{{ index + 1 }}</span>
+          <input v-model="presetTimesDraft[index]" type="time" :aria-label="`${uiText.todo.notifyPresets.timeLabel} ${index + 1}`">
+        </label>
+      </div>
+      <div class="notify-preset-settings-actions">
+        <NButton @click="presetTimesDraft = [...DEFAULT_NOTIFY_PRESET_TIMES]">{{ uiText.todo.notifyPresets.reset }}</NButton>
+        <NButton @click="presetSettingsOpen = false">{{ uiText.common.cancel }}</NButton>
+        <NButton type="primary" :disabled="presetTimesDraft.some((time) => !time)" @click="emit('notifyPresetTimesChange', [...presetTimesDraft]); presetSettingsOpen = false">{{ uiText.common.save }}</NButton>
+      </div>
+    </NModal>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="menuOptions"
       :polish-labels="true"
       @select="handleMenuSelect" @clickoutside="exclusiveMenu.handleClickOutside" />

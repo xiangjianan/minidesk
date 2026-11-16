@@ -4518,6 +4518,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         <TodoPanel
           :todo-lists="displayTodoLists"
           :max-columns="activeWorkspace.todoMaxColumns ?? 1"
+          :notify-preset-times="activeWorkspace.notifyPresetTimes"
           :edit-list-id="pendingEditTodoListId"
           :notification-flash-keys="notificationFlashKeys"
           :todos="activeWorkspace.todos"
@@ -4534,6 +4535,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @delete-list="deleteTodoList"
           @column-count-change="onTodoColumnCountChange"
           @max-columns-change="updateTodoMaxColumns"
+          @notify-preset-times-change="(times) => { activeWorkspace.notifyPresetTimes = times; }"
           @assign-list-column="assignTodoListSections"
           @create="createTodo"
           @create-from-text="createTodosFromText"

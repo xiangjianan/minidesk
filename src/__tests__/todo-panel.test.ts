@@ -127,7 +127,7 @@ describe("TodoPanel", () => {
     await trigger.trigger("click");
     const toolbarKeys = wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"));
     expect(wrapper.findAll(".dropdown-option").map(option => option.text()))
-      .toEqual(["新建分组", "清理所有已完成", "最多展示列数", "Tips"]);
+      .toEqual(["新建分组", "设置预设提醒时间", "清理所有已完成", "最多展示列数", "Tips"]);
     await wrapper.get(".todo-panel").trigger("contextmenu");
     expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(toolbarKeys);
     await wrapper.get('[data-key="clear-all-completed"]').trigger("click");

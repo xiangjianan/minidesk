@@ -170,4 +170,12 @@ describe("notification time helpers", () => {
     expect(presets[8].at).toBe(new Date(2024, 0, 16, 18, 0, 0, 0).getTime()); // tomorrow 18:00
     expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime()); // 21:00 today
   });
+  it("uses custom minute-level times and rolls past slots to tomorrow", () => {
+    const presets = getNotifyPresets(new Date(2024, 0, 15, 23, 30), ["23:45", "23:30", "00:15", "08:20", "12:00"]);
+    expect(presets[5].at).toBe(new Date(2024, 0, 15, 23, 45).getTime());
+    expect(presets[6].at).toBe(new Date(2024, 0, 16, 23, 30).getTime());
+    expect(presets[7].at).toBe(new Date(2024, 0, 16, 0, 15).getTime());
+    expect(getNotifyPresets(new Date(2024, 0, 15, 8), ["invalid"])[5].at).toBe(new Date(2024, 0, 15, 9).getTime());
+  });
+
 });
