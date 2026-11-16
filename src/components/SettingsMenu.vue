@@ -17,7 +17,7 @@ import {
   RefreshCw as RefreshOutline,
   Sun,
   Moon,
-  Cat, Cloud, Music2, ImagePlus, VolumeX, Languages,
+  Cat, Cloud, Music2, ImagePlus, VolumeX, Languages, ALargeSmall,
   LayoutGrid as GridOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
@@ -163,7 +163,7 @@ const options = computed(() => [
       {
         label: selectionLabel(text.value.settings.english, normalizeLanguage(props.language) === "en"),
         key: "language:en",
-        icon: renderIcon(Languages),
+        icon: renderIcon(ALargeSmall),
         props: { role: "menuitemradio", "aria-checked": normalizeLanguage(props.language) === "en" },
       },
     ],
