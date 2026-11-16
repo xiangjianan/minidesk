@@ -58,7 +58,15 @@ const helpOpen = ref(false);
     <button type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
       <NIcon size="18"><CircleHelp /></NIcon>
     </button>
-    <div v-if="helpOpen" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">{{ uiText.preview.help }}</div>
+    <div v-if="helpOpen" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">
+      <div class="preview-shortcut-title">{{ uiText.preview.shortcuts }}</div>
+      <dl class="preview-shortcut-list">
+        <div v-for="row in uiText.preview.shortcutRows" :key="row.action" class="preview-shortcut-row">
+          <dt>{{ row.action }}</dt>
+          <dd>{{ row.keys }}</dd>
+        </div>
+      </dl>
+    </div>
     </div>
     <div class="preview-toolbar-group">
     <button

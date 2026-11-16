@@ -5769,8 +5769,8 @@ html[data-theme="dark"] .image-preview {
   position: absolute;
   right: calc(100% + 8px);
   bottom: 0;
-  width: min(280px, 65vw);
-  padding: 10px 12px;
+  width: min(300px, 65vw);
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--card);
@@ -5778,6 +5778,35 @@ html[data-theme="dark"] .image-preview {
   font-size: 12px;
   line-height: 1.6;
   white-space: normal;
+}
+
+.preview-shortcut-title {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.preview-shortcut-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.preview-shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.preview-shortcut-row dt {
+  flex: 0 0 auto;
+  color: var(--text);
+}
+
+.preview-shortcut-row dd {
+  margin: 0;
+  color: var(--text-secondary, var(--text));
+  text-align: right;
 }
 
 /* 避免两个胶囊的外阴影叠在间隙中，遮住预览背景。 */

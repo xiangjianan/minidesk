@@ -892,6 +892,15 @@ export const UI_TEXT = {
       imageAlt: "图片预览",
       help: "上下按钮/WASD 切换图片 · Ctrl/Command+滚轮或双击缩放 · 拖动平移 · Enter 编辑 · Ctrl+C 复制 · Ctrl+V 粘贴 · Delete 删除 · Space/Esc 关闭",
       shortcuts: "图片预览快捷键",
+      shortcutRows: [
+        { action: "切换图片", keys: "上下按钮 / WASD" },
+        { action: "缩放", keys: "Ctrl / ⌘ + 滚轮 · 双击" },
+        { action: "平移", keys: "拖动图片" },
+        { action: "编辑", keys: "Enter" },
+        { action: "复制 / 粘贴", keys: "Ctrl / ⌘ + C / V" },
+        { action: "删除", keys: "Delete" },
+        { action: "关闭", keys: "Space / Esc" },
+      ],
     },
     imageEditor: {
       title: "编辑图片",
@@ -1392,6 +1401,15 @@ export const UI_TEXT = {
       imageAlt: "Image preview",
       help: "Stacked buttons/WASD switch images · Ctrl/Command+wheel or double-click zooms · Drag pans · Enter edits · Ctrl+C copies · Ctrl+V pastes · Delete removes · Space/Esc closes",
       shortcuts: "Image preview shortcuts",
+      shortcutRows: [
+        { action: "Switch image", keys: "Up / down buttons · WASD" },
+        { action: "Zoom", keys: "Ctrl / ⌘ + scroll · Double-click" },
+        { action: "Pan", keys: "Drag image" },
+        { action: "Edit", keys: "Enter" },
+        { action: "Copy / paste", keys: "Ctrl / ⌘ + C / V" },
+        { action: "Delete", keys: "Delete" },
+        { action: "Close", keys: "Space / Esc" },
+      ],
     },
     imageEditor: {
       title: "Edit image",
