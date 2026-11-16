@@ -17,7 +17,7 @@ import {
   RefreshCw as RefreshOutline,
   Sun,
   Moon,
-  Sparkles, CircleDot, CircleDashed, ImagePlus, VolumeX,
+  Monitor, ImagePlus, VolumeX,
   LayoutGrid as GridOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
@@ -110,7 +110,7 @@ function selectionLabel(label: string, selected: boolean) {
     selected ? h(CheckmarkOutline, { class: "settings-zone-check", size: 15, "aria-hidden": "true" }) : null,
   ]);
 }
-const gifIcons = { cat: Sparkles, hermes: CircleDot, ikun: CircleDashed, custom: ImagePlus, none: VolumeX };
+const gifIcons = { cat: Monitor, hermes: ImagesAreaIcon, ikun: ImagesAreaIcon, custom: ImagePlus, none: VolumeX };
 const zoneOptions = computed(() => [
   ...(["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
     label: () => h("span", { class: "settings-zone-label" }, [
