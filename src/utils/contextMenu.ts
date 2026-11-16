@@ -110,7 +110,20 @@ export function organizeContextMenu(options: DropdownOption[]): DropdownOption[]
   return result;
 }
 
-/** Block the browser menu without stopping custom context menu handlers. */
+/** Keep native text actions available outside the dedicated text editors. */
 export function preventNativeContextMenu(event: Event): void {
+  const target = event.target;
+  if (target instanceof Element && !target.closest(".text-editor-frame, .todo-input")) {
+    const field = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
+    const fieldHasSelection = field && field.selectionStart !== null && field.selectionEnd !== null
+      && field.selectionStart !== field.selectionEnd;
+    const selection = window.getSelection();
+    const textHasSelection = selection && !selection.isCollapsed && selection.rangeCount > 0
+      && selection.getRangeAt(0).intersectsNode(target);
+    if (fieldHasSelection || textHasSelection) {
+      event.stopImmediatePropagation();
+      return;
+    }
+  }
   event.preventDefault();
 }
