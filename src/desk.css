@@ -1156,7 +1156,24 @@ html[data-theme="dark"] .quick-color-custom-preview {
 }
 .image-empty-hint { padding: 14px 4px 0; white-space: pre-line; }
 .workbench-shell .quick-tag-clip:has(> .quick-empty-hint) > .quick-buttons { padding: 0; }
-.quick-empty-hint { padding: 12px 16px 8px; line-height: 1.85; text-align: center; }
+.workbench-shell button.quick-empty-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 16px);
+  min-height: 36px;
+  margin: 6px 8px;
+  padding: 4px 8px;
+  color: color-mix(in srgb, var(--muted) 68%, transparent);
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: auto;
+}
+.workbench-shell button.quick-empty-hint:hover,
+.workbench-shell button.quick-empty-hint:focus-visible {
+  background: var(--desk-row-hover);
+  color: var(--primary);
+}
 /* Match the in-flow list inset while a reminder fades out. */
 .workbench-shell .todo-list > .todo-move-leave-active { left: 8px; right: 8px; }
 

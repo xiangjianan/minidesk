@@ -162,6 +162,17 @@ describe("QuickButtons", () => {
     } finally { wrapper.unmount(); }
   });
 
+  it("opens the empty list's action dialog from its hint", async () => {
+    const wrapper = mountQuickButtons({ tags: [{ id: "work", title: "工作" }] });
+    try {
+      await wrapper.get('[data-tag-id="work"] .quick-empty-hint').trigger("click");
+      await wrapper.findAll(".quick-form input")[0].setValue("动作");
+      await wrapper.findAll(".quick-form input")[1].setValue("https://example.com");
+      await wrapper.get("form").trigger("submit");
+      expect(wrapper.emitted("save")?.[0][0]).toMatchObject({ tagId: "work", tagTitle: "工作" });
+    } finally { wrapper.unmount(); }
+  });
+
   it("keeps the overflow scrollbar visible independently of hover", () => {
     const wrapper = mountQuickButtons();
     expect(wrapper.findComponent({ name: "Scrollbar" }).props("trigger")).toBe("none");
