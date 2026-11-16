@@ -1,7 +1,7 @@
 import { createWorkspaceData } from "./workspaces";
 import { createId } from "./storage";
 import { DEFAULT_QUICK_LIST_ID } from "./quickLists";
-import type { AppLanguage, WorkspaceData } from "../types";
+import type { AppLanguage, LineItem, WorkspaceData } from "../types";
 import seasidePhoto from "../example-seaside.jpg?inline";
 
 import { EXAMPLE_DESKTOP_TEXT } from "./exampleDesktopText";
@@ -27,20 +27,34 @@ export function createExampleWorkspace(language: AppLanguage): WorkspaceData {
   workspace.quickTags.push({ id: tripTagId, title: zh ? "周末出走" : "Weekend away", collapsed: false, column: 0 });
   workspace.quickButtons = [
     { id: createId(), title: zh ? "邮箱" : "Email", value: "https://mail.google.com/", type: "link", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
-    { id: createId(), title: zh ? "日历" : "Calendar", value: "https://calendar.google.com/", type: "link", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
+    { id: createId(), title: zh ? "稍后回复" : "Reply later", value: zh ? "收到，我晚点确认好时间再回复你。" : "Got it! I’ll check the time and get back to you.", type: "text", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
     { id: createId(), title: zh ? "地图" : "Maps", value: zh ? "https://map.baidu.com/" : "https://maps.google.com/", type: "link", tagId: tripTagId, hidden: false },
     { id: createId(), title: zh ? "查车票" : "Train tickets", value: zh ? "https://www.12306.cn/" : "https://www.thetrainline.com/", type: "link", tagId: tripTagId, hidden: false },
     { id: createId(), title: zh ? "出门清单" : "Packing list", value: zh ? "相机、电池、充电线、防晒、耳机" : "Camera, batteries, charger, sunscreen, headphones", type: "text", tagId: tripTagId, hidden: false },
   ];
-  const today = zh ? ["把周末的车票订了", "回复小林：周五前确认时间", "下班路上买咖啡豆"] : ["Book the train for the weekend", "Reply to Sam about Friday", "Pick up coffee beans on the way home"];
+  const today = zh ? ["把周末的车票订了", "回复小林，确认出发时间", "下班路上买咖啡豆"] : ["Book the train for the weekend", "Reply to Sam about Friday", "Pick up coffee beans on the way home"];
   const later = zh ? ["看看海边那家咖啡馆的营业时间", "整理相机里的照片"] : ["Check the seaside café's opening hours", "Sort through the photos on my camera"];
   workspace.todoLists = [
     { ...workspace.todoLists[0], title: zh ? "今天" : "Today" },
     { id: createId(), title: zh ? "有空再做" : "Later", collapsed: false, compact: false, column: 0 },
   ];
-  workspace.todos = Object.fromEntries([today, later].map((items, index) => [workspace.todoLists[index].id, items.map((text) => ({ id: createId(), text, done: false }))]));
+  const now = Date.now();
+  const reminderTimes = [2, 4, 8].map((hours) => now + hours * 60 * 60 * 1000);
+  workspace.todos = Object.fromEntries([today, later].map((items, listIndex) => [workspace.todoLists[listIndex].id, items.map((text, itemIndex) => ({
+    id: createId(), text, done: false,
+    ...(listIndex === 0 ? { notifyAt: reminderTimes[itemIndex] } : {}),
+    ...(listIndex === 0 && itemIndex === 0 ? { starred: true } : {}),
+  }))]));
   workspace.spaces[0].title = zh ? "周末计划" : "Weekend plans";
-  workspace.spaces[0].lines = (zh ? ["想去海边待两天，不把行程排太满。", "", "周六：早一点出发，找家小店吃午饭。", "下午沿海边走走，天气好就看日落。", "", "还没定：住一晚还是当天回来？", "问问小林有没有想去的地方。"] : ["Two days by the sea, with plenty of room to wander.", "", "Saturday: leave early and find a small place for lunch.", "Walk along the coast; catch the sunset if it's clear.", "", "Still deciding: stay overnight or come home?", "Ask Sam if there's anywhere they'd like to go."]).map((text) => ({ text, indent: 0 }));
-  workspace.workspaceLines = workspace.spaces[0].lines.map((line) => ({ ...line }));
+  const noteLines = (zh ? ["想去海边待两天，不把行程排太满。", "", "周六：早一点出发，找家小店吃午饭。", "下午沿海边走走，天气好就看日落。", "", "还没定：住一晚还是当天回来？", "问问小林有没有想去的地方。"] : ["Two days by the sea, with plenty of room to wander.", "", "Saturday: leave early and find a small place for lunch.", "Walk along the coast; catch the sunset if it's clear.", "", "Still deciding: stay overnight or come home?", "Ask Sam if there's anywhere they'd like to go."]).map((text): LineItem => ({ text, indent: 0 }));
+  for (const [index, phrase, color] of (zh
+    ? [[0, "不把行程排太满", "amber"], [5, "住一晚还是当天回来", "green"]]
+    : [[0, "plenty of room to wander", "amber"], [5, "stay overnight or come home", "green"]]) as [number, string, "amber" | "green"][]) {
+    const line = noteLines[index];
+    const start = line.text.indexOf(phrase);
+    if (start >= 0) line.marks = [{ type: "highlight", start, end: start + phrase.length, color }];
+  }
+  workspace.spaces[0].lines = noteLines;
+  workspace.workspaceLines = noteLines.map((line) => ({ ...line, ...(line.marks ? { marks: line.marks.map((mark) => ({ ...mark })) } : {}) }));
   return workspace;
 }
