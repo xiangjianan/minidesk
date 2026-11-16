@@ -9,7 +9,7 @@ import {
   CircleHelp as HelpCircleOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
-import { Highlighter, Paintbrush, Palette, RemoveFormatting, Strikethrough, Underline } from "lucide-vue-next";
+import { Bold, Highlighter, Paintbrush, Palette, RemoveFormatting, Strikethrough, Underline } from "lucide-vue-next";
 import { POLISH_STYLE_ENTRIES } from "../state/polishStyles";
 import SparklesOutlineIcon from "./SparklesOutlineIcon.vue";
 import type { LineItem, MarkColor, TextMark } from "../types";
@@ -73,6 +73,10 @@ const committedText = ref(initialEditorState.text);
 const mirrorRef = ref<HTMLElement | null>(null);
 const selectionMirrorRef = ref<HTMLElement | null>(null);
 const baseMirrorSegments = computed(() => buildMirrorSegments(text.value, editorMarks.value));
+const selectionToolbar = ref<{ x: number; y: number } | null>(null);
+const showSelectionHint = ref(false);
+const hintKey = "mini-desk-selection-toolbar-hint-v1";
+let hintTimer: number | undefined;
 const visibleSelection = ref<{ start: number; end: number } | null>(null);
 const mirrorSegments = computed(() => {
   const selection = visibleSelection.value;
@@ -144,6 +148,7 @@ function mirrorSegmentClasses(segment: MirrorSegment & { selected?: boolean }): 
   if (segment.color) classes.push(`mark-text-${segment.color}`);
   if (segment.strike) classes.push("mark-strike");
   if (segment.underline) classes.push("mark-underline");
+  if (segment.bold) classes.push("mark-bold");
   if (segment.selected) classes.push("is-selected");
   return classes;
 }
@@ -184,6 +189,7 @@ onUnmounted(() => {
   document.removeEventListener("selectionchange", syncActiveSelection);
   window.removeEventListener("blur", handleWindowBlur);
   exclusiveMenu.unmount();
+  window.clearTimeout(hintTimer);
 });
 
 
@@ -240,6 +246,10 @@ function applyFormatFromMenu(key: string, target: HTMLTextAreaElement): void {
   }
   if (key === "format-color-clear") {
     applyMarkChange(clearMarksInRange(editorMarks.value, range, "color"));
+    return;
+  }
+  if (key === "format-bold") {
+    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "bold"));
     return;
   }
   if (key === "format-strike") {
@@ -320,6 +330,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
             icon: renderIcon(Palette),
             children: buildColorSubmenu("color"),
           },
+          { label: uiText.value.common.bold, key: "format-bold", icon: renderIcon(Bold) },
           { label: uiText.value.common.strike, key: "format-strike", icon: renderIcon(Strikethrough) },
           { label: uiText.value.common.underline, key: "format-underline", icon: renderIcon(Underline) },
           { type: "divider", key: "format-divider" },
@@ -572,6 +583,7 @@ function handleFocus(event: FocusEvent): void {
 
 function handleBlur(event: FocusEvent): void {
   focused.value = false;
+  selectionToolbar.value = null;
   syncVisibleSelection(event.currentTarget as HTMLTextAreaElement);
   if (editing.value) update();
   editing.value = false;
@@ -823,9 +835,49 @@ function unlockTextareaForMobileKeyboard(textarea: HTMLTextAreaElement, caret: n
   collapseSelection(textarea, caret);
 }
 
+function updateSelectionToolbar(): void {
+  const textarea = textareaRef.value;
+  if (!textarea || document.activeElement !== textarea || !hasSelection(textarea)) {
+    selectionToolbar.value = null;
+    return;
+  }
+  nextTick(() => {
+    if (document.activeElement !== textarea || !hasSelection(textarea)) return;
+    const selected = selectionMirrorRef.value?.querySelector<HTMLElement>(".is-selected");
+    const rect = selected?.getBoundingClientRect();
+    const frame = textarea.getBoundingClientRect();
+    const y = rect && rect.height ? Math.max(frame.top, rect.top) : frame.top;
+    selectionToolbar.value = { x: Math.max(8, Math.min(window.innerWidth - 260, rect?.left || frame.left)), y: Math.max(8, y - 48) };
+    try {
+      if (!localStorage.getItem(hintKey)) {
+        localStorage.setItem(hintKey, "1");
+        showSelectionHint.value = true;
+        hintTimer = window.setTimeout(() => { showSelectionHint.value = false; }, 5000);
+      }
+    } catch { /* Storage can be unavailable. */ }
+  });
+}
+
+function openToolbarMenu(event: MouseEvent, kind: "highlight" | "color" | "polish"): void {
+  const target = textareaRef.value;
+  if (!target) return;
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
+  menu.value = { x: rect.left, y: rect.bottom, anchor: event.currentTarget as HTMLElement, target, selectionText: selectedTextareaText(target) };
+  toolbarMenuKind.value = kind;
+}
+const toolbarMenuKind = ref<"highlight" | "color" | "polish" | null>(null);
+const activeMenuOptions = computed<DropdownOption[]>(() => toolbarMenuKind.value === "polish"
+  ? POLISH_STYLE_ENTRIES.map(({ key, labelKey }) => ({ label: uiText.value.common[labelKey], key }))
+  : toolbarMenuKind.value ? buildColorSubmenu(toolbarMenuKind.value) : menuOptions.value);
+function toolbarBold(): void {
+  if (textareaRef.value) applyFormatFromMenu("format-bold", textareaRef.value);
+}
+
 function rememberCaret(event: MouseEvent): void {
   const textarea = event.currentTarget as HTMLTextAreaElement;
   syncVisibleSelection(textarea);
+  updateSelectionToolbar();
   if (hasSelection(textarea)) {
     rememberTextSelection(textarea);
     return;
@@ -841,6 +893,7 @@ function rememberSelection(event: Event): void {
   if (!hasSelection(textarea)) lastTextSelection.value = null;
   rememberTextSelection(textarea);
   textarea.draggable = hasSelection(textarea);
+  updateSelectionToolbar();
   // 仅当 textarea 仍持焦点（用户正在拖选）才借此进入编辑态：浏览器在失焦后
   // 还会补发迟到的 select 事件，此时重夺焦点会让图片预览「打开即失焦」，
   // 空格打在复活的选区上把选中文字替换成一个空格。
@@ -866,6 +919,8 @@ function openTextMenu(event: MouseEvent): void {
   }
   event.preventDefault();
   event.stopPropagation();
+  toolbarMenuKind.value = null;
+  selectionToolbar.value = null;
   if (target && hasSelection(target)) rememberTextSelection(target);
   exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
   menu.value = {
@@ -880,6 +935,7 @@ function openTextMenu(event: MouseEvent): void {
 
 function closeMenu(): void {
   menu.value = null;
+  toolbarMenuKind.value = null;
 }
 
 function handleTextDragStart(event: DragEvent): void {
@@ -1271,7 +1327,16 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
         @blur="handleBlur"
       />
     </div>
-    <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="menuOptions"
+    <Teleport to="body">
+      <div v-if="selectionToolbar" class="selection-toolbar" :style="{ left: `${selectionToolbar.x}px`, top: `${selectionToolbar.y}px` }" @mousedown.prevent>
+        <button type="button" :aria-label="uiText.common.highlight" :title="uiText.common.highlight" @click="openToolbarMenu($event, 'highlight')"><Highlighter :size="16" /></button>
+        <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @click="openToolbarMenu($event, 'color')"><Palette :size="16" /></button>
+        <button type="button" :aria-label="uiText.common.bold" :title="uiText.common.bold" @click="toolbarBold"><Bold :size="16" /></button>
+        <button v-if="polish" type="button" :aria-label="uiText.common.smartPolish" :title="uiText.common.smartPolish" @click="openToolbarMenu($event, 'polish')"><SparklesOutlineIcon class="selection-toolbar-icon" /><span>{{ uiText.common.smartPolish }}</span></button>
+        <span v-if="showSelectionHint" class="selection-toolbar-hint">{{ uiText.common.selectionHint }}</span>
+      </div>
+    </Teleport>
+    <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="activeMenuOptions"
       :polish-labels="true"
       @select="handleMenuSelect" @clickoutside="exclusiveMenu.handleClickOutside" />
   </section>

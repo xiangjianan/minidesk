@@ -17,7 +17,7 @@ const FORMAT_GROUP_LABELS = [
   "格式",
   "高亮", "琥珀", "玫红", "翠绿", "天蓝", "紫罗兰", "", "清除高亮",
   "文字颜色", "琥珀", "玫红", "翠绿", "天蓝", "紫罗兰", "", "恢复默认",
-  "中划线", "下划线", "", "清除全部格式",
+  "加粗", "中划线", "下划线", "", "清除全部格式",
 ];
 
 describe("TextPanel", () => {
@@ -36,6 +36,25 @@ describe("TextPanel", () => {
       else Reflect.deleteProperty(navigator, "clipboard");
     }
   }
+
+  it("shows selection actions and applies bold to the selected text", async () => {
+    const wrapper = mount(TextPanel, { attachTo: document.body, props: {
+      titleId: "title", title: "Notes", lines: [{ text: "hello", indent: 0 }],
+    } });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(1, 4);
+    await wrapper.get("textarea").trigger("select");
+    await flushPromises();
+    const button = document.querySelector<HTMLButtonElement>('.selection-toolbar button[aria-label="加粗"]');
+    expect(button).not.toBeNull();
+    button!.click();
+    await flushPromises();
+    expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
+      { text: "hello", indent: 0, marks: [{ type: "bold", start: 1, end: 4 }] },
+    ]);
+    wrapper.unmount();
+  });
 
   it("renders four-space indentation without injected dash markers", () => {
     const wrapper = mount(TextPanel, {

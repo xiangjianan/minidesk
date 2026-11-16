@@ -8064,3 +8064,11 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   button.preview-toolbar-button:hover:not(:disabled),
   button.preview-toolbar-button:focus-visible:not(:disabled) { background: var(--card) !important; }
 }
+
+/* Keep glyph advances unchanged so the textarea caret stays aligned with its mirror. */
+.text-mirror .mark-bold { text-shadow: 0.45px 0 currentColor, -0.45px 0 currentColor; }
+.selection-toolbar { position: fixed; z-index: 3000; display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 9px; background: var(--card); box-shadow: 0 4px 18px #0003; }
+.selection-toolbar button { display: inline-flex; align-items: center; gap: 5px; min-width: 32px; height: 30px; padding: 0 7px; border: 0; border-radius: 5px; background: transparent; color: var(--text); cursor: pointer; white-space: nowrap; }
+.selection-toolbar button:hover, .selection-toolbar button:focus-visible { background: color-mix(in srgb, var(--text) 10%, transparent); }
+.selection-toolbar-icon { width: 16px; height: 16px; }
+.selection-toolbar-hint { position: absolute; top: calc(100% + 6px); left: 0; padding: 6px 9px; border-radius: 6px; background: var(--card); color: var(--text); box-shadow: 0 3px 12px #0003; font-size: 12px; white-space: nowrap; }

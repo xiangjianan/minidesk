@@ -544,7 +544,8 @@ describe("ImagePanel", () => {
 
     expect(children[0]).toBe(wrapper.get(".count").element);
     expect(children[1]).toBe(wrapper.get(".image-paste-button").element);
-    expect(children).toHaveLength(2);
+    expect(children[2]).toBe(wrapper.get('button[aria-label="面板菜单"]').element);
+    expect(children).toHaveLength(3);
     expect(wrapper.get(".count").text()).toBe("2");
     wrapper.unmount();
   });

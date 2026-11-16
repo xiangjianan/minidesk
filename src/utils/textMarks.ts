@@ -1,7 +1,7 @@
 import type { MarkColor, MarkType, TextMark } from "../types";
 import { isPlainObject } from "../state/storage/shared";
 
-export const MARK_TYPES: readonly MarkType[] = ["highlight", "strike", "underline", "color"];
+export const MARK_TYPES: readonly MarkType[] = ["highlight", "strike", "underline", "color", "bold"];
 export const MARK_COLORS: readonly MarkColor[] = ["amber", "rose", "green", "blue", "violet"];
 
 function isColoredType(type: MarkType): boolean {
@@ -368,6 +368,7 @@ export interface MirrorSegment {
   highlight?: MarkColor;
   strike?: boolean;
   underline?: boolean;
+  bold?: boolean;
   color?: MarkColor;
 }
 
@@ -403,6 +404,7 @@ export function buildMirrorSegments(text: string, marks: TextMark[]): MirrorSegm
       }
       if (mark.type === "strike") segment.strike = true;
       if (mark.type === "underline") segment.underline = true;
+      if (mark.type === "bold") segment.bold = true;
     }
     segments.push(segment);
   }

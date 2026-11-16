@@ -16,6 +16,7 @@ import {
   Eye as EyeOutline,
   CircleHelp as HelpCircleOutline,
   Trash2 as TrashOutline,
+  EllipsisVertical,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, ImagePasteFeedback, ImagePasteRequest, StoredImage, WorkspaceMoveTarget } from "../types";
@@ -215,7 +216,9 @@ function openMenu(event: MouseEvent, id?: string): void {
   event.preventDefault();
   event.stopPropagation();
   exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
-  menu.value = { x: event.clientX, y: event.clientY, id, anchor: event.currentTarget as HTMLElement };
+  const anchor = event.currentTarget as HTMLElement;
+  const rect = anchor.getBoundingClientRect();
+  menu.value = { x: event.type === "click" ? rect.left : event.clientX, y: event.type === "click" ? rect.bottom : event.clientY, id, anchor };
 }
 
 
@@ -640,6 +643,7 @@ function handleImageDragWheel(event: WheelEvent): void {
         >
           <NIcon :component="ClipboardOutline" />
         </button>
+        <button class="icon-button" type="button" :aria-label="uiText.common.panelMenu" :title="uiText.common.panelMenu" @click.stop="openMenu($event)"><NIcon :component="EllipsisVertical" /></button>
       </div>
     </div>
 

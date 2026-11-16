@@ -43,6 +43,19 @@ describe("normalizeMarkList — 入口修剪", () => {
   });
 });
 
+describe("bold marks", () => {
+  it("survives storage normalization and renders without changing the text", () => {
+    const marks = toggleMarkInRange("hello", [], { start: 1, end: 4 }, "bold");
+    const lines = linesFromEditorState("hello", marks);
+    const restored = editorStateFromLines(lines);
+    expect(restored.marks).toEqual([{ type: "bold", start: 1, end: 4 }]);
+    expect(buildMirrorSegments(restored.text, restored.marks)).toEqual([
+      { chunk: "h" }, { chunk: "ell", bold: true }, { chunk: "o" },
+    ]);
+    expect(toggleMarkInRange(restored.text, restored.marks, { start: 1, end: 4 }, "bold")).toEqual([]);
+  });
+});
+
 describe("mergeMarkList — 排序与同款合并", () => {
   it("合并端点相接的同款段", () => {
     expect(mergeMarkList([{ type: "underline", start: 0, end: 2 }, { type: "underline", start: 2, end: 4 }]))
