@@ -6826,6 +6826,7 @@ body,
    appearance free of both the global focus halo and a focus underline. */
 .workspace-inbox-step-link:focus-visible { outline: none; box-shadow: none; }
 .workspace-inbox-field { display: grid; grid-template-columns: 64px 1fr; align-items: center; gap: 8px; margin: 8px 0; }
+.workspace-inbox-target { grid-template-columns: minmax(76px, 1fr) minmax(0, 2fr); }
 .workspace-inbox-label { color: var(--muted); font-size: 12px; }
 .workspace-inbox-code-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
 .workspace-inbox-code-group { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
@@ -6857,7 +6858,7 @@ body,
 .workspace-inbox-address { font-size: 11px; color: var(--primary); word-break: break-all; }
 .workspace-inbox-address:hover, .workspace-inbox-address:focus-visible { text-decoration: underline; }
 .workspace-inbox-qr { display: block; margin: 8px auto; border: 1px solid var(--line-subtle); border-radius: 8px; }
-.workspace-inbox-generate { justify-self: start; margin: 4px 0; }
+.workspace-inbox-generate { display: flex; width: min(100%, 240px); margin: 8px auto; }
 .workspace-inbox-error { margin: 4px 0 0; color: var(--destructive); font-size: 12px; text-align: center; }
 .workspace-inbox-footer { display: flex; justify-content: flex-end; gap: 8px; }
 

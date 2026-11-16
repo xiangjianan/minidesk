@@ -312,7 +312,7 @@ function save(): void {
       ></canvas>
 
       <p class="workspace-inbox-step-title">{{ text.app.inboxQuickStep2 }}</p>
-      <label class="workspace-inbox-field" for="inbox-todo-target">
+      <label class="workspace-inbox-field workspace-inbox-target" for="inbox-todo-target">
         <span class="workspace-inbox-label">{{ text.app.inboxTodoTargetLabel }}</span>
         <NSelect
           v-model:value="todoListId"
@@ -322,7 +322,7 @@ function save(): void {
         />
       </label>
 
-      <label class="workspace-inbox-field" for="inbox-note-target">
+      <label class="workspace-inbox-field workspace-inbox-target" for="inbox-note-target">
         <span class="workspace-inbox-label">{{ text.app.inboxNoteTargetLabel }}</span>
         <NSelect
           v-model:value="noteTarget"
