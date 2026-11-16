@@ -78,7 +78,7 @@ describe("WorkspaceSwitcher", () => {
     expect(wrapper.text()).toContain("主空间");
   });
 
-  it("点击触发后展开列表并切换空间", async () => {
+  it("点击触发后展开分组并切换空间", async () => {
     const wrapper = mount(WorkspaceSwitcher, {
       props: { workspaces, activeWorkspaceId: "a", theme: "light", language: "zh" },
     });
@@ -221,7 +221,7 @@ describe("WorkspaceSwitcher", () => {
 });
 
 describe("WorkspaceSwitcher 配对入口", () => {
-  it("每个工作区提供手机速记入口并 emit pairInbox", async () => {
+  it("每个空间提供手机速记入口并 emit pairInbox", async () => {
     const wrapper = mount(WorkspaceSwitcher, {
       props: { workspaces, activeWorkspaceId: "a", theme: "light", language: "zh" },
       attachTo: document.body,

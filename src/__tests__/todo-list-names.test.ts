@@ -21,7 +21,7 @@ const data = () => ({
   inbox: { code: "0123456789AB", todoListId: "second", noteTarget: "workspace", lastSeenAt: 0 },
 });
 
-describe("reminder list names", () => {
+describe("reminder group names", () => {
   it("compares trimmed display titles in both languages", () => {
     expect(findTodoListByTitle([list("custom", "提醒事项")], " 提醒事项 ", "zh")).toBeDefined();
     const defaults = defaultWorkspace("a").todoLists;
@@ -92,7 +92,7 @@ describe("reminder list names", () => {
     expect(wrapper.get(".todo-list-create-confirm").attributes("disabled")).toBeDefined();
     await wrapper.get("form").trigger("submit");
     expect(wrapper.emitted("confirm")).toBeUndefined();
-    expect(wrapper.get('[role="alert"]').text()).toBe(language === "zh" ? "列表重名了" : "A list with this name already exists");
+    expect(wrapper.get('[role="alert"]').text()).toBe(language === "zh" ? "分组重名了" : "A group with this name already exists");
     await wrapper.get("input").setValue("Personal");
     expect(wrapper.get(".todo-list-create-confirm").attributes("disabled")).toBeUndefined();
     await wrapper.get("form").trigger("submit");

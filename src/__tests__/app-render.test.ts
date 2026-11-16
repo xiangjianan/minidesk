@@ -264,19 +264,19 @@ describe("App shell", () => {
     expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("搜索或执行命令");
     expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("⌘K");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
-    expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷动作");
+    expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");
     expect(wrapper.get(".workbench-zone-tasks").attributes("aria-label")).toBe("提醒事项");
     expect(wrapper.get(".workbench-zone-workspace").attributes("aria-label")).toBe("记事本");
     expect(wrapper.find('[aria-label="MiniDesk"]').exists()).toBe(false);
     expect(wrapper.text()).toContain("贴图");
-    expect(wrapper.text()).toContain("快捷动作");
+    expect(wrapper.text()).toContain("快捷按钮");
     expect(wrapper.text()).toContain("提醒事项");
     expect(wrapper.text()).toContain("记事本");
     expect(wrapper.findComponent({ name: "ImagePreview" }).exists()).toBe(false);
     expect(wrapper.find(".workbench-zone-notes > .quick-block").exists()).toBe(true);
     expect(wrapper.findAll(".space-tab").map((tab) => tab.text())).toEqual(["随手记"]);
     expect(wrapper.find('[data-testid="workbench-theme"]').exists()).toBe(false);
-    expect(wrapper.find('[aria-label="快捷动作菜单"]').exists()).toBe(true);
+    expect(wrapper.find('[aria-label="快捷按钮菜单"]').exists()).toBe(true);
     expect(wrapper.find('[aria-label="设置"]').exists()).toBe(true);
     expect(wrapper.find(".image-empty").exists()).toBe(false);
     expect(wrapper.find(".empty-hint").exists()).toBe(false);
@@ -308,7 +308,7 @@ describe("App shell", () => {
       expect(wrapper.text()).not.toContain("💻 Work");
       expect(wrapper.text()).not.toContain("📚 Study");
       expect(wrapper.findAll(".space-tab").map((tab) => tab.text())).toEqual(["Quick Notes"]);
-      expect(wrapper.text()).not.toContain("快捷动作");
+      expect(wrapper.text()).not.toContain("快捷按钮");
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}").language).toBe("en");
     } finally {
       wrapper.unmount();
@@ -1191,7 +1191,7 @@ describe("App shell", () => {
     }
   });
 
-  it("creates a configurable reminder list with the submitted title and persists it", async () => {
+  it("creates a configurable reminder group with the submitted title and persists it", async () => {
     const wrapper = mountApp();
 
     try {
@@ -1212,7 +1212,7 @@ describe("App shell", () => {
     }
   });
 
-  it("adds a reminder list with a saved layout without recursive updates", async () => {
+  it("adds a reminder group with a saved layout without recursive updates", async () => {
     const fixture = defaultState();
     const workspace = fixture.workspaces[0];
     workspace.todoColumnLayouts = { "1": workspace.todoLists.map((list) => ({ id: list.id, column: 0 })) };
@@ -1230,7 +1230,7 @@ describe("App shell", () => {
     } finally { wrapper.unmount(); }
   });
 
-  it("does not create a reminder list until the create-list dialog submits a title", async () => {
+  it("does not create a reminder group until the create-list dialog submits a title", async () => {
     const wrapper = mountApp();
 
     try {
@@ -1328,7 +1328,7 @@ describe("App shell", () => {
     }
   });
 
-  it("persists reminder list title updates", async () => {
+  it("persists reminder group title updates", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
       workspaces: [{
@@ -1352,7 +1352,7 @@ describe("App shell", () => {
     }
   });
 
-  it("persists reminder list collapsed and compact flags", async () => {
+  it("persists reminder group collapsed and compact flags", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
       workspaces: [{
@@ -1380,7 +1380,7 @@ describe("App shell", () => {
     }
   });
 
-  it("confirms deletion of a non-empty reminder list and removes its reminders", async () => {
+  it("confirms deletion of a non-empty reminder group and removes its reminders", async () => {
     vi.useFakeTimers();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
@@ -1398,11 +1398,11 @@ describe("App shell", () => {
 
     try {
       await wrapper.get('.todo-section[data-list-id="work"] .todo-section-menu-button').trigger("click");
-      await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除列表")?.trigger("click");
+      await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除分组")?.trigger("click");
       await vi.advanceTimersByTimeAsync(200);
       await nextTick();
 
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/删除列表|提醒事项/);
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/删除分组|提醒事项/);
 
       await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await nextTick();
@@ -1417,7 +1417,7 @@ describe("App shell", () => {
     }
   });
 
-  it("confirms deletion of an empty reminder list before removing it", async () => {
+  it("confirms deletion of an empty reminder group before removing it", async () => {
     vi.useFakeTimers();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
@@ -1439,7 +1439,7 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await nextTick();
 
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/删除列表|提醒列表/);
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/删除分组|提醒列表/);
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}").workspaces[0].todoLists.map((list: { id: string }) => list.id)).toEqual(["work", "home"]);
 
       await wrapper.get('[data-testid="companion-yes"]').trigger("click");
@@ -1452,7 +1452,7 @@ describe("App shell", () => {
     }
   });
 
-  it("blocks deleting the last reminder list", async () => {
+  it("blocks deleting the last reminder group", async () => {
     vi.useFakeTimers();
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
@@ -1475,14 +1475,14 @@ describe("App shell", () => {
       const workspace = stored.workspaces[0];
       expect(workspace.todoLists.map((list: { id: string }) => list.id)).toEqual(["work"]);
       expect(workspace.todos.work).toEqual([]);
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("至少保留一个提醒事项列表");
+      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("至少保留一个提醒事项分组");
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
     }
   });
 
-  it("persists reminder list reorder", async () => {
+  it("persists reminder group reorder", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       ...defaultState(),
       workspaces: [{
@@ -1800,7 +1800,7 @@ describe("App shell", () => {
       await wrapper.get("textarea").trigger("focus");
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/工作空间|空间标签|缩进|步骤/);
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toMatch(/记事本|缩进|步骤/);
 
       // GIF 点击的 Tips 与右键菜单「Tips」共用 GUIDE_MESSAGES 文案池。
       const workspaceTips = getGuideMessages("zh").workspace;
@@ -1964,7 +1964,7 @@ describe("App shell", () => {
     const wrapper = mountApp();
 
     try {
-      expect(wrapper.get('[data-testid="save-status"]').attributes("title")).toContain("工作空间数据自动保存在当前浏览器");
+      expect(wrapper.get('[data-testid="save-status"]').attributes("title")).toContain("空间数据自动保存在当前浏览器");
       await wrapper.get('[data-testid="save-status"]').trigger("click");
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
@@ -2054,7 +2054,7 @@ describe("App shell", () => {
       expect(message).toContain("今日桌面");
       expect(message).toContain("过热");
       expect(message).toContain("提醒事项 8");
-      expect(message).toContain("快捷动作 13");
+      expect(message).toContain("快捷按钮 13");
       expect(message).toContain("贴图 11");
       expect(KAOMOJI_BY_MOOD.warning.some((kaomoji) => message.endsWith(kaomoji))).toBe(true);
     } finally {
@@ -2189,7 +2189,7 @@ describe("App shell", () => {
     }
   });
 
-  it("sends Tips bubbles to the screen corner even when the reminder list is taller than the viewport", async () => {
+  it("sends Tips bubbles to the screen corner even when the reminder group is taller than the viewport", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     const viewportHeight = window.innerHeight;
@@ -2510,7 +2510,7 @@ describe("App shell", () => {
     }
   });
 
-  it("creates reminder lists with completed reminders hidden by default", async () => {
+  it("creates reminder groups with completed reminders hidden by default", async () => {
     const wrapper = mountApp();
 
     try {
@@ -6884,7 +6884,7 @@ describe("App shell", () => {
     }
   });
 
-  it("专注弹窗打开期间 document 粘贴图片路由进 focusImages 而非工作区贴图", async () => {
+  it("专注弹窗打开期间 document 粘贴图片路由进 focusImages 而非空间贴图", async () => {
     const restoreIndexedDb = installMemoryImageDb();
     localStorage.setItem(
       STORAGE_KEY,
@@ -6919,7 +6919,7 @@ describe("App shell", () => {
         expect(stored.workspaces[0].todos.morning[0].focusImages).toHaveLength(1);
       });
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-      // 工作区贴图列表不受影响（序列化后 focusImages 只剩元数据，载荷在 IndexedDB）。
+      // 空间贴图列表不受影响（序列化后 focusImages 只剩元数据，载荷在 IndexedDB）。
       expect(stored.workspaces[0].images).toEqual([{ id: "board-img", createdAt: 1 }]);
       const focusImage = stored.workspaces[0].todos.morning[0].focusImages[0];
       expect(focusImage.id).toBeTypeOf("string");
@@ -7093,7 +7093,7 @@ describe("App shell", () => {
     } finally { wrapper.unmount(); restoreIndexedDb(); }
   });
 
-  it("导入带 focusImages 内联载荷的工作区时把载荷写入 IndexedDB", async () => {
+  it("导入带 focusImages 内联载荷的空间时把载荷写入 IndexedDB", async () => {
     vi.useFakeTimers();
     vi.spyOn(window, "innerWidth", "get").mockReturnValue(1600);
     const originalRect = HTMLElement.prototype.getBoundingClientRect;
@@ -7888,7 +7888,7 @@ describe("App shell", () => {
     } finally { wrapper.unmount(); restoreIndexedDb(); vi.useRealTimers(); }
   });
 
-  it("accepts imports that only configure reminder lists", async () => {
+  it("accepts imports that only configure reminder groups", async () => {
     vi.useFakeTimers();
     const wrapper = mountApp();
 
@@ -8085,8 +8085,8 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("MiniDesk (100% AI BUILT)");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷动作和便签放在一起");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("工作区数据保存在浏览器中");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷按钮和记事本放在一起");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("空间数据保存在浏览器中");
       const repoLink = wrapper.get('[data-testid="companion-link"]');
       expect(repoLink.text()).toBe("xiangjianan / mini-desk");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
@@ -8125,7 +8125,7 @@ describe("App shell", () => {
 
       const aboutText = wrapper.find('[data-testid="companion-confirm"]').text();
       expect(aboutText).toContain("MiniDesk (100% AI BUILT)");
-      expect(aboutText).toContain("screenshots, reminders, quick actions, and notes");
+      expect(aboutText).toContain("screenshots, reminders, quick buttons, and notebooks");
       expect(aboutText).toContain("Workspace data is stored in your browser.");
       expect(aboutText).not.toContain("100% developed by AI");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
@@ -8915,7 +8915,7 @@ describe("App shell", () => {
     }
   });
 
-  it("shows a declutter companion bubble and GIF when focusing a reminder list with at least seven items", async () => {
+  it("shows a declutter companion bubble and GIF when focusing a reminder group with at least seven items", async () => {
     vi.useFakeTimers();
     localStorage.setItem(
       STORAGE_KEY,
@@ -9033,7 +9033,7 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       const text = wrapper.get('[data-testid="companion-confirm"]').text();
-      expect(text).toContain("快捷动作");
+      expect(text).toContain("快捷按钮");
       expect(text).not.toContain("提醒");
       expect(text).toContain("(・_・;)");
     } finally {
@@ -9857,11 +9857,11 @@ describe("App inbox pull wiring", () => {
     const wrapper = mountApp();
 
     try {
-      // 启动拉取挂起在 deferred 上：模拟多工作区配对时 B 仍在串行 PBKDF2 解密的秒级窗口。
+      // 启动拉取挂起在 deferred 上：模拟多空间配对时 B 仍在串行 PBKDF2 解密的秒级窗口。
       await flushAsyncComponents();
       expect(pullAllInboxes).toHaveBeenCalledTimes(1);
 
-      // 在途期间对待办做字段级编辑：同一工作区对象上替换 todos 字段（数组身份不变，
+      // 在途期间对待办做字段级编辑：同一空间对象上替换 todos 字段（数组身份不变，
       // 旧实现的快照身份守卫拦不住，基于旧字段快照的合并会把它覆盖丢失）。
       const app = wrapper.vm as unknown as {
         state: { workspaces: Array<{ id: string; todos: Record<string, Array<{ id: string; text: string; done: boolean }>> }> };
@@ -9954,7 +9954,7 @@ describe("App inbox pull wiring", () => {
 
   it("skips the patch for a workspace deleted mid-pull without resurrecting it", async () => {
     vi.useFakeTimers();
-    // 两个工作区：删除守卫要求至少保留一个，删除配对的 default 后只剩 backup。
+    // 两个空间：删除守卫要求至少保留一个，删除配对的 default 后只剩 backup。
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -9980,7 +9980,7 @@ describe("App inbox pull wiring", () => {
       await flushAsyncComponents();
       expect(pullAllInboxes).toHaveBeenCalledTimes(1);
 
-      // 在途期间删除配对工作区：state.workspaces 整组替换且不再含 default。
+      // 在途期间删除配对空间：state.workspaces 整组替换且不再含 default。
       await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
       await openWorkspaceMenu(wrapper);
       await wrapper.get(`[data-testid="workspace-delete-${DEFAULT_WORKSPACE_ID}"]`).trigger("click");
@@ -10035,7 +10035,7 @@ describe("App inbox pull wiring", () => {
       await flushAsyncComponents();
       expect(pullAllInboxes).toHaveBeenCalledTimes(1);
 
-      // 在途期间从配对弹窗清除配对：工作区对象被替换且不再含 inbox 字段。
+      // 在途期间从配对弹窗清除配对：空间对象被替换且不再含 inbox 字段。
       await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
       await openWorkspaceMenu(wrapper);
       await wrapper.get('[data-testid="workspace-pair-default"]').trigger("click");
@@ -10355,7 +10355,7 @@ describe("App inbox revoke wiring", () => {
     }
   });
 
-  it("删除配对工作区时注销其配对码", async () => {
+  it("删除配对空间时注销其配对码", async () => {
     seedPairedWorkspaces();
     vi.useFakeTimers();
     const wrapper = mountApp();
@@ -10385,7 +10385,7 @@ describe("App inbox revoke wiring", () => {
     }
   });
 
-  it("删除未配对工作区时不注销", async () => {
+  it("删除未配对空间时不注销", async () => {
     seedPairedWorkspaces();
     const wrapper = mountApp();
 
@@ -10409,7 +10409,7 @@ describe("App inbox revoke wiring", () => {
     }
   });
 
-  it("删除工作区时清理其区域宽度键并延迟回收 IndexedDB 图片负载", async () => {
+  it("删除空间时清理其区域宽度键并延迟回收 IndexedDB 图片负载", async () => {
     vi.useFakeTimers();
     localStorage.setItem(
       STORAGE_KEY,
@@ -10436,7 +10436,7 @@ describe("App inbox revoke wiring", () => {
       await flushAsyncComponents();
       expect(event.defaultPrevented).toBe(true);
 
-      // 宽度键：被删工作区独占的键即刻清理，旧共享键保留（其余空间的初始种子）。
+      // 宽度键：被删空间独占的键即刻清理，旧共享键保留（其余空间的初始种子）。
       expect(localStorage.getItem("mini-desk-workbench-widths:default")).not.toBeNull();
       expect(localStorage.getItem("mini-desk-workbench-widths")).toBe(JSON.stringify([111, 222, 333, 444]));
 
@@ -10518,7 +10518,7 @@ describe("App inbox register wiring", () => {
     vi.mocked(registerInboxKey).mockResolvedValue(true);
   });
 
-  // 生成路径的未配对种子：默认工作区、无 inbox。
+  // 生成路径的未配对种子：默认空间、无 inbox。
   function seedUnpaired(): void {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
   }
@@ -10682,7 +10682,7 @@ describe("App inbox register wiring", () => {
     await flushAsyncComponents();
   }
 
-  it("启动时对所有已配对工作区的码各注册一次（存量迁移路径）", async () => {
+  it("启动时对所有已配对空间的码各注册一次（存量迁移路径）", async () => {
     seedPaired();
     const wrapper = mountApp();
 

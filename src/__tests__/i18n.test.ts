@@ -19,7 +19,7 @@ describe("localized public copy", () => {
     expect(getDefaultTitles("en")).toMatchObject({
       "image-title": "🎨 Images",
       "note-title": "🔧 Tools",
-      "quick-title": "⚡ Quick Actions",
+      "quick-title": "⚡ Quick Buttons",
       "todo-morning-title": "✅ Reminders",
       "todo-noon-title": "💻 Work",
       "todo-evening-title": "📚 Study",
@@ -44,7 +44,7 @@ describe("localized public copy", () => {
 
   it("only replaces the matching legacy heading prefix", () => {
     expect(getIconHeadingText("🎨 图片", "image")).toBe("图片");
-    expect(getIconHeadingText("⚡ Quick Actions", "quick")).toBe("Quick Actions");
+    expect(getIconHeadingText("⚡ Quick Buttons", "quick")).toBe("Quick Buttons");
     expect(getIconHeadingText("‼️ 重点事项", "focus")).toBe("重点事项");
     expect(getIconHeadingText("客户 ⚡ 资料", "quick")).toBe("客户 ⚡ 资料");
     expect(getIconHeadingText("📥 收件箱", "focus")).toBe("📥 收件箱");
@@ -52,17 +52,17 @@ describe("localized public copy", () => {
 
   it("includes the expanded Chinese Tips and English counterparts", () => {
     expect(GUIDE_MESSAGES.zh.workspace).toEqual(expect.arrayContaining([
-      "试试把工作空间里的文本拖到提醒事项。",
-      "双击空间标签可以修改空间名。",
-      "从外部拖入文本，也能直接收进工作空间。",
+      "试试把记事本里的文本拖到提醒事项。",
+      "双击记事本标签可以修改名称。",
+      "从外部拖入文本，也能直接收进记事本。",
       "编辑文字后停顿 3 秒会自动保存。",
     ]));
     expect(GUIDE_MESSAGES.zh.workspace).toContain("适合把任务拆成步骤。");
     expect(GUIDE_MESSAGES.zh.todos).toEqual(expect.arrayContaining([
-      "试试把提醒事项拖到工作空间。",
-      "按住列表名拖动可以调整列表顺序。",
+      "试试把提醒事项拖到记事本。",
+      "按住分组名拖动可以调整分组顺序。",
       "点击闹钟可以设置通知时间。",
-      "空白处右键可以新增提醒事项列表。",
+      "空白处右键可以新增提醒事项分组。",
     ]));
     expect(GUIDE_MESSAGES.zh.images).toEqual(expect.arrayContaining([
       "试试把外部图片拖到这里。",
@@ -71,8 +71,8 @@ describe("localized public copy", () => {
       "预览时 Enter 可以编辑图片，再按 Enter 保存。",
     ]));
     expect(GUIDE_MESSAGES.en.quickButtons).toEqual(expect.arrayContaining([
-      "Use the context menu to hide an action.",
-      "Drag actions to reorder them.",
+      "Use the context menu to hide a button.",
+      "Drag buttons to reorder them.",
       "Text shortcuts copy their text instantly.",
     ]));
     expect(GUIDE_MESSAGES.en.note).toContain("Edited text saves automatically after 3 seconds.");
@@ -86,9 +86,9 @@ describe("localized public copy", () => {
       summary: expect.stringContaining("一个桌面"),
     });
     expect(SHORTCUT_HELP.zh.flatMap((section) => section.tips)).toEqual(expect.arrayContaining([
-      "双击列表标题或空间标签可以改名。",
-      "右键空白处可以新增提醒事项列表，列表名也能拖动排序。",
-      "快捷动作按列表整理，列表中的加号用于添加动作，也能拖动动作到其他列表。",
+      "双击分组标题或记事本标签可以改名。",
+      "右键空白处可以新增提醒事项分组，分组名也能拖动排序。",
+      "快捷按钮按分组整理，分组中的加号用于添加按钮，也能拖动按钮到其他分组。",
     ]));
     expect(SHORTCUT_HELP.zh.flatMap((section) => section.shortcuts.map((shortcut) => shortcut.key))).toEqual(expect.arrayContaining([
       "Ctrl/⌘ + S",
@@ -106,7 +106,7 @@ describe("localized public copy", () => {
       { key: "5 / Enter", desc: "复制图片" },
     ]));
     expect(SHORTCUT_HELP.zh.flatMap((section) => [section.area, section.summary, ...section.tips, ...section.shortcuts.map((shortcut) => `${shortcut.key} ${shortcut.desc}`)]).join("\n")).not.toContain("工具");
-    expect(SHORTCUT_HELP.en.flatMap((section) => section.tips)).toContain("Double-click list titles or space tabs to rename them.");
+    expect(SHORTCUT_HELP.en.flatMap((section) => section.tips)).toContain("Double-click group titles or notebook tabs to rename them.");
     const englishImageShortcuts = SHORTCUT_HELP.en.find((section) => section.area === "Images")?.shortcuts ?? [];
     expect(englishImageShortcuts).toEqual(expect.arrayContaining([
       { key: "Enter", desc: "Edit in preview / save while editing (outside text fields)" },
@@ -119,8 +119,8 @@ describe("localized public copy", () => {
     expect(getUiText("zh").settings.shortcutHelp).toBe("帮助与快捷键");
     expect(getUiText("en").settings.shortcutHelp).toBe("Help & Shortcuts");
     expect(getUiText("en").quick.add).toBe("Add");
-    expect(getUiText("en").quick.menu).toBe("Quick actions menu");
-    expect(getUiText("en").todo.createList).toBe("New list");
+    expect(getUiText("en").quick.menu).toBe("Quick buttons menu");
+    expect(getUiText("en").todo.createList).toBe("New group");
     expect(getUiText("en").common.delete).toBe("Delete");
     expect(getUiText("zh").settings.language).toBe("语言 / Language");
   });
@@ -135,14 +135,14 @@ describe("localized public copy", () => {
     expect(getUiText("zh").app.mobileTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutDescription).toBe(
-      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本放在一起。\n工作区数据保存在浏览器中；手机速记通过中转服务同步，使用 AI 整理时文本会发送至中转服务及 AI 服务提供商。",
+      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本放在一起。\n空间数据保存在浏览器中；手机速记通过中转服务同步，使用 AI 整理时文本会发送至中转服务及 AI 服务提供商。",
     );
     expect(getUiText("zh").app.aboutSignature).toBe("(100% AI BUILT)");
     expect(getUiText("en").app.boardLabel).toBe("MiniDesk");
     expect(getUiText("en").app.mobileTitle).toBe("MiniDesk");
     expect(getUiText("en").app.aboutTitle).toBe("MiniDesk");
     expect(getUiText("en").app.aboutDescription).toBe(
-      "A local-first desk for screenshots, reminders, quick buttons, and notes.\nWorkspace data is stored in your browser. Mobile captures sync through a relay, and AI features send text to the relay and an AI provider.",
+      "A local-first desk for screenshots, reminders, quick buttons, and notebooks.\nWorkspace data is stored in your browser. Mobile captures sync through a relay, and AI features send text to the relay and an AI provider.",
     );
     expect(getUiText("en").app.aboutSignature).toBe("(100% AI BUILT)");
   });
@@ -160,7 +160,7 @@ describe("localized public copy", () => {
     expect(getUiText("zh").app.mobileInboxSendTodo).toBe("发送到提醒");
     expect(getUiText("zh").app.mobileInboxSendNote).toBe("发送到记事本");
     expect(getUiText("en").app.mobileInboxSendTodo).toBe("Send to reminders");
-    expect(getUiText("en").app.mobileInboxSendNote).toBe("Send to notes");
+    expect(getUiText("en").app.mobileInboxSendNote).toBe("Send to notebook");
   });
 
   it("更换配对码确认文案中英齐全", () => {

@@ -127,7 +127,7 @@ describe("TodoPanel", () => {
     await trigger.trigger("click");
     const toolbarKeys = wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"));
     expect(wrapper.findAll(".dropdown-option").map(option => option.text()))
-      .toEqual(["新建列表", "清理所有已完成", "最多展示列数", "Tips"]);
+      .toEqual(["新建分组", "清理所有已完成", "最多展示列数", "Tips"]);
     await wrapper.get(".todo-panel").trigger("contextmenu");
     expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(toolbarKeys);
     await wrapper.get('[data-key="clear-all-completed"]').trigger("click");
@@ -138,7 +138,7 @@ describe("TodoPanel", () => {
     expect(wrapper.find('[data-key="create-list"]').exists()).toBe(true);
     await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
     await flushPromises();
-    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建列表");
+    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
     wrapper.unmount();
   });
 
@@ -148,7 +148,7 @@ describe("TodoPanel", () => {
     });
     await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
     await flushPromises();
-    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建列表");
+    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
     wrapper.unmount();
   });
 
@@ -462,7 +462,7 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
-  it("emits a declutter prompt when a reminder list with at least seven items is focused", async () => {
+  it("emits a declutter prompt when a reminder group with at least seven items is focused", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -547,7 +547,7 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
-  it("does not emit a declutter prompt while a reminder list has fewer than seven items", async () => {
+  it("does not emit a declutter prompt while a reminder group has fewer than seven items", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -628,7 +628,7 @@ describe("TodoPanel", () => {
     expect(values(wrapper)).toEqual(["A"]);
   });
 
-  it("opens the shared list menu and dialog before creating a reminder list", async () => {
+  it("opens the shared list menu and dialog before creating a reminder group", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -649,10 +649,10 @@ describe("TodoPanel", () => {
     expect(wrapper.find(".todo-add-list-button").exists()).toBe(false);
 
     await wrapper.get('.todo-section[data-list-id="morning"]').trigger("contextmenu");
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "隐藏已完成", "清理已完成", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "隐藏已完成", "清理已完成", "删除分组"]);
 
     await wrapper.get(".todo-panel").trigger("contextmenu");
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建分组")?.trigger("click");
     await flushPromises();
 
     const dialog = getLatestListCreateDialogElement();
@@ -689,7 +689,7 @@ describe("TodoPanel", () => {
 
     await wrapper.get('.todo-section[data-list-id="morning"] .todo-section-menu-button').trigger("click");
     await wrapper.get(".todo-panel").trigger("contextmenu");
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建分组")?.trigger("click");
     await flushPromises();
     await nextTick();
 
@@ -697,7 +697,7 @@ describe("TodoPanel", () => {
     const input = dialog?.querySelector<HTMLInputElement>(".todo-list-create-input");
     expect(input?.getAttribute("autocomplete")).toBe("off");
     expect(input?.getAttribute("name")).toBe("mini-desk-todo-list-title");
-    expect(dialog?.getAttribute("aria-label")).toBe("新建列表");
+    expect(dialog?.getAttribute("aria-label")).toBe("新建分组");
     expect(document.body.contains(dialog)).toBe(true);
     expect(dialog?.closest(".workbench-zone, .todo-panel")).toBeNull();
     expect(wrapper.emitted("createList")).toBeUndefined();
@@ -739,7 +739,7 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
-  it("does not measure existing list positions when appending a reminder list", async () => {
+  it("does not measure existing list positions when appending a reminder group", async () => {
     const wrapper = mount(TodoPanel, {
       props: { todoLists: defaultTodoLists, todos: { morning: [], noon: [], evening: [] }, titles: DEFAULT_TITLES },
       global: { stubs: { NDropdown: dropdownStub } },
@@ -747,7 +747,7 @@ describe("TodoPanel", () => {
     await flushPromises();
     const measurements = wrapper.findAll(".todo-section").map((section) => vi.spyOn(section.element, "getBoundingClientRect"));
     await wrapper.setProps({
-      todoLists: [...defaultTodoLists, { id: "new-list", title: "新建列表", column: 0, collapsed: false, compact: false }],
+      todoLists: [...defaultTodoLists, { id: "new-list", title: "新建分组", column: 0, collapsed: false, compact: false }],
       todos: { morning: [], noon: [], evening: [], "new-list": [] },
     });
     await flushPromises();
@@ -782,7 +782,7 @@ describe("TodoPanel", () => {
 
     await wrapper.get('.todo-section[data-list-id="morning"] .todo-section-menu-button').trigger("click");
     await wrapper.get(".todo-panel").trigger("contextmenu");
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建分组")?.trigger("click");
     await wrapper.get(".todo-list-create-input").setValue("会议");
     const modal = wrapper.findComponent(NModal);
     expect(modal.props("show")).toBe(true);
@@ -825,7 +825,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("updateListTitle")?.[0]).toEqual(["morning", "上午"]);
   });
 
-  it("opens the shared list menu from a reminder list title and edits the title", async () => {
+  it("opens the shared list menu from a reminder group title and edits the title", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -845,13 +845,13 @@ describe("TodoPanel", () => {
 
     await wrapper.get('.todo-section[data-list-id="morning"] .todo-heading').trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "隐藏已完成", "清理已完成", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "隐藏已完成", "清理已完成", "删除分组"]);
 
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "编辑列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "编辑分组")?.trigger("click");
     await nextTick();
 
     const dialog = getLatestListCreateDialogElement();
-    expect(dialog?.getAttribute("aria-label")).toBe("编辑列表");
+    expect(dialog?.getAttribute("aria-label")).toBe("编辑分组");
     expect(dialog?.querySelector("input")?.value).toBe(defaultTodoLists[0].title);
     const input = dialog!.querySelector("input")!;
     input.value = "新的名称";
@@ -974,7 +974,7 @@ describe("TodoPanel", () => {
     expect(optionTexts).not.toContain("收缩");
     expect(optionTexts).not.toContain("恢复");
 
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除分组")?.trigger("click");
 
     expect(wrapper.emitted("toggleListCollapsed")?.[0]).toEqual(["morning", true]);
     expect(wrapper.emitted("toggleListCompact")).toBeUndefined();
@@ -989,7 +989,7 @@ describe("TodoPanel", () => {
     expect(ruleBodies(styles, ".todo-collapse-button .n-icon").join("\n")).toContain("opacity: 1");
   });
 
-  it("pauses reminder list dragging while the list title is being edited", async () => {
+  it("pauses reminder group dragging while the list title is being edited", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -1148,7 +1148,7 @@ describe("TodoPanel", () => {
     expect(wrapper.get('.todo-section[data-list-id="morning"]').classes()).not.toContain("is-list-dragging");
   });
 
-  it("does not treat a dragged reminder list as dropped external text over a list body", async () => {
+  it("does not treat a dragged reminder group as dropped external text over a list body", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todoLists: defaultTodoLists,
@@ -1439,7 +1439,7 @@ describe("TodoPanel", () => {
 
     await wrapper.get('.todo-section[data-period="morning"] .todo-section-menu-button').trigger("click");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "显示已完成", "清理已完成", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "显示已完成", "清理已完成", "删除分组"]);
 
     await wrapper.findAll(".dropdown-option").find((option) => option.text() === "显示已完成")?.trigger("click");
     expect(wrapper.emitted("toggleCompletedVisibility")?.[0]).toEqual(["morning", true]);
@@ -1484,12 +1484,12 @@ describe("TodoPanel", () => {
     expect(values(wrapper)).toEqual(["早上未完成", "早上已完成", "中午未完成"]);
 
     await wrapper.get('.todo-section[data-period="noon"] .todo-section-menu-button').trigger("click");
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "显示已完成", "清理已完成", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "显示已完成", "清理已完成", "删除分组"]);
 
     wrapper.unmount();
   });
 
-  it("animates the space above reminder lists when a star is added or removed", async () => {
+  it("animates the space above reminder groups when a star is added or removed", async () => {
     const wrapper = mount(TodoPanel, {
       attachTo: document.body,
       props: { todoLists: defaultTodoLists, todos: { morning: [{ id: "a", text: "事项", done: false }] }, titles: DEFAULT_TITLES },
@@ -4222,7 +4222,7 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
-  it("pastes clipboard text from a blank reminder list context menu above the new-list action", async () => {
+  it("pastes clipboard text from a blank reminder group context menu above the new-list action", async () => {
     const readText = vi.fn().mockResolvedValue("任务 A\n\n任务 B");
     Object.assign(navigator, { clipboard: { readText, writeText: vi.fn() } });
     const wrapper = mount(TodoPanel, {
@@ -4249,8 +4249,8 @@ describe("TodoPanel", () => {
     await wrapper.get('.todo-section[data-period="morning"]').trigger("contextmenu");
     const optionTexts = wrapper.findAll(".dropdown-option").map((option) => option.text());
 
-    expect(optionTexts).toEqual(["新建", "粘贴", "编辑列表", "显示已完成", "清理已完成", "删除列表"]);
-    expect(optionTexts).not.toContain("新建列表");
+    expect(optionTexts).toEqual(["新建", "粘贴", "编辑分组", "显示已完成", "清理已完成", "删除分组"]);
+    expect(optionTexts).not.toContain("新建分组");
 
     await wrapper.findAll(".dropdown-option").find((option) => option.text() === "粘贴")?.trigger("click");
     await Promise.resolve();
@@ -4659,7 +4659,7 @@ describe("TodoPanel", () => {
     }
   });
 
-  it("keeps internal reminder list drags off the plain-text payload", async () => {
+  it("keeps internal reminder group drags off the plain-text payload", async () => {
     const setData = vi.fn();
     const wrapper = mount(TodoPanel, {
       props: {
@@ -4933,19 +4933,19 @@ describe("TodoPanel", () => {
     const options = wrapper.findAll(".dropdown-option");
     const createOption = options.find((option) => option.attributes("data-key") === "create-list");
     expect(options.length, "blank-area right-click should open a menu").toBeGreaterThan(0);
-    expect(createOption, "the menu should offer 新建列表").toBeDefined();
+    expect(createOption, "the menu should offer 新建分组").toBeDefined();
 
-    // 新建列表 must reuse the section menu's plus (AddOutline) icon so the
+    // 新建分组 must reuse the section menu's plus (AddOutline) icon so the
     // blank-area menu matches the look of the existing list menus.
     const menuProps = wrapper.findComponent(dropdownStub).props("options") as Array<{ key?: string | number; icon?: () => VNode }>;
     const createListOption = menuProps.find((option) => option.key === "create-list");
     const iconVNode = createListOption?.icon?.();
     const innerIcon = (iconVNode?.children as { default: () => VNode } | undefined)?.default();
-    expect(innerIcon?.type, "新建列表 should use the AddOutline plus icon like the section menu").toBe(AddOutline);
+    expect(innerIcon?.type, "新建分组 should use the AddOutline plus icon like the section menu").toBe(AddOutline);
 
     await createOption!.trigger("click");
     await nextTick();
-    expect(getLatestListCreateDialogElement(), "clicking 新建列表 should open the create dialog").not.toBeNull();
+    expect(getLatestListCreateDialogElement(), "clicking 新建分组 should open the create dialog").not.toBeNull();
 
     wrapper.unmount();
     document.body.innerHTML = "";
@@ -5231,7 +5231,7 @@ describe("TodoPanel 编辑快捷键", () => {
 
     await wrapper.get('.todo-section[data-list-id="morning"] .todo-heading').trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "智能粘贴", "编辑列表", "隐藏已完成", "清理已完成", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "智能粘贴", "编辑分组", "隐藏已完成", "清理已完成", "删除分组"]);
     wrapper.unmount();
   });
 
@@ -5297,7 +5297,7 @@ describe("TodoPanel 编辑快捷键", () => {
     wrapper.unmount();
   });
 
-  it("智能粘贴途中切换工作区：丢弃迟到结果，不落入新空间的同名列表", async () => {
+  it("智能粘贴途中切换空间：丢弃迟到结果，不落入新空间的同名列表", async () => {
     Object.assign(navigator, { clipboard: { readText: vi.fn().mockResolvedValue("买牛奶、交电费"), writeText: vi.fn() } });
     let resolvePolish: (result: PolishResult) => void = () => {};
     const polish = vi.fn(

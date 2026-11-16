@@ -153,7 +153,7 @@ describe("QuickButtons", () => {
     });
     try {
       expect(wrapper.find('[data-tag-id="first"] .quick-empty-hint').exists()).toBe(false);
-      expect(wrapper.get('[data-tag-id="last"] .quick-empty-hint').text()).toContain("添加快捷动作");
+      expect(wrapper.get('[data-tag-id="last"] .quick-empty-hint').text()).toContain("添加快捷按钮");
       await wrapper.setProps({ buttons: [
         { id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" },
         { id: "two", title: "文本", value: "内容", type: "text", hidden: false, tagId: "last" },
@@ -526,7 +526,7 @@ describe("QuickButtons", () => {
 
     await wrapper.get(".quick-tag-heading").trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "查看隐藏", "移动到空间", "生活", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "查看隐藏", "移动到空间", "生活", "删除分组"]);
 
     expect(wrapper.find('[data-key="create-list"]').exists()).toBe(false);
     wrapper.unmount();
@@ -545,7 +545,7 @@ describe("QuickButtons", () => {
     await wrapper.get(".quick-tag-menu-button").trigger("click");
     expect(labels()).toEqual(expected.filter(label => label !== "新增"));
     await wrapper.get(".quick-block").trigger("contextmenu");
-    expect(labels()).not.toContain("删除列表");
+    expect(labels()).not.toContain("删除分组");
     wrapper.unmount();
   });
 
@@ -589,7 +589,7 @@ describe("QuickButtons", () => {
     const openMenu = () => wrapper.get(".quick-tag-heading").trigger("contextmenu");
     await openMenu();
     expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual([
-      "新建", "粘贴", "编辑列表", "查看隐藏", "删除列表",
+      "新建", "粘贴", "编辑分组", "查看隐藏", "删除分组",
     ]);
     expect(wrapper.find('[data-key="toggle-tag-collapsed"]').exists()).toBe(false);
     await wrapper.get('[data-key="toggle-show-hidden"]').trigger("click");
@@ -633,7 +633,7 @@ describe("QuickButtons", () => {
 
     await wrapper.get(".quick-tag-heading").trigger("contextmenu");
 
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除列表")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除分组")?.trigger("click");
     expect(wrapper.emitted("deleteTagWithButtons")?.[0]).toEqual(["tag-work", expect.any(HTMLElement)]);
     wrapper.unmount();
   });
@@ -642,7 +642,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "tag-a", title: "甲" }, { id: "tag-b", title: "乙", backgroundColor: "#80aed5" }] });
     await wrapper.findAll(".quick-tag-heading")[1].trigger("contextmenu");
     await wrapper.get('[data-key="edit-tag"]').trigger("click");
-    expect(wrapper.get(".quick-list-dialog").text()).toContain("编辑列表");
+    expect(wrapper.get(".quick-list-dialog").text()).toContain("编辑分组");
     expect((wrapper.get(".quick-list-dialog input").element as HTMLInputElement).value).toBe("乙");
     await wrapper.get('.quick-color-none').trigger('click');
     await wrapper.get('.quick-list-dialog form').trigger('submit');
@@ -1469,7 +1469,7 @@ describe("QuickButtons", () => {
     const headerWrapper = mountQuickButtons();
 
     await headerWrapper.get(".quick-menu-button").trigger("click");
-    expect(headerWrapper.findAll(".dropdown-option").map((option) => option.text())[0]).toBe("新建列表");
+    expect(headerWrapper.findAll(".dropdown-option").map((option) => option.text())[0]).toBe("新建分组");
     expect(headerWrapper.find('[data-key="add"]').exists()).toBe(false);
     headerWrapper.unmount();
 
@@ -1482,14 +1482,14 @@ describe("QuickButtons", () => {
     expect(areaKeys).not.toContain("add");
     expect(areaKeys[0]).toBe("create-list");
     await areaWrapper.get('[data-key="create-list"]').trigger("click");
-    expect(areaWrapper.get(".quick-list-dialog").text()).toContain("新建列表");
+    expect(areaWrapper.get(".quick-list-dialog").text()).toContain("新建分组");
     areaWrapper.unmount();
   });
 
   it("opens the list dialog and creates a list with a default color", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "general", title: "常用" }] });
     await wrapper.get(".quick-add-button").trigger("click");
-    expect(wrapper.get(".quick-list-dialog").text()).toContain("新建列表");
+    expect(wrapper.get(".quick-list-dialog").text()).toContain("新建分组");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
     await wrapper.get(".quick-list-dialog input").setValue("常用");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
@@ -1555,7 +1555,7 @@ describe("QuickButtons", () => {
     await wrapper.get(".quick-menu-button").trigger("click");
 
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual([
-      "新建列表",
+      "新建分组",
       "切换为紧凑按钮",
       "Tips",
     ]);
@@ -1568,7 +1568,7 @@ describe("QuickButtons", () => {
     await wrapper.setProps({ showHidden: true });
     await wrapper.get(".quick-menu-button").trigger("click");
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual([
-      "新建列表",
+      "新建分组",
       "切换为紧凑按钮",
       "Tips",
     ]);
@@ -1808,7 +1808,7 @@ describe("QuickButtons", () => {
   it("顶部菜单不提供粘贴，列表菜单保留普通和智能粘贴", async () => {
     const wrapper = mountQuickButtons({ polish: vi.fn(), tags: [{ id: "work", title: "工作" }] });
     expect(wrapper.find(".header-actions .desk-paste-button").exists()).toBe(false);
-    expect(wrapper.get(".quick-add-button").attributes("aria-label")).toBe("新建列表");
+    expect(wrapper.get(".quick-add-button").attributes("aria-label")).toBe("新建分组");
     await wrapper.get(".quick-menu-button").trigger("click");
     expect(wrapper.find('.dropdown-option[data-key="paste"]').exists()).toBe(false);
     expect(wrapper.find('.dropdown-option[data-key="smart-paste"]').exists()).toBe(false);
@@ -1927,7 +1927,7 @@ describe("QuickButtons", () => {
     expect(polish).toHaveBeenCalledTimes(1);
   });
 
-  it("流程中按钮数组被结构性替换（切工作区/清空）时丢弃迟到结果", async () => {
+  it("流程中按钮数组被结构性替换（切空间/清空）时丢弃迟到结果", async () => {
     type QuickButtonPolishSuccess = { button: { title: string; value: string; type: "link" } };
     let resolvePolish: (value: QuickButtonPolishSuccess) => void = () => undefined;
     const polish = vi.fn(() => new Promise<QuickButtonPolishSuccess>((resolve) => { resolvePolish = resolve; }));
@@ -1943,7 +1943,7 @@ describe("QuickButtons", () => {
     await wrapper.get('[data-key="smart-paste"]').trigger("click");
     await wrapper.vm.$nextTick();
 
-    // 模拟切工作区：buttons 换新数组引用
+    // 模拟切空间：buttons 换新数组引用
     await wrapper.setProps({ buttons: [{ id: "b1", title: "别的", value: "x", type: "text", hidden: false }] });
     resolvePolish({ button: { title: "迟到按钮", value: "https://github.com", type: "link" } });
     await flushPromises();
@@ -2068,9 +2068,9 @@ describe("QuickButtons 跨空间移动", () => {
     await wrapper.get(".quick-tag-title").trigger("contextmenu");
     expect(wrapper.findAll('[data-key^="move-ws:"]')).toHaveLength(0);
     expect(wrapper.find('[data-key="move-tag"]').exists()).toBe(false);
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑列表", "查看隐藏", "删除列表"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["新建", "粘贴", "编辑分组", "查看隐藏", "删除分组"]);
     expect(wrapper.find('[data-key="create-list"]').exists()).toBe(false);
-    expect(wrapper.get('[data-key="delete-tag"]').text()).toBe("删除列表");
+    expect(wrapper.get('[data-key="delete-tag"]').text()).toBe("删除分组");
     wrapper.unmount();
   });
 
@@ -2083,12 +2083,12 @@ describe("QuickButtons 跨空间移动", () => {
     await wrapper.get(".quick-tag-menu-button").trigger("click");
     const labels = () => wrapper.findAll(".dropdown-option").map(option => option.text());
     const expected = labels();
-    expect(expected[0]).toBe("新建列表");
+    expect(expected[0]).toBe("新建分组");
     expect(expected).not.toContain("新增");
-    expect(expected).not.toContain("删除列表");
+    expect(expected).not.toContain("删除分组");
     await wrapper.get(".quick-tag-title").trigger("contextmenu");
     expect(labels()).toEqual(expected);
-    expect(labels()[0]).toBe("新建列表");
+    expect(labels()[0]).toBe("新建分组");
     expect(wrapper.findAll('[data-key^="move-ws:"]')).toHaveLength(0);
     expect(wrapper.find('[data-key="move-tag"]').exists()).toBe(false);
     expect(wrapper.find('[data-key="add"]').exists()).toBe(false);

@@ -27,7 +27,7 @@ function mountPastePanel(polish: (kind: PolishKind, text: string) => Promise<Pol
 }
 
 describe("visible workbench actions", () => {
-  it("adds to the selected reminder list without opening a context menu", async () => {
+  it("adds to the selected reminder group without opening a context menu", async () => {
     const wrapper = mount(TodoPanel, { props: {
       titles: DEFAULT_TITLES,
       todos: { morning: [], noon: [], evening: [] },
@@ -44,7 +44,7 @@ describe("visible workbench actions", () => {
     }});
     wrappers.push(wrapper);
     await wrapper.get(".quick-add-button").trigger("click");
-    expect(wrapper.findAllComponents(NModal).find(modal => modal.props("show"))?.props("title")).toBe("New list");
+    expect(wrapper.findAllComponents(NModal).find(modal => modal.props("show"))?.props("title")).toBe("New group");
     expect(wrapper.emitted("save")).toBeUndefined();
   });
 

@@ -33,7 +33,7 @@ describe("ZoneVisibilityPopover", () => {
 
     expect(wrapper.findAll(".zone-visibility-option").map((option) => option.text())).toEqual([
       "贴图",
-      "快捷动作",
+      "快捷按钮",
       "提醒事项",
       "记事本",
     ]);
@@ -44,7 +44,7 @@ describe("ZoneVisibilityPopover", () => {
 
     expect(wrapper.findAll(".zone-visibility-option").map((option) => option.text())).toEqual([
       "Clippings",
-      "Quick actions",
+      "Quick buttons",
       "Reminders",
       "Notebook",
     ]);

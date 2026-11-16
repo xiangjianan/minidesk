@@ -86,10 +86,10 @@ describe("message catalog", () => {
     expect(about).not.toContain("workspace for organizing");
   });
 
-  it("uses memo wording in English delete-space feedback", () => {
+  it("uses notebook wording in English delete-space feedback", () => {
     const deleteMessage = getMessage("deleteSpace", () => 0.5, "en");
 
-    expect(deleteMessage).toContain("Memo removed");
+    expect(deleteMessage).toContain("Notebook removed");
     expect(deleteMessage).not.toContain("Workspace removed");
   });
 
@@ -99,7 +99,7 @@ describe("message catalog", () => {
         expect(MESSAGE_CATALOG.about.variants).toEqual([
           [
             "MiniDesk",
-            "一个本地优先的轻量工作台，把截图、提醒事项、快捷动作和便签缝合得恰到好处。",
+            "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本缝合得恰到好处。",
             "无需任何登录，所有数据全部保存在浏览器本地。",
           ].join("\n"),
         ]);

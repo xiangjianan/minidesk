@@ -1134,7 +1134,7 @@ function exportCurrentWorkspace(anchor?: HTMLElement): void {
   exportWorkspaceById(state.activeWorkspaceId, anchor);
 }
 
-/** 配对弹窗更新/清除：按 id 不可变替换目标工作区并立即落盘。弹窗开合由弹窗自身的 close 事件驱动（轮换仅更新、不关闭）。生成/重置码由弹窗内前置注册成功后才 emit，此处无需再注册。 */
+/** 配对弹窗更新/清除：按 id 不可变替换目标空间并立即落盘。弹窗开合由弹窗自身的 close 事件驱动（轮换仅更新、不关闭）。生成/重置码由弹窗内前置注册成功后才 emit，此处无需再注册。 */
 function handleInboxUpdate(inbox: WorkspaceInbox | null): void {
   const id = inboxPairingWorkspaceId.value;
   if (!id) return;
@@ -1235,12 +1235,12 @@ async function pullInboxes(): Promise<InboxSyncOutcome> {
       const workspace = state.workspaces.find((item) => item.id === patch.workspaceId);
       return workspace?.inbox !== undefined && patch.lastSeenAt > workspace.inbox.lastSeenAt;
     });
-    // 补丁全部失配（工作区已删/配对已清/水位线已被采纳或导入推进）：无落点或本批已应用过，
+    // 补丁全部失配（空间已删/配对已清/水位线已被采纳或导入推进）：无落点或本批已应用过，
     // 直接返回，跳过空转的整组替换与持久化，也不弹「收到 N 条」。
     if (!changed || applicable.length === 0) return "uptodate";
     // 补丁重放：在 await 之后的同一同步块内对当前活对象合并，读-合-写之间零宏任务间隙，
     // 用户在途编辑（同对象字段替换，不换数组身份）无法插入，也就不会被旧快照覆盖。
-    // 结构性变更天然安全：工作区已删则按 id 查无目标自然跳过；配对已清除则不在 applicable 中。
+    // 结构性变更天然安全：空间已删则按 id 查无目标自然跳过；配对已清除则不在 applicable 中。
     state.workspaces = state.workspaces.map((workspace) => {
       const patch = applicable.find((candidate) => candidate.workspaceId === workspace.id);
       return patch ? applyInboxItems(workspace, patch.plains, patch.lastSeenAt) : workspace;
@@ -1309,7 +1309,7 @@ function deleteWorkspace(id: string, anchor?: HTMLElement): void {
     "confirmDeleteWorkspace",
     anchor,
     async () => {
-      // 整区删除连坐配对：被删工作区的配对码随区消失，云端队列同步注销（失败仅气泡警告）。
+      // 整区删除连坐配对：被删空间的配对码随区消失，云端队列同步注销（失败仅气泡警告）。
       const doomedWorkspace = state.workspaces.find((workspace) => workspace.id === id);
       if (!doomedWorkspace) return;
       const workspaceIndex = state.workspaces.findIndex((workspace) => workspace.id === id);
@@ -1332,9 +1332,9 @@ function deleteWorkspace(id: string, anchor?: HTMLElement): void {
       pendingEditTodoListId.value = null;
       clearImagePreview();
       persistNow();
-      // 整区删除连坐本地存储：该工作区独占的四区宽度键即刻清理；图片负载
+      // 整区删除连坐本地存储：该空间独占的四区宽度键即刻清理；图片负载
       // 沿用单图删除的 5 秒宽限（期间可被撤销/重导入保住），到期未被任何
-      // 工作区引用即从 IndexedDB 清除，不占配额。
+      // 空间引用即从 IndexedDB 清除，不占配额。
       showDeleteUndo(getMessage("deleteWorkspace", Math.random, state.language), anchor, () => {
         if (state.workspaces.some((workspace) => workspace.id === id)) return;
         state.workspaces.splice(Math.min(workspaceIndex, state.workspaces.length), 0, removedWorkspace);
@@ -1909,7 +1909,7 @@ async function addImageFile(
     matchDisplaySizeToDevicePixelRatio?: boolean;
     insertAfterId?: string;
     onPersisted?: (image: StoredImage) => void;
-    /** 提供时插入 todo.focusImages 而非工作区贴图列表。 */
+    /** 提供时插入 todo.focusImages 而非空间贴图列表。 */
     destination?: FocusDestination;
   } = {},
 ): Promise<StoredImage | undefined> {
@@ -3441,7 +3441,7 @@ function requestImport(anchor?: HTMLElement): void {
   importInput.value?.click();
 }
 
-/** 收集工作区里仍带内联载荷的贴图（board images + todo.focusImages）：导入与启动的
+/** 收集空间里仍带内联载荷的贴图（board images + todo.focusImages）：导入与启动的
  *  一次性迁移都要先把 src 写进 IndexedDB——否则下次序列化剥掉 src 后只剩无法水合、
  *  且会被静默删除的幽灵元数据。 */
 function collectInlineImagePayloads(workspaces: WorkspaceData[]): (StoredImage & { src: string })[] {
@@ -3804,11 +3804,11 @@ function getDensityThreshold(type: DensityAreaType): number {
 function getDensityAreaLabel(type: DensityAreaType): string {
   if (state.language === "en") {
     if (type === "todos") return "Reminders";
-    if (type === "quickButtons") return "Quick Actions";
+    if (type === "quickButtons") return "Quick buttons";
     return "Images";
   }
   if (type === "todos") return "提醒事项";
-  if (type === "quickButtons") return "快捷动作";
+  if (type === "quickButtons") return "快捷按钮";
   return "贴图";
 }
 

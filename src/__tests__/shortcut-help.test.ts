@@ -42,14 +42,14 @@ describe("ShortcutHelp", () => {
 
     expect(wrapper.text()).toContain("帮助与快捷键");
     expect(wrapper.findAll(".shortcut-section")).toHaveLength(5);
-    expect(wrapper.text()).toContain("双击列表标题或空间标签可以改名");
-    expect(wrapper.text()).toContain("右键空白处可以新增提醒事项列表");
-    expect(wrapper.text()).toContain("快捷动作按列表整理");
+    expect(wrapper.text()).toContain("双击分组标题或记事本标签可以改名");
+    expect(wrapper.text()).toContain("右键空白处可以新增提醒事项分组");
+    expect(wrapper.text()).toContain("快捷按钮按分组整理");
     expect(wrapper.text()).not.toContain("工具栏");
     expect(wrapper.text()).toContain("Ctrl/⌘ + S");
     expect(wrapper.text()).toContain("Esc / Space");
     expect(wrapper.text()).toContain("上移 / 下移当前行");
-    expect(wrapper.findAll(".shortcut-section h4").map((heading) => heading.text())).toEqual(["工作台", "贴图", "快捷动作", "提醒事项", "记事本"]);
+    expect(wrapper.findAll(".shortcut-section h4").map((heading) => heading.text())).toEqual(["工作台", "贴图", "快捷按钮", "提醒事项", "记事本"]);
     expect(wrapper.findAll(".shortcut-section-icon svg")).toHaveLength(5);
   });
 
@@ -57,9 +57,9 @@ describe("ShortcutHelp", () => {
     const wrapper = mountShortcutHelp("en");
 
     expect(wrapper.text()).toContain("Help & Shortcuts");
-    expect(wrapper.text()).toContain("Double-click list titles or space tabs to rename them");
+    expect(wrapper.text()).toContain("Double-click group titles or notebook tabs to rename them");
     expect(wrapper.text()).toContain("Notification time works without starring");
-    expect(wrapper.text()).toContain("Drag action");
+    expect(wrapper.text()).toContain("Drag button");
     expect(wrapper.text()).not.toContain("Tool menu");
     expect(wrapper.text()).not.toContain("tool panel");
   });
@@ -138,18 +138,18 @@ describe("SHORTCUT_HELP entries", () => {
   it("pins the reminder Ctrl+←/→ and Ctrl+↑/↓ shortcut entries", () => {
     const zhSection = SHORTCUT_HELP.zh.find((section) => section.area === "提醒事项");
     expect(zhSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ←/→", desc: "跳到行首 / 行尾" });
-    expect(zhSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ↑/↓", desc: "在普通列表中上移 / 下移提醒顺序" });
+    expect(zhSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ↑/↓", desc: "在普通分组中上移 / 下移提醒顺序" });
 
     const enSection = SHORTCUT_HELP.en.find((section) => section.area === "Reminders");
     expect(enSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ←/→", desc: "Jump to line start / end" });
-    expect(enSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ↑/↓", desc: "Move reminder up / down in its list" });
+    expect(enSection?.shortcuts).toContainEqual({ key: "Ctrl/⌘ + ↑/↓", desc: "Move reminder up / down in its group" });
   });
 
   it("pins the Tab dash-autofill copy for notes", () => {
     const zhSection = SHORTCUT_HELP.zh.find((section) => section.area === "记事本");
     expect(zhSection?.shortcuts).toContainEqual({ key: "Tab", desc: "缩进；未标记的行自动补 -" });
 
-    const enSection = SHORTCUT_HELP.en.find((section) => section.area === "Notepad");
+    const enSection = SHORTCUT_HELP.en.find((section) => section.area === "Notebook");
     expect(enSection?.shortcuts).toContainEqual({ key: "Tab", desc: "Indent; unmarked lines get a dash" });
   });
 

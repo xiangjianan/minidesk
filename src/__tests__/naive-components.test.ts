@@ -248,7 +248,7 @@ describe("Naive UI component usage", () => {
     expect(quick).toContain("uiText.quick.menu");
     expect(quick).toContain("uiText.value.quick.showHidden");
     expect(quick).toContain("uiText.value.quick.hideHidden");
-    expect(i18n).toContain("快捷动作菜单");
+    expect(i18n).toContain("快捷按钮菜单");
     expect(quick).toContain("EyeOutline");
     expect(quick).toContain("EyeOffOutline");
     expect(quick).toContain("quick-button-icon");
@@ -296,7 +296,7 @@ describe("Naive UI component usage", () => {
     expect(styles).toMatch(/\.quick-menu-button:hover,[\s\S]*?\.todo-section-menu-button:focus-visible\s*\{[^}]*background: transparent/s);
   });
 
-  it("styles configurable reminder list controls and compact collapsed states", () => {
+  it("styles configurable reminder group controls and compact collapsed states", () => {
     const todo = read("src/components/TodoPanel.vue");
     const createDialog = read("src/components/TodoListCreateDialog.vue");
     const styles = read("src/styles.css");

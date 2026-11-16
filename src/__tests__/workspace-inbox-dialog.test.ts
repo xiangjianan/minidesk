@@ -268,7 +268,7 @@ describe("WorkspaceInboxDialog", () => {
     expect(payload?.noteTarget).toBe(workspace.spaces[0]?.id);
   });
 
-  it("落点下拉选项来自工作区空间 Tab 的显示标题", () => {
+  it("落点下拉选项来自空间空间 Tab 的显示标题", () => {
     const spaces: WorkspaceSpace[] = [
       { id: "workspace", title: "📝 便签", lines: [] },
       { id: "storage", title: "工程文件", lines: [] },

@@ -170,7 +170,7 @@ describe("WorkbenchShell", () => {
     expect(wrapper.get('[data-testid="workbench-command-bar"]').text()).not.toContain("⌘K");
     expect(wrapper.get('[data-testid="workbench-save-status"]').text()).toBe("已保存");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
-    expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷动作");
+    expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");
     expect(wrapper.get(".workbench-zone-tasks").attributes("aria-label")).toBe("提醒事项");
     expect(wrapper.get(".workbench-zone-workspace").attributes("aria-label")).toBe("记事本");
     expect(wrapper.get('[data-testid="assets-slot"]').text()).toBe("assets");
@@ -204,7 +204,7 @@ describe("WorkbenchShell", () => {
     });
 
     expect(wrapper.get(".workbench-zone-assets .workbench-zone-rail").text()).toBe("贴图");
-    expect(wrapper.get(".workbench-zone-notes .workbench-zone-rail").text()).toBe("快捷动作");
+    expect(wrapper.get(".workbench-zone-notes .workbench-zone-rail").text()).toBe("快捷按钮");
   });
 
   it("renders a compact slogan after the title and save status when provided", () => {
@@ -804,14 +804,14 @@ describe("WorkbenchShell", () => {
     window.dispatchEvent(new MouseEvent("pointerup"));
     await nextTick();
 
-    // 拖动结果落在工作区自己的键上，旧的共享键不被写入。
+    // 拖动结果落在空间自己的键上，旧的共享键不被写入。
     const storedA = localStorage.getItem(`${WORKBENCH_WIDTH_STORAGE_KEY}:ws-a`);
     expect(storedA).toBeTruthy();
     expect(JSON.parse(storedA ?? "[]")).toHaveLength(4);
     expect(localStorage.getItem(WORKBENCH_WIDTH_STORAGE_KEY)).toBeNull();
     wrapper.unmount();
 
-    // 工作区 B 有自己独立的尺寸：挂载后应用 B 的布局，也不会碰 A 的键。
+    // 空间 B 有自己独立的尺寸：挂载后应用 B 的布局，也不会碰 A 的键。
     localStorage.setItem(`${WORKBENCH_WIDTH_STORAGE_KEY}:ws-b`, JSON.stringify([180, 360, 340, 380]));
     const workspaceB = mount(WorkbenchShell, {
       attachTo: document.body,
@@ -824,7 +824,7 @@ describe("WorkbenchShell", () => {
     expect(workspaceB.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 165px 331px 312px 349px");
     expect(localStorage.getItem(`${WORKBENCH_WIDTH_STORAGE_KEY}:ws-a`)).toBe(storedA);
 
-    // 在已挂载的壳上切换工作区 id：watcher 丢弃当前列宽并按 A 的存储尺寸重排。
+    // 在已挂载的壳上切换空间 id：watcher 丢弃当前列宽并按 A 的存储尺寸重排。
     await workspaceB.setProps({ workspaceId: "ws-a" });
     await nextTick();
     await nextTick();
