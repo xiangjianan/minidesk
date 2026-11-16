@@ -670,10 +670,8 @@ describe("SettingsMenu", () => {
     expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:zh"]').classes()).toContain("is-selected");
     const languageOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "language").children;
-    expect(languageOptions.every((option: any) => typeof option.icon === "function")).toBe(true);
-    expect(languageOptions[0].icon().children.default().type).not.toBe(languageOptions[1].icon().children.default().type);
-    expect(languageOptions[0].label().children[1]?.props.class).toBe("settings-zone-check");
-    expect(languageOptions[1].label().children[1]).toBeNull();
+    expect(languageOptions[0].icon).toBeTypeOf("function");
+    expect(languageOptions[1].icon).toBeUndefined();
     expect(wrapper.find('[data-key="language:en"]').text()).toBe("English");
 
     await wrapper.find('[data-key="language:en"]').trigger("click");

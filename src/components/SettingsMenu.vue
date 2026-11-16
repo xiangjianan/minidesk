@@ -17,7 +17,7 @@ import {
   RefreshCw as RefreshOutline,
   Sun,
   Moon,
-  Cat, Cloud, Music2, ImagePlus, VolumeX, Languages, ALargeSmall,
+  Cat, Cloud, Music2, ImagePlus, VolumeX,
   LayoutGrid as GridOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
@@ -155,15 +155,15 @@ const options = computed(() => [
     icon: renderIcon(GlobeOutline),
     children: [
       {
-        label: selectionLabel(text.value.settings.chinese, normalizeLanguage(props.language) === "zh"),
+        label: text.value.settings.chinese,
         key: "language:zh",
-        icon: renderIcon(Languages),
+        icon: normalizeLanguage(props.language) === "zh" ? renderIcon(CheckmarkOutline) : undefined,
         props: { role: "menuitemradio", "aria-checked": normalizeLanguage(props.language) === "zh" },
       },
       {
-        label: selectionLabel(text.value.settings.english, normalizeLanguage(props.language) === "en"),
+        label: text.value.settings.english,
         key: "language:en",
-        icon: renderIcon(ALargeSmall),
+        icon: normalizeLanguage(props.language) === "en" ? renderIcon(CheckmarkOutline) : undefined,
         props: { role: "menuitemradio", "aria-checked": normalizeLanguage(props.language) === "en" },
       },
     ],
