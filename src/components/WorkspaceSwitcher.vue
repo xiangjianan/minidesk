@@ -10,7 +10,7 @@ import {
   Download as DownloadOutline,
   CloudUpload as CloudUploadOutline,
   Check as CheckmarkOutline,
-  Sparkles as SparklesOutline,
+  LayoutTemplate as LayoutTemplateOutline,
   Smartphone as PhonePortraitOutline,
   Ellipsis as EllipsisHorizontalOutline,
 } from "lucide-vue-next";
@@ -313,7 +313,7 @@ onUnmounted(() => disposeSort?.());
         </button>
       </div>
       <button type="button" class="workspace-switcher-example" data-testid="workspace-example-button" @click="emit('loadExample'); close()">
-        <NIcon :component="SparklesOutline" size="14" />
+        <NIcon :component="LayoutTemplateOutline" size="14" />
         <span>{{ EXAMPLE_DESKTOP_TEXT[language].load }}</span>
       </button>
     </div>
