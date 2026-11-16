@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { NIcon } from "naive-ui";
 import { ChevronDownOutline, ChevronUpOutline, CloseOutline, CreateOutline, TrashOutline } from "@vicons/ionicons5";
-import { ZoomIn, ZoomOut } from "lucide-vue-next";
+import { CircleHelp, ZoomIn, ZoomOut } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
 import { ZOOM_STEP } from "../composables/useImageTransform";
 import type { AppLanguage } from "../types";
@@ -15,6 +15,7 @@ const props = withDefaults(defineProps<{
 }>(), { language: "zh", canEdit: true });
 const emit = defineEmits<{ navigate: [direction: number]; zoom: [delta: number]; edit: []; delete: [event: MouseEvent]; close: [] }>();
 const uiText = computed(() => getUiText(props.language));
+const helpOpen = ref(false);
 </script>
 
 <template>
@@ -54,6 +55,10 @@ const uiText = computed(() => getUiText(props.language));
         <TrashOutline />
       </NIcon>
     </button>
+    <button type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
+      <NIcon size="18"><CircleHelp /></NIcon>
+    </button>
+    <div v-if="helpOpen" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">{{ uiText.preview.help }}</div>
     </div>
     <div class="preview-toolbar-group">
     <button

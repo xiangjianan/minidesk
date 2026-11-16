@@ -869,6 +869,7 @@ export const UI_TEXT = {
       zoomIn: "放大图片",
       imageAlt: "图片预览",
       help: "上下按钮/WASD 切换图片 · Ctrl/Command+滚轮或双击缩放 · 拖动平移 · Enter 编辑 · Ctrl+C 复制 · Ctrl+V 粘贴 · Delete 删除 · Space/Esc 关闭",
+      shortcuts: "图片预览快捷键",
     },
     imageEditor: {
       title: "编辑图片",
@@ -1344,6 +1345,7 @@ export const UI_TEXT = {
       zoomIn: "Zoom in image",
       imageAlt: "Image preview",
       help: "Stacked buttons/WASD switch images · Ctrl/Command+wheel or double-click zooms · Drag pans · Enter edits · Ctrl+C copies · Ctrl+V pastes · Delete removes · Space/Esc closes",
+      shortcuts: "Image preview shortcuts",
     },
     imageEditor: {
       title: "Edit image",

@@ -520,21 +520,25 @@ describe("ImagePreview", () => {
     const toolbar = wrapper.get(".preview-actions");
     expect(toolbar.attributes("role")).toBe("toolbar");
     const buttons = toolbar.findAll("button");
-    expect(buttons).toHaveLength(7);
-    expect(toolbar.findAll(".preview-toolbar-group").map((group) => group.findAll("button").length)).toEqual([5, 2]);
+    expect(buttons).toHaveLength(8);
+    expect(toolbar.findAll(".preview-toolbar-group").map((group) => group.findAll("button").length)).toEqual([6, 2]);
     expect(toolbar.findAll(".preview-toolbar-divider")).toHaveLength(2);
-    expect(buttons.map((button) => button.text())).toEqual(["", "", "", "", "", "", ""]);
+    expect(buttons.map((button) => button.text())).toEqual(["", "", "", "", "", "", "", ""]);
     expect(buttons.map((button) => button.attributes("aria-label"))).toEqual([
       "取消预览",
       "放大图片",
       "缩小图片",
       "编辑",
       "删除",
+      "图片预览快捷键",
       "上一张图片",
       "下一张图片",
     ]);
 
     try {
+      await wrapper.get('[data-testid="preview-help"]').trigger("click");
+      expect(wrapper.get('[data-testid="preview-shortcut-help"]').text()).toContain("WASD");
+      await wrapper.get('[data-testid="preview-help"]').trigger("click");
       await wrapper.get(".preview-zoom-button.is-zoom-in").trigger("click");
       expect(wrapper.get(".preview-stage img").attributes("style")).toContain("scale(1.1)");
 
@@ -1696,7 +1700,7 @@ describe("ImagePreview", () => {
     });
 
     // 工具栏不再有「编辑」按钮（7 → 6），键盘 Enter 不再打开编辑器。
-    expect(wrapper.findAll(".preview-actions button")).toHaveLength(6);
+    expect(wrapper.findAll(".preview-actions button")).toHaveLength(7);
     expect(wrapper.find(".preview-toolbar-button.is-edit").exists()).toBe(false);
 
     await wrapper.get(".image-preview").trigger("keydown", { key: "Enter" });
