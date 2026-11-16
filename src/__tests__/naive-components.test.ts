@@ -510,6 +510,14 @@ describe("Naive UI component usage", () => {
     expect(styles).toMatch(/\.update-check-modal\.n-card\s*\{[^}]*pointer-events: auto/s);
   });
 
+  it("keeps the custom GIF dialog visible and interactive above image preview", () => {
+    const styles = read("src/styles.css");
+    expect(styles).toMatch(/body:has\(\.image-preview\) \.n-modal-container:has\(\.gif-theme-custom-modal\)\s*\{[^}]*z-index: 10101 !important/s);
+    expect(styles).toMatch(/body:has\(\.image-preview\) \.gif-theme-custom-modal\.n-card\s*\{[^}]*pointer-events: auto/s);
+    expect(styles).toMatch(/body:has\(\.image-preview\) \.n-modal-container:has\(\.gif-theme-custom-modal\) \.n-modal-mask\s*\{[^}]*pointer-events: auto[^}]*backdrop-filter: blur\(6px\)/s);
+    expect(styles).toMatch(/html\[data-theme="dark"\] body:has\(\.image-preview\) \.n-modal-container:has\(\.gif-theme-custom-modal\) \.n-modal-mask\s*\{[^}]*background: rgba\(0, 0, 0, 0\.32\)/s);
+  });
+
   it("lifts the workspace create/rename dialog above the image preview", () => {
     // While the image preview is open, Naive modal containers drop to
     // pointer-events: none and the preview side panel sits at z-index 4300. The

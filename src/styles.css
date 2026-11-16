@@ -3563,6 +3563,36 @@ html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.workspa
   background: rgba(0, 0, 0, 0.32) !important;
 }
 
+/* The custom GIF dialog can also be opened from settings over a preview. */
+body:has(.image-preview) .n-modal-container:has(.gif-theme-custom-modal) {
+  z-index: 10101 !important;
+}
+
+body:has(.image-preview) .gif-theme-custom-modal.n-card {
+  position: relative;
+  z-index: 4310;
+  pointer-events: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+body:has(.image-preview) .n-modal-container:has(.gif-theme-custom-modal) .n-modal-mask {
+  pointer-events: auto;
+  background: rgba(15, 23, 42, 0.16) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(1.2);
+  backdrop-filter: blur(6px) saturate(1.2);
+}
+
+html[data-theme="dark"] body:has(.image-preview) .n-modal-container:has(.gif-theme-custom-modal) .n-modal-mask {
+  background: rgba(0, 0, 0, 0.32) !important;
+}
+
+body:has(.image-preview) .gif-theme-custom-modal .n-scrollbar-container,
+body:has(.image-preview) .gif-theme-custom-modal .n-scrollbar-content,
+body:has(.image-preview) .gif-theme-custom-modal .n-scrollbar {
+  pointer-events: auto;
+}
+
 body:has(.image-preview) .shortcut-help-modal .n-scrollbar-container,
 body:has(.image-preview) .shortcut-help-modal .n-scrollbar-content,
 body:has(.image-preview) .shortcut-help-modal .n-scrollbar {
