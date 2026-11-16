@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NIcon, NModal } from "naive-ui";
-import { Timer, Image as ImageIcon, FileText } from "lucide-vue-next";
+import { Timer } from "lucide-vue-next";
+import { ImagesAreaIcon, NotesAreaIcon } from "../utils/areaIcons";
 import { PasteActionIcon as Clipboard } from "../utils/dropdownIcons";
 import type { AppLanguage, ImagePasteRequest, LineItem, StoredImage } from "../types";
 import { getDefaultTitles, getIconHeadingText, getUiText } from "../state/i18n";
@@ -408,7 +409,7 @@ function handleModalShow(value: boolean): void {
       </header>
       <div ref="bodyRef" class="focus-now-body" :style="{ '--focus-image-width': `${imageWidth}%` }">
         <aside :class="{ 'is-collapsed': imagesCollapsed }" class="focus-now-images" :aria-label="uiText.todo.focusImagesLabel">
-          <div class="focus-now-images-rail" @click="expandPanel"><NIcon :component="ImageIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
+          <div class="focus-now-images-rail" @click="expandPanel"><NIcon :component="ImagesAreaIcon" /><span>{{ getIconHeadingText(getDefaultTitles(language)["image-title"], "image") }}</span></div>
           <ImagePanel
             :title="getDefaultTitles(language)['image-title']"
             header-id="focus-now-image-title"
@@ -442,10 +443,10 @@ function handleModalShow(value: boolean): void {
              记事本——display:none 会丢滚动位置），关预览即原样露出。 -->
         <section class="focus-now-notes" :class="{ 'is-collapsed': notesCollapsed }">
           <button v-if="notesCollapsed" class="focus-now-notes-rail" type="button" @click="expandPanel">
-            <NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span>
+            <NIcon :component="NotesAreaIcon" /><span>{{ uiText.desk.notes }}</span>
           </button>
           <div v-show="!notesCollapsed" class="panel-header desk-zone-heading focus-now-notes-header">
-            <h2><NIcon :component="FileText" /><span>{{ uiText.desk.notes }}</span></h2>
+            <h2><NIcon :component="NotesAreaIcon" /><span>{{ uiText.desk.notes }}</span></h2>
             <div class="header-actions">
               <button class="desk-ai-action desk-paste-button" type="button"
                 :aria-label="uiText.common.paste" :title="uiText.common.paste"

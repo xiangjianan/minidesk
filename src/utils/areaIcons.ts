@@ -1,2 +1,2 @@
-// Shared between the workbench headings and the shortcut guide.
-export { Image as ImagesAreaIcon, Zap as QuickAreaIcon, SquareCheck as RemindersAreaIcon, FileText as NotesAreaIcon } from "lucide-vue-next";
+// Shared across all representations of the four workbench areas.
+export { Image as ImagesAreaIcon, MousePointerClick as QuickAreaIcon, ListTodo as RemindersAreaIcon, NotebookText as NotesAreaIcon } from "lucide-vue-next";

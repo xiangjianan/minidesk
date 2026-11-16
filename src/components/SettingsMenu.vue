@@ -18,10 +18,6 @@ import {
   Sun,
   Moon,
   LayoutGrid as GridOutline,
-  Image as ImageIcon,
-  MousePointerClick,
-  ListTodo,
-  NotebookText,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
 import { NBadge, NButton, NDropdown, NIcon, NModal, NUpload } from "naive-ui";
@@ -32,6 +28,7 @@ import { getUiText, normalizeLanguage } from "../state/i18n";
 import type { AppLanguage, CompanionCustomGif, CompanionGifTheme, GuideKey, ThemeMode, ZoneKey, ZoneVisibility } from "../types";
 import { CONTEXT_MENU_Z_INDEX } from "../utils/contextMenu";
 import { renderIcon } from "../utils/dropdownIcons";
+import { ImagesAreaIcon, QuickAreaIcon, RemindersAreaIcon, NotesAreaIcon } from "../utils/areaIcons";
 import { createMenuAim, menuAimProps } from "../utils/menuAim";
 
 const props = withDefaults(defineProps<{
@@ -99,7 +96,7 @@ function selectAppearance(): void {
   menuOpen.value = false;
   emit("theme", nextAppearance.value);
 }
-const zoneIcons = { assets: ImageIcon, notes: MousePointerClick, tasks: ListTodo, workspace: NotebookText };
+const zoneIcons = { assets: ImagesAreaIcon, notes: QuickAreaIcon, tasks: RemindersAreaIcon, workspace: NotesAreaIcon };
 const zoneOptions = computed(() => [
   ...(["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
     label: () => h("span", { class: "settings-zone-label" }, [
