@@ -8,12 +8,12 @@ describe("example workspace", () => {
   it.each(["zh", "en"] as const)("creates editable example content in %s", (language) => {
     const workspace = createExampleWorkspace(language);
     expect(workspace.images).toHaveLength(3);
-    expect(workspace.images.every((image) => image.src?.startsWith("data:image/svg+xml"))).toBe(true);
-    expect(workspace.quickButtons).toHaveLength(3);
+    expect(workspace.images.every((image) => image.src?.startsWith("data:image/"))).toBe(true);
+    expect(workspace.quickButtons).toHaveLength(5);
     const groups = buildVisibleQuickButtonGroups(workspace.quickButtons, workspace.quickTags, false, "General", false);
-    expect(groups).toHaveLength(1);
-    expect(groups[0].buttons).toHaveLength(3);
-    expect(Object.values(workspace.todos).flat()).toHaveLength(3);
+    expect(groups).toHaveLength(2);
+    expect(groups.flatMap((group) => group.buttons)).toHaveLength(5);
+    expect(Object.values(workspace.todos).flat()).toHaveLength(5);
     expect(workspace.spaces[0].lines).toEqual(workspace.workspaceLines);
     expect(getSerializableWorkspace(workspace).images.every((image) => !image.src)).toBe(true);
     const blank = defaultWorkspace(undefined, language);

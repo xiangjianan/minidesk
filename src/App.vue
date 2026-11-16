@@ -62,7 +62,7 @@ import {
 import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY, LEGACY_STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
-import { createExampleWorkspace, EXAMPLE_DESKTOP_TEXT } from "./state/exampleWorkspace";
+import { EXAMPLE_DESKTOP_TEXT } from "./state/exampleDesktopText";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
 import * as workspaceMover from "./state/workspaceMoves";
 import { mergeImportedWorkspace } from "./state/workspaceImport";
@@ -1041,6 +1041,7 @@ async function loadExampleDesktop(): Promise<void> {
   if (exampleLoading.value) return;
   exampleLoading.value = true;
   try {
+    const { createExampleWorkspace } = await import("./state/exampleWorkspace");
     const workspace = ensureUniqueWorkspaceTitle(createExampleWorkspace(state.language), state.workspaces, DEFAULT_BOARD_TITLE);
     await persistImagePayloads(workspace.images);
     state.workspaces = [...state.workspaces, workspace];
