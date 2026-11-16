@@ -177,11 +177,39 @@ const notifyPickerDrafts = ref<Record<string, number>>({});
 const presetEditor = ref<{ group: "relative" | "time"; index: number } | null>(null);
 const presetEditorOpen = ref(false);
 const presetTimeDraft = ref("");
-const presetMinutesDraft = ref<number | null>(null);
+const presetDurationUnit = ref<"minutes" | "hours">("minutes");
+const presetDurationValue = ref<number | null>(null);
+const presetDurationMinutes = computed(() => {
+  const value = presetDurationValue.value;
+  if (value === null || !Number.isFinite(value) || value <= 0) return null;
+  const minutes = presetDurationUnit.value === "hours" ? Math.round(value * 60) : value;
+  return Number.isInteger(minutes) && minutes >= 1 && minutes <= 10080 ? minutes : null;
+});
+function setDurationUnit(unit: "minutes" | "hours"): void {
+  if (unit === presetDurationUnit.value) return;
+  const minutes = presetDurationMinutes.value;
+  presetDurationUnit.value = unit;
+  if (minutes !== null) presetDurationValue.value = unit === "hours" ? Number((minutes / 60).toFixed(4)) : minutes;
+}
+function stepDuration(amount: number): void {
+  const maximum = presetDurationUnit.value === "hours" ? 168 : 10080;
+  const minimum = presetDurationUnit.value === "hours" ? 1 / 60 : 1;
+  presetDurationValue.value = Number(Math.max(minimum, Math.min(maximum, (presetDurationValue.value ?? 0) + amount)).toFixed(4));
+}
+const presetHour = computed({
+  get: () => presetTimeDraft.value.slice(0, 2),
+  set: (hour: string) => { presetTimeDraft.value = `${hour}:${presetTimeDraft.value.slice(3, 5)}`; },
+});
+const presetMinute = computed({
+  get: () => presetTimeDraft.value.slice(3, 5),
+  set: (minute: string) => { presetTimeDraft.value = `${presetTimeDraft.value.slice(0, 2)}:${minute}`; },
+});
 function editPreset(group: "relative" | "time", index: number): void {
   presetEditor.value = { group, index };
   presetTimeDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index];
-  presetMinutesDraft.value = normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index];
+  const minutes = normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index];
+  presetDurationUnit.value = minutes % 60 === 0 ? "hours" : "minutes";
+  presetDurationValue.value = presetDurationUnit.value === "hours" ? minutes / 60 : minutes;
   presetEditorOpen.value = true;
 }
 function savePreset(): void {
@@ -193,7 +221,7 @@ function savePreset(): void {
     times[editor.index] = presetTimeDraft.value;
     emit("notifyPresetTimesChange", times);
   } else {
-    const value = presetMinutesDraft.value;
+    const value = presetDurationMinutes.value;
     if (value === null || !Number.isInteger(value) || value < 1 || value > 10080) return;
     const minutes = normalizeNotifyPresetMinutes(props.notifyPresetMinutes);
     minutes[editor.index] = value;
@@ -2616,14 +2644,25 @@ onUnmounted(() => focusRegionAnimation?.cancel());
 
     <NModal :show="presetEditorOpen" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditorOpen = false; }">
       <p>{{ uiText.todo.notifyPresets.hint }}</p>
-      <label class="notify-preset-editor">
-        <span>{{ presetEditor?.group === 'time' ? uiText.todo.notifyPresets.timeLabel : uiText.todo.notifyPresets.minutes }}</span>
-        <input v-if="presetEditor?.group === 'time'" v-model="presetTimeDraft" type="time">
-        <input v-else v-model.number="presetMinutesDraft" type="number" min="1" max="10080" step="1">
-      </label>
+      <div v-if="presetEditor?.group === 'time'" class="notify-preset-time-editor">
+        <label><span>{{ uiText.todo.notifyPresets.hours }}</span><select v-model="presetHour" size="5" :aria-label="uiText.todo.notifyPresets.hours"><option v-for="hour in NOTIFY_HOURS" :key="hour" :value="formatNotifyTimeUnit(hour)">{{ formatNotifyTimeUnit(hour) }}</option></select></label>
+        <span class="notify-preset-time-separator">:</span>
+        <label><span>{{ uiText.todo.notifyPresets.minutes }}</span><select v-model="presetMinute" size="5" :aria-label="uiText.todo.notifyPresets.minutes"><option v-for="minute in NOTIFY_MINUTES" :key="minute" :value="formatNotifyTimeUnit(minute)">{{ formatNotifyTimeUnit(minute) }}</option></select></label>
+      </div>
+      <div v-else class="notify-preset-duration-editor">
+        <div class="notify-preset-stepper">
+          <button type="button" :aria-label="uiText.todo.notifyPresets.decrease" @click="stepDuration(-1)">−</button>
+          <input v-model.number="presetDurationValue" type="number" min="0" :max="presetDurationUnit === 'hours' ? 168 : 10080" step="any" :aria-label="uiText.todo.notifyPresets.editDuration">
+          <button type="button" :aria-label="uiText.todo.notifyPresets.increase" @click="stepDuration(1)">+</button>
+        </div>
+        <div class="notify-preset-units" role="group" :aria-label="uiText.todo.notifyPresets.unit">
+          <button type="button" :class="{ 'is-active': presetDurationUnit === 'minutes' }" :aria-pressed="presetDurationUnit === 'minutes'" @click="setDurationUnit('minutes')">{{ uiText.todo.notifyPresets.minutes }}</button>
+          <button type="button" :class="{ 'is-active': presetDurationUnit === 'hours' }" :aria-pressed="presetDurationUnit === 'hours'" @click="setDurationUnit('hours')">{{ uiText.todo.notifyPresets.hours }}</button>
+        </div>
+      </div>
       <div class="notify-preset-settings-actions">
         <NButton @click="presetEditorOpen = false">{{ uiText.common.cancel }}</NButton>
-        <NButton type="primary" :disabled="presetEditor?.group === 'time' ? !presetTimeDraft : !presetMinutesDraft || !Number.isInteger(presetMinutesDraft) || presetMinutesDraft < 1 || presetMinutesDraft > 10080" @click="savePreset">{{ uiText.common.save }}</NButton>
+        <NButton type="primary" :disabled="presetEditor?.group === 'time' ? !presetTimeDraft : presetDurationMinutes === null" @click="savePreset">{{ uiText.common.save }}</NButton>
       </div>
     </NModal>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="menuOptions"
