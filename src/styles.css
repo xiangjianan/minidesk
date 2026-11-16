@@ -757,6 +757,16 @@ html[data-theme="dark"] .n-modal-mask {
     transform var(--motion-medium) var(--motion-ease);
 }
 
+.space-unsaved-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-inline-start: 5px;
+  border-radius: 50%;
+  background: var(--primary);
+  vertical-align: middle;
+}
+
 button.space-tab {
   border: 0;
   background: transparent;

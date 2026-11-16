@@ -170,6 +170,8 @@ const {
   },
 });
 
+const dirtyNotebookIds = ref<Set<string>>(new Set());
+
 const {
   saveStatus,
   textSaveTimer,
@@ -198,7 +200,18 @@ const {
   onMerged: (savedImages) => {
     activeWorkspace.value.images = mergeVisibleImages(savedImages as StoredImage[], activeWorkspace.value.images);
   },
-  onSaved: broadcastStateSaved,
+  onSaved: (savedState) => {
+    const remaining = new Set(dirtyNotebookIds.value);
+    for (const workspace of state.workspaces) {
+      const savedWorkspace = savedState.workspaces.find((item) => item.id === workspace.id);
+      for (const space of workspace.spaces) {
+        const savedSpace = savedWorkspace?.spaces.find((item) => item.id === space.id);
+        if (savedSpace && JSON.stringify(savedSpace.lines) === JSON.stringify(space.lines)) remaining.delete(`${workspace.id}:${space.id}`);
+      }
+    }
+    dirtyNotebookIds.value = remaining;
+    broadcastStateSaved();
+  },
   scheduleImagePayloadPrune,
   showSaveBubble,
 });
@@ -773,6 +786,7 @@ function updateSpaceLines(id: string, lines: LineItem[]): void {
   const space = activeWorkspace.value.spaces.find((item) => item.id === id);
   if (!space) return;
   space.lines = lines;
+  dirtyNotebookIds.value = new Set([...dirtyNotebookIds.value, `${activeWorkspace.value.id}:${id}`]);
   bumpTextGeneration();
   syncLegacySpaceLines();
   markDirty();
@@ -4377,6 +4391,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           class="workspace-panel"
           :spaces="displaySpaces"
           :active-space-id="activeWorkspace.activeSpaceId"
+          :dirty-space-ids="activeWorkspace.spaces.filter(space => dirtyNotebookIds.has(`${activeWorkspace.id}:${space.id}`)).map(space => space.id)"
           :edit-space-id="pendingEditSpaceId"
           :language="state.language"
           :move-targets="workspaceMoveTargets"

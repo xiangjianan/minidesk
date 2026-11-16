@@ -779,6 +779,7 @@ export const UI_TEXT = {
       addImage: "新增图片",
     },
     space: {
+      unsaved: "未保存",
       panel: "空间",
       list: "空间列表",
       editName: "编辑空间名称",
@@ -1242,6 +1243,7 @@ export const UI_TEXT = {
       addImage: "Add image",
     },
     space: {
+      unsaved: "Unsaved",
       panel: "Space",
       list: "Space list",
       editName: "Edit space name",

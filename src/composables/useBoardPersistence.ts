@@ -25,7 +25,7 @@ export interface BoardPersistenceDeps {
   /** Save succeeded: merge visible images when the save merged cross-tab state. */
   onMerged: (savedImages: unknown[]) => void;
   /** Save succeeded: broadcast to other tabs. */
-  onSaved: () => void;
+  onSaved: (savedState: BoardState) => void;
   /** Schedule IndexedDB payload pruning (skipped for text-only flushes). */
   scheduleImagePayloadPrune: () => void;
   /** Bubble celebration for explicit saves (not debounced auto-saves). */
@@ -149,7 +149,7 @@ export function useBoardPersistence(deps: BoardPersistenceDeps) {
       const savedActive = result.state.workspaces.find((w) => w.id === deps.state.activeWorkspaceId) ?? result.state.workspaces[0];
       deps.onMerged(savedActive?.images ?? []);
     }
-    deps.onSaved();
+    deps.onSaved(result.state);
     markSavedSoon();
     // Payload pruning only matters when image sets may have changed; a text/todo
     // debounce flush cannot orphan a payload, so skip the IndexedDB sweep.

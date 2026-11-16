@@ -29,6 +29,7 @@ import TextPanel from "./TextPanel.vue";
 const props = withDefaults(defineProps<{
   spaces: WorkspaceSpace[];
   activeSpaceId: string;
+  dirtySpaceIds?: string[];
   editSpaceId?: string | null;
   language?: AppLanguage;
   moveTargets?: WorkspaceMoveTarget[];
@@ -422,6 +423,7 @@ onUnmounted(() => disposeSort?.());
               @drop="handleDrop($event, space.id)"
             >
               {{ space.title }}
+              <span v-if="dirtySpaceIds?.includes(space.id)" class="space-unsaved-dot" :title="uiText.space.unsaved" :aria-label="uiText.space.unsaved" />
             </button>
             <span
               v-else
