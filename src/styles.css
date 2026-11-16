@@ -6787,12 +6787,17 @@ body,
   border-color: var(--line-main);
 }
 
-.workspace-switcher-example {
-  display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; margin-top: 6px;
-  padding: 7px 8px; border: 0; border-radius: 8px; background: transparent;
-  color: var(--muted); font: inherit; text-align: left; cursor: pointer;
+.workspace-switcher-example-section {
+  margin-top: 8px; padding-top: 6px;
+  border-top: 1px solid var(--line-subtle);
 }
-.workspace-switcher-example:hover { background: var(--color-hover, rgba(0,0,0,0.05)); color: var(--text); }
+.workspace-switcher-example {
+  display: flex; align-items: center; justify-content: flex-start; gap: 7px; width: 100%;
+  padding: 7px 8px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--muted); font: inherit; font-size: 12px; opacity: 0.75; text-align: left; cursor: pointer;
+}
+.workspace-switcher-example:hover,
+.workspace-switcher-example:focus-visible { background: var(--color-hover, rgba(0,0,0,0.05)); color: var(--text); opacity: 1; }
 
 /* Zone-visibility config popover (opened from the header's grid button). */
 .zone-visibility-popover { min-width: 148px; padding: 2px 0; }
