@@ -848,6 +848,14 @@ describe("App shell", () => {
     await fillCodeInputs(wrapper, code);
     await wrapper.get('[data-testid="mobile-inbox-code-confirm"]').trigger("click");
     await flushAsyncComponents();
+    if (!vi.isFakeTimers()) {
+      await vi.waitFor(() => {
+        expect(
+          wrapper.find('[data-testid="mobile-inbox-text"]').exists()
+          || wrapper.find('[data-testid="mobile-inbox-code-error"]').exists(),
+        ).toBe(true);
+      });
+    }
   }
 
   it("输码验证 active：配对成功进入速记页", async () => {
