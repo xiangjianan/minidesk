@@ -18,6 +18,10 @@ import {
   Sun,
   Moon,
   LayoutGrid as GridOutline,
+  Image as ImageIcon,
+  MousePointerClick,
+  ListTodo,
+  NotebookText,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
 import { NBadge, NButton, NDropdown, NIcon, NModal, NUpload } from "naive-ui";
@@ -95,10 +99,19 @@ function selectAppearance(): void {
   menuOpen.value = false;
   emit("theme", nextAppearance.value);
 }
-const zoneOptions = computed(() => (["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
-  label: text.value.zoneVisibility[zone], key: `zone:${zone}`,
-  icon: props.zoneVisibility[zone] ? renderIcon(CheckmarkOutline) : undefined,
-})));
+const zoneIcons = { assets: ImageIcon, notes: MousePointerClick, tasks: ListTodo, workspace: NotebookText };
+const zoneOptions = computed(() => [
+  ...(["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
+    label: () => h("span", { class: "settings-zone-label" }, [
+      h("span", text.value.zoneVisibility[zone]),
+      props.zoneVisibility[zone] ? h(CheckmarkOutline, { class: "settings-zone-check", size: 15, "aria-hidden": "true" }) : null,
+    ]),
+    key: `zone:${zone}`,
+    icon: renderIcon(zoneIcons[zone]),
+    props: { role: "menuitemcheckbox", "aria-checked": props.zoneVisibility[zone] },
+  })),
+  { type: "render" as const, key: "zone-hint", render: () => h("div", { class: "settings-zone-hint" }, text.value.zoneVisibility.restoreHint) },
+]);
 function handlePreferenceShow(kind: "zones", show: boolean): void {
   if (!show && preferenceOpen.value !== kind) return;
   if (!show && keepPreferenceOpen) { keepPreferenceOpen = false; return; }

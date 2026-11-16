@@ -117,8 +117,13 @@ describe("SettingsMenu", () => {
     }
     expect(wrapper.emitted("toggleZone")).toEqual([["assets"], ["notes"], ["tasks"], ["workspace"]]);
     await wrapper.setProps({ zoneVisibility: { assets: false, notes: true, tasks: true, workspace: true } });
-    expect(wrapper.get('[data-key="zone:assets"]').classes()).not.toContain("is-selected");
-    expect(wrapper.get('[data-key="zone:tasks"]').classes()).toContain("is-selected");
+    const zoneOptions = zones.props("options") as Array<{ key: string; icon?: () => unknown; props?: { "aria-checked": boolean }; render?: () => { children?: string } }>;
+    expect(zoneOptions.filter(option => option.key.startsWith("zone:")).every(option => typeof option.icon === "function")).toBe(true);
+    expect(zoneOptions.find(option => option.key === "zone:assets")?.props?.["aria-checked"]).toBe(false);
+    expect(zoneOptions.find(option => option.key === "zone:tasks")?.props?.["aria-checked"]).toBe(true);
+    expect(zoneOptions.find(option => option.key === "zone-hint")?.render?.().children).toBe(
+      language === "zh" ? "隐藏后可在顶栏恢复" : "Restore hidden areas from the top bar",
+    );
     await wrapper.get('[data-testid="appearance-controls"]').trigger("click");
     expect(zones.props("show")).toBe(false);
     expect(wrapper.emitted("theme")).toEqual([["dark"]]);

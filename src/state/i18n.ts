@@ -688,6 +688,7 @@ export const UI_TEXT = {
     },
     zoneVisibility: {
       title: "显示区域",
+      restoreHint: "隐藏后可在顶栏恢复",
       assets: "贴图",
       notes: "快捷按钮",
       tasks: "提醒事项",
@@ -1173,6 +1174,7 @@ export const UI_TEXT = {
     },
     zoneVisibility: {
       title: "Visible areas",
+      restoreHint: "Restore hidden areas from the top bar",
       assets: "Clippings",
       notes: "Quick buttons",
       tasks: "Reminders",

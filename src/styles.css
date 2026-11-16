@@ -8077,3 +8077,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .selection-color-icon { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; font-size: 13px; font-weight: 700; line-height: 1; }
 .selection-background-icon { color: var(--text); background: var(--mark-highlight-amber); border-radius: 3px; }
 .selection-foreground-icon { color: var(--mark-text-blue); border-bottom: 3px solid var(--mark-text-blue); }
+
+.settings-zone-label { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: 100%; }
+.settings-zone-check { flex: none; }
+.settings-zone-hint { max-width: 220px; padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; white-space: normal; }
