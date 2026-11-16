@@ -17,7 +17,7 @@ import {
   RefreshCw as RefreshOutline,
   Sun,
   Moon,
-  Cat, Cloud, Music2, ImagePlus, VolumeX,
+  Sparkles, CircleDot, CircleDashed, ImagePlus, VolumeX,
   LayoutGrid as GridOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
@@ -110,7 +110,7 @@ function selectionLabel(label: string, selected: boolean) {
     selected ? h(CheckmarkOutline, { class: "settings-zone-check", size: 15, "aria-hidden": "true" }) : null,
   ]);
 }
-const gifIcons = { cat: Cat, hermes: Cloud, ikun: Music2, custom: ImagePlus, none: VolumeX };
+const gifIcons = { cat: Sparkles, hermes: CircleDot, ikun: CircleDashed, custom: ImagePlus, none: VolumeX };
 const zoneOptions = computed(() => [
   ...(["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
     label: () => h("span", { class: "settings-zone-label" }, [
@@ -343,12 +343,14 @@ function focusCustomGifDialog(): void {
 }
 
 function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
-  if (normalizeLanguage(props.language) === "zh") {
-    return COMPANION_GIF_THEME_OPTIONS.find((option) => option.value === theme)?.label ?? theme;
-  }
-  if (theme === "custom") return "Custom";
-  if (theme === "none") return text.value.settings.gifQuietMode;
-  return theme;
+  const labels = {
+    cat: text.value.settings.gifThemeDefault,
+    hermes: text.value.settings.gifThemeOne,
+    ikun: text.value.settings.gifThemeTwo,
+    custom: text.value.settings.gifThemeCustom,
+    none: text.value.settings.gifQuietMode,
+  };
+  return labels[theme];
 }
 
 </script>

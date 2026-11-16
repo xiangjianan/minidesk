@@ -16,13 +16,12 @@ export const DEFAULT_COMPANION_GIF_THEME: CompanionGifTheme = "cat";
 
 export const COMPANION_GIF_THEME_OPTIONS: Array<{
   value: CompanionGifTheme;
-  label: string;
 }> = [
-  { value: "cat", label: "像素猫" },
-  { value: "hermes", label: "云霞" },
-  { value: "ikun", label: "ikun" },
-  { value: "custom", label: "自定义" },
-  { value: "none", label: "安静模式" },
+  { value: "cat" },
+  { value: "hermes" },
+  { value: "ikun" },
+  { value: "custom" },
+  { value: "none" },
 ];
 
 export function normalizeCompanionGifTheme(value: unknown): CompanionGifTheme {
