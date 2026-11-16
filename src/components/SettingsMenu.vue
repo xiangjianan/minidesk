@@ -135,9 +135,21 @@ function handlePreferenceSelect(key: string): void {
   emit("toggleZone", key.slice(5) as ZoneKey);
 }
 
+function cleanupLabel(label: string, includeDescription: boolean) {
+  return () => h("span", { class: "settings-cleanup-label" }, [
+    h("span", label),
+    h("span", {
+      class: "settings-cleanup-dot",
+      ...(includeDescription
+        ? { role: "img", "aria-label": text.value.settings.storageCleanupAvailable.replace("{count}", String(props.orphanCount)) }
+        : { "aria-hidden": "true" }),
+    }),
+  ]);
+}
+
 const options = computed(() => [
   {
-    label: text.value.settings.data,
+    label: props.orphanCount ? cleanupLabel(text.value.settings.data, true) : text.value.settings.data,
     key: "data",
     icon: renderIcon(ServerOutline),
     children: [
@@ -146,7 +158,7 @@ const options = computed(() => [
       { label: text.value.settings.import, key: "import", icon: renderIcon(CloudUploadOutline) },
       { label: text.value.settings.exportCurrentWorkspace, key: "export-workspace", icon: renderIcon(CloudDownloadOutline) },
       { label: text.value.settings.exportAll, key: "export-all", icon: renderIcon(CloudDownloadOutline) },
-      { label: props.orphanCount ? text.value.settings.storageCleanupAvailable.replace("{count}", String(props.orphanCount)) : text.value.settings.storageUsage, key: "storage-usage", icon: renderIcon(ServerOutline) },
+      { label: props.orphanCount ? cleanupLabel(text.value.settings.storageCleanupAvailable.replace("{count}", String(props.orphanCount)), false) : text.value.settings.storageUsage, key: "storage-usage", icon: renderIcon(ServerOutline) },
       { label: text.value.settings.clearData, key: "clear-data", icon: renderIcon(TrashOutline, true) },
     ],
   },

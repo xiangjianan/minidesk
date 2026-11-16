@@ -3423,6 +3423,14 @@ button.companion-undo-button {
   font-variant-numeric: tabular-nums;
 }
 
+.settings-cleanup-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.settings-cleanup-dot,
 .settings-version-badge {
   flex: none;
   width: 6px;

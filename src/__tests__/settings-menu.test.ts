@@ -71,6 +71,28 @@ function findVersionBadge(wrapper: ReturnType<typeof mount>) {
 }
 
 describe("SettingsMenu", () => {
+  it.each(["zh", "en"] as const)("guides cleanup through both data menu levels in %s", async (language) => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", orphanCount: 2, language },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    const dropdown = wrapper.findAllComponents(dropdownStub)[1];
+    type Option = { key: string; label: string | (() => VNodeLike); children?: Option[] };
+    const getOptions = () => dropdown.props("options") as Option[];
+    const data = () => getOptions().find(option => option.key === "data")!;
+    const storage = () => data().children!.find(option => option.key === "storage-usage")!;
+    const nodes = (option: Option) => (typeof option.label === "function" ? option.label().children : []) as VNodeLike[];
+    expect(nodes(data()).find(node => node.props?.class === "settings-cleanup-dot")?.props?.["aria-label"])
+      .toBe(language === "zh" ? "存储占用（可清理 2 项）" : "Storage usage (2 to clean up)");
+    expect(nodes(storage()).find(node => node.props?.class === "settings-cleanup-dot")).toBeDefined();
+    await wrapper.find('[data-key="storage-usage"]').trigger("click");
+    expect(wrapper.emitted("storageUsage")).toHaveLength(1);
+    await wrapper.setProps({ orphanCount: 0 });
+    expect(typeof data().label).toBe("string");
+    expect(typeof storage().label).toBe("string");
+    wrapper.unmount();
+  });
+
   it("keeps settings open when AI is toggled", async () => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none" },
