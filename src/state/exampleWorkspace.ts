@@ -1,5 +1,6 @@
 import { createWorkspaceData } from "./workspaces";
 import { createId } from "./storage";
+import { DEFAULT_QUICK_LIST_ID } from "./quickLists";
 import type { AppLanguage, WorkspaceData } from "../types";
 
 export const EXAMPLE_DESKTOP_TEXT = {
@@ -21,9 +22,9 @@ export function createExampleWorkspace(language: AppLanguage): WorkspaceData {
     screenshot("Reading list", "Keep the useful things close", "#e8edf1"),
   ].map((src) => ({ id: createId(), src, createdAt: Date.now() }));
   workspace.quickButtons = [
-    { id: createId(), title: zh ? "搜索网页" : "Search the web", value: "https://www.google.com", type: "link", hidden: false },
-    { id: createId(), title: zh ? "常用回复" : "Quick reply", value: zh ? "收到，谢谢！" : "Got it, thank you!", type: "text", hidden: false },
-    { id: createId(), title: zh ? "维基百科" : "Wikipedia", value: "https://www.wikipedia.org", type: "link", hidden: false },
+    { id: createId(), title: zh ? "搜索网页" : "Search the web", value: "https://www.google.com", type: "link", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
+    { id: createId(), title: zh ? "常用回复" : "Quick reply", value: zh ? "收到，谢谢！" : "Got it, thank you!", type: "text", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
+    { id: createId(), title: zh ? "维基百科" : "Wikipedia", value: "https://www.wikipedia.org", type: "link", tagId: DEFAULT_QUICK_LIST_ID, hidden: false },
   ];
   const items = zh ? ["整理今天的想法", "回复一条消息", "留一点时间休息"] : ["Organize today's ideas", "Reply to a message", "Make time for a break"];
   workspace.todos[workspace.todoLists[0].id] = items.map((text) => ({ id: createId(), text, done: false }));

@@ -1348,6 +1348,8 @@ button.image-card {
   max-width: 100%;
   min-height: 32px;
   padding: 0 12px;
+  -webkit-user-select: none;
+  user-select: none;
   font-size: var(--app-font-size);
   background: transparent;
   border: 1px solid var(--line-control);
@@ -3479,9 +3481,9 @@ body:has(.image-preview) .n-modal-scroll-content {
   pointer-events: none;
 }
 
-body:has(.image-preview) .n-scrollbar-container,
-body:has(.image-preview) .n-scrollbar-content,
-body:has(.image-preview) .n-scrollbar {
+body .n-modal-container:has(.image-preview) .n-scrollbar-container,
+body .n-modal-container:has(.image-preview) .n-scrollbar-content,
+body .n-modal-container:has(.image-preview) .n-scrollbar {
   pointer-events: none;
 }
 

@@ -8,6 +8,16 @@ function expectSelectorBody(styles: string, selector: string, text: string): voi
 }
 
 describe("workbench style contract", () => {
+  it("keeps quick button labels unselectable and preview pointer rules inside its modal", () => {
+    const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
+    expectSelectorBody(styles, ".quick-button", "-webkit-user-select: none");
+    expectSelectorBody(styles, ".quick-button", "user-select: none");
+    for (const part of [".n-scrollbar", ".n-scrollbar-container", ".n-scrollbar-content"]) {
+      expect(styles).not.toContain(`body:has(.image-preview) ${part} {\n  pointer-events: none`);
+      expectSelectorBody(styles, `body .n-modal-container:has(.image-preview) ${part}`, "pointer-events: none");
+    }
+  });
+
   it("matches the focus divider handle to the workbench resizer", () => {
     const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
