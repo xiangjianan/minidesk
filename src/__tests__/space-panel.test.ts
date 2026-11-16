@@ -54,6 +54,14 @@ function ruleBodies(styles: string, selector: string): string[] {
 }
 
 describe("SpacePanel", () => {
+  it("opens the same notebook menu from the visible button", async () => {
+    const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
+    await wrapper.get('[data-testid="notebook-menu"]').trigger("click");
+    expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(["create", "paste", "smart-paste", "guide"]);
+    await wrapper.get('[data-key="create"]').trigger("click");
+    expect(wrapper.emitted("create")).toHaveLength(1);
+    wrapper.unmount();
+  });
   it("offers paste, smart paste and Tips on the notebook heading in both languages", async () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     const heading = wrapper.get(".desk-zone-heading");

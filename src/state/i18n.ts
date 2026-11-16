@@ -790,6 +790,7 @@ export const UI_TEXT = {
       addImage: "新增图片",
     },
     space: {
+      menu: "记事本菜单",
       unsaved: "未保存",
       panel: "空间",
       list: "空间列表",
@@ -1266,6 +1267,7 @@ export const UI_TEXT = {
       addImage: "Add image",
     },
     space: {
+      menu: "Notebook menu",
       unsaved: "Unsaved",
       panel: "Space",
       list: "Space list",

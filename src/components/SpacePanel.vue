@@ -14,6 +14,7 @@ import {
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,
   CircleHelp as HelpCircleOutline,
+  EllipsisVertical,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, LineItem, WorkspaceMoveTarget, WorkspaceSpace } from "../types";
@@ -249,7 +250,9 @@ function openHeaderMenu(event: MouseEvent): void {
   event.preventDefault();
   event.stopPropagation();
   exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
-  menu.value = { x: event.clientX, y: event.clientY, spaceId: activeSpace.value?.id ?? "", anchor: event.currentTarget as HTMLElement };
+  const anchor = event.currentTarget as HTMLElement;
+  const rect = anchor.getBoundingClientRect();
+  menu.value = { x: event.type === "click" ? rect.left : event.clientX, y: event.type === "click" ? rect.bottom : event.clientY, spaceId: activeSpace.value?.id ?? "", anchor };
 }
 
 function openTabsBlankMenu(event: MouseEvent): void {
@@ -388,6 +391,9 @@ onUnmounted(() => disposeSort?.());
           :aria-label="uiText.common.paste" :title="uiText.common.paste" @mousedown.prevent
           @click.stop="textPanelRef?.appendPaste()">
           <NIcon :component="ClipboardOutline" /><span>{{ uiText.common.paste }}</span>
+        </button>
+        <button class="icon-button" type="button" data-testid="notebook-menu" :aria-label="uiText.space.menu" :title="uiText.space.menu" @click.stop="openHeaderMenu">
+          <NIcon :component="EllipsisVertical" />
         </button>
       </div>
     </div>
