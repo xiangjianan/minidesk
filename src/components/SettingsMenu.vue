@@ -52,6 +52,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   createWorkspace: [];
   exportWorkspace: [anchor?: HTMLElement];
+  exportAll: [anchor?: HTMLElement];
   storageUsage: [];
   import: [anchor?: HTMLElement];
   pairInbox: [anchor?: HTMLElement];
@@ -131,6 +132,7 @@ const options = computed(() => [
       { label: text.value.settings.createWorkspace, key: "create-workspace", icon: renderIcon(AddOutline) },
       { label: text.value.settings.import, key: "import", icon: renderIcon(CloudUploadOutline) },
       { label: text.value.settings.exportCurrentWorkspace, key: "export-workspace", icon: renderIcon(CloudDownloadOutline) },
+      { label: text.value.settings.exportAll, key: "export-all", icon: renderIcon(CloudDownloadOutline) },
       { label: text.value.settings.storageUsage, key: "storage-usage", icon: renderIcon(ServerOutline) },
       { label: text.value.settings.clearData, key: "clear-data", icon: renderIcon(TrashOutline, true) },
     ],
@@ -191,6 +193,7 @@ function handleSelect(key: string): void {
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
   if (key === "create-workspace") emit("createWorkspace");
   if (key === "export-workspace") emit("exportWorkspace", triggerRef.value ?? undefined);
+  if (key === "export-all") emit("exportAll", triggerRef.value ?? undefined);
   if (key === "storage-usage") emit("storageUsage");
   if (key === "import") emit("import", triggerRef.value ?? undefined);
   if (key === "pair-inbox") emit("pairInbox", triggerRef.value ?? undefined);

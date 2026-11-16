@@ -26,6 +26,7 @@ import {
   persistCustomCompanionGifPayloads,
   persistImagePayloads,
   pruneStoredImagePayloads,
+  orphanedImagePayloads,
   storeImagePayload,
 } from "./state/images";
 import { getMessage, withKaomoji, type MessageKey } from "./state/messages";
@@ -58,7 +59,7 @@ import {
   hasTodoFocus,
   updateTodoText,
 } from "./state/todos";
-import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY } from "./state/defaults";
+import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY, LEGACY_STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
@@ -100,6 +101,7 @@ import {
   createId,
   exportUndoSnapshotState,
   getSerializableWorkspace,
+  getSerializableState,
   loadState,
   normalizeImportedState,
   normalizeWorkspaceData,
@@ -311,7 +313,10 @@ const workspaceDialogVisible = ref(false);
 const storageUsageVisible = ref(false);
 const storageUsageLoading = ref(false);
 const storageUsageError = ref(false);
-const storageUsageRows = ref<Array<{ id: string; title: string; count: number; bytes: number }>>([]);
+const orphanUsage = ref({ count: 0, bytes: 0 });
+const orphanConfirm = ref(false);
+const fullImport = ref<BoardState | null>(null);
+const storageUsageRows = ref<Array<{ id: string; title: string; count: number; bytes: number; imageBytes: number }>>([]);
 async function showStorageUsage(): Promise<void> {
   storageUsageVisible.value = true;
   storageUsageLoading.value = true;
@@ -324,15 +329,50 @@ async function showStorageUsage(): Promise<void> {
       const hydrated = await hydrateStoredImages(images);
       if (hydrated.some((image) => !image.src)) storageUsageError.value = true;
       const metadata = JSON.stringify(getSerializableWorkspace(workspace));
-      const bytes = new Blob([metadata]).size + hydrated.reduce((sum, image) => sum + (image.src ? new Blob([image.src]).size : 0), 0);
-      rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes });
+      const imageBytes = hydrated.reduce((sum, image) => sum + (image.src ? new Blob([image.src]).size : 0), 0);
+      const bytes = new Blob([metadata]).size + imageBytes;
+      rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes, imageBytes });
     }
     storageUsageRows.value = rows;
+    orphanUsage.value = await orphanedImagePayloads(collectSafeRetainedIds());
   } catch {
     storageUsageError.value = true;
   } finally {
     storageUsageLoading.value = false;
   }
+}
+function collectSafeRetainedIds(): Set<string> {
+  const retained = collectRetainedImagePayloadIds();
+  for (const workspace of state.workspaces) {
+    for (const image of [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))].flat()) {
+      retained.add(image.id);
+    }
+  }
+  // A malformed persisted state cannot safely establish which payloads are unused.
+  for (const key of [STORAGE_KEY, LEGACY_STORAGE_KEY]) {
+    const raw = localStorage.getItem(key);
+    if (!raw) continue;
+    const stored: unknown = JSON.parse(raw);
+    extractRetainedImageIds(stored).forEach((id) => retained.add(id));
+    // Also preserve legacy image IDs when the live payload uses a newer key.
+    const visit = (value: unknown): void => {
+      if (!value || typeof value !== "object") return;
+      if (Array.isArray(value)) { value.forEach(visit); return; }
+      const record = value as Record<string, unknown>;
+      if (typeof record.id === "string") retained.add(record.id);
+      Object.values(record).forEach(visit);
+    };
+    visit(stored);
+  }
+  return retained;
+}
+async function cleanOrphans(): Promise<void> {
+  orphanConfirm.value = false;
+  storageUsageLoading.value = true;
+  try {
+    await orphanedImagePayloads(collectSafeRetainedIds(), true);
+    await showStorageUsage();
+  } catch { storageUsageError.value = true; storageUsageLoading.value = false; }
 }
 function formatStorageBytes(bytes: number): string {
   return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${(bytes / 1024).toFixed(1)} KB`;
@@ -1142,6 +1182,29 @@ async function confirmWorkspaceExport(): Promise<void> {
 
 function exportCurrentWorkspace(anchor?: HTMLElement): void {
   exportWorkspaceById(state.activeWorkspaceId, anchor);
+}
+
+async function exportAllData(anchor?: HTMLElement): Promise<void> {
+  if (workspaceExporting.value) return;
+  workspaceExporting.value = true;
+  try {
+    const backup = getSerializableState(state, { includeImageData: true, includeCustomGifData: true });
+    const lists = backup.workspaces.flatMap((workspace) => [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))]);
+    const images = lists.flat();
+    const hydrated = await hydrateStoredImages(images);
+    if (hydrated.some((image) => !image.src)) throw new Error("Image payload missing");
+    let index = 0;
+    for (const list of lists) for (let i = 0; i < list.length; i++) list[i] = hydrated[index++];
+    backup.customCompanionGif = await hydrateCustomCompanionGif(backup.customCompanionGif, backup.customCompanionGifStored);
+    if ((backup.customCompanionGifStored.light && !backup.customCompanionGif.light) || (backup.customCompanionGifStored.dark && !backup.customCompanionGif.dark)) throw new Error("GIF payload missing");
+    for (const workspace of backup.workspaces) {
+      const ratios = readWorkbenchWidthRatios(workspace.id);
+      if (ratios) workspace.zoneWidthRatios = ratios;
+    }
+    downloadExportFile(JSON.stringify(backup, null, 2), `mini-desk-backup-${exportTimestamp(new Date())}.json`);
+    showBubble("dataExported", anchor, { hideCompanionAfter: true });
+  } catch { showBubble("imageReadFailed", anchor, { hideCompanionAfter: true }); }
+  finally { workspaceExporting.value = false; }
 }
 
 /** 配对弹窗更新/清除：按 id 不可变替换目标空间并立即落盘。弹窗开合由弹窗自身的 close 事件驱动（轮换仅更新、不关闭）。生成/重置码由弹窗内前置注册成功后才 emit，此处无需再注册。 */
@@ -3610,10 +3673,40 @@ async function importData(event: Event): Promise<void> {
     return;
   }
 
-  // 整盘导出/导入已停用：导入只接收单个空间文件（同名时可选覆盖或新增）。
+  if (Array.isArray((parsed as Record<string, unknown>).workspaces) && (parsed as { workspaces: unknown[] }).workspaces.length > 0) {
+    try { fullImport.value = normalizeImportedState(parsed); }
+    catch { showBubble("importDataInvalid", importFeedbackAnchor.value, { hideCompanionAfter: true }); }
+    input.value = "";
+    return;
+  }
+
   showBubble("importSingleWorkspaceOnly", importFeedbackAnchor.value, { hideCompanionAfter: true });
   importFeedbackAnchor.value = undefined;
   input.value = "";
+}
+
+async function restoreFullImport(): Promise<void> {
+  const backup = fullImport.value;
+  fullImport.value = null;
+  if (!backup || shouldBlockBoardEffects()) return;
+  try {
+    const images = backup.workspaces.flatMap((workspace) => [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))]).flat();
+    if (images.some((image) => !image.src) || (backup.customCompanionGifStored.light && !backup.customCompanionGif.light) || (backup.customCompanionGifStored.dark && !backup.customCompanionGif.dark)) throw new Error("Backup payload missing");
+    for (const image of images) image.payloadId = createId();
+    await persistWorkspaceImages(backup.workspaces);
+    await persistCustomCompanionGifPayloads(backup.customCompanionGif);
+    backup.sync = { ...state.sync };
+    Object.assign(state, backup);
+    for (const workspace of state.workspaces) restoreWorkbenchWidthRatios(workspace.id, workspace.zoneWidthRatios);
+    resetUndoHistory();
+    resetTextGenerationBaseline();
+    boardEpoch.value++;
+    applyTheme();
+    persistNow("all", { force: true });
+    refreshTodoNotifications();
+    showBubble("dataImported", importFeedbackAnchor.value, { hideCompanionAfter: true });
+  } catch { showBubble("imageReadFailed", importFeedbackAnchor.value, { hideCompanionAfter: true }); }
+  importFeedbackAnchor.value = undefined;
 }
 
 function about(anchor?: HTMLElement): void {
@@ -4324,6 +4417,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :language="state.language"
           @create-workspace="openCreateWorkspace"
           @export-workspace="exportCurrentWorkspace"
+          @export-all="exportAllData"
           @storage-usage="showStorageUsage"
           @import="requestImport"
           @pair-inbox="inboxPairingWorkspaceId = state.activeWorkspaceId"
@@ -4603,7 +4697,9 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <p>{{ uiText.settings.storageUsageHint }}</p>
       <p v-if="storageUsageLoading">{{ uiText.images.loading }}</p>
       <p v-if="storageUsageError" role="alert">{{ uiText.settings.storageReadFailed }}</p>
-      <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)) }}</li></ul>
+      <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)).replace('{imageSize}', formatStorageBytes(row.imageBytes)) }}</li></ul>
+      <p>{{ uiText.settings.orphanUsage.replace('{count}', String(orphanUsage.count)).replace('{size}', formatStorageBytes(orphanUsage.bytes)) }}</p>
+      <NButton :disabled="storageUsageLoading || storageUsageError || !orphanUsage.count" @click="orphanConfirm = true">{{ uiText.settings.cleanOrphans }}</NButton>
       <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
     </NModal>
     <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal clear-workspace-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
@@ -4640,6 +4736,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
+    <NModal :show="fullImport !== null" preset="dialog" :title="uiText.settings.restoreAll" :content="uiText.settings.restoreAllConfirm" :positive-text="uiText.settings.restoreAll" :negative-text="uiText.common.cancel" @positive-click="restoreFullImport" @negative-click="fullImport = null" @close="fullImport = null" />
+    <NModal :show="orphanConfirm" preset="dialog" :title="uiText.settings.cleanOrphans" :content="uiText.settings.cleanOrphansConfirm" :positive-text="uiText.settings.cleanOrphans" :negative-text="uiText.common.cancel" @positive-click="cleanOrphans" @negative-click="orphanConfirm = false" @close="orphanConfirm = false" />
     <NModal :show="exportWorkspaceId !== null" :auto-focus="false" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
       <p class="workspace-export-hint">{{ uiText.app.exportScopeHint }}</p>
       <p>{{ uiText.app.exportChooseZones }}</p>

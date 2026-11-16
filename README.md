@@ -106,7 +106,7 @@ npm run build   # build the production bundle
 
 ### Settings & feedback
 
-- Settings menu: data (new workspace / import / export current workspace / clear data), language (中文 / English), GIF theme (including custom light/dark GIFs), feedback, help & shortcuts, about.
+- Settings menu: data (new workspace / import / export workspace / export all data / storage usage / clear data), language (中文 / English), GIF theme (including custom light/dark GIFs), feedback, help & shortcuts, about.
 - The version number at the bottom opens "Release notes"; a red dot appears when a new version is available, and updates install in one click from inside.
 - The save status badge at the top shows: saved, saving, or unsaved changes.
 
@@ -150,7 +150,7 @@ Image originals are kept in same-site IndexedDB:
 mini-desk-images-v1
 ```
 
-The phone's remembered pairing code is kept in `mini-desk-inbox-code`. Legacy `todo-board-state-v1` and `todo-board-images-v1` keys migrate automatically on read. Clearing site data wipes board content, images, and custom GIFs; deleting only the `localStorage` keys clears board state, but IndexedDB may still hold image originals.
+The phone's remembered pairing code is kept in `mini-desk-inbox-code`. Legacy `todo-board-state-v1` and `todo-board-images-v1` keys migrate automatically on read. Clearing site data wipes board content, images, and custom GIFs; deleting only the `localStorage` keys clears board state, but IndexedDB may still hold image originals. Settings → Data → Storage usage estimates each workspace and can clean up old unreferenced image payloads. Export all data creates a portable backup of workspaces, settings, images, and custom GIFs; it may contain phone pairing credentials, so keep it private. Importing a full backup replaces current workspaces and settings after confirmation.
 
 The mobile-inbox relay stores only the capture items themselves (self-hosted, authenticated by pairing-code hash); items become unreadable once delivered to the desktop or after 30 days, and are removed from the queue on read. The relay keeps no board data, images, or account information.
 

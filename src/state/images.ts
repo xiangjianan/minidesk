@@ -299,3 +299,37 @@ async function getLegacyStoredPayloads(ids: string[]): Promise<Map<string, strin
     return new Map();
   }
 }
+
+/** Scan or remove old, unreferenced payloads. Recent records are left alone for
+ * other tabs and in-flight writes; special GIF records are always protected. */
+export async function orphanedImagePayloads(retainedIds: Iterable<string>, remove = false): Promise<{ count: number; bytes: number }> {
+  if (!("indexedDB" in window)) throw new Error("IndexedDB unavailable");
+  const retained = new Set(retainedIds);
+  const result = { count: 0, bytes: 0 };
+  for (const name of [IMAGE_DB_NAME, LEGACY_IMAGE_DB_NAME]) {
+    const db = await openImageDb(name);
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(IMAGE_STORE_NAME, remove ? "readwrite" : "readonly");
+        const request = tx.objectStore(IMAGE_STORE_NAME).openCursor();
+        request.onsuccess = () => {
+          const cursor = request.result;
+          if (!cursor) return;
+          const record = cursor.value as ImagePayloadRecord;
+          if (typeof record.id === "string" && !record.id.startsWith("__custom-companion-gif")
+            && !retained.has(record.id) && (!record.imageId || !retained.has(record.imageId))
+            && (typeof record.createdAt !== "number" || Date.now() - record.createdAt >= 5 * 60_000)) {
+            result.count++;
+            result.bytes += record.src ? new Blob([record.src]).size : 0;
+            if (remove) cursor.delete();
+          }
+          cursor.continue();
+        };
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+        tx.onabort = () => reject(tx.error);
+      });
+    } finally { db.close(); }
+  }
+  return result;
+}
