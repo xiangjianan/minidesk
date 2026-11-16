@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, ref, shallowRef, watch } from "vue";
 import type { Component } from "vue";
-import { ArrowUpRight, Check, Crop, Minus, MousePointer2, PenLine, RectangleHorizontal, Redo2, RotateCcw, Type, Undo2, X } from "lucide-vue-next";
+import { ArrowUpRight, Check, Crop, Grid3X3, Droplets, Minus, MousePointer2, PenLine, RectangleHorizontal, Redo2, RotateCcw, Type, Undo2, X } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
 import type { AppLanguage, StoredImage } from "../types";
 import { clamp } from "../utils/math";
 
-type EditorTool = "crop" | "brush" | "rectangle" | "ellipse" | "arrow" | "marker" | "text";
+type EditorTool = "crop" | "brush" | "rectangle" | "ellipse" | "arrow" | "marker" | "text" | "mosaic" | "blur";
 type EditorColor = "#ef4444" | "#22c55e" | "#3b82f6" | "#facc15" | "#111827" | "#ffffff";
 type CropHandle = "move" | "left" | "right" | "top" | "bottom" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
@@ -29,7 +29,7 @@ interface PreviewFrame {
 
 type EditorCommand =
   | { type: "brush"; color: string; width: number; points: EditorPoint[] }
-  | { type: "rectangle" | "ellipse" | "arrow"; color: string; width: number; start: EditorPoint; end: EditorPoint }
+  | { type: "rectangle" | "ellipse" | "arrow" | "mosaic" | "blur"; color: string; width: number; start: EditorPoint; end: EditorPoint }
   | { type: "marker"; color: string; number: number; point: EditorPoint }
   | { type: "text"; id: string; color: string; fontSize: number; point: EditorPoint; text: string };
 
@@ -74,7 +74,7 @@ const TEXT_FONT_SIZE_OFFSET = 20;
 const TEXT_LINE_HEIGHT = 1.35;
 const TEXT_LETTER_SPACING = 0.4;
 
-const toolOptions: { value: EditorTool; icon?: Component; labelKey: "crop" | "brush" | "rectangle" | "ellipse" | "arrow" | "marker" | "text"; glyph?: string; customIcon?: "ellipse" }[] = [
+const toolOptions: { value: EditorTool; icon?: Component; labelKey: "crop" | "brush" | "rectangle" | "ellipse" | "arrow" | "marker" | "text" | "mosaic" | "blur"; glyph?: string; customIcon?: "ellipse" }[] = [
   { value: "crop", icon: Crop, labelKey: "crop" },
   { value: "brush", icon: PenLine, labelKey: "brush" },
   { value: "rectangle", icon: RectangleHorizontal, labelKey: "rectangle" },
@@ -82,6 +82,8 @@ const toolOptions: { value: EditorTool; icon?: Component; labelKey: "crop" | "br
   { value: "arrow", icon: ArrowUpRight, labelKey: "arrow" },
   { value: "marker", labelKey: "marker", glyph: "1" },
   { value: "text", icon: Type, labelKey: "text" },
+  { value: "mosaic", icon: Grid3X3, labelKey: "mosaic" },
+  { value: "blur", icon: Droplets, labelKey: "blur" },
 ];
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -253,6 +255,7 @@ function drawCommand(context: CanvasRenderingContext2D, command: EditorCommand):
   context.fillStyle = command.color;
   context.lineWidth = "width" in command ? command.width : 3;
 
+  if (command.type === "mosaic" || command.type === "blur") drawObscuredRegion(context, command);
   if (command.type === "brush") drawBrush(context, command.points);
   if (command.type === "rectangle") drawRectangle(context, command.start, command.end);
   if (command.type === "ellipse") drawEllipse(context, command.start, command.end);
@@ -261,6 +264,38 @@ function drawCommand(context: CanvasRenderingContext2D, command: EditorCommand):
   if (command.type === "text") drawText(context, command);
 
   context.restore();
+}
+
+function drawObscuredRegion(context: CanvasRenderingContext2D, command: Extract<EditorCommand, { type: "rectangle" | "ellipse" | "arrow" | "mosaic" | "blur" }>): void {
+  const rect = normalizeRect(command.start, command.end);
+  const x = Math.max(0, Math.floor(rect.x));
+  const y = Math.max(0, Math.floor(rect.y));
+  const width = Math.min(context.canvas.width - x, Math.ceil(rect.width));
+  const height = Math.min(context.canvas.height - y, Math.ceil(rect.height));
+  if (width < 1 || height < 1) return;
+  const copy = document.createElement("canvas");
+  copy.width = width;
+  copy.height = height;
+  const copyContext = copy.getContext("2d");
+  if (!copyContext) return;
+  copyContext.drawImage(context.canvas, x, y, width, height, 0, 0, width, height);
+  if (command.type === "mosaic") {
+    const pixelSize = Math.max(4, command.width * 3);
+    const small = document.createElement("canvas");
+    small.width = Math.max(1, Math.ceil(width / pixelSize));
+    small.height = Math.max(1, Math.ceil(height / pixelSize));
+    const smallContext = small.getContext("2d");
+    if (!smallContext) return;
+    smallContext.drawImage(copy, 0, 0, small.width, small.height);
+    context.imageSmoothingEnabled = false;
+    context.drawImage(small, x, y, width, height);
+  } else {
+    context.filter = `blur(${Math.max(2, command.width * 2)}px)`;
+    context.beginPath();
+    context.rect(x, y, width, height);
+    context.clip();
+    context.drawImage(copy, x, y);
+  }
 }
 
 function drawBrush(context: CanvasRenderingContext2D, points: EditorPoint[]): void {
@@ -826,7 +861,7 @@ function areEditorCommandEqual(left: EditorCommand, right: EditorCommand): boole
       && left.text === right.text
       && areEditorPointsEqual(left.point, right.point);
   }
-  return (right.type === "rectangle" || right.type === "ellipse" || right.type === "arrow")
+  return (right.type === "rectangle" || right.type === "ellipse" || right.type === "arrow" || right.type === "mosaic" || right.type === "blur")
     && left.width === right.width
     && areEditorPointsEqual(left.start, right.start)
     && areEditorPointsEqual(left.end, right.end);

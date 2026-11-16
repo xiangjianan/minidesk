@@ -43,6 +43,7 @@ function installCanvasMock() {
     moveTo: vi.fn(),
     lineTo: vi.fn(),
     closePath: vi.fn(),
+    clip: vi.fn(),
     stroke: vi.fn(),
     strokeText: vi.fn(),
     fill: vi.fn(),
@@ -63,7 +64,10 @@ function installCanvasMock() {
   originalToDataURL = HTMLCanvasElement.prototype.toDataURL;
   Object.defineProperty(HTMLCanvasElement.prototype, "getContext", {
     configurable: true,
-    value: vi.fn(() => context as unknown as CanvasRenderingContext2D),
+    value: vi.fn(function (this: HTMLCanvasElement) {
+      Object.assign(context, { canvas: this });
+      return context as unknown as CanvasRenderingContext2D;
+    }),
   });
   Object.defineProperty(HTMLCanvasElement.prototype, "toDataURL", {
     configurable: true,
@@ -140,6 +144,8 @@ describe("ImageEditor", () => {
       "箭头",
       "标注",
       "文本",
+      "马赛克",
+      "模糊",
     ]);
     expect(wrapper.findAll(".image-editor-tool").map((button) => button.attributes("data-tooltip"))).toEqual([
       "裁切",
@@ -149,6 +155,8 @@ describe("ImageEditor", () => {
       "箭头",
       "标注",
       "文本",
+      "马赛克",
+      "模糊",
     ]);
     expect(wrapper.find('[aria-label="画笔"] .lucide-pen-line').exists()).toBe(true);
     expect(wrapper.find('[aria-label="圆形"] .image-editor-ellipse-icon').exists()).toBe(true);
@@ -169,6 +177,25 @@ describe("ImageEditor", () => {
     expect(wrapper.get(".image-editor-save").text()).toBe("保存");
     expect(wrapper.get(".image-editor-cancel").text()).toBe("取消");
 
+    wrapper.unmount();
+  });
+
+  it.each(["马赛克", "模糊"])("applies %s to a dragged region and supports undo and redo", async (tool) => {
+    const wrapper = mount(ImageEditor, {
+      props: { image: { id: "img-1", src: "", createdAt: 1, displayWidth: 400, displayHeight: 300 } },
+    });
+    const canvas = wrapper.get("canvas").element;
+    mockRect(canvas);
+    await wrapper.get(`[aria-label="${tool}"]`).trigger("click");
+    await dispatchPointer(canvas, "pointerdown", 20, 30);
+    await dispatchPointer(canvas, "pointermove", 120, 100);
+    await dispatchPointer(canvas, "pointerup", 120, 100);
+    expect(wrapper.get('[aria-label="撤销"]').attributes("disabled")).toBeUndefined();
+    expect(canvasContextMock.drawImage).toHaveBeenCalled();
+    await wrapper.get('[aria-label="撤销"]').trigger("click");
+    expect(wrapper.get('[aria-label="反撤销"]').attributes("disabled")).toBeUndefined();
+    await wrapper.get('[aria-label="反撤销"]').trigger("click");
+    expect(wrapper.get('[aria-label="撤销"]').attributes("disabled")).toBeUndefined();
     wrapper.unmount();
   });
 
