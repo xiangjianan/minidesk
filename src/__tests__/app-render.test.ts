@@ -2628,6 +2628,31 @@ describe("App shell", () => {
     }
   });
 
+  it("captures all clipboard image files synchronously before saving them in order", async () => {
+    stubMatchMedia(false);
+    const wrapper = mountApp();
+    let clipboardReadable = true;
+    const files = ["first", "second", "third"].map((name) => new File([name], `${name}.png`, { type: "image/png" }));
+    const pasteEvent = new Event("paste", { cancelable: true }) as ClipboardEvent;
+    Object.defineProperty(pasteEvent, "clipboardData", {
+      value: { items: files.map((file) => ({ type: file.type, getAsFile: () => clipboardReadable ? file : null })) },
+    });
+    try {
+      await wrapper.vm.$nextTick();
+      await Promise.resolve();
+      await Promise.resolve();
+      document.dispatchEvent(pasteEvent);
+      clipboardReadable = false;
+      expect(pasteEvent.defaultPrevented).toBe(true);
+      await vi.waitFor(() => {
+        const images = wrapper.getComponent(ImagePanel).props("images") as Array<{ src: string }>;
+        expect(images.map((image) => image.src)).toEqual(files.map((file) => `data:image/png;base64,${btoa(file.name.replace(".png", ""))}`));
+      });
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
   it("defers an unreadable clipboard image to the next Ctrl+V paste with the menu's placement", async () => {
     stubMatchMedia(false);
     localStorage.setItem(

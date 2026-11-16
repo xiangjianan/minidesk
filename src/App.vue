@@ -1689,11 +1689,11 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   const imageItems = items.filter((item) => item.type.startsWith("image/"));
   if (!imageItems.length) return;
   event.preventDefault();
+  // Clipboard data may no longer be readable after the first asynchronous save.
+  const files = imageItems.map((item) => item.getAsFile()).filter((file): file is File => file !== null);
   const destination = focusSession.value ? { period: focusSession.value.period, id: focusSession.value.id } : undefined;
   let nextRequest: ImagePasteRequest = destination ? { placement: "append" } : request;
-  for (const item of imageItems) {
-    const file = item.getAsFile();
-    if (!file) continue;
+  for (const file of files) {
     const added = await addPastedImageFile(file, nextRequest, destination);
     if (added) nextRequest = { placement: "after", targetId: added.id, anchor: request.anchor ?? document.body };
   }
