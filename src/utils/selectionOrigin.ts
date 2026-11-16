@@ -9,6 +9,9 @@ export function guardSelectionOrigin(doc: Document): void {
   doc.addEventListener('mousedown', (event) => {
     clear();
     if (event.button !== 0 || !(event.target instanceof Element)) return;
+    // The selection toolbar acts on the current notebook selection. Its
+    // teleported buttons must not collapse it during document capture.
+    if (event.target.closest('.selection-toolbar')) return;
     if (!event.target.closest('.text-editor-textarea')) root.classList.add('selection-outside-notes');
     if (!event.target.closest('.todo-input, .today-focus-input')) root.classList.add('selection-outside-todos');
     const target = event.target;

@@ -38,6 +38,7 @@ describe("TextPanel", () => {
   }
 
   it("shows selection actions and applies bold to the selected text", async () => {
+    guardSelectionOrigin(document);
     const wrapper = mount(TextPanel, { attachTo: document.body, props: {
       titleId: "title", title: "Notes", lines: [{ text: "hello", indent: 0 }],
     } });
@@ -48,10 +49,39 @@ describe("TextPanel", () => {
     await flushPromises();
     const button = document.querySelector<HTMLButtonElement>('.selection-toolbar button[aria-label="加粗"]');
     expect(button).not.toBeNull();
+    button!.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 }));
+    button!.dispatchEvent(new MouseEvent("mouseup", { bubbles: true, button: 0 }));
     button!.click();
     await flushPromises();
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
       { text: "hello", indent: 0, marks: [{ type: "bold", start: 1, end: 4 }] },
+    ]);
+    wrapper.unmount();
+  });
+
+  it.each([
+    ["高亮", "format-highlight-rose", "highlight"],
+    ["文字颜色", "format-color-blue", "color"],
+  ])("opens the %s palette and applies its chosen color", async (label, key, type) => {
+    guardSelectionOrigin(document);
+    const wrapper = mount(TextPanel, {
+      attachTo: document.body,
+      props: { titleId: "title", title: "Notes", lines: [{ text: "hello", indent: 0 }] },
+      global: { stubs: { Dropdown: menuDropdownStub, NDropdown: menuDropdownStub } },
+    });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(1, 4);
+    await wrapper.get("textarea").trigger("select");
+    await flushPromises();
+    const button = document.querySelector<HTMLButtonElement>(`.selection-toolbar button[aria-label="${label}"]`)!;
+    button.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 }));
+    button.click();
+    await wrapper.vm.$nextTick();
+    expect([textarea.selectionStart, textarea.selectionEnd]).toEqual([1, 4]);
+    await wrapper.get(`[data-key="${key}"]`).trigger("click");
+    expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
+      { text: "hello", indent: 0, marks: [{ type, start: 1, end: 4, color: type === "color" ? "blue" : "rose" }] },
     ]);
     wrapper.unmount();
   });
