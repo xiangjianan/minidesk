@@ -1807,9 +1807,13 @@ async function addPastedImageFile(file: File, request: ImagePasteRequest, destin
   };
   try {
     await storeImagePayload(image);
-  } catch {
+  } catch (error) {
     if (shouldBlockBoardEffects()) return undefined;
-    showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
+    if (error instanceof DOMException && error.name === "QuotaExceededError") {
+      showBubbleText(uiText.value.app.imageQuotaFailed, undefined, { force: true, hideCompanionAfter: true }, 8000);
+    } else {
+      showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
+    }
     return undefined;
   }
   const targetIndex = activeWorkspace.value.images.findIndex((item) => item.id === request.targetId);
