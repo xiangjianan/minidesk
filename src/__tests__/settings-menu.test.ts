@@ -251,7 +251,7 @@ describe("SettingsMenu", () => {
     expect(wrapper.find('[data-key="pair-inbox"]').text()).toBe("手机速记");
     expect(wrapper.find('[data-key="pair-inbox"]').classes()).not.toContain("dropdown-child-option");
     const keys = wrapper.findAll(".dropdown-option").map((option) => option.attributes("data-key"));
-    // 一级菜单：数据 → 语言 → GIF 主题 → 手机速记 → 快捷键 → 提建议 → 关于。
+    // 一级菜单：数据 → 语言 → GIF 伙伴 → 手机速记 → 快捷键 → 提建议 → 关于。
     const order = ["data", "language", "gif-theme", "pair-inbox", "shortcut-help", "suggest", "about"].map((key) => keys.indexOf(key));
     expect(order.every((index) => index >= 0)).toBe(true);
     expect(order).toEqual([...order].sort((a, b) => a - b));
@@ -497,7 +497,7 @@ describe("SettingsMenu", () => {
       },
     });
 
-    expect(wrapper.find('[data-key="gif-theme"]').text()).toBe("GIF 主题");
+    expect(wrapper.find('[data-key="gif-theme"]').text()).toBe("GIF 伙伴");
     expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.attributes("data-key"))).toEqual([
       "gif-theme:cat",
       "gif-theme:hermes",
@@ -506,8 +506,8 @@ describe("SettingsMenu", () => {
       "gif-theme:none",
     ]);
     expect(wrapper.find('[data-key="gif-theme:cat"]').text()).toBe("默认");
-    expect(wrapper.find('[data-key="gif-theme:hermes"]').text()).toBe("主题一");
-    expect(wrapper.find('[data-key="gif-theme:ikun"]').text()).toBe("主题二");
+    expect(wrapper.find('[data-key="gif-theme:hermes"]').text()).toBe("伙伴一");
+    expect(wrapper.find('[data-key="gif-theme:ikun"]').text()).toBe("伙伴二");
     expect(wrapper.find('[data-key="gif-theme:custom"]').text()).toBe("自定义");
     expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("安静模式");
     expect(wrapper.find('[data-key="gif-theme:none"]').classes()).toContain("is-selected");
@@ -516,7 +516,7 @@ describe("SettingsMenu", () => {
     expect(gifOptions.find((option: any) => option.key === "gif-theme:none").label().children[1]?.props.class).toBe("settings-zone-check");
     expect(gifOptions.find((option: any) => option.key === "gif-theme:cat").label().children[1]).toBeNull();
     await wrapper.setProps({ language: "en" });
-    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["Default", "Theme 1", "Theme 2", "Custom", "Quiet mode"]);
+    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["Default", "Companion 1", "Companion 2", "Custom", "Quiet mode"]);
     expect(wrapper.find('[data-key="gif-theme:hermes"]').classes()).not.toContain("is-selected");
   });
 
