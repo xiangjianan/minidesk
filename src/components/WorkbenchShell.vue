@@ -131,6 +131,16 @@ let observedGridWidth = 0;
 // header 的 200ms 离场过渡会把导航栏画在屏幕上（刷新闪现）。
 // readStoredHeaderHidden 是函数声明，提升后可在此直接调用。
 const headerHidden = ref(readStoredHeaderHidden());
+const headerPeek = ref(false);
+let headerPeekTimer: number | undefined;
+function startHeaderPeek(): void {
+  window.clearTimeout(headerPeekTimer);
+  headerPeekTimer = window.setTimeout(() => { headerPeek.value = true; }, 200);
+}
+function stopHeaderPeek(): void {
+  window.clearTimeout(headerPeekTimer);
+  headerPeekTimer = window.setTimeout(() => { headerPeek.value = false; }, 500);
+}
 const showEmptyWorkbench = computed(() => props.crowded && headerHidden.value && !Object.values(props.zoneVisibility).some(Boolean));
 const headerHideButton = ref<HTMLButtonElement | null>(null);
 const headerRevealPosition = ref({ right: "126px", top: "10px" });
@@ -641,6 +651,8 @@ function expandZoneToDefault(canonicalIndex: number): void {
 }
 
 function setHeaderHidden(hidden: boolean): void {
+  window.clearTimeout(headerPeekTimer);
+  headerPeek.value = false;
   if (hidden && headerHideButton.value) {
     const button = headerHideButton.value.getBoundingClientRect();
     const main = headerHideButton.value.closest(".workbench-main")?.getBoundingClientRect();
@@ -772,6 +784,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  window.clearTimeout(headerPeekTimer);
   exclusiveHeaderMenu.unmount();
   stopVisibilityAnimation();
   disposeScrollActivity?.();
@@ -790,7 +803,7 @@ onUnmounted(() => {
       @select="selectHeaderMenu" @clickoutside="exclusiveHeaderMenu.handleClickOutside" />
     <section class="workbench-main" :class="{ 'is-header-hidden': headerHidden }">
       <Transition name="workbench-header" :duration="200">
-        <header v-if="!headerHidden" class="workbench-command-bar" data-testid="workbench-command-bar" @contextmenu="openHeaderContextMenu">
+        <header v-if="!headerHidden || headerPeek" class="workbench-command-bar" :class="{ 'is-peeking': headerHidden }" data-testid="workbench-command-bar" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" @contextmenu="openHeaderContextMenu">
           <div class="workbench-title-group">
             <slot name="workspace-trigger">
               <span class="workbench-title-fallback">{{ title }}</span>
@@ -834,6 +847,8 @@ onUnmounted(() => {
           </div>
         </header>
       </Transition>
+
+      <div v-if="headerHidden && !headerPeek" class="workbench-header-peek-zone" data-testid="header-peek-zone" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" />
 
       <div
         v-if="headerHidden"

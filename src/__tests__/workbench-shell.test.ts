@@ -71,6 +71,22 @@ describe("WorkbenchShell", () => {
     saveStatusLabel: "已保存",
   };
 
+  it("temporarily reveals the hidden header after hovering the top edge", async () => {
+    vi.useFakeTimers();
+    localStorage.setItem(WORKBENCH_HEADER_STORAGE_KEY, "true");
+    const wrapper = mount(WorkbenchShell, { props: defaultProps });
+    await wrapper.get('[data-testid="header-peek-zone"]').trigger("mouseenter");
+    await vi.advanceTimersByTimeAsync(199);
+    expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(false);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(wrapper.get('[data-testid="workbench-command-bar"]').classes()).toContain("is-peeking");
+    await wrapper.get('[data-testid="workbench-command-bar"]').trigger("mouseleave");
+    await vi.advanceTimersByTimeAsync(500);
+    expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(false);
+    expect(localStorage.getItem(WORKBENCH_HEADER_STORAGE_KEY)).toBe("true");
+    wrapper.unmount();
+  });
+
   it("opens Tips on blank header space while leaving controls alone", async () => {
     const wrapper = mount(WorkbenchShell, {
       props: defaultProps,

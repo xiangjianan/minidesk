@@ -4567,6 +4567,21 @@ button.mobile-home-btn-danger:focus-visible:where(:not([data-pointer-focus])) {
   height: 40px;
 }
 
+.workbench-header-peek-zone {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 24px;
+  z-index: 4400;
+}
+
+.workbench-command-bar.is-peeking {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 4501;
+}
+
 /* While the image preview is open the modal container is hoisted to z-index
    10000 (see .n-modal-container above). At its base z-index (4500) the
    drop-down header reveal control paints behind that layer and can't be
