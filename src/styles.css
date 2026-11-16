@@ -7308,7 +7308,7 @@ button.mobile-inbox-revoked-change {
     -webkit-text-fill-color: transparent;
     background: transparent;
   }
-  .text-selection-mirror .is-selected:not([class*="mark-highlight-"]) {
+  .text-selection-mirror .is-selected:not(.mirror-newline):not([class*="mark-highlight-"]) {
     color: var(--selection-text) !important;
     background: var(--selection-bg) !important;
   }

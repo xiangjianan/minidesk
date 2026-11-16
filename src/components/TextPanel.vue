@@ -84,14 +84,19 @@ const mirrorSegments = computed(() => {
     const end = start + segment.chunk.length;
     offset = end;
     const boundaries = [start, end];
+    // Keep newline characters in their own spans so WebKit does not paint a
+    // selected inline fragment across the remainder of the preceding line.
+    for (let i = 0; i < segment.chunk.length; i++) {
+      if (segment.chunk[i] === "\n") boundaries.push(start + i, start + i + 1);
+    }
     if (selection) {
       if (selection.start > start && selection.start < end) boundaries.push(selection.start);
       if (selection.end > start && selection.end < end) boundaries.push(selection.end);
     }
-    boundaries.sort((a, b) => a - b);
-    return boundaries.slice(0, -1).map((point, index) => ({
+    const uniqueBoundaries = [...new Set(boundaries)].sort((a, b) => a - b);
+    return uniqueBoundaries.slice(0, -1).map((point, index) => ({
       ...segment,
-      chunk: segment.chunk.slice(point - start, boundaries[index + 1] - start),
+      chunk: segment.chunk.slice(point - start, uniqueBoundaries[index + 1] - start),
       selected: Boolean(selection && point >= selection.start && point < selection.end),
     }));
   });
@@ -148,6 +153,7 @@ function mirrorSegmentClasses(segment: MirrorSegment & { selected?: boolean }): 
   if (segment.underline) classes.push("mark-underline");
   if (segment.bold) classes.push("mark-bold");
   if (segment.selected) classes.push("is-selected");
+  if (segment.chunk === "\n") classes.push("mirror-newline");
   return classes;
 }
 
