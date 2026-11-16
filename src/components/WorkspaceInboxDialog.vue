@@ -69,7 +69,7 @@ function renderQr(): void {
   if (!canvas || !address.value) return;
   try {
     // jsdom 无 2d canvas 上下文：二维码渲染失败时静默降级，地址文本始终兜底。
-    void QRCode.toCanvas(canvas, address.value, { width: 148 }).catch(() => undefined);
+    void QRCode.toCanvas(canvas, address.value, { width: 196 }).catch(() => undefined);
   } catch {
     // 同步抛出同样静默。
   }
@@ -209,6 +209,11 @@ function save(): void {
       <span class="workspace-inbox-workspace-label">{{ text.app.inboxWorkspaceLabel }}</span>
       <span class="workspace-inbox-workspace-name">{{ workspaceTitle }}</span>
     </p>
+    <p class="workspace-inbox-step-title">{{ text.app.inboxQuickStep1 }}</p>
+    <NButton v-if="!hasCode" class="workspace-inbox-generate" type="primary" data-testid="inbox-generate"
+      :loading="registering" :disabled="registering" @click="generate">{{ text.app.inboxGenerate }}</NButton>
+    <details class="workspace-inbox-instructions">
+    <summary>{{ text.app.inboxShowSteps }}</summary>
     <ol class="workspace-inbox-steps" data-testid="inbox-steps">
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep1Title }}</span>
@@ -226,8 +231,6 @@ function save(): void {
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep2Title }}</span>
         <span class="workspace-inbox-step-body">{{ hasCode ? text.app.inboxStep2Body : text.app.inboxStep2BodyPending }}</span>
-        <NButton v-if="!hasCode" class="workspace-inbox-generate" type="primary" data-testid="inbox-generate"
-          :loading="registering" :disabled="registering" @click="generate">{{ text.app.inboxGenerate }}</NButton>
       </li>
       <li class="workspace-inbox-step">
         <span class="workspace-inbox-step-title">{{ text.app.inboxStep3Title }}</span>
@@ -243,6 +246,7 @@ function save(): void {
         <span class="workspace-inbox-step-body" data-testid="inbox-sync-scope">{{ text.app.inboxSyncScope }}</span>
       </li>
     </ol>
+    </details>
 
     <template v-if="hasCode">
       <div class="workspace-inbox-field">
@@ -301,12 +305,13 @@ function save(): void {
       <canvas
         ref="canvasRef"
         class="workspace-inbox-qr"
-        width="148"
-        height="148"
+        width="196"
+        height="196"
         role="img"
         :aria-label="text.app.inboxAddressLabel"
       ></canvas>
 
+      <p class="workspace-inbox-step-title">{{ text.app.inboxQuickStep2 }}</p>
       <label class="workspace-inbox-field" for="inbox-todo-target">
         <span class="workspace-inbox-label">{{ text.app.inboxTodoTargetLabel }}</span>
         <NSelect
