@@ -4699,9 +4699,9 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <p v-if="storageUsageError" role="alert">{{ uiText.settings.storageReadFailed }}</p>
       <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)).replace('{imageSize}', formatStorageBytes(row.imageBytes)) }}</li></ul>
       <p>{{ uiText.settings.orphanUsage.replace('{count}', String(orphanUsage.count)).replace('{size}', formatStorageBytes(orphanUsage.bytes)) }}</p>
-      <div class="dialog-actions">
-        <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
+      <div class="dialog-actions" style="margin-top: 16px;">
         <NButton type="error" :disabled="storageUsageLoading || storageUsageError || !orphanUsage.count" @click="orphanConfirm = true">{{ uiText.settings.cleanOrphans }}</NButton>
+        <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
       </div>
     </NModal>
     <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal clear-workspace-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
