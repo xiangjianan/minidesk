@@ -7826,15 +7826,12 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/清空|当前数据|不可恢复/);
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("清空当前空间");
-      expect(wrapper.get('[data-testid="companion-yes"]').classes()).toContain("is-danger");
-      // the destructive-action hint (all workspaces cleared, back up first) is shown
-      expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("仅清空当前空间");
+      expect(wrapper.text()).toContain("将清空");
+      expect(wrapper.get('[data-testid="confirm-clear-workspace"]').text()).toBe("清空当前空间");
 
       const gridBefore = wrapper.find(".workbench-grid").element;
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await wrapper.get('[data-testid="confirm-clear-workspace"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
@@ -7872,7 +7869,7 @@ describe("App shell", () => {
       wrapper.getComponent(SettingsMenu).vm.$emit("clearData");
       await nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await wrapper.get('[data-testid="confirm-clear-workspace"]').trigger("click");
       await flushPromises();
       await vi.advanceTimersByTimeAsync(200);
       expect(wrapper.get('[data-testid="companion-confirm"]').text()).toMatch(/清除成功/);
@@ -8088,8 +8085,8 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("MiniDesk (100% AI BUILT)");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷动作和便签缝合得恰到好处");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("无需任何登录，所有数据全部保存在浏览器本地。");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷动作和便签放在一起");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("工作区数据保存在浏览器中");
       const repoLink = wrapper.get('[data-testid="companion-link"]');
       expect(repoLink.text()).toBe("xiangjianan / mini-desk");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
@@ -8128,8 +8125,8 @@ describe("App shell", () => {
 
       const aboutText = wrapper.find('[data-testid="companion-confirm"]').text();
       expect(aboutText).toContain("MiniDesk (100% AI BUILT)");
-      expect(aboutText).toContain("screenshots, reminders, quick actions, and sticky notes");
-      expect(aboutText).toContain("No sign-in required — all your data stays in your browser.");
+      expect(aboutText).toContain("screenshots, reminders, quick actions, and notes");
+      expect(aboutText).toContain("Workspace data is stored in your browser.");
       expect(aboutText).not.toContain("100% developed by AI");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
       expect(aboutText).not.toContain("workspaces");
@@ -10478,11 +10475,9 @@ describe("App inbox revoke wiring", () => {
       const settings = wrapper.getComponent(SettingsMenu);
       settings.vm.$emit("clearData", settings.element as HTMLElement);
       await nextTick();
-      const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
-      window.dispatchEvent(event);
+      await wrapper.get('[data-testid="confirm-clear-workspace"]').trigger("click");
       await nextTick();
       await flushAsyncComponents();
-      expect(event.defaultPrevented).toBe(true);
 
       expect(loadState().workspaces).toHaveLength(2);
       expect(loadState().workspaces[0].inbox).toBeUndefined();

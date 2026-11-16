@@ -308,6 +308,9 @@ const importFeedbackAnchor = ref<HTMLElement | undefined>();
 const pendingEditSpaceId = ref<string | null>(null);
 const pendingEditTodoListId = ref<string | null>(null);
 const workspaceDialogVisible = ref(false);
+const clearWorkspaceId = ref<string | null>(null);
+const clearWorkspaceAnchor = ref<HTMLElement>();
+const clearWorkspace = computed(() => state.workspaces.find((workspace) => workspace.id === clearWorkspaceId.value));
 const importConflict = ref<{ source: WorkspaceData; targetId: string; zones: ZoneKey[]; legacy: boolean; add: () => Promise<void>; replace: () => Promise<void>; finish: (workspace: WorkspaceData, includeInboxNotice?: boolean) => Promise<void>; cancel: () => void } | null>(null);
 const importCopyConflicts = ref(false);
 const importReplaceConfirm = ref(false);
@@ -3331,11 +3334,15 @@ function applyTheme(): void {
 }
 
 function clearData(anchor?: HTMLElement): void {
-  const workspaceId = activeWorkspace.value.id;
-  requestConfirmation(
-    "confirmClearData",
-    anchor,
-    () => {
+  clearWorkspaceId.value = activeWorkspace.value.id;
+  clearWorkspaceAnchor.value = anchor;
+}
+
+function confirmClearData(): void {
+  const workspaceId = clearWorkspaceId.value;
+  const anchor = clearWorkspaceAnchor.value;
+  clearWorkspaceId.value = null;
+  if (!workspaceId) return;
       const index = state.workspaces.findIndex((workspace) => workspace.id === workspaceId);
       if (index < 0) return;
       const workspace = state.workspaces[index];
@@ -3384,10 +3391,6 @@ function clearData(anchor?: HTMLElement): void {
         refreshTodoNotifications();
         boardEpoch.value += 1;
       }, cleanup);
-    },
-    undefined,
-    { confirmText: uiText.value.settings.clearData, cancelText: uiText.value.common.cancel, danger: true, confirmHint: uiText.value.settings.clearDataHint, highlightTarget: null },
-  );
 }
 
 function downloadExportFile(content: string, filename: string): void {
@@ -4537,6 +4540,17 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
+    <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
+      <template v-if="clearWorkspace">
+        <p>{{ uiText.settings.clearDataHint }}</p>
+        <p>{{ uiText.settings.clearCounts.replace('{todos}', String(Object.values(clearWorkspace.todos).reduce((total, items) => total + items.length, 0))).replace('{images}', String(clearWorkspace.images.length + Object.values(clearWorkspace.todos).reduce((total, items) => total + items.reduce((sum, item) => sum + (item.focusImages?.length ?? 0), 0), 0))).replace('{notes}', String(clearWorkspace.spaces.length)) }}</p>
+        <button type="button" class="clear-backup-link" @click="() => { const id = clearWorkspaceId; clearWorkspaceId = null; if (id) exportWorkspaceById(id, clearWorkspaceAnchor); }">{{ uiText.settings.backupFirst }}</button>
+      </template>
+        <div class="dialog-actions">
+          <NButton @click="clearWorkspaceId = null">{{ uiText.common.cancel }}</NButton>
+          <NButton type="error" data-testid="confirm-clear-workspace" @click="confirmClearData">{{ uiText.settings.clearData }}</NButton>
+        </div>
+    </NModal>
     <NModal :show="updateCheckVisible" preset="card" class="update-check-modal" :title="uiText.updateCheck.title" style="width: min(400px, calc(100vw - 32px))" @update:show="(show: boolean) => { updateCheckVisible = show; }">
       <p data-testid="update-check-status">{{ availableAppVersion !== appVersion ? uiText.updateCheck.available.replace("{version}", availableAppVersion) : uiText.updateCheck.ready }}</p>
       <div class="dialog-actions" style="margin-top: 16px;">
