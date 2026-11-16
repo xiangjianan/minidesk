@@ -354,7 +354,12 @@ async function confirmImportMerge(): Promise<void> {
   const target = pending && state.workspaces.find((item) => item.id === pending.targetId);
   if (!pending || !target) return;
   const result = mergeImportedWorkspace(target, pending.source, pending.zones, state.language, importCopyConflicts.value);
-  await persistImagePayloads(result.imagesToPersist.filter((image) => Boolean(image.src)));
+  try {
+    await persistImagePayloads(result.imagesToPersist.filter((image) => Boolean(image.src)));
+  } catch (error) {
+    showPayloadSaveError(error);
+    return;
+  }
   state.workspaces = state.workspaces.map((item) => item.id === target.id ? result.workspace : item);
   state.activeWorkspaceId = target.id;
   boardEpoch.value++;
@@ -644,14 +649,19 @@ onMounted(async () => {
       persistNow();
       lastUndoSnapshot.value = createUndoSnapshot();
     }
-  } catch {
-    state.customCompanionGifStored = {};
+  } catch (error) {
+    showPayloadSaveError(error);
   }
   const inlineImagePayloads = collectInlineImagePayloads(state.workspaces);
   // One-time legacy migration still walks every workspace (inline payloads must
   // reach IndexedDB before any src is dropped), but runtime hydration below only
   // needs the active workspace — inactive ones hydrate lazily on switch.
-  await persistImagePayloads(inlineImagePayloads);
+  try {
+    await persistImagePayloads(inlineImagePayloads);
+  } catch (error) {
+    showPayloadSaveError(error);
+    return;
+  }
   const startupWorkspace = state.workspaces.find((workspace) => workspace.id === state.activeWorkspaceId) ?? state.workspaces[0];
   if (startupWorkspace) {
     startupWorkspace.images = await hydrateStoredImages(startupWorkspace.images, { persistLegacyPayloads: true });
@@ -1455,15 +1465,22 @@ async function persistImageReplacement(
       workspace.id === state.activeWorkspaceId ? { ...workspace, images: nextImages } : workspace,
     ),
   };
-  const result = saveStateWithConflictCheck(stateWithReplacement, {
-    clientId: syncClientId,
-    scope: "images",
-    imageReplacement: {
-      imageId: replacement.id,
-      expectedPayloadId,
-      newPayloadId: getImagePayloadId(replacement),
-    },
-  });
+  let result: ReturnType<typeof saveStateWithConflictCheck>;
+  try {
+    result = saveStateWithConflictCheck(stateWithReplacement, {
+      clientId: syncClientId,
+      scope: "images",
+      imageReplacement: {
+        imageId: replacement.id,
+        expectedPayloadId,
+        newPayloadId: getImagePayloadId(replacement),
+      },
+    });
+  } catch {
+    markDirty();
+    showBubbleText(uiText.value.app.storageSaveFailed, undefined, { force: true, hideCompanionAfter: true }, 8000);
+    return false;
+  }
   if (result.status === "conflict") {
     await applyImageReplacementConflict(result.state);
     return false;
@@ -1780,6 +1797,14 @@ function pasteImageWithBrowserCommand(request: ImagePasteRequest): boolean {
 /** 粘贴单图入口。专注贴图（destination）把逐图落位归一为「插到目标之后」：
  *  replace 在弹窗内没有编辑语义（预览编辑 v1 关闭）降级追加，before/append
  *  同样直接追加；board 路径保留 before/after/replace 的完整落位与冲突校验。 */
+function showPayloadSaveError(error: unknown, anchor?: HTMLElement): void {
+  if (error && typeof error === "object" && "name" in error && error.name === "QuotaExceededError") {
+    showBubbleText(uiText.value.app.imageQuotaFailed, anchor, { force: true, hideCompanionAfter: true }, 8000);
+  } else {
+    showBubble("imageStoreFailed", anchor, { hideCompanionAfter: true });
+  }
+}
+
 async function addPastedImageFile(file: File, request: ImagePasteRequest, destination?: FocusDestination): Promise<StoredImage | undefined> {
   if (destination) {
     return addImageFile(file, {
@@ -1815,9 +1840,9 @@ async function addPastedImageFile(file: File, request: ImagePasteRequest, destin
     const replacement = { ...target, payloadId: createId(), src };
     try {
       await storeImagePayload(replacement);
-    } catch {
+    } catch (error) {
       if (shouldBlockBoardEffects()) return undefined;
-      showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
+      showPayloadSaveError(error);
       return undefined;
     }
     const currentTarget = activeWorkspace.value.images.find((image) => image.id === request.targetId);
@@ -1856,11 +1881,7 @@ async function addPastedImageFile(file: File, request: ImagePasteRequest, destin
     await storeImagePayload(image);
   } catch (error) {
     if (shouldBlockBoardEffects()) return undefined;
-    if (error instanceof DOMException && error.name === "QuotaExceededError") {
-      showBubbleText(uiText.value.app.imageQuotaFailed, undefined, { force: true, hideCompanionAfter: true }, 8000);
-    } else {
-      showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
-    }
+    showPayloadSaveError(error);
     return undefined;
   }
   const targetIndex = activeWorkspace.value.images.findIndex((item) => item.id === request.targetId);
@@ -1880,7 +1901,8 @@ async function addPastedImageFile(file: File, request: ImagePasteRequest, destin
       placement: request.placement,
     },
   });
-  if (persisted) publishPasteFeedback(image.id);
+  if (!persisted) return image;
+  publishPasteFeedback(image.id);
   showBubble("imageAdded", undefined, { hideCompanionAfter: true });
   return image;
 }
@@ -1935,9 +1957,9 @@ async function addImageFile(
   };
   try {
     await storeImagePayload(image);
-  } catch {
+  } catch (error) {
     if (shouldBlockBoardEffects()) return undefined;
-    showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
+    showPayloadSaveError(error);
     return undefined;
   }
   if (shouldBlockBoardEffects()) {
@@ -1963,7 +1985,8 @@ async function addImageFile(
   }
   // 专注贴图存盘用全量 scope：images scope 的跨标签合并分支以对方（current）快照
   // 为底、只回写图片——落盘的 todos 是对方的，本 tab 未落盘的 focus 元数据被丢弃。
-  if (persistNow(options.destination ? "all" : "images")) options.onPersisted?.(image);
+  if (!persistNow(options.destination ? "all" : "images")) return image;
+  options.onPersisted?.(image);
   if (options.showMessage ?? true) showBubble("imageAdded", undefined, { hideCompanionAfter: true });
   return image;
 }
@@ -2159,9 +2182,9 @@ async function saveEditedImage(payload: { id: string; src: string; displayWidth:
   };
   try {
     await storeImagePayload(nextImage);
-  } catch {
+  } catch (error) {
     if (shouldBlockBoardEffects()) return;
-    showBubble("imageStoreFailed", document.querySelector<HTMLElement>(".image-preview") ?? undefined, { hideCompanionAfter: true });
+    showPayloadSaveError(error, document.querySelector<HTMLElement>(".image-preview") ?? undefined);
     return;
   }
   const currentImage = activeWorkspace.value.images.find((item) => item.id === payload.id);
@@ -2696,9 +2719,9 @@ async function saveFocusImage(payload: { id: string; src: string; displayWidth: 
   };
   try {
     await storeImagePayload(replacement);
-  } catch {
+  } catch (error) {
     if (shouldBlockBoardEffects()) return;
-    showBubble("imageStoreFailed", undefined, { hideCompanionAfter: true });
+    showPayloadSaveError(error);
     return;
   }
   replaceFocusImages(session, (list) => list.map((image) =>
@@ -3325,6 +3348,12 @@ async function updateCustomCompanionGif(files: { light?: File; dark?: File }, an
     ...(light ? { light } : {}),
     ...(dark ? { dark } : {}),
   };
+  try {
+    await persistCustomCompanionGifPayloads(nextCustomGif);
+  } catch (error) {
+    showPayloadSaveError(error, anchor);
+    return;
+  }
   state.customCompanionGif = {
     ...nextCustomGif,
   };
@@ -3333,9 +3362,7 @@ async function updateCustomCompanionGif(files: { light?: File; dark?: File }, an
     ...(nextCustomGif.dark ? { dark: true } : {}),
   };
   state.companionGifTheme = "custom";
-  await persistCustomCompanionGifPayloads(state.customCompanionGif);
-  persistNow();
-  showBubble("gifThemeChanged", anchor);
+  if (persistNow()) showBubble("gifThemeChanged", anchor);
 }
 
 // 主题切换过渡窗口时长，与 styles.css 里 .theme-switching 的 motion-medium 对齐。
@@ -3507,8 +3534,7 @@ async function importData(event: Event): Promise<void> {
       return;
     }
     const finishImport = async (workspace: WorkspaceData, includeInboxNotice = true): Promise<void> => {
-      await persistWorkspaceImages([workspace]);
-      persistNow("all", { force: true });
+      if (!persistNow("all", { force: true })) return;
       refreshTodoNotifications();
       showBubble("dataImported", importFeedbackAnchor.value, { hideCompanionAfter: true });
       if (importedHasInbox && includeInboxNotice) {
@@ -3535,6 +3561,7 @@ async function importData(event: Event): Promise<void> {
         state.workspaces,
         DEFAULT_BOARD_TITLE,
       );
+      try { await persistWorkspaceImages([workspace]); } catch (error) { showPayloadSaveError(error, importFeedbackAnchor.value); return; }
       restoreWorkbenchWidthRatios(workspace.id, workspace.zoneWidthRatios);
       state.workspaces = [...state.workspaces, workspace];
       state.activeWorkspaceId = workspace.id;
@@ -3551,6 +3578,7 @@ async function importData(event: Event): Promise<void> {
       }
       if (shouldBlockBoardEffects()) return;
       const replacement: WorkspaceData = { ...freshImportedWorkspace(), id: target.id, createdAt: target.createdAt };
+      try { await persistWorkspaceImages([replacement]); } catch (error) { showPayloadSaveError(error, importFeedbackAnchor.value); return; }
       // Overwriting retires the old inbox just like deleting its workspace.
       // A re-import retaining the same code still owns that channel.
       const oldInboxCode = target.inbox?.code;

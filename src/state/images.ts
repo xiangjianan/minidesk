@@ -263,9 +263,10 @@ function transact<T>(
   return new Promise((resolve, reject) => {
     const transaction = db.transaction(IMAGE_STORE_NAME, mode);
     const request = operation(transaction.objectStore(IMAGE_STORE_NAME)) as IDBRequest<T>;
-    request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
-    transaction.onerror = () => reject(transaction.error);
+    transaction.oncomplete = () => resolve(request.result);
+    transaction.onerror = () => reject(transaction.error ?? request.error);
+    transaction.onabort = () => reject(transaction.error ?? request.error);
   });
 }
 
