@@ -1080,7 +1080,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
       <form class="quick-form" @submit.prevent="submit">
         <label>
           <span>{{ uiText.quick.title }}</span>
-          <NInput ref="titleInput" v-model:value="form.title" autocomplete="off" />
+          <NInput ref="titleInput" v-model:value="form.title" :placeholder="uiText.quick.titlePlaceholder" autocomplete="off" />
         </label>
         <div class="quick-type-options">
           <label class="checkbox-row">
@@ -1109,6 +1109,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           <span>{{ form.type === "api" ? uiText.quick.requestUrl : form.type === "link" ? uiText.quick.linkAddress : form.type === "app" ? uiText.quick.appScheme : uiText.quick.copyText }}</span>
           <NInput
             :value="form.value"
+            :placeholder="form.type === 'api' ? uiText.quick.requestUrlPlaceholder : form.type === 'link' ? uiText.quick.linkAddressPlaceholder : form.type === 'app' ? uiText.quick.appSchemePlaceholder : uiText.quick.copyTextPlaceholder"
             @update:value="updateQuickValue"
             :type="form.type === 'text' ? 'textarea' : 'text'"
             autocomplete="off"

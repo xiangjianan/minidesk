@@ -1253,21 +1253,26 @@ describe("QuickButtons", () => {
     await openDialog(wrapper);
 
     const options = wrapper.findAll(".checkbox-stub");
+    expect(wrapper.findAll(".quick-form input")[0].attributes("placeholder")).toBe("输入按钮名称");
+    expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入链接地址");
     expect(options.map((option) => option.text())).toEqual(["链接", "复制文本", "打开应用", "接口调用"]);
     expect(options.map((option) => option.attributes("data-checked"))).toEqual(["true", "false", "false", "false"]);
     expect(wrapper.get(".quick-form").text()).toContain("链接地址");
 
     await options[1].trigger("click");
     expect(wrapper.get(".quick-form").text()).toContain("要复制的文字");
+    expect(wrapper.get(".quick-form textarea").attributes("placeholder")).toBe("输入要复制的文字");
 
     await options[2].trigger("click");
     expect(wrapper.get(".quick-form").text()).toContain("应用协议");
+    expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入应用协议");
 
     await options[3].trigger("click");
     await wrapper.vm.$nextTick();
 
     expect(options.map((option) => option.attributes("data-checked"))).toEqual(["false", "false", "false", "true"]);
     expect(wrapper.get(".quick-form").text()).toContain("请求链接");
+    expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入请求链接");
 
     wrapper.unmount();
   });
