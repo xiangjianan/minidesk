@@ -9,7 +9,7 @@ import {
   CircleHelp as HelpCircleOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
-import { Bold, Highlighter, Paintbrush, Palette, RemoveFormatting, Strikethrough, Underline } from "lucide-vue-next";
+import { Bold, Paintbrush, RemoveFormatting, Strikethrough, Underline } from "lucide-vue-next";
 import { POLISH_STYLE_ENTRIES } from "../state/polishStyles";
 import SparklesOutlineIcon from "./SparklesOutlineIcon.vue";
 import type { LineItem, MarkColor, TextMark } from "../types";
@@ -321,13 +321,13 @@ const menuOptions = computed<DropdownOption[]>(() => {
           {
             label: uiText.value.common.highlight,
             key: "format-highlight",
-            icon: renderIcon(Highlighter),
+            icon: () => h("span", { class: "selection-color-icon selection-background-icon", "aria-hidden": "true" }, "A"),
             children: buildColorSubmenu("highlight"),
           },
           {
             label: uiText.value.common.textColor,
             key: "format-color",
-            icon: renderIcon(Palette),
+            icon: () => h("span", { class: "selection-color-icon selection-foreground-icon", "aria-hidden": "true" }, "A"),
             children: buildColorSubmenu("color"),
           },
           { label: uiText.value.common.bold, key: "format-bold", icon: renderIcon(Bold) },
