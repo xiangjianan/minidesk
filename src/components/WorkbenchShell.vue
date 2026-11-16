@@ -135,15 +135,15 @@ const headerPeek = ref(false);
 let headerPeekTimer: number | undefined;
 function startHeaderPeek(): void {
   window.clearTimeout(headerPeekTimer);
+  if (!headerHidden.value || headerPeek.value) return;
   headerPeekTimer = window.setTimeout(() => { headerPeek.value = true; }, 200);
 }
 function stopHeaderPeek(): void {
   window.clearTimeout(headerPeekTimer);
+  if (!headerHidden.value) return;
   headerPeekTimer = window.setTimeout(() => { headerPeek.value = false; }, 500);
 }
 const showEmptyWorkbench = computed(() => props.crowded && headerHidden.value && !Object.values(props.zoneVisibility).some(Boolean));
-const headerHideButton = ref<HTMLButtonElement | null>(null);
-const headerRevealPosition = ref({ right: "126px", top: "10px" });
 const columnWidths = ref<number[]>([]);
 let usingDefaultWidths: boolean | undefined;
 let visibilityAnimations: Animation[] = [];
@@ -653,16 +653,6 @@ function expandZoneToDefault(canonicalIndex: number): void {
 function setHeaderHidden(hidden: boolean): void {
   window.clearTimeout(headerPeekTimer);
   headerPeek.value = false;
-  if (hidden && headerHideButton.value) {
-    const button = headerHideButton.value.getBoundingClientRect();
-    const main = headerHideButton.value.closest(".workbench-main")?.getBoundingClientRect();
-    if (main && button.width > 0) {
-      headerRevealPosition.value = {
-        right: `${main.right - button.right}px`,
-        top: `${button.top - main.top}px`,
-      };
-    }
-  }
   headerHidden.value = hidden;
   persistHeaderHidden(hidden);
   syncImagePreviewTop();
@@ -816,16 +806,15 @@ onUnmounted(() => {
           <div class="workbench-command-actions">
             <button
               type="button"
-              ref="headerHideButton"
               class="icon-button workbench-header-hide-button"
               data-testid="workbench-header-hide"
-              :aria-label="uiText.common.hideHeader"
-              :title="uiText.common.hideHeader"
-              aria-expanded="true"
-              @click="setHeaderHidden(true)"
+              :aria-label="headerHidden ? uiText.common.showHeader : uiText.common.hideHeader"
+              :title="headerHidden ? uiText.common.showHeader : uiText.common.hideHeader"
+              :aria-expanded="!headerHidden"
+              @click="setHeaderHidden(!headerHidden)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <path d="M5 14 L10.6 10.75 Q12 9.85 13.4 10.75 L19 14" stroke-width="1.4" vector-effect="non-scaling-stroke" />
+                <path :d="headerHidden ? 'M5 10 L10.6 13.25 Q12 14.15 13.4 13.25 L19 10' : 'M5 14 L10.6 10.75 Q12 9.85 13.4 10.75 L19 14'" stroke-width="1.4" vector-effect="non-scaling-stroke" />
               </svg>
             </button>
             <!-- 手机速记手动同步：配对才显示，样式与相邻顶栏 icon-button 一致。 -->
@@ -848,30 +837,7 @@ onUnmounted(() => {
         </header>
       </Transition>
 
-      <div v-if="headerHidden && !headerPeek" class="workbench-header-peek-zone" data-testid="header-peek-zone" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" />
-
-      <div
-        v-if="headerHidden"
-        class="workbench-header-reveal-zone"
-        :style="headerRevealPosition"
-        data-testid="workbench-header-reveal-zone"
-      >
-        <Transition name="workbench-header-reveal" :duration="220">
-          <button
-            type="button"
-            class="workbench-header-reveal"
-            data-testid="workbench-header-show"
-            :aria-label="uiText.common.showHeader"
-            :title="uiText.common.showHeader"
-            aria-expanded="false"
-            @click="setHeaderHidden(false)"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M5 10 L10.6 13.25 Q12 14.15 13.4 13.25 L19 10" stroke-width="1.4" vector-effect="non-scaling-stroke" />
-            </svg>
-          </button>
-        </Transition>
-      </div>
+      <button v-if="headerHidden && !headerPeek" type="button" class="workbench-header-peek-zone" data-testid="header-peek-zone" :aria-label="uiText.common.showHeader" :title="uiText.common.showHeader" aria-expanded="false" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" @click="setHeaderHidden(false)" />
 
       <Transition name="empty-workbench">
         <p v-if="showEmptyWorkbench" class="empty-workbench-message" data-testid="empty-workbench-message">{{ uiText.common.emptyWorkbench }}</p>

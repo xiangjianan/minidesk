@@ -41,7 +41,7 @@ describe("WorkbenchShell", () => {
     await wrapper.setProps({ zoneVisibility: { ...hidden, assets: true } });
     expect(wrapper.find("[data-testid=empty-workbench-message]").exists()).toBe(false);
     await wrapper.setProps({ zoneVisibility: hidden });
-    await wrapper.get("[data-testid=workbench-header-show]").trigger("click");
+    await wrapper.get("[data-testid=header-peek-zone]").trigger("click");
     expect(wrapper.find("[data-testid=empty-workbench-message]").exists()).toBe(false);
     wrapper.unmount();
   });
@@ -261,43 +261,34 @@ describe("WorkbenchShell", () => {
     expect(wrapper.find('[data-testid="workbench-theme"]').exists()).toBe(false);
   });
 
-  it("keeps a focusable reveal button after collapsing and restores on one click", async () => {
+  it("pins the temporarily revealed header when its arrow is clicked", async () => {
     vi.useFakeTimers();
     const wrapper = mount(WorkbenchShell, { props: defaultProps });
     try {
       await wrapper.get('[data-testid="workbench-header-hide"]').trigger("click");
-      expect(localStorage.getItem(WORKBENCH_HEADER_STORAGE_KEY)).toBe("true");
-      expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(false);
-      const button = wrapper.get('[data-testid="workbench-header-show"]');
-      expect(button.attributes("aria-label")).toBe("展开顶部栏");
-      expect(button.attributes("aria-expanded")).toBe("false");
-      await wrapper.get('[data-testid="workbench-header-reveal-zone"]').trigger("mouseenter");
-      await wrapper.get('[data-testid="workbench-header-reveal-zone"]').trigger("mouseleave");
-      await vi.advanceTimersByTimeAsync(5000);
-      expect(wrapper.find('[data-testid="workbench-header-show"]').exists()).toBe(true);
-      await button.trigger("click");
-      expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="workbench-header-reveal-zone"]').exists()).toBe(false);
+      await wrapper.get('[data-testid="header-peek-zone"]').trigger("mouseenter");
+      await vi.advanceTimersByTimeAsync(200);
+      const arrow = wrapper.get('[data-testid="workbench-header-hide"]');
+      expect(arrow.attributes("aria-label")).toBe("展开顶部栏");
+      await arrow.trigger("click");
       expect(localStorage.getItem(WORKBENCH_HEADER_STORAGE_KEY)).toBe("false");
+      await wrapper.get('[data-testid="workbench-command-bar"]').trigger("mouseleave");
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(wrapper.get('[data-testid="workbench-command-bar"]').classes()).not.toContain("is-peeking");
       expect(document.documentElement.style.getPropertyValue("--image-preview-top")).toBe("52px");
+      await wrapper.get('[data-testid="workbench-header-hide"]').trigger("click");
+      expect(localStorage.getItem(WORKBENCH_HEADER_STORAGE_KEY)).toBe("true");
     } finally { wrapper.unmount(); vi.useRealTimers(); }
   });
 
-  it("keeps the reveal control at the collapse control position", async () => {
-    const wrapper = mount(WorkbenchShell, { props: defaultProps });
-    vi.spyOn(wrapper.get(".workbench-main").element, "getBoundingClientRect").mockReturnValue({ right: 1200, top: 0 } as DOMRect);
-    vi.spyOn(wrapper.get('[data-testid="workbench-header-hide"]').element, "getBoundingClientRect").mockReturnValue({ right: 1070, top: 10, width: 32 } as DOMRect);
-    await wrapper.get('[data-testid="workbench-header-hide"]').trigger("click");
-    const zone = wrapper.get('[data-testid="workbench-header-reveal-zone"]').element as HTMLElement;
-    expect(zone.style.right).toBe("130px");
-    expect(zone.style.top).toBe("10px");
-    wrapper.unmount();
-  });
-
-  it("labels header controls in English", async () => {
+  it("offers keyboard access to expand the hidden header", async () => {
     const wrapper = mount(WorkbenchShell, { props: { ...defaultProps, language: "en" } });
-    expect(wrapper.get('[data-testid="workbench-header-hide"]').attributes("title")).toBe("Collapse top bar");
     await wrapper.get('[data-testid="workbench-header-hide"]').trigger("click");
-    expect(wrapper.get('[data-testid="workbench-header-show"]').attributes("title")).toBe("Expand top bar");
+    const button = wrapper.get('[data-testid="header-peek-zone"]');
+    expect(button.attributes("aria-label")).toBe("Expand top bar");
+    await button.trigger("click");
+    expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(true);
     wrapper.unmount();
   });
 
@@ -333,13 +324,13 @@ describe("WorkbenchShell", () => {
     expect(wrapper.find('[data-testid="workbench-theme"]').exists()).toBe(false);
     expect(wrapper.find('[data-testid="actions-slot"]').exists()).toBe(false);
     expect(wrapper.get(".workbench-main").classes()).toContain("is-header-hidden");
-    expect(wrapper.find('[data-testid="workbench-header-reveal-zone"]').exists()).toBe(true);
-    expect(wrapper.find('[data-testid="workbench-header-show"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="workbench-header-reveal-zone"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="header-peek-zone"]').exists()).toBe(true);
 
     await vi.advanceTimersByTimeAsync(5000);
     await nextTick();
 
-    expect(wrapper.find('[data-testid="workbench-header-show"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="header-peek-zone"]').exists()).toBe(true);
 
     wrapper.unmount();
     vi.useRealTimers();
