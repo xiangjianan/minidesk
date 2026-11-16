@@ -75,9 +75,6 @@ const mirrorRef = ref<HTMLElement | null>(null);
 const selectionMirrorRef = ref<HTMLElement | null>(null);
 const baseMirrorSegments = computed(() => buildMirrorSegments(text.value, editorMarks.value));
 const selectionToolbar = ref<{ x: number; y: number } | null>(null);
-const showSelectionHint = ref(false);
-const hintKey = "mini-desk-selection-toolbar-hint-v1";
-let hintTimer: number | undefined;
 const visibleSelection = ref<{ start: number; end: number } | null>(null);
 const mirrorSegments = computed(() => {
   const selection = visibleSelection.value;
@@ -190,7 +187,6 @@ onUnmounted(() => {
   document.removeEventListener("selectionchange", syncActiveSelection);
   window.removeEventListener("blur", handleWindowBlur);
   exclusiveMenu.unmount();
-  window.clearTimeout(hintTimer);
 });
 
 
@@ -850,13 +846,6 @@ function updateSelectionToolbar(): void {
     const frame = textarea.getBoundingClientRect();
     const y = rect && rect.height ? Math.max(frame.top, rect.top) : frame.top;
     selectionToolbar.value = { x: Math.max(8, Math.min(window.innerWidth - 260, rect?.left || frame.left)), y: Math.max(8, y - 48) };
-    try {
-      if (!localStorage.getItem(hintKey)) {
-        localStorage.setItem(hintKey, "1");
-        showSelectionHint.value = true;
-        hintTimer = window.setTimeout(() => { showSelectionHint.value = false; }, 5000);
-      }
-    } catch { /* Storage can be unavailable. */ }
   });
 }
 
@@ -1348,7 +1337,6 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
         <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @click="openToolbarMenu($event, 'color')"><span class="selection-color-icon selection-foreground-icon" aria-hidden="true">A</span></button>
         <button type="button" :aria-label="uiText.common.bold" :title="uiText.common.bold" @click="toolbarBold"><Bold :size="16" /></button>
         <button v-if="polish" type="button" :aria-label="uiText.common.smartPolish" :title="uiText.common.smartPolish" @click="openToolbarMenu($event, 'polish')"><SparklesOutlineIcon class="selection-toolbar-icon" /><span>{{ uiText.common.smartPolish }}</span></button>
-        <span v-if="showSelectionHint" class="selection-toolbar-hint">{{ uiText.common.selectionHint }}</span>
       </div>
     </Teleport>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="activeMenuOptions"

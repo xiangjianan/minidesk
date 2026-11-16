@@ -7293,6 +7293,19 @@ button.mobile-inbox-revoked-change {
 
 .text-selection-mirror { z-index: 2; color: transparent; }
 .text-selection-mirror span { color: transparent !important; background: transparent !important; text-decoration: none !important; }
+/* WebKit positions a textarea's native selection differently from the mirror's
+   glyphs. Draw ordinary selections on the same inline boxes as the glyphs. */
+@supports (-webkit-touch-callout: none) {
+  .text-editor-textarea::selection {
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    background: transparent;
+  }
+  .text-selection-mirror .is-selected:not([class*="mark-highlight-"]) {
+    color: var(--selection-text) !important;
+    background: var(--selection-bg) !important;
+  }
+}
 /* 在线条镜像中保持字形透明，只将选中文字的线条绘制在原生蓝色选区之上。 */
 .text-selection-mirror .is-selected.mark-strike:not([class*="mark-highlight-"]) { text-decoration: line-through !important; text-decoration-color: var(--selection-text) !important; }
 .text-selection-mirror .is-selected.mark-underline:not([class*="mark-highlight-"]) { text-decoration: underline !important; text-decoration-color: var(--selection-text) !important; }
@@ -8136,7 +8149,6 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .selection-toolbar button { display: inline-flex; align-items: center; gap: 5px; min-width: 32px; height: 30px; padding: 0 7px; border: 0; border-radius: 5px; background: transparent; color: var(--text); cursor: pointer; white-space: nowrap; }
 .selection-toolbar button:hover, .selection-toolbar button:focus-visible { background: color-mix(in srgb, var(--text) 10%, transparent); }
 .selection-toolbar-icon { width: 16px; height: 16px; }
-.selection-toolbar-hint { position: absolute; top: calc(100% + 6px); left: 0; padding: 6px 9px; border-radius: 6px; background: var(--card); color: var(--text); box-shadow: 0 3px 12px #0003; font-size: 12px; white-space: nowrap; }
 
 .selection-color-icon { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; font-size: 13px; font-weight: 700; line-height: 1; }
 .selection-background-icon { color: var(--text); background: var(--mark-highlight-amber); border-radius: 3px; }
