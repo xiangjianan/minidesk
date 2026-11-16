@@ -1089,12 +1089,11 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           <label class="checkbox-row">
             <NCheckbox :checked="form.type === 'text'" @update:checked="setQuickType('text')">{{ uiText.quick.textType }}</NCheckbox>
           </label>
-          <details :open="form.type === 'api'">
-            <summary>{{ uiText.quick.advanced }}</summary>
-            <label class="checkbox-row"><NCheckbox :checked="form.type === 'api'" @update:checked="setQuickType('api')">{{ uiText.quick.apiType }}</NCheckbox></label>
-          </details>
           <label class="checkbox-row">
             <NCheckbox :checked="form.type === 'app'" @update:checked="setQuickType('app')">{{ uiText.quick.appType }}</NCheckbox>
+          </label>
+          <label class="checkbox-row">
+            <NCheckbox :checked="form.type === 'api'" @update:checked="setQuickType('api')">{{ uiText.quick.apiType }}</NCheckbox>
           </label>
         </div>
         <label v-if="form.type === 'app'">
