@@ -1657,20 +1657,17 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   pendingBrowserImagePasteRequest = undefined;
   if (shouldBlockBoardEffects()) return;
   const items = Array.from(event.clipboardData?.items ?? []);
-  const imageItem = items.find((item) => item.type.startsWith("image/"));
-  if (!imageItem) return;
+  const imageItems = items.filter((item) => item.type.startsWith("image/"));
+  if (!imageItems.length) return;
   event.preventDefault();
-  const file = imageItem.getAsFile();
-  if (!file) return;
-  // 专注弹窗打开期间，document 级粘贴路由进该任务的 focusImages（落位固定 append）。
-  if (focusSession.value) {
-    await addPastedImageFile(file, { placement: "append" }, {
-      period: focusSession.value.period,
-      id: focusSession.value.id,
-    });
-    return;
+  const destination = focusSession.value ? { period: focusSession.value.period, id: focusSession.value.id } : undefined;
+  let nextRequest: ImagePasteRequest = destination ? { placement: "append" } : request;
+  for (const item of imageItems) {
+    const file = item.getAsFile();
+    if (!file) continue;
+    const added = await addPastedImageFile(file, nextRequest, destination);
+    if (added) nextRequest = { placement: "after", targetId: added.id, anchor: request.anchor ?? document.body };
   }
-  await addPastedImageFile(file, request);
 }
 
 async function pasteImageFromClipboard(request: ImagePasteRequest, destination?: FocusDestination): Promise<void> {
@@ -1695,9 +1692,12 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
     return;
   }
   if (shouldBlockBoardEffects()) return;
+  let nextRequest = request;
+  let foundImage = false;
   for (const item of items) {
     const type = item.types.find((candidate) => candidate.startsWith("image/"));
     if (!type) continue;
+    foundImage = true;
     let blob: Blob;
     try {
       blob = await item.getType(type);
@@ -1708,9 +1708,10 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
       return;
     }
     if (shouldBlockBoardEffects()) return;
-    await addPastedImageFile(new File([blob], "clipboard-image", { type }), request, destination);
-    return;
+    const added = await addPastedImageFile(new File([blob], "clipboard-image", { type }), nextRequest, destination);
+    if (added) nextRequest = { placement: "after", targetId: added.id, anchor: request.anchor ?? document.body };
   }
+  if (foundImage) return;
   if (shouldBlockBoardEffects()) return;
   // Windows 外部复制的图片常以 DIB/文件引用落在剪贴板：paste 事件面拿得到
   // 图片项，而 clipboard.read() 只暴露其支持的少量 Web 格式、可能一项图片

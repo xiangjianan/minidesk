@@ -1058,9 +1058,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
                 </span>
               </button>
             </MemoTransitionGroup>
-            <div v-if="!globalSearchNormalized && group.title && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" class="workbench-empty-hint quick-empty-hint">
-              <span>{{ uiText.quick.emptyHint }}</span>
-            </div>
+            <button v-if="!globalSearchNormalized && group.title && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" type="button" class="workbench-empty-hint quick-empty-hint" @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)">{{ uiText.quick.emptyHint }}</button>
             </div>
           </div>
         </section>
@@ -1091,9 +1089,10 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           <label class="checkbox-row">
             <NCheckbox :checked="form.type === 'text'" @update:checked="setQuickType('text')">{{ uiText.quick.textType }}</NCheckbox>
           </label>
-          <label class="checkbox-row">
-            <NCheckbox :checked="form.type === 'api'" @update:checked="setQuickType('api')">{{ uiText.quick.apiType }}</NCheckbox>
-          </label>
+          <details :open="form.type === 'api'">
+            <summary>{{ uiText.quick.advanced }}</summary>
+            <label class="checkbox-row"><NCheckbox :checked="form.type === 'api'" @update:checked="setQuickType('api')">{{ uiText.quick.apiType }}</NCheckbox></label>
+          </details>
           <label class="checkbox-row">
             <NCheckbox :checked="form.type === 'app'" @update:checked="setQuickType('app')">{{ uiText.quick.appType }}</NCheckbox>
           </label>
@@ -1108,7 +1107,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           />
         </label>
         <label>
-          <span>{{ form.type === "api" ? uiText.quick.requestUrl : form.type === "link" ? "URL" : form.type === "app" ? uiText.quick.appScheme : uiText.quick.copyText }}</span>
+          <span>{{ form.type === "api" ? uiText.quick.requestUrl : form.type === "link" ? uiText.quick.linkAddress : form.type === "app" ? uiText.quick.appScheme : uiText.quick.copyText }}</span>
           <NInput
             :value="form.value"
             @update:value="updateQuickValue"

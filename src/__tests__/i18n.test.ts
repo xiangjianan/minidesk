@@ -115,14 +115,14 @@ describe("localized public copy", () => {
   });
 
   it("localizes shared menu labels", () => {
-    expect(getUiText("en").settings.language).toBe("语言");
+    expect(getUiText("en").settings.language).toBe("语言 / Language");
     expect(getUiText("zh").settings.shortcutHelp).toBe("帮助与快捷键");
     expect(getUiText("en").settings.shortcutHelp).toBe("Help & Shortcuts");
     expect(getUiText("en").quick.add).toBe("Add");
     expect(getUiText("en").quick.menu).toBe("Quick actions menu");
     expect(getUiText("en").todo.createList).toBe("New list");
     expect(getUiText("en").common.delete).toBe("Delete");
-    expect(getUiText("zh").settings.language).toBe("Language");
+    expect(getUiText("zh").settings.language).toBe("语言 / Language");
   });
 
   it("localizes the merged image paste action in English", () => {

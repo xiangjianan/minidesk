@@ -663,7 +663,7 @@ describe("SettingsMenu", () => {
       },
     });
 
-    expect(wrapper.find('[data-key="language"]').text()).toBe("Language");
+    expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:zh"]').classes()).toContain("is-selected");
     expect(wrapper.find('[data-key="language:en"]').text()).toBe("English");
 
@@ -700,7 +700,7 @@ describe("SettingsMenu", () => {
       },
     });
 
-    expect(wrapper.find('[data-key="language"]').text()).toBe("语言");
+    expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:en"]').classes()).toContain("is-selected");
   });
 });

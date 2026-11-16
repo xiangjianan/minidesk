@@ -3414,6 +3414,14 @@ button.companion-undo-button {
   gap: 10px;
 }
 
+button.quick-empty-hint {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
 .image-preview {
   position: fixed;
   top: var(--image-preview-top, 52px);
