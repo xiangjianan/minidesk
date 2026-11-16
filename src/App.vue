@@ -62,6 +62,7 @@ import {
 import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY, LEGACY_STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
+import { createExampleWorkspace, EXAMPLE_DESKTOP_TEXT } from "./state/exampleWorkspace";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
 import * as workspaceMover from "./state/workspaceMoves";
 import { mergeImportedWorkspace } from "./state/workspaceImport";
@@ -130,6 +131,9 @@ function getInitialMobileBlocked(): boolean {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(MOBILE_BREAKPOINT_QUERY).matches;
 }
 
+const firstLaunch = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(LEGACY_STORAGE_KEY);
+const exampleDialogVisible = ref(firstLaunch);
+const exampleLoading = ref(false);
 const state = reactive<BoardState>(loadState());
 const activeWorkspace = computed<WorkspaceData>(
   () => state.workspaces.find((workspace) => workspace.id === state.activeWorkspaceId) ?? state.workspaces[0],
@@ -1030,6 +1034,28 @@ function moveSpaceAcrossWorkspaces(spaceId: string, workspaceId: string): void {
   if (pendingEditSpaceId.value === spaceId) pendingEditSpaceId.value = null;
   state.workspaces = next;
   syncLegacySpaceLines();
+  persistNow();
+}
+
+async function loadExampleDesktop(): Promise<void> {
+  if (exampleLoading.value) return;
+  exampleLoading.value = true;
+  try {
+    const workspace = ensureUniqueWorkspaceTitle(createExampleWorkspace(state.language), state.workspaces, DEFAULT_BOARD_TITLE);
+    await persistImagePayloads(workspace.images);
+    state.workspaces = [...state.workspaces, workspace];
+    state.activeWorkspaceId = workspace.id;
+    exampleDialogVisible.value = false;
+    persistNow();
+  } catch (error) {
+    showPayloadSaveError(error);
+  } finally {
+    exampleLoading.value = false;
+  }
+}
+
+function skipExampleDesktop(): void {
+  exampleDialogVisible.value = false;
   persistNow();
 }
 
@@ -4715,6 +4741,15 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
+    <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">
+      <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].description }}</p>
+      <template #footer>
+        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px">
+          <NButton :disabled="exampleLoading" data-testid="skip-example-desktop" @click="skipExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].skip }}</NButton>
+          <NButton type="primary" :loading="exampleLoading" data-testid="load-example-desktop" @click="loadExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].load }}</NButton>
+        </div>
+      </template>
+    </NModal>
     <NModal :show="storageUsageVisible" preset="card" class="workspace-dialog-modal" :title="uiText.settings.storageUsage" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { storageUsageVisible = show; }">
       <p>{{ uiText.settings.storageUsageHint }}</p>
       <p v-if="storageUsageLoading">{{ uiText.images.loading }}</p>
