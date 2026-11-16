@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
   Plus as AddOutline,
   Check as CheckmarkOutline,
@@ -80,7 +80,8 @@ const SUPPORT_AUTHOR_ENABLED = false;
 
 const menuOpen = ref(false);
 const menuAim = createMenuAim();
-const { menuProps: settingsMenuProps, nodeProps: settingsNodeProps } = menuAimProps(menuAim);
+const { nodeProps: settingsNodeProps } = menuAimProps(menuAim);
+const settingsMenuProps = () => ({ class: "menu-aim-menu settings-preferences-menu" });
 watch(menuOpen, (open) => { if (open) menuAim.start(); else menuAim.stop(); }, { flush: "sync" });
 // NDropdown requests closure after every selection, even when its show is controlled.
 let keepOpenAfterPreferenceSelect = false;
@@ -205,7 +206,7 @@ const options = computed(() => [
 ]);
 
 function handleSelect(key: string): void {
-  keepOpenAfterPreferenceSelect = key === "about" || key === "version" || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
+  keepOpenAfterPreferenceSelect = key === "about" || key === "version" || key.startsWith("language:") || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
   if (key === "toggle-ai") emit("toggleAi");
   if (key === "create-workspace") emit("createWorkspace");
@@ -227,7 +228,16 @@ function handleSelect(key: string): void {
     return;
   }
   if (key.startsWith("language:")) {
+    const menu = document.querySelector<HTMLElement>(".settings-preferences-menu");
+    const previousWidth = menu?.getBoundingClientRect().width;
     emit("language", normalizeLanguage(key.replace("language:", "")), triggerRef.value ?? undefined);
+    void nextTick(() => {
+      if (!menu?.isConnected || !previousWidth || window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
+      const nextWidth = menu.getBoundingClientRect().width;
+      if (nextWidth && nextWidth !== previousWidth && typeof menu.animate === "function") {
+        menu.animate([{ width: `${previousWidth}px` }, { width: `${nextWidth}px` }], { duration: 180, easing: "ease-out" });
+      }
+    });
     return;
   }
   if (key === "gif-theme:custom") {

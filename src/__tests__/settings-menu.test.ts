@@ -274,7 +274,7 @@ describe("SettingsMenu", () => {
     expect(wrapper.emitted("suggest")?.[0]).toEqual([expect.any(HTMLElement)]);
   });
 
-  it.each(["about", "version"])("keeps the menu open after selecting %s", async (key) => {
+  it.each(["about", "version", "language:en"])("keeps the menu open after selecting %s", async (key) => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.29", updateAvailable: false, companionGifTheme: "none" },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
@@ -286,7 +286,7 @@ describe("SettingsMenu", () => {
     settings.vm.$emit("update:show", false);
     await wrapper.vm.$nextTick();
     expect(settings.props("show")).toBe(true);
-    expect(wrapper.emitted(key === "about" ? "about" : "checkUpdate")).toHaveLength(1);
+    expect(wrapper.emitted(key === "about" ? "about" : key === "version" ? "checkUpdate" : "language")).toHaveLength(1);
     settings.vm.$emit("update:show", false);
     await wrapper.vm.$nextTick();
     expect(settings.props("show")).toBe(false);
