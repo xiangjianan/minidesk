@@ -106,6 +106,28 @@ describe("TextPanel", () => {
     wrapper.unmount();
   });
 
+  it.each(["input", "selectionchange"])("hides the toolbar when the selection collapses on %s", async (event) => {
+    const wrapper = mount(TextPanel, { attachTo: document.body, props: {
+      titleId: "title", title: "Notes", lines: [{ text: "hello", indent: 0 }],
+    } });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(1, 4);
+    await wrapper.get("textarea").trigger("select");
+    await flushPromises();
+    expect(document.querySelector(".selection-toolbar")).not.toBeNull();
+    if (event === "input") {
+      textarea.setRangeText("", 1, 4, "end");
+      await wrapper.get("textarea").trigger("input");
+    } else {
+      textarea.setSelectionRange(1, 1);
+      document.dispatchEvent(new Event("selectionchange"));
+    }
+    await flushPromises();
+    expect(document.querySelector(".selection-toolbar")).toBeNull();
+    wrapper.unmount();
+  });
+
   it("renders four-space indentation without injected dash markers", () => {
     const wrapper = mount(TextPanel, {
       props: {

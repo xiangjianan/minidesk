@@ -907,6 +907,7 @@ function syncVisibleSelection(textarea: HTMLTextAreaElement): void {
   const start = textarea.selectionStart;
   const end = textarea.selectionEnd;
   visibleSelection.value = start < end ? { start, end } : null;
+  if (start === end) selectionToolbar.value = null;
 }
 
 function openTextMenu(event: MouseEvent): void {
