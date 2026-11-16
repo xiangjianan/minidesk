@@ -21,6 +21,7 @@ function exampleClippings(zh: boolean): string[] {
 export function createExampleWorkspace(language: AppLanguage): WorkspaceData {
   const zh = language === "zh";
   const workspace = createWorkspaceData(EXAMPLE_DESKTOP_TEXT[language].workspace, "", Date.now(), undefined, language);
+  workspace.isExample = true;
   workspace.images = exampleClippings(zh).map((src) => ({ id: createId(), src, createdAt: Date.now() }));
   const tripTagId = createId();
   workspace.quickTags.push({ id: tripTagId, title: zh ? "周末出走" : "Weekend away", collapsed: false, column: 0 });

@@ -134,6 +134,7 @@ function getInitialMobileBlocked(): boolean {
 const firstLaunch = !localStorage.getItem(STORAGE_KEY) && !localStorage.getItem(LEGACY_STORAGE_KEY);
 const exampleDialogVisible = ref(firstLaunch);
 const exampleLoading = ref(false);
+const exampleRepeatConfirm = ref(false);
 const state = reactive<BoardState>(loadState());
 const activeWorkspace = computed<WorkspaceData>(
   () => state.workspaces.find((workspace) => workspace.id === state.activeWorkspaceId) ?? state.workspaces[0],
@@ -1037,6 +1038,14 @@ function moveSpaceAcrossWorkspaces(spaceId: string, workspaceId: string): void {
   persistNow();
 }
 
+function requestExampleDesktop(): void {
+  if (state.workspaces.some((workspace) => workspace.isExample)) {
+    exampleRepeatConfirm.value = true;
+  } else {
+    void loadExampleDesktop();
+  }
+}
+
 async function loadExampleDesktop(): Promise<void> {
   if (exampleLoading.value) return;
   exampleLoading.value = true;
@@ -1047,6 +1056,7 @@ async function loadExampleDesktop(): Promise<void> {
     state.workspaces = [...state.workspaces, workspace];
     state.activeWorkspaceId = workspace.id;
     exampleDialogVisible.value = false;
+    exampleRepeatConfirm.value = false;
     persistNow();
   } catch (error) {
     showPayloadSaveError(error);
@@ -4424,6 +4434,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @reorder="reorderWorkspaceSections"
           @export-workspace="exportWorkspaceById"
           @import="requestImport"
+          @load-example="requestExampleDesktop"
           @pair-inbox="(id: string) => { inboxPairingWorkspaceId = id; }"
         />
       </template>
@@ -4751,6 +4762,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
+    <NModal :show="exampleRepeatConfirm" preset="dialog" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" :content="EXAMPLE_DESKTOP_TEXT[state.language].repeatDescription" :positive-text="EXAMPLE_DESKTOP_TEXT[state.language].repeatConfirm" :negative-text="uiText.common.cancel" :positive-button-props="{ loading: exampleLoading }" @positive-click="() => { void loadExampleDesktop(); return false; }" @negative-click="exampleRepeatConfirm = false" @close="exampleRepeatConfirm = false" />
     <NModal :show="storageUsageVisible" preset="card" class="workspace-dialog-modal" :title="uiText.settings.storageUsage" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { storageUsageVisible = show; }">
       <p>{{ uiText.settings.storageUsageHint }}</p>
       <p v-if="storageUsageLoading">{{ uiText.images.loading }}</p>

@@ -10,10 +10,12 @@ import {
   Download as DownloadOutline,
   CloudUpload as CloudUploadOutline,
   Check as CheckmarkOutline,
+  Sparkles as SparklesOutline,
   Smartphone as PhonePortraitOutline,
   Ellipsis as EllipsisHorizontalOutline,
 } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
+import { EXAMPLE_DESKTOP_TEXT } from "../state/exampleDesktopText";
 import { DEFAULT_BOARD_TITLE } from "../state/defaults";
 import { getWorkspaceBoardTitle } from "../state/workspaces";
 import { organizeContextMenu, CONTEXT_MENU_Z_INDEX } from "../utils/contextMenu";
@@ -35,6 +37,7 @@ const emit = defineEmits<{
   reorder: [dragId: string, targetId: string];
   exportWorkspace: [id: string, anchor: HTMLElement];
   import: [anchor: HTMLElement];
+  loadExample: [];
   pairInbox: [id: string];
 }>();
 
@@ -309,6 +312,10 @@ onUnmounted(() => disposeSort?.());
           <span>{{ text.app.workspaceImport }}</span>
         </button>
       </div>
+      <button type="button" class="workspace-switcher-example" data-testid="workspace-example-button" @click="emit('loadExample'); close()">
+        <NIcon :component="SparklesOutline" size="14" />
+        <span>{{ EXAMPLE_DESKTOP_TEXT[language].load }}</span>
+      </button>
     </div>
   </NPopover>
 </template>

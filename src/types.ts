@@ -165,6 +165,8 @@ export interface WorkspaceSpace {
  * set of `spaces: WorkspaceSpace[]` sub-panels.
  */
 export interface WorkspaceData {
+  /** Identifies a workspace created from the built-in example, even after renaming. */
+  isExample?: true;
   id: string;
   createdAt: number;
   customTitles: Record<string, string>;

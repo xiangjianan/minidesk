@@ -26,6 +26,7 @@ export function getSerializableWorkspace(
 ): WorkspaceData {
   const todoLists = cloneTodoLists(workspace.todoLists);
   return {
+    ...(workspace.isExample ? { isExample: true as const } : {}),
     id: workspace.id,
     createdAt: workspace.createdAt,
     customTitles: { ...workspace.customTitles },

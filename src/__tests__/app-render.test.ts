@@ -2,6 +2,7 @@ import { nextTick } from "vue";
 import { flushPromises } from "@vue/test-utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mountApp } from "./helpers/mount-app";
+import { modalStub } from "./helpers/stubs";
 import CompanionBubble from "../components/CompanionBubble.vue";
 import ImagePanel from "../components/ImagePanel.vue";
 import QuickButtons from "../components/QuickButtons.vue";
@@ -252,6 +253,38 @@ function nextPatchVersion(version: string): string {
 beforeEach(() => {
   localStorage.clear();
   vi.restoreAllMocks();
+});
+
+describe("example desk entry", () => {
+  it("loads after starting blank, confirms another copy, and keeps renamed examples recognizable", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
+    const wrapper = mountApp();
+    try {
+      await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
+      await wrapper.get('[data-testid="workspace-example-button"]').trigger("click");
+      await flushAsyncComponents();
+      let stored = loadState();
+      expect(stored.workspaces).toHaveLength(2);
+      expect(stored.workspaces[1].isExample).toBe(true);
+      stored.workspaces[1].customTitles["board-title"] = "My renamed desk";
+      wrapper.unmount();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
+      const reopened = mountApp();
+      try {
+        await reopened.get('[data-testid="workspace-trigger"]').trigger("click");
+        await reopened.get('[data-testid="workspace-example-button"]').trigger("click");
+        const dialog = reopened.findAllComponents(modalStub).find((modal) => modal.props("title") === "再载入一份示例桌面？");
+        expect(dialog?.props("show")).toBe(true);
+        expect(loadState().workspaces).toHaveLength(2);
+        dialog!.vm.$emit("positive-click");
+        await flushAsyncComponents();
+        stored = loadState();
+        expect(stored.workspaces).toHaveLength(3);
+        expect(stored.workspaces[1].customTitles["board-title"]).toBe("My renamed desk");
+        expect(stored.workspaces[2].isExample).toBe(true);
+      } finally { reopened.unmount(); }
+    } finally { wrapper.unmount(); }
+  });
 });
 
 describe("App shell", () => {

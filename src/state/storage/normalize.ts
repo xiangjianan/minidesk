@@ -94,6 +94,7 @@ export function normalizeWorkspaceData(item: unknown, language: AppLanguage = DE
   const id = typeof typed.id === "string" && typed.id.trim() ? typed.id.trim() : createId();
   const createdAt = typeof typed.createdAt === "number" && Number.isFinite(typed.createdAt) ? typed.createdAt : 0;
   return mergeDuplicateTodoLists({
+    ...(typed.isExample === true ? { isExample: true as const } : {}),
     id,
     createdAt,
     customTitles,

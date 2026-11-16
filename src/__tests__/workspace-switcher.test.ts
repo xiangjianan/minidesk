@@ -46,6 +46,9 @@ describe("WorkspaceSwitcher", () => {
     expect(menu.querySelector('[data-testid="workspace-import-button"]')).toBeNull();
     expect(wrapper.find('.workspace-switcher-footer [data-testid="workspace-create-button"]').exists()).toBe(true);
     expect(wrapper.find('.workspace-switcher-footer [data-testid="workspace-import-button"]').exists()).toBe(true);
+    await wrapper.get('[data-testid="workspace-example-button"]').trigger("click");
+    expect(wrapper.emitted("loadExample")).toEqual([[]]);
+    expect(wrapper.get('[data-testid="workspace-trigger"]').attributes("aria-expanded")).toBe("false");
     wrapper.unmount();
   });
 

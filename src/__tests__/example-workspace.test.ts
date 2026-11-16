@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 import { createExampleWorkspace } from "../state/exampleWorkspace";
 import { buildVisibleQuickButtonGroups } from "../state/quickButtons";
 import { defaultWorkspace } from "../state/defaults";
-import { getSerializableWorkspace } from "../state/storage";
+import { getSerializableWorkspace, normalizeWorkspaceData } from "../state/storage";
 
 describe("example workspace", () => {
   it.each(["zh", "en"] as const)("creates editable example content in %s", (language) => {
     const workspace = createExampleWorkspace(language);
+    expect(workspace.isExample).toBe(true);
+    expect(normalizeWorkspaceData(getSerializableWorkspace({ ...workspace, customTitles: { "board-title": "Renamed" } })).isExample).toBe(true);
+    expect(normalizeWorkspaceData({ ...workspace, isExample: "true" }).isExample).toBeUndefined();
     expect(workspace.images).toHaveLength(3);
     expect(workspace.images.every((image) => image.src?.startsWith("data:image/"))).toBe(true);
     expect(workspace.quickButtons).toHaveLength(5);
