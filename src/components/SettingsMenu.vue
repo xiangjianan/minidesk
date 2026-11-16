@@ -17,6 +17,7 @@ import {
   RefreshCw as RefreshOutline,
   Sun,
   Moon,
+  Cat, Cloud, Music2, ImagePlus, VolumeX, Languages,
   LayoutGrid as GridOutline,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
@@ -102,6 +103,13 @@ function selectAppearance(): void {
   emit("theme", nextAppearance.value);
 }
 const zoneIcons = { assets: ImagesAreaIcon, notes: QuickAreaIcon, tasks: RemindersAreaIcon, workspace: NotesAreaIcon };
+function selectionLabel(label: string, selected: boolean) {
+  return () => h("span", { class: "settings-zone-label" }, [
+    h("span", label),
+    selected ? h(CheckmarkOutline, { class: "settings-zone-check", size: 15, "aria-hidden": "true" }) : null,
+  ]);
+}
+const gifIcons = { cat: Cat, hermes: Cloud, ikun: Music2, custom: ImagePlus, none: VolumeX };
 const zoneOptions = computed(() => [
   ...(["assets", "notes", "tasks", "workspace"] as const).map((zone) => ({
     label: () => h("span", { class: "settings-zone-label" }, [
@@ -147,14 +155,16 @@ const options = computed(() => [
     icon: renderIcon(GlobeOutline),
     children: [
       {
-        label: text.value.settings.chinese,
+        label: selectionLabel(text.value.settings.chinese, normalizeLanguage(props.language) === "zh"),
         key: "language:zh",
-        icon: normalizeLanguage(props.language) === "zh" ? renderIcon(CheckmarkOutline) : undefined,
+        icon: renderIcon(Languages),
+        props: { role: "menuitemradio", "aria-checked": normalizeLanguage(props.language) === "zh" },
       },
       {
-        label: text.value.settings.english,
+        label: selectionLabel(text.value.settings.english, normalizeLanguage(props.language) === "en"),
         key: "language:en",
-        icon: normalizeLanguage(props.language) === "en" ? renderIcon(CheckmarkOutline) : undefined,
+        icon: renderIcon(Languages),
+        props: { role: "menuitemradio", "aria-checked": normalizeLanguage(props.language) === "en" },
       },
     ],
   },
@@ -163,9 +173,10 @@ const options = computed(() => [
     key: "gif-theme",
     icon: renderIcon(ImagesOutline),
     children: COMPANION_GIF_THEME_OPTIONS.map((option) => ({
-      label: getCompanionGifThemeLabel(option.value),
+      label: selectionLabel(getCompanionGifThemeLabel(option.value), option.value === props.companionGifTheme),
       key: `gif-theme:${option.value}`,
-      icon: option.value === props.companionGifTheme ? renderIcon(CheckmarkOutline) : undefined,
+      icon: renderIcon(gifIcons[option.value]),
+      props: { role: "menuitemradio", "aria-checked": option.value === props.companionGifTheme },
     })),
   },
   { type: "divider", key: "preferences-divider" },

@@ -9,16 +9,11 @@ const dropdownStub = defineComponent({
   props: ["options", "show"],
   emits: ["select", "update:show"],
   methods: {
-    // Mirrors the visible-checkmark semantics: an option is "checked" when it has
-    // an icon that isn't the transparent placeholder used to reserve icon space.
-    isChecked(option: { icon?: () => unknown }) {
-      if (typeof option.icon !== "function") return false;
-      try {
-        const vnode = option.icon() as { props?: { color?: string } } | null;
-        return vnode?.props?.color !== "transparent";
-      } catch {
-        return true;
-      }
+    isChecked(option: { props?: { "aria-checked"?: boolean } }) {
+      return option.props?.["aria-checked"] === true;
+    },
+    labelText(option: { label?: string | (() => { children?: Array<{ children?: string }> }) }) {
+      return typeof option.label === "function" ? option.label()?.children?.[0]?.children : option.label;
     },
   },
   template: `
@@ -44,7 +39,7 @@ const dropdownStub = defineComponent({
           type="button"
           @click="$emit('select', child.key); $emit('update:show', false)"
         >
-          {{ child.label }}
+          {{ labelText(child) }}
         </button>
       </template>
     </div>
@@ -500,6 +495,10 @@ describe("SettingsMenu", () => {
     expect(wrapper.find('[data-key="gif-theme:custom"]').text()).toBe("自定义");
     expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("安静模式");
     expect(wrapper.find('[data-key="gif-theme:none"]').classes()).toContain("is-selected");
+    const gifOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "gif-theme").children;
+    expect(gifOptions.every((option: any) => typeof option.icon === "function")).toBe(true);
+    expect(gifOptions.find((option: any) => option.key === "gif-theme:none").label().children[1]?.props.class).toBe("settings-zone-check");
+    expect(gifOptions.find((option: any) => option.key === "gif-theme:cat").label().children[1]).toBeNull();
     await wrapper.setProps({ language: "en" });
     expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("Quiet mode");
     expect(wrapper.find('[data-key="gif-theme:hermes"]').classes()).not.toContain("is-selected");
@@ -670,6 +669,10 @@ describe("SettingsMenu", () => {
 
     expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:zh"]').classes()).toContain("is-selected");
+    const languageOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "language").children;
+    expect(languageOptions.every((option: any) => typeof option.icon === "function")).toBe(true);
+    expect(languageOptions[0].label().children[1]?.props.class).toBe("settings-zone-check");
+    expect(languageOptions[1].label().children[1]).toBeNull();
     expect(wrapper.find('[data-key="language:en"]').text()).toBe("English");
 
     await wrapper.find('[data-key="language:en"]').trigger("click");
