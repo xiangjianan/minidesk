@@ -308,6 +308,35 @@ const importFeedbackAnchor = ref<HTMLElement | undefined>();
 const pendingEditSpaceId = ref<string | null>(null);
 const pendingEditTodoListId = ref<string | null>(null);
 const workspaceDialogVisible = ref(false);
+const storageUsageVisible = ref(false);
+const storageUsageLoading = ref(false);
+const storageUsageError = ref(false);
+const storageUsageRows = ref<Array<{ id: string; title: string; count: number; bytes: number }>>([]);
+async function showStorageUsage(): Promise<void> {
+  storageUsageVisible.value = true;
+  storageUsageLoading.value = true;
+  storageUsageError.value = false;
+  storageUsageRows.value = [];
+  try {
+    const rows = [];
+    for (const workspace of state.workspaces) {
+      const images = [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))].flat();
+      const hydrated = await hydrateStoredImages(images);
+      if (hydrated.some((image) => !image.src)) storageUsageError.value = true;
+      const metadata = JSON.stringify(getSerializableWorkspace(workspace));
+      const bytes = new Blob([metadata]).size + hydrated.reduce((sum, image) => sum + (image.src ? new Blob([image.src]).size : 0), 0);
+      rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes });
+    }
+    storageUsageRows.value = rows;
+  } catch {
+    storageUsageError.value = true;
+  } finally {
+    storageUsageLoading.value = false;
+  }
+}
+function formatStorageBytes(bytes: number): string {
+  return bytes >= 1024 * 1024 ? `${(bytes / (1024 * 1024)).toFixed(1)} MB` : `${(bytes / 1024).toFixed(1)} KB`;
+}
 const clearWorkspaceId = ref<string | null>(null);
 const clearWorkspaceAnchor = ref<HTMLElement>();
 const clearWorkspace = computed(() => state.workspaces.find((workspace) => workspace.id === clearWorkspaceId.value));
@@ -4267,6 +4296,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :language="state.language"
           @create-workspace="openCreateWorkspace"
           @export-workspace="exportCurrentWorkspace"
+          @storage-usage="showStorageUsage"
           @import="requestImport"
           @pair-inbox="inboxPairingWorkspaceId = state.activeWorkspaceId"
           @clear-data="clearData"
@@ -4541,6 +4571,13 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
+    <NModal :show="storageUsageVisible" preset="card" class="workspace-dialog-modal" :title="uiText.settings.storageUsage" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { storageUsageVisible = show; }">
+      <p>{{ uiText.settings.storageUsageHint }}</p>
+      <p v-if="storageUsageLoading">{{ uiText.images.loading }}</p>
+      <p v-if="storageUsageError" role="alert">{{ uiText.settings.storageReadFailed }}</p>
+      <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)) }}</li></ul>
+      <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
+    </NModal>
     <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
       <template v-if="clearWorkspace">
         <p>{{ uiText.settings.clearDataHint }}</p>
