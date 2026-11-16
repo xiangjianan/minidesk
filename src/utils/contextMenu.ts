@@ -94,7 +94,7 @@ export function organizeContextMenu(options: DropdownOption[]): DropdownOption[]
     if (["guide", "tips"].includes(key)) return 5;
     if (key.startsWith("delete") || key === "clear-completed") return 4;
     if (key.startsWith("move") || key.startsWith("pin-")) return 3;
-    if (["export", "copy", "copy-text", "copy-link", "paste", "smart-paste", "preview", "close-preview", "add", "create", "create-list"].includes(key)) return 0;
+    if (["export", "cut", "copy", "copy-text", "copy-link", "paste", "smart-paste", "preview", "close-preview", "add", "create", "create-list"].includes(key)) return 0;
     return 1;
   };
   const sorted = options.filter((option) => option.type !== "divider")
@@ -113,7 +113,7 @@ export function organizeContextMenu(options: DropdownOption[]): DropdownOption[]
 /** Keep native text actions available outside the dedicated text editors. */
 export function preventNativeContextMenu(event: Event): void {
   const target = event.target;
-  if (target instanceof Element && !target.closest(".text-editor-frame, .todo-input")) {
+  if (target instanceof Element && !target.closest(".text-editor-frame, .todo-input, .today-focus-input")) {
     const field = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ? target : null;
     const fieldHasSelection = field && field.selectionStart !== null && field.selectionEnd !== null
       && field.selectionStart !== field.selectionEnd;

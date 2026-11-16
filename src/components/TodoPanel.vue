@@ -21,6 +21,7 @@ import {
   Link as LinkOutline,
   LayoutGrid as GridOutline,
   Bell as NotificationsOutline,
+  Scissors as CutOutline,
   Star,
   Star as StarOutline,
   ArrowLeftRight as SwapHorizontalOutline,
@@ -347,6 +348,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
     options.push({ label: uiText.value.todo.clearAllCompleted, key: "clear-all-completed", icon: renderIcon(CheckmarkDoneOutline) });
   }
   if (menu.value?.id) {
+    if (menu.value.target && menu.value.selection?.text) options.push({ label: uiText.value.common.cut, key: "cut", disabled: todo?.done === true, icon: renderIcon(CutOutline) });
     options.push({ label: uiText.value.common.copy, key: "copy", icon: renderIcon(CopyOutline) });
     if (canPasteTodoText(menu.value.period)) {
       // 普通粘贴在聚焦时写入选区；失焦及智能粘贴继续新增提醒。
@@ -1592,6 +1594,24 @@ async function handleMenuSelect(key: string): Promise<void> {
       fallbackTexts: splitDroppedTodoText,
       notify: (phase, message, anchor) => emit("polishMessage", phase, message, anchor),
     });
+    return;
+  }
+  if (key === "cut" && id && target && selection) {
+    const landingLists = props.todoLists;
+    const todo = getTodoById(period, id);
+    closeMenu();
+    if (!todo || todo.done || !selection.text) return;
+    const stale = () => isUnmounted || props.todoLists !== landingLists || getTodoById(period, id) !== todo || todo.done || todo.text !== selection.baseline;
+    if (!await copyTextToClipboard(selection.text, stale) || stale()) return;
+    const nextText = selection.baseline.slice(0, selection.start) + selection.baseline.slice(selection.end);
+    lastTodoSelections.delete(todoKey(period, id));
+    editingTodoKey.value = todoKey(period, id);
+    emit("update", period, id, nextText);
+    await nextTick();
+    if (target.isConnected) {
+      target.focus({ preventScroll: true });
+      restoreTodoCaret(target, selection.start);
+    }
     return;
   }
   if (key === "copy" && id) {

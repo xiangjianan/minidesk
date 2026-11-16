@@ -915,13 +915,30 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("select");
     await wrapper.get("textarea").trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["复制", "粘贴", ...FORMAT_GROUP_LABELS, "删除"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["剪切", "复制", "粘贴", ...FORMAT_GROUP_LABELS, "删除"]);
 
     textarea.setSelectionRange(4, 4);
     await wrapper.findAll(".dropdown-option").find((option) => option.text() === "复制")?.trigger("click");
     await Promise.resolve();
 
     expect(writeText).toHaveBeenCalledWith("root");
+    wrapper.unmount();
+  });
+
+  it("cuts selected notebook text only after copying it", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const wrapper = mount(TextPanel, {
+      props: { titleId: "note", title: "Note", lines: [{ text: "root text", indent: 0 }] },
+      global: { stubs: { Dropdown: menuDropdownStub, NDropdown: menuDropdownStub } },
+    });
+    const textarea = wrapper.get("textarea").element as HTMLTextAreaElement;
+    textarea.setSelectionRange(0, 4);
+    await wrapper.get("textarea").trigger("select");
+    await wrapper.get("textarea").trigger("contextmenu");
+    await wrapper.get('[data-key="cut"]').trigger("click");
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith("root"));
+    await vi.waitFor(() => expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([{ text: " text", indent: 0 }]));
     wrapper.unmount();
   });
 
@@ -1812,7 +1829,7 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("contextmenu");
 
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text()))
-      .toEqual(["复制", "粘贴", "智能粘贴", "AI润色", "技术风格", "简洁风格", "口语风格", ...FORMAT_GROUP_LABELS, "删除"]);
+      .toEqual(["剪切", "复制", "粘贴", "智能粘贴", "AI润色", "技术风格", "简洁风格", "口语风格", ...FORMAT_GROUP_LABELS, "删除"]);
     wrapper.unmount();
   });
 
@@ -1943,7 +1960,7 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("contextmenu");
 
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text()))
-      .toEqual(["复制", "粘贴", "智能粘贴", "AI润色", "技术风格", "简洁风格", "口语风格", ...FORMAT_GROUP_LABELS, "删除"]);
+      .toEqual(["剪切", "复制", "粘贴", "智能粘贴", "AI润色", "技术风格", "简洁风格", "口语风格", ...FORMAT_GROUP_LABELS, "删除"]);
     wrapper.unmount();
   });
 
@@ -1968,7 +1985,7 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("contextmenu");
 
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text()))
-      .toEqual(["复制", "粘贴", ...FORMAT_GROUP_LABELS, "删除"]);
+      .toEqual(["剪切", "复制", "粘贴", ...FORMAT_GROUP_LABELS, "删除"]);
     wrapper.unmount();
   });
 

@@ -8,6 +8,7 @@ import type { DropdownOption } from "naive-ui";
 import {
   CircleHelp as HelpCircleOutline,
   Trash2 as TrashOutline,
+  Scissors as CutOutline,
 } from "lucide-vue-next";
 import { Bold, Paintbrush, RemoveFormatting, Strikethrough, Underline } from "lucide-vue-next";
 import { POLISH_STYLE_ENTRIES } from "../state/polishStyles";
@@ -30,7 +31,7 @@ import {
 } from "../utils/textEditor";
 import { clearMarksInRange, MARK_COLORS, toggleMarkInRange, buildMirrorSegments, translateMarksForEdit, type MirrorSegment } from "../utils/textMarks";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
-import { copySelection, getSelectionRange, hasSelection, pasteWithBrowserCommand, probeClipboardForTextPaste } from "../utils/clipboard";
+import { copySelection, copyTextToClipboard, getSelectionRange, hasSelection, pasteWithBrowserCommand, probeClipboardForTextPaste } from "../utils/clipboard";
 import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { clampCaret, setStickySelection } from "../utils/caret";
 import { isImeComposing } from "../utils/ime";
@@ -297,6 +298,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
   const options: DropdownOption[] = [];
   const target = menu.value?.target;
   if (target) {
+    if (canCopyTextSelection(target)) options.push({ label: uiText.value.common.cut, key: "cut", icon: renderIcon(CutOutline) });
     options.push({ label: uiText.value.common.copy, key: "copy", disabled: !canCopyTextSelection(target), icon: renderIcon(CopyOutline) });
     options.push({ label: uiText.value.common.paste, key: "paste", disabled: !menu.value?.canPaste, icon: renderIcon(ClipboardOutline) });
     if (props.polish) {
@@ -972,6 +974,17 @@ async function handleMenuSelect(key: string): Promise<void> {
   const target = current?.target;
   const canPaste = Boolean(current?.canPaste);
   closeMenu();
+  if (key === "cut" && target) {
+    const range = getTextSelectionRange(target);
+    const baseline = target.value;
+    const revision = editorRevision;
+    const selected = baseline.slice(range.start, range.end);
+    if (!selected || !await copyTextToClipboard(selected, () => isUnmounted || editorRevision !== revision)) return;
+    if (isUnmounted || editorRevision !== revision || target.value !== baseline) return;
+    target.setSelectionRange(range.start, range.end);
+    deleteTextSelection(target);
+    return;
+  }
   if (key === "copy" && target) {
     if (!canCopyTextSelection(target)) return;
     await copyTextSelection(target);

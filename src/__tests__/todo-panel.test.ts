@@ -3943,6 +3943,25 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
+  it("cuts only the selected reminder text", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { clipboard: { writeText } });
+    const wrapper = mount(TodoPanel, {
+      props: { todos: { morning: [{ id: "a", text: "hello world", done: false }], noon: [], evening: [] }, titles: DEFAULT_TITLES },
+      global: { stubs: { Button: true, Dropdown: dropdownStub, NDropdown: dropdownStub, NTooltip: tooltipStub } },
+    });
+    const input = wrapper.get("input.todo-input");
+    (input.element as HTMLInputElement).setSelectionRange(0, 5);
+    await input.trigger("select");
+    await input.trigger("contextmenu");
+    const options = wrapper.findAll(".dropdown-option");
+    expect(options.slice(0, 2).map((option) => option.text())).toEqual(["剪切", "复制"]);
+    await options[0].trigger("click");
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledWith("hello"));
+    await vi.waitFor(() => expect(wrapper.emitted("update")?.at(-1)).toEqual(["morning", "a", " world"]));
+    wrapper.unmount();
+  });
+
   it("keeps reminder actions available when clipboard APIs are unavailable", async () => {
     Object.assign(navigator, { clipboard: undefined });
     const wrapper = mount(TodoPanel, {
