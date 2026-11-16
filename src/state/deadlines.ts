@@ -65,7 +65,15 @@ export function normalizeNotifyPresetTimes(value: unknown): string[] {
   return [...value];
 }
 
-export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOTIFY_PRESET_TIMES): NotifyPreset[] {
+export const DEFAULT_NOTIFY_PRESET_MINUTES = [15, 30, 60, 120, 240];
+
+export function normalizeNotifyPresetMinutes(value: unknown): number[] {
+  return Array.isArray(value) && value.length === 5 && value.every((minutes) => Number.isInteger(minutes) && minutes >= 1 && minutes <= 10080)
+    ? [...value] : [...DEFAULT_NOTIFY_PRESET_MINUTES];
+}
+
+export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOTIFY_PRESET_TIMES, minutes: number[] = DEFAULT_NOTIFY_PRESET_MINUTES): NotifyPreset[] {
+  const durations = normalizeNotifyPresetMinutes(minutes);
   const slots = normalizeNotifyPresetTimes(times).map((time) => time.split(":").map(Number));
   const inMinutes = (minutes: number): number => {
     const next = new Date(now.getTime() + minutes * 60 * 1000);
@@ -86,11 +94,11 @@ export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOT
   };
 
   return [
-    { key: "in15m", group: "relative", at: inMinutes(15) },
-    { key: "in30m", group: "relative", at: inMinutes(30) },
-    { key: "in1h", group: "relative", at: inMinutes(60) },
-    { key: "in2h", group: "relative", at: inMinutes(120) },
-    { key: "in4h", group: "relative", at: inMinutes(240) },
+    { key: "in15m", group: "relative", at: inMinutes(durations[0]) },
+    { key: "in30m", group: "relative", at: inMinutes(durations[1]) },
+    { key: "in1h", group: "relative", at: inMinutes(durations[2]) },
+    { key: "in2h", group: "relative", at: inMinutes(durations[3]) },
+    { key: "in4h", group: "relative", at: inMinutes(durations[4]) },
     { key: "at9", group: "time", at: nextAt(slots[0][0], slots[0][1]) },
     { key: "at12", group: "time", at: nextAt(slots[1][0], slots[1][1]) },
     { key: "at15", group: "time", at: nextAt(slots[2][0], slots[2][1]) },

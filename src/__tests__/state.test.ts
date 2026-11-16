@@ -27,6 +27,19 @@ import {
 import type { BoardState } from "../types";
 
 describe("state compatibility", () => {
+  it("backs up global reminder presets without including them in a workspace export", () => {
+    const state = defaultState();
+    state.notifyPresetTimes = ["07:15", "12:00", "15:00", "18:00", "21:00"];
+    state.notifyPresetMinutes = [10, 25, 45, 90, 180];
+    const backup = getSerializableState(state);
+    expect(normalizeImportedState(backup).notifyPresetTimes).toEqual(state.notifyPresetTimes);
+    expect(normalizeImportedState(backup).notifyPresetMinutes).toEqual(state.notifyPresetMinutes);
+    expect(getSerializableWorkspace(state.workspaces[0])).not.toHaveProperty("notifyPresetTimes");
+    expect(getSerializableWorkspace(state.workspaces[0])).not.toHaveProperty("notifyPresetMinutes");
+    const legacy = normalizeImportedState({ workspaces: [{ ...defaultWorkspace("a"), notifyPresetTimes: state.notifyPresetTimes }], activeWorkspaceId: "a" });
+    expect(legacy.notifyPresetTimes).toEqual(state.notifyPresetTimes);
+    expect(legacy.workspaces[0]).not.toHaveProperty("notifyPresetTimes");
+  });
   it("保存各提醒事项独立的专注区域宽度并兼容旧数据", () => {
     const state = defaultState();
     const workspace = state.workspaces[0];

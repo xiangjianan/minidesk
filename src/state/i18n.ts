@@ -876,7 +876,10 @@ export const UI_TEXT = {
       openLink: "打开提醒中的链接",
       notifyPresets: {
         settings: "设置预设提醒时间",
-        hint: "设置常用时段，提醒将使用下一次到达的时间。",
+        hint: "右键点击预设可编辑，全局生效。",
+        editTime: "编辑预设时段",
+        editDuration: "编辑稍后时间",
+        minutes: "分钟",
         reset: "恢复默认",
         relativeLabel: "稍后",
         timeLabel: "时段",
@@ -1394,7 +1397,10 @@ export const UI_TEXT = {
       openLink: "Open link in reminder",
       notifyPresets: {
         settings: "Set preset reminder times",
-        hint: "Choose your usual times. Reminders use the next occurrence.",
+        hint: "Right-click a preset to edit it for all workspaces.",
+        editTime: "Edit preset time",
+        editDuration: "Edit delay",
+        minutes: "minutes",
         reset: "Restore defaults",
         relativeLabel: "Later",
         timeLabel: "Time",

@@ -8146,7 +8146,6 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 
 .image-card.is-missing { cursor: pointer; }
 
-.notify-preset-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(105px, 1fr)); gap: 12px; }
-.notify-preset-settings label { display: flex; align-items: center; gap: 8px; }
-.notify-preset-settings input { min-width: 0; width: 100%; }
+.notify-preset-editor { display: flex; align-items: center; gap: 12px; }
+.notify-preset-editor input { min-width: 0; flex: 1; }
 .notify-preset-settings-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 20px; }

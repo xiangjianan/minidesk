@@ -1,7 +1,7 @@
 import { normalizeZoneWidthRatios } from "../layoutPrefs";
 import { normalizeTodoColumnLayouts, normalizeTodoMaxColumns } from "../columns";
 import { DEFAULT_SPACE_ID, DEFAULT_WORKSPACE_ID } from "../defaults";
-import { isValidNotifyAt, normalizeNotifyPresetTimes } from "../deadlines";
+import { isValidNotifyAt, normalizeNotifyPresetTimes, normalizeNotifyPresetMinutes } from "../deadlines";
 import type {
   BoardState,
   CompanionCustomGif,
@@ -62,7 +62,6 @@ export function getSerializableWorkspace(
     quickLayoutManual: workspace.quickLayoutManual,
     todoLayoutManual: workspace.todoLayoutManual,
     todoMaxColumns: normalizeTodoMaxColumns(workspace.todoMaxColumns),
-    notifyPresetTimes: normalizeNotifyPresetTimes(workspace.notifyPresetTimes),
     ...(normalizeZoneWidthRatios(workspace.zoneWidthRatios) ? { zoneWidthRatios: normalizeZoneWidthRatios(workspace.zoneWidthRatios) } : {}),
     todoListOrder: workspace.todoListOrder ?? workspace.todoLists.map((list) => list.id),
     todoColumnLayouts: normalizeTodoColumnLayouts(workspace.todoColumnLayouts ?? (workspace.todoLayoutManual ? { 1: workspace.todoLists.map((list) => ({ id: list.id, column: 0 })) } : {}), workspace.todoLists),
@@ -81,6 +80,8 @@ export function getSerializableState(
   return {
     sync: { ...normalizeSyncState(state.sync) },
     language: state.language,
+    notifyPresetTimes: normalizeNotifyPresetTimes(state.notifyPresetTimes),
+    notifyPresetMinutes: normalizeNotifyPresetMinutes(state.notifyPresetMinutes),
     theme: state.theme,
     companionGifTheme: state.companionGifTheme,
     customCompanionGif: options.includeCustomGifData ? cloneCustomCompanionGif(state.customCompanionGif) : {},

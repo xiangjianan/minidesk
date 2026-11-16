@@ -189,7 +189,6 @@ export interface WorkspaceData {
   todoLayoutManual: boolean;
   /** Responsive reminder column limit, defaulting to one for older workspaces. */
   todoMaxColumns?: number;
-  notifyPresetTimes?: string[];
   /** Relative area widths in visible-zone order (assets, notes, tasks, workspace). */
   zoneWidthRatios?: number[];
   todoListOrder?: string[];
@@ -222,6 +221,8 @@ export interface BoardSyncState {
 }
 
 export interface BoardState {
+  notifyPresetTimes?: string[];
+  notifyPresetMinutes?: number[];
   sync: BoardSyncState;
   language: AppLanguage;
   theme: ThemeMode;

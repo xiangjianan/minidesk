@@ -127,7 +127,7 @@ describe("TodoPanel", () => {
     await trigger.trigger("click");
     const toolbarKeys = wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"));
     expect(wrapper.findAll(".dropdown-option").map(option => option.text()))
-      .toEqual(["新建分组", "设置预设提醒时间", "清理所有已完成", "最多展示列数", "Tips"]);
+      .toEqual(["新建分组", "清理所有已完成", "最多展示列数", "Tips"]);
     await wrapper.get(".todo-panel").trigger("contextmenu");
     expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(toolbarKeys);
     await wrapper.get('[data-key="clear-all-completed"]').trigger("click");
@@ -2356,6 +2356,35 @@ describe("TodoPanel", () => {
     ]);
     wrapper.unmount();
     vi.useRealTimers();
+  });
+
+  it("edits both kinds of preset from the picker without setting a reminder", async () => {
+    const wrapper = mount(TodoPanel, {
+      props: { todos: { morning: [{ id: "a", text: "Test", done: false }], noon: [], evening: [] }, titles: DEFAULT_TITLES },
+      global: { stubs: { NDatePicker: datePickerStub, NTooltip: tooltipStub, NModal: { props: ["show"], template: '<div v-if="show"><slot /></div>' } } },
+    });
+    await wrapper.get(".todo-notify-button").trigger("click");
+    const buttons = document.body.querySelectorAll(".notify-panel-preset");
+    buttons[0].dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+    await nextTick();
+    const numberInput = document.body.querySelector('input[type="number"]') as HTMLInputElement;
+    numberInput.value = "45";
+    numberInput.dispatchEvent(new Event("input", { bubbles: true }));
+    await nextTick();
+    (Array.from(document.querySelectorAll(".notify-preset-settings-actions button")).find((button) => button.textContent?.trim() === "保存") as HTMLButtonElement).click();
+    await nextTick();
+    expect(wrapper.emitted("notifyPresetMinutesChange")?.[0]).toEqual([[45, 30, 60, 120, 240]]);
+    expect(wrapper.emitted("notify")).toBeUndefined();
+    buttons[5].dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+    await nextTick();
+    const timeInput = document.body.querySelector('input[type="time"]') as HTMLInputElement;
+    timeInput.value = "07:30";
+    timeInput.dispatchEvent(new Event("input", { bubbles: true }));
+    await nextTick();
+    (Array.from(document.querySelectorAll(".notify-preset-settings-actions button")).find((button) => button.textContent?.trim() === "保存") as HTMLButtonElement).click();
+    await nextTick();
+    expect(wrapper.emitted("notifyPresetTimesChange")?.[0]).toEqual([["07:30", "12:00", "15:00", "18:00", "21:00"]]);
+    wrapper.unmount();
   });
 
   it("commits a quick preset deadline in one step", async () => {

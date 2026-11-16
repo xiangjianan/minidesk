@@ -39,7 +39,7 @@ import {
   getNotifyDisplay,
   getNotifyPresets,
   normalizeNotifyPresetTimes,
-  DEFAULT_NOTIFY_PRESET_TIMES,
+  normalizeNotifyPresetMinutes,
   isValidNotifyAt,
   withDefaultNotifyTime,
   type NotifyDisplay,
@@ -78,6 +78,7 @@ const props = withDefaults(defineProps<{
   todoLists?: TodoListConfig[];
   maxColumns?: number;
   notifyPresetTimes?: string[];
+  notifyPresetMinutes?: number[];
   todos: TodoMap;
   titles: Record<string, string>;
   showCompleted?: TodoCompletedVisibility;
@@ -103,6 +104,7 @@ const emit = defineEmits<{
   columnCountChange: [count: number];
   maxColumnsChange: [count: number];
   notifyPresetTimesChange: [times: string[]];
+  notifyPresetMinutesChange: [minutes: number[]];
   assignListColumn: [draggedId: TodoListId, targetColumn: number, anchorId: TodoListId | null, insertBefore: boolean];
   create: [period: TodoPeriod, afterId?: string];
   update: [period: TodoPeriod, id: string, text: string];
@@ -172,11 +174,39 @@ const notifyPicker = ref<{
 const notifyPickerDrafts = ref<Record<string, number>>({});
 // Quick deadline presets refresh each time the picker opens so the relative
 // durations and today-vs-tomorrow time slots stay current.
-const presetSettingsOpen = ref(false);
-const presetTimesDraft = ref<string[]>([]);
+const presetEditor = ref<{ group: "relative" | "time"; index: number } | null>(null);
+const presetTimeDraft = ref("");
+const presetMinutesDraft = ref<number | null>(null);
+function editPreset(group: "relative" | "time", index: number): void {
+  presetEditor.value = { group, index };
+  presetTimeDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index];
+  presetMinutesDraft.value = normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index];
+}
+function savePreset(): void {
+  const editor = presetEditor.value;
+  if (!editor) return;
+  if (editor.group === "time") {
+    if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(presetTimeDraft.value)) return;
+    const times = normalizeNotifyPresetTimes(props.notifyPresetTimes);
+    times[editor.index] = presetTimeDraft.value;
+    emit("notifyPresetTimesChange", times);
+  } else {
+    const value = presetMinutesDraft.value;
+    if (value === null || !Number.isInteger(value) || value < 1 || value > 10080) return;
+    const minutes = normalizeNotifyPresetMinutes(props.notifyPresetMinutes);
+    minutes[editor.index] = value;
+    emit("notifyPresetMinutesChange", minutes);
+  }
+  presetEditor.value = null;
+}
+function durationLabel(minutes: number): string {
+  const en = props.language === "en";
+  if (minutes % 60 === 0) return en ? `${minutes / 60} ${minutes === 60 ? "hour" : "hours"}` : `${minutes / 60} 小时`;
+  return en ? `${minutes} min` : `${minutes} 分钟`;
+}
 const notifyPresets = computed(() => {
   if (!notifyPicker.value) return [];
-  return getNotifyPresets(new Date(), props.notifyPresetTimes);
+  return getNotifyPresets(new Date(), props.notifyPresetTimes, props.notifyPresetMinutes);
 });
 const relativeNotifyPresets = computed(() => notifyPresets.value.filter((preset) => preset.group === "relative"));
 const timeNotifyPresets = computed(() => notifyPresets.value.filter((preset) => preset.group === "time"));
@@ -350,7 +380,6 @@ const menuOptions = computed<DropdownOption[]>(() => {
   const options: DropdownOption[] = [];
   const todo = getMenuTodo();
   if (!menu.value?.id) {
-    options.push({ label: uiText.value.todo.notifyPresets.settings, key: "preset-settings", icon: renderIcon(AlarmOutline) });
     options.push({ label: uiText.value.todo.newList, key: "create-list", icon: renderIcon(AddOutline) });
     options.push({ label: uiText.value.todo.clearAllCompleted, key: "clear-all-completed", icon: renderIcon(CheckmarkDoneOutline) });
   }
@@ -1482,7 +1511,7 @@ function removeNotifyPickerDraft(key: string): void {
 function handleFloatingEditorOutsidePointerDown(event: PointerEvent): void {
   const target = event.target;
   if (!(target instanceof Node)) return;
-  if (notifyPicker.value && !notifyPickerRef.value?.contains(target) && !(target as HTMLElement).closest?.(".todo-notify-button")) {
+  if (notifyPicker.value && !presetEditor.value && !notifyPickerRef.value?.contains(target) && !(target as HTMLElement).closest?.(".todo-notify-button")) {
     closeNotifyPicker();
   }
 }
@@ -1490,12 +1519,6 @@ function handleFloatingEditorOutsidePointerDown(event: PointerEvent): void {
 async function handleMenuSelect(key: string): Promise<void> {
   if (!menu.value) return;
   const { period, id, anchor, target, x, y, pasteAtCaret, selection } = menu.value;
-  if (key === "preset-settings") {
-    presetTimesDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes);
-    presetSettingsOpen.value = true;
-    closeMenu();
-    return;
-  }
   if (key === "clear-all-completed") {
     closeMenu();
     emit("clearAllCompleted", anchor);
@@ -2547,25 +2570,29 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             <div class="notify-panel-preset-group">
               <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.relativeLabel }}</span>
               <button
-                v-for="preset in relativeNotifyPresets"
+                v-for="(preset, index) in relativeNotifyPresets"
                 :key="preset.key"
                 type="button"
                 class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
                 @click="confirmNotifyPicker(preset.at)"
+                @contextmenu.stop.prevent="editPreset('relative', index)"
               >
-                {{ uiText.todo.notifyPresets[preset.key] }}
+                {{ durationLabel(normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index]) }}
               </button>
             </div>
             <div class="notify-panel-preset-group">
               <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.timeLabel }}</span>
               <button
-                v-for="preset in timeNotifyPresets"
+                v-for="(preset, index) in timeNotifyPresets"
                 :key="preset.key"
                 type="button"
                 class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
                 @click="confirmNotifyPicker(preset.at)"
+                @contextmenu.stop.prevent="editPreset('time', index)"
               >
-                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[timeNotifyPresets.indexOf(preset)] }}
+                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
               </button>
             </div>
           </div>
@@ -2585,18 +2612,16 @@ onUnmounted(() => focusRegionAnimation?.cancel());
       @confirm="(anchor, title, id) => id ? handleListTitleUpdate(id, title) : emit('createList', anchor, title)"
     />
 
-    <NModal v-model:show="presetSettingsOpen" preset="card" class="quick-dialog" :title="uiText.todo.notifyPresets.settings" style="width: min(400px, calc(100vw - 32px))">
+    <NModal :show="presetEditor !== null" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditor = null; }">
       <p>{{ uiText.todo.notifyPresets.hint }}</p>
-      <div class="notify-preset-settings">
-        <label v-for="(_, index) in presetTimesDraft" :key="index">
-          <span>{{ index + 1 }}</span>
-          <input v-model="presetTimesDraft[index]" type="time" :aria-label="`${uiText.todo.notifyPresets.timeLabel} ${index + 1}`">
-        </label>
-      </div>
+      <label class="notify-preset-editor">
+        <span>{{ presetEditor?.group === 'time' ? uiText.todo.notifyPresets.timeLabel : uiText.todo.notifyPresets.minutes }}</span>
+        <input v-if="presetEditor?.group === 'time'" v-model="presetTimeDraft" type="time">
+        <input v-else v-model.number="presetMinutesDraft" type="number" min="1" max="10080" step="1">
+      </label>
       <div class="notify-preset-settings-actions">
-        <NButton @click="presetTimesDraft = [...DEFAULT_NOTIFY_PRESET_TIMES]">{{ uiText.todo.notifyPresets.reset }}</NButton>
-        <NButton @click="presetSettingsOpen = false">{{ uiText.common.cancel }}</NButton>
-        <NButton type="primary" :disabled="presetTimesDraft.some((time) => !time)" @click="emit('notifyPresetTimesChange', [...presetTimesDraft]); presetSettingsOpen = false">{{ uiText.common.save }}</NButton>
+        <NButton @click="presetEditor = null">{{ uiText.common.cancel }}</NButton>
+        <NButton type="primary" :disabled="presetEditor?.group === 'time' ? !presetTimeDraft : !presetMinutesDraft || !Number.isInteger(presetMinutesDraft) || presetMinutesDraft < 1 || presetMinutesDraft > 10080" @click="savePreset">{{ uiText.common.save }}</NButton>
       </div>
     </NModal>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="menuOptions"

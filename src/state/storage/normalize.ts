@@ -4,7 +4,7 @@ import { mergeDuplicateTodoLists } from "../todoListNames";
 import { normalizeZoneWidthRatios } from "../layoutPrefs";
 import { normalizeTodoColumnLayouts, normalizeTodoMaxColumns } from "../columns";
 import { DEFAULT_SPACE_ID, DEFAULT_SPACE_TITLE, DEFAULT_TODO_LISTS, DEFAULT_WORKSPACE_ID, defaultWorkspace } from "../defaults";
-import { isValidNotifyAt, normalizeNotifyPresetTimes } from "../deadlines";
+import { isValidNotifyAt, normalizeNotifyPresetTimes, normalizeNotifyPresetMinutes } from "../deadlines";
 import { normalizeCompanionGifTheme } from "../companionGifThemes";
 import { isQuickAppScheme } from "../quickApps";
 import { INBOX_CODE_PATTERN } from "../../sync/pairing";
@@ -49,7 +49,12 @@ export function normalizeImportedState(payload: unknown): BoardState {
   const legacyGlobalVisibility = normalizeZoneVisibility(typed.zoneVisibility);
 
   const polishCode = normalizePolishCode(typed.polishCode);
+  // Migrate the previous workspace-scoped setting from the active workspace.
+  const legacyWorkspaces = Array.isArray(typed.workspaces) ? typed.workspaces.filter(isPlainObject) : [];
+  const legacyWorkspace = legacyWorkspaces.find((workspace) => workspace.id === typed.activeWorkspaceId) ?? legacyWorkspaces[0];
   const shared = {
+    notifyPresetTimes: normalizeNotifyPresetTimes(typed.notifyPresetTimes ?? legacyWorkspace?.notifyPresetTimes),
+    notifyPresetMinutes: normalizeNotifyPresetMinutes(typed.notifyPresetMinutes),
     sync: normalizeSyncState(typed.sync),
     language,
     theme: normalizeThemeMode(typed.theme),
@@ -106,7 +111,6 @@ export function normalizeWorkspaceData(item: unknown, language: AppLanguage = DE
     quickLayoutManual: Boolean(typed.quickLayoutManual),
     todoLayoutManual: Boolean(typed.todoLayoutManual),
     todoMaxColumns: normalizeTodoMaxColumns(typed.todoMaxColumns),
-    notifyPresetTimes: normalizeNotifyPresetTimes(typed.notifyPresetTimes),
     ...(normalizeZoneWidthRatios(typed.zoneWidthRatios) ? { zoneWidthRatios: normalizeZoneWidthRatios(typed.zoneWidthRatios) } : {}),
     todoListOrder: Array.isArray(typed.todoListOrder) ? [...new Set(typed.todoListOrder.filter((id): id is string => typeof id === "string" && todoLists.some((list) => list.id === id)))] : todoLists.map((list) => list.id),
     todoColumnLayouts: normalizeTodoColumnLayouts(typed.todoColumnLayouts ?? (typed.todoLayoutManual ? { 1: todoLists.map((list) => ({ id: list.id, column: 0 })) } : {}), todoLists),
