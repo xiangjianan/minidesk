@@ -4495,6 +4495,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
 
       <template #assets>
         <ImagePanel
+          :key="state.activeWorkspaceId"
           :title="titles['image-title']"
           :images="activeWorkspace.images"
           :move-targets="workspaceMoveTargets"

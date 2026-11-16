@@ -535,7 +535,7 @@ html[data-theme="dark"] .n-modal-mask {
 .header-actions,
 .todo-heading-actions {
   display: flex;
-  align-items: stretch;
+  align-items: center;
   align-self: stretch;
   gap: 0;
   margin-left: auto;

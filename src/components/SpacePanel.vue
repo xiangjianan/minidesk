@@ -79,7 +79,7 @@ async function appendSmartPaste(): Promise<void> {
   }
 }
 const uiText = computed(() => getUiText(props.language));
-const exclusiveMenu = createExclusiveContextMenu(closeMenu);
+const exclusiveMenu = createExclusiveContextMenu(closeMenu, () => menu.value?.anchor);
 let tabCommitTransitionTimer: number | undefined;
 
 onMounted(exclusiveMenu.mount);
@@ -249,6 +249,10 @@ function openTabMenu(event: MouseEvent, id: string): void {
 function openHeaderMenu(event: MouseEvent): void {
   event.preventDefault();
   event.stopPropagation();
+  if (event.type === "click" && menu.value?.anchor === event.currentTarget) {
+    closeMenu();
+    return;
+  }
   exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
   const anchor = event.currentTarget as HTMLElement;
   const rect = anchor.getBoundingClientRect();

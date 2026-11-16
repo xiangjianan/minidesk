@@ -54,6 +54,15 @@ function ruleBodies(styles: string, selector: string): string[] {
 }
 
 describe("SpacePanel", () => {
+  it("toggles the notebook menu on repeated clicks", async () => {
+    const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
+    const button = wrapper.get('[data-testid="notebook-menu"]');
+    await button.trigger("click");
+    expect(wrapper.find(".dropdown-option").exists()).toBe(true);
+    await button.trigger("click");
+    expect(wrapper.find(".dropdown-option").exists()).toBe(false);
+    wrapper.unmount();
+  });
   it("opens the same notebook menu from the visible button", async () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     await wrapper.get('[data-testid="notebook-menu"]').trigger("click");

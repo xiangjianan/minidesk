@@ -101,7 +101,7 @@ const externalDropTargetId = ref<string | null>(null);
 const pasteButtonRef = ref<HTMLElement | null>(null);
 const uiText = computed(() => getUiText(props.language));
 const guideMenuOption = computed<DropdownOption>(() => ({ ...GUIDE_MENU_OPTION, label: uiText.value.common.tips }));
-const exclusiveMenu = createExclusiveContextMenu(closeMenu);
+const exclusiveMenu = createExclusiveContextMenu(closeMenu, () => menu.value?.anchor);
 const isPreviewCloseMenuItem = computed(() => Boolean(menu.value?.id && props.activePreviewId));
 const imageDragPreviewStyle = computed<Record<string, string>>(() => {
   const preview = imageDragPreview.value;
@@ -239,6 +239,10 @@ const menuOptions = computed<DropdownOption[]>(() =>
 function openMenu(event: MouseEvent, id?: string): void {
   event.preventDefault();
   event.stopPropagation();
+  if (event.type === "click" && menu.value?.anchor === event.currentTarget) {
+    closeMenu();
+    return;
+  }
   exclusiveMenu.notifyOpen(event, { replacingExistingMenu: Boolean(menu.value) });
   const anchor = event.currentTarget as HTMLElement;
   const rect = anchor.getBoundingClientRect();

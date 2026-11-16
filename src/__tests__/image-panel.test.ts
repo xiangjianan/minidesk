@@ -83,6 +83,18 @@ function createImageDataTransfer(): {
   };
 }
 
+describe("image panel menu toggle", () => {
+  it("closes the menu when its button is clicked again", async () => {
+    const wrapper = mountImagePanel();
+    const button = wrapper.findAll(".header-actions button")[1];
+    await button.trigger("click");
+    expect(wrapper.find(".dropdown-option").exists()).toBe(true);
+    await button.trigger("click");
+    expect(wrapper.find(".dropdown-option").exists()).toBe(false);
+    wrapper.unmount();
+  });
+});
+
 describe("ImagePanel", () => {
   it("offers deletion after a missing payload times out and recovers if it loads", async () => {
     vi.useFakeTimers();
