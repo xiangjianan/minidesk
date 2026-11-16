@@ -20,14 +20,20 @@ function panel(lines: LineItem[]) {
 
 describe('notebook editing audit regressions', () => {
   it('hides the caret after the window loses focus until the editor regains focus', async () => {
-    const wrapper = panel([{ text: 'note', indent: 0 }]);
+    const wrapper = mount(TextPanel, { props: { titleId: 'note', title: '记事本', lines: [{ text: 'note', indent: 0 }] }, attachTo: document.body });
     const field = wrapper.get('textarea');
     await field.trigger('click');
-    await field.trigger('focus');
+    (field.element as HTMLTextAreaElement).focus();
+    expect(document.activeElement).toBe(field.element);
     window.dispatchEvent(new Event('blur'));
     await wrapper.vm.$nextTick();
     expect(field.classes()).toContain('window-unfocused');
-    await field.trigger('focus');
+    expect(document.activeElement).not.toBe(field.element);
+    window.dispatchEvent(new Event('focus'));
+    await wrapper.vm.$nextTick();
+    expect(field.classes()).toContain('window-unfocused');
+    (field.element as HTMLTextAreaElement).focus();
+    await wrapper.vm.$nextTick();
     expect(field.classes()).not.toContain('window-unfocused');
     wrapper.unmount();
   });

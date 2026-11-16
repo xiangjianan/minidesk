@@ -100,9 +100,12 @@ const mirrorSegments = computed(() => {
 const hasTrailingLineBreak = computed(() => text.value.endsWith("\n"));
 const focused = ref(false);
 const windowHasEditorFocus = ref(true);
-function handleWindowBlur(): void { windowHasEditorFocus.value = false; }
-function handleWindowFocus(): void {
-  windowHasEditorFocus.value = document.hasFocus() && document.activeElement === textareaRef.value;
+function handleWindowBlur(): void {
+  windowHasEditorFocus.value = false;
+  // Chromium may retain the textarea as activeElement when focus moves to the
+  // browser chrome, then paint a stationary caret on return. Release that stale
+  // focus so only a new editor focus can show the caret again.
+  if (document.activeElement === textareaRef.value) textareaRef.value?.blur();
 }
 const editing = ref(false);
 const titleRef = ref<{ openMenuAt: (x: number, y: number, event?: Event) => void } | null>(null);
@@ -174,14 +177,12 @@ onMounted(() => {
   exclusiveMenu.mount();
   document.addEventListener("selectionchange", syncActiveSelection);
   window.addEventListener("blur", handleWindowBlur);
-  window.addEventListener("focus", handleWindowFocus);
 });
 onUnmounted(() => {
   isUnmounted = true;
   clearTextDragPreview();
   document.removeEventListener("selectionchange", syncActiveSelection);
   window.removeEventListener("blur", handleWindowBlur);
-  window.removeEventListener("focus", handleWindowFocus);
   exclusiveMenu.unmount();
 });
 
