@@ -618,7 +618,7 @@ export const UI_TEXT = {
       chooseGif: "请选择 GIF 文件",
       customGifSet: "已设置自定义 GIF",
       aboutTitle: "MiniDesk",
-      aboutDescription: "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。\n无需登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
+      aboutDescription: "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。\n无需任何登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
       storageSaveFailed: "保存失败，浏览器存储可能已满或不可用。更改仍在当前页面中，请检查存储空间并重试。",
       imageQuotaFailed: "文件未保存：浏览器存储空间不足。请释放空间后重试。",
       aboutSignature: "(100% AI BUILT)",

@@ -135,7 +135,7 @@ describe("localized public copy", () => {
     expect(getUiText("zh").app.mobileTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutDescription).toBe(
-      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。\n无需登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
+      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。\n无需任何登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
     );
     expect(getUiText("zh").app.aboutSignature).toBe("(100% AI BUILT)");
     expect(getUiText("en").app.boardLabel).toBe("MiniDesk");
