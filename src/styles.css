@@ -8081,3 +8081,5 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .settings-zone-label { display: flex; align-items: center; justify-content: space-between; gap: 24px; width: 100%; }
 .settings-zone-check { flex: none; }
 .settings-zone-hint { max-width: 220px; padding: 8px 12px; color: var(--muted); font-size: 12px; line-height: 1.5; white-space: normal; }
+
+.image-card.is-missing { cursor: pointer; }

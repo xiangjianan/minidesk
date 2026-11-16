@@ -313,6 +313,7 @@ const workspaceDialogVisible = ref(false);
 const storageUsageVisible = ref(false);
 const storageUsageLoading = ref(false);
 const storageUsageError = ref(false);
+const orphanScanError = ref(false);
 const orphanUsage = ref({ count: 0, bytes: 0 });
 const orphanConfirm = ref(false);
 const fullImport = ref<BoardState | null>(null);
@@ -321,6 +322,7 @@ async function showStorageUsage(): Promise<void> {
   storageUsageVisible.value = true;
   storageUsageLoading.value = true;
   storageUsageError.value = false;
+  orphanScanError.value = false;
   storageUsageRows.value = [];
   try {
     const rows = [];
@@ -334,9 +336,11 @@ async function showStorageUsage(): Promise<void> {
       rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes, imageBytes });
     }
     storageUsageRows.value = rows;
-    orphanUsage.value = await orphanedImagePayloads(collectSafeRetainedIds());
+    try { orphanUsage.value = await orphanedImagePayloads(collectSafeRetainedIds()); }
+    catch { orphanScanError.value = true; storageUsageError.value = true; }
   } catch {
     storageUsageError.value = true;
+    orphanScanError.value = true;
   } finally {
     storageUsageLoading.value = false;
   }
@@ -671,6 +675,9 @@ let stopSystemThemeListener: (() => void) | undefined;
 
 onMounted(async () => {
   appMounted = true;
+  void Promise.resolve().then(() => orphanedImagePayloads(collectSafeRetainedIds())).then((usage) => {
+    if (appMounted) orphanUsage.value = usage;
+  }).catch(() => {});
   document.title = boardTitle.value;
   stopMobileBreakpoint = observeMediaQuery(MOBILE_BREAKPOINT_QUERY, updateMobileBlocked);
   // 先同步一次系统明暗偏好，再 applyTheme：auto 模式下首帧即为正确的明/暗，避免先浅后深。
@@ -4411,6 +4418,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :app-version="appVersion"
           :update-available="versionPromptVisible"
           :update-checking="updateChecking"
+          :orphan-count="orphanUsage.count"
           :companion-gif-theme="state.companionGifTheme"
           :custom-companion-gif="state.customCompanionGif"
           :has-custom-companion-gif="Boolean(state.customCompanionGif.light || state.customCompanionGif.dark || state.customCompanionGifStored.light || state.customCompanionGifStored.dark)"
@@ -4700,7 +4708,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)).replace('{imageSize}', formatStorageBytes(row.imageBytes)) }}</li></ul>
       <p>{{ uiText.settings.orphanUsage.replace('{count}', String(orphanUsage.count)).replace('{size}', formatStorageBytes(orphanUsage.bytes)) }}</p>
       <div class="dialog-actions" style="margin-top: 16px;">
-        <NButton type="error" :disabled="storageUsageLoading || storageUsageError || !orphanUsage.count" @click="orphanConfirm = true">{{ uiText.settings.cleanOrphans }}</NButton>
+        <NButton type="error" :disabled="storageUsageLoading || orphanScanError || !orphanUsage.count" @click="orphanConfirm = true">{{ uiText.settings.cleanOrphans }}</NButton>
         <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
       </div>
     </NModal>

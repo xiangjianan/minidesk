@@ -317,7 +317,7 @@ export async function orphanedImagePayloads(retainedIds: Iterable<string>, remov
           if (!cursor) return;
           const record = cursor.value as ImagePayloadRecord;
           if (typeof record.id === "string" && !record.id.startsWith("__custom-companion-gif")
-            && !retained.has(record.id) && (!record.imageId || !retained.has(record.imageId))
+            && !retained.has(record.id)
             && (typeof record.createdAt !== "number" || Date.now() - record.createdAt >= 5 * 60_000)) {
             result.count++;
             result.bytes += record.src ? new Blob([record.src]).size : 0;

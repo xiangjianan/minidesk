@@ -11,7 +11,7 @@ describe("orphaned image cleanup", () => {
         const request: any = {};
         records[name] ??= name.includes("todo-board") ? [] : [
           { id: "live-version", imageId: "live", createdAt: 1, src: "a" },
-          { id: "old", imageId: "gone", createdAt: 1, src: "abc" },
+          { id: "old", imageId: "live", createdAt: 1, src: "abc" },
           { id: "new", imageId: "new", createdAt: Date.now(), src: "a" },
           { id: "__custom-companion-gif-light__", src: "gif" },
         ];
@@ -37,7 +37,7 @@ describe("orphaned image cleanup", () => {
         return request;
       },
     });
-    expect(await orphanedImagePayloads(["live"], true)).toEqual({ count: 1, bytes: 3 });
+    expect(await orphanedImagePayloads(["live", "live-version"], true)).toEqual({ count: 1, bytes: 3 });
     expect(deleted).toEqual(["old"]);
   });
 });

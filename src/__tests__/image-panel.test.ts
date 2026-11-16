@@ -84,6 +84,30 @@ function createImageDataTransfer(): {
 }
 
 describe("ImagePanel", () => {
+  it("offers deletion after a missing payload times out and recovers if it loads", async () => {
+    vi.useFakeTimers();
+    const wrapper = mountImagePanel([{ id: "missing", createdAt: 1 }]);
+    try {
+      expect(wrapper.text()).toContain("图片载入中");
+      await vi.advanceTimersByTimeAsync(5000);
+      expect(wrapper.text()).toContain("图片已丢失");
+      await wrapper.get(".image-card").trigger("click");
+      expect(wrapper.emitted("delete")?.[0]?.[0]).toBe("missing");
+      await wrapper.setProps({ images: [{ id: "missing", createdAt: 1, src: "data:image/png;base64,abc" }] });
+      expect(wrapper.find(".image-card img").exists()).toBe(true);
+      expect(wrapper.text()).not.toContain("图片已丢失");
+    } finally { wrapper.unmount(); vi.useRealTimers(); }
+  });
+
+  it("offers deletion when a thumbnail fails to decode", async () => {
+    const wrapper = mountImagePanel([{ id: "broken", createdAt: 1, src: "broken" }]);
+    await wrapper.get(".image-card img").trigger("error");
+    expect(wrapper.text()).toContain("图片已丢失");
+    await wrapper.get(".image-card").trigger("keydown.enter");
+    expect(wrapper.emitted("delete")?.[0]?.[0]).toBe("broken");
+    wrapper.unmount();
+  });
+
   it("keeps the image movement transition when restoring image payloads", async () => {
     const transitionStub = defineComponent({
       props: ["name", "moveClass"],

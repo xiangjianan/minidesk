@@ -129,6 +129,28 @@ const dragAutoScroll = createDragAutoScroll({
   shouldContinue: () => Boolean(draggingId.value),
 });
 const PASTE_HIGHLIGHT_MS = 700;
+const IMAGE_MISSING_TIMEOUT_MS = 5000;
+const missingImageIds = ref(new Set<string>());
+const missingImageTimers = new Map<string, number>();
+watch(() => props.images.map((image) => ({ id: image.id, src: image.src, payloadId: image.payloadId })), (images) => {
+  const loading = new Set(images.filter((image) => !image.src).map((image) => image.id));
+  for (const [id, timer] of missingImageTimers) {
+    if (!loading.has(id)) { window.clearTimeout(timer); missingImageTimers.delete(id); }
+  }
+  const validIds = new Set(images.map((image) => image.id));
+  missingImageIds.value = new Set([...missingImageIds.value].filter((id) => validIds.has(id) && !images.find((image) => image.id === id)?.src));
+  for (const id of loading) {
+    if (missingImageIds.value.has(id) || missingImageTimers.has(id)) continue;
+    missingImageTimers.set(id, window.setTimeout(() => {
+      missingImageTimers.delete(id);
+      missingImageIds.value = new Set([...missingImageIds.value, id]);
+    }, IMAGE_MISSING_TIMEOUT_MS));
+  }
+}, { immediate: true });
+function markImageFailed(id: string): void {
+  missingImageIds.value = new Set([...missingImageIds.value, id]);
+}
+
 
 
 function getImageMenuIcon(key: ImageContextMenuKey): Component {
@@ -153,6 +175,8 @@ onUnmounted(() => {
   cleanupImagePointerDrag();
   dragAutoScroll.reset();
   if (pasteHighlightTimer !== undefined) window.clearTimeout(pasteHighlightTimer);
+  missingImageTimers.forEach((timer) => window.clearTimeout(timer));
+  missingImageTimers.clear();
 });
 
 watch(
@@ -301,6 +325,7 @@ async function handleCardSortKey(event: KeyboardEvent, id: string): Promise<void
 
 /** 卡片 Enter：默认打开编辑；canEdit=false 时重映射为预览，键盘用户仍有可用操作。 */
 function handleCardEnter(id: string): void {
+  if (missingImageIds.value.has(id)) { emit("delete", id, imageCardRefs.get(id)); return; }
   if (props.canEdit) {
     emit("edit", id);
     return;
@@ -584,6 +609,7 @@ function handleImageCardClick(event: MouseEvent, id: string): void {
     return;
   }
 
+  if (missingImageIds.value.has(id)) { emit("delete", id, event.currentTarget as HTMLElement); return; }
   emit("preview", id);
 }
 
@@ -668,12 +694,13 @@ function handleImageDragWheel(event: WheelEvent): void {
           'is-active': image.id === activePreviewId,
           'is-paste-highlighted': image.id === pasteHighlightedId,
           'is-drop-target': image.id === externalDropTargetId,
+          'is-missing': missingImageIds.has(image.id),
         }"
         type="button"
         @click="handleImageCardClick($event, image.id)"
         @keydown="handleCardSortKey($event, image.id)"
         @keydown.enter.stop.prevent="handleCardEnter(image.id)"
-        @dblclick.stop.prevent="emit('copy', image.id)"
+        @dblclick.stop.prevent="!missingImageIds.has(image.id) && emit('copy', image.id)"
         @contextmenu.stop="openMenu($event, image.id)"
         @dragover="handleImageCardDragOver($event, image.id)"
         @dragleave="handleImageCardDragLeave(image.id)"
@@ -682,15 +709,16 @@ function handleImageDragWheel(event: WheelEvent): void {
       >
         <span class="image-index">{{ index + 1 }}</span>
         <img
-          v-if="image.src"
+          v-if="image.src && !missingImageIds.has(image.id)"
           :src="image.src"
           :alt="uiText.images.thumbnailAlt"
           loading="lazy"
           decoding="async"
           draggable="true"
+          @error="markImageFailed(image.id)"
           @dragstart.stop="handleImageNativeDragStart($event, image, index)"
         />
-        <span v-else class="image-missing">{{ uiText.images.loading }}</span>
+        <span v-else class="image-missing">{{ missingImageIds.has(image.id) ? uiText.images.missingDelete : uiText.images.loading }}</span>
       </button>
       </TransitionGroup>
     </NScrollbar>

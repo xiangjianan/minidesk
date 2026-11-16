@@ -35,6 +35,7 @@ const props = withDefaults(defineProps<{
   appVersion: string;
   updateAvailable: boolean;
   updateChecking?: boolean;
+  orphanCount?: number;
   companionGifTheme: CompanionGifTheme;
   customCompanionGif?: CompanionCustomGif;
   hasCustomCompanionGif?: boolean;
@@ -133,7 +134,7 @@ const options = computed(() => [
       { label: text.value.settings.import, key: "import", icon: renderIcon(CloudUploadOutline) },
       { label: text.value.settings.exportCurrentWorkspace, key: "export-workspace", icon: renderIcon(CloudDownloadOutline) },
       { label: text.value.settings.exportAll, key: "export-all", icon: renderIcon(CloudDownloadOutline) },
-      { label: text.value.settings.storageUsage, key: "storage-usage", icon: renderIcon(ServerOutline) },
+      { label: props.orphanCount ? text.value.settings.storageCleanupAvailable.replace("{count}", String(props.orphanCount)) : text.value.settings.storageUsage, key: "storage-usage", icon: renderIcon(ServerOutline) },
       { label: text.value.settings.clearData, key: "clear-data", icon: renderIcon(TrashOutline, true) },
     ],
   },
@@ -358,7 +359,7 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
     @update:show="handleDropdownShow"
   >
     <span ref="triggerRef" class="settings-trigger">
-      <NBadge :show="updateAvailable && !menuOpen" dot>
+      <NBadge :show="(updateAvailable || Boolean(orphanCount)) && !menuOpen" dot>
         <button
           type="button"
           class="settings-btn icon-button"
