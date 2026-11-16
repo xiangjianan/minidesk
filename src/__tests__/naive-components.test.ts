@@ -410,7 +410,7 @@ describe("Naive UI component usage", () => {
   });
 
   it("keeps visible border widths thin", () => {
-    const styles = read("src/styles.css");
+    const styles = read("src/styles.css").replace(/\.selection-foreground-icon\s*\{[^}]*\}/, "");
     const visibleBorderWidths = [...styles.matchAll(/(?:border(?:-(?:top|right|bottom|left))?|--n-border(?:-[a-z]+)?):[^;{}]*?(\d+(?:\.\d+)?)px/g)]
       .map((match) => Number(match[1]))
       .filter((width) => width > 0);

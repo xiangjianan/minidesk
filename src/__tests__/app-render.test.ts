@@ -8143,8 +8143,8 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
 
       expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("MiniDesk (100% AI BUILT)");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷按钮和记事本放在一起");
-      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("空间数据保存在浏览器中");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("把截图、提醒事项、快捷按钮和记事本融合得恰到好处");
+      expect(wrapper.find('[data-testid="companion-confirm"]').text()).toContain("无需任何登录，空间数据保存在浏览器本地");
       const repoLink = wrapper.get('[data-testid="companion-link"]');
       expect(repoLink.text()).toBe("xiangjianan / mini-desk");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
@@ -8184,7 +8184,7 @@ describe("App shell", () => {
       const aboutText = wrapper.find('[data-testid="companion-confirm"]').text();
       expect(aboutText).toContain("MiniDesk (100% AI BUILT)");
       expect(aboutText).toContain("screenshots, reminders, quick buttons, and notebooks");
-      expect(aboutText).toContain("Workspace data is stored in your browser.");
+      expect(aboutText).toContain("No login required. Workspace data stays in your browser.");
       expect(aboutText).not.toContain("100% developed by AI");
       expect(wrapper.find('[data-testid="companion-signature"]').exists()).toBe(false);
       expect(aboutText).not.toContain("workspaces");
