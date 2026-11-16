@@ -1195,3 +1195,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
 .empty-workbench-leave-active { transition: opacity 1s ease; }
 .empty-workbench-enter-from, .empty-workbench-leave-to { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .empty-workbench-enter-active, .empty-workbench-leave-active { transition: none; } }
+@supports (font: -apple-system-body) {
+  .workbench-shell .text-editor-textarea, .workbench-shell .text-mirror,
+  .focus-now-modal .text-editor-textarea, .focus-now-modal .text-mirror { line-height: 1.2; }
+}
