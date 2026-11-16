@@ -837,7 +837,7 @@ onUnmounted(() => {
         </header>
       </Transition>
 
-      <button v-if="headerHidden && !headerPeek" type="button" class="workbench-header-peek-zone" data-testid="header-peek-zone" :aria-label="uiText.common.showHeader" :title="uiText.common.showHeader" aria-expanded="false" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" @click="setHeaderHidden(false)" />
+      <button v-if="headerHidden && !headerPeek" type="button" class="workbench-header-peek-zone" data-testid="header-peek-zone" :aria-label="uiText.common.showHeader" :title="uiText.common.showHeader" aria-expanded="false" @mouseenter="startHeaderPeek" @mousemove="startHeaderPeek" @mouseleave="stopHeaderPeek" @click="setHeaderHidden(false)" />
 
       <Transition name="empty-workbench">
         <p v-if="showEmptyWorkbench" class="empty-workbench-message" data-testid="empty-workbench-message">{{ uiText.common.emptyWorkbench }}</p>

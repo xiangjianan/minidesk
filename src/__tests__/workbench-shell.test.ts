@@ -76,6 +76,8 @@ describe("WorkbenchShell", () => {
     localStorage.setItem(WORKBENCH_HEADER_STORAGE_KEY, "true");
     const wrapper = mount(WorkbenchShell, { props: defaultProps });
     await wrapper.get('[data-testid="header-peek-zone"]').trigger("mouseenter");
+    await vi.advanceTimersByTimeAsync(150);
+    await wrapper.get('[data-testid="header-peek-zone"]').trigger("mousemove");
     await vi.advanceTimersByTimeAsync(199);
     expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(false);
     await vi.advanceTimersByTimeAsync(1);
