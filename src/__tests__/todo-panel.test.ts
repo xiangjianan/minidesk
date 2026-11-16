@@ -3040,7 +3040,7 @@ describe("TodoPanel", () => {
     const todayNotifyRule = styles.match(/\.today-focus-item \.todo-notify-button \{([\s\S]*?)\}/)?.[1] ?? "";
     const todayStarRule = styles.match(/\.today-focus-item \.todo-star-button \{([\s\S]*?)\}/)?.[1] ?? "";
     const todayNotifyWidthRule = styles.match(/\.today-focus-item\.has-notify \{([\s\S]*?)\}/)?.[1] ?? "";
-    const deadlineLabelRule = styles.match(/\.todo-deadline-label \{([\s\S]*?)\}/)?.[1] ?? "";
+    const deadlineLabelRule = ruleBodies(styles, ".todo-deadline-label").join("\n");
 
     expect(todoItemRule).toContain("align-items: center");
     expect(todayFocusItemRule).toContain("align-items: center");
@@ -3050,8 +3050,9 @@ describe("TodoPanel", () => {
     expect(todoInputSharedRule).toContain("white-space: nowrap");
     expect(todayNotifyRule).toContain("grid-column: 3");
     expect(todayStarRule).toContain("grid-column: 4");
-    expect(todayNotifyWidthRule).toContain("minmax(0, 64px)");
-    expect(deadlineLabelRule).not.toContain("text-overflow: ellipsis");
+    expect(todayNotifyWidthRule).toContain("minmax(0, max-content)");
+    expect(deadlineLabelRule).toContain("text-overflow: ellipsis");
+    expect(ruleBodies(styles, ".todo-notify-button.has-time").join("\n")).toContain("padding: 0 8px 0 5px");
   });
 
   it("marks the triggered reminder row with a three-pulse notification flash class", () => {

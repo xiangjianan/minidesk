@@ -38,11 +38,16 @@ export function createExampleWorkspace(language: AppLanguage): WorkspaceData {
     { ...workspace.todoLists[0], title: zh ? "今天" : "Today" },
     { id: createId(), title: zh ? "有空再做" : "Later", collapsed: false, compact: false, column: 0 },
   ];
-  const now = Date.now();
-  const reminderTimes = [2, 4, 8].map((hours) => now + hours * 60 * 60 * 1000);
+  const reminderDate = (days: number, hour: number): number => {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    date.setHours(hour, 0, 0, 0);
+    return date.getTime();
+  };
   workspace.todos = Object.fromEntries([today, later].map((items, listIndex) => [workspace.todoLists[listIndex].id, items.map((text, itemIndex) => ({
     id: createId(), text, done: false,
-    ...(listIndex === 0 ? { notifyAt: reminderTimes[itemIndex] } : {}),
+    ...(listIndex === 0 && itemIndex === 0 ? { notifyAt: reminderDate(3, 10) } : {}),
+    ...(listIndex === 1 && itemIndex === 1 ? { notifyAt: reminderDate(14, 15) } : {}),
     ...(listIndex === 0 && itemIndex === 0 ? { starred: true } : {}),
   }))]));
   workspace.spaces[0].title = zh ? "周末计划" : "Weekend plans";

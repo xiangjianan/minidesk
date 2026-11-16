@@ -1751,7 +1751,7 @@ button.quick-button {
 }
 
 .today-focus-item.has-notify {
-  grid-template-columns: 24px minmax(0, 1fr) minmax(0, 64px) 26px;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(0, max-content) 26px;
 }
 
 .today-focus-item.has-link {
@@ -1759,7 +1759,7 @@ button.quick-button {
 }
 
 .today-focus-item.has-link.has-notify {
-  grid-template-columns: 24px minmax(0, 1fr) 26px minmax(0, 64px) 26px;
+  grid-template-columns: 24px minmax(0, 1fr) 26px minmax(0, max-content) 26px;
 }
 
 .today-focus-item.is-done {
@@ -1877,7 +1877,7 @@ button.quick-button {
 }
 
 .todo-item.has-notify {
-  grid-template-columns: 22px 32px minmax(0, 1fr) minmax(0, 64px) 26px;
+  grid-template-columns: 22px 32px minmax(0, 1fr) minmax(0, max-content) 26px;
 }
 
 .todo-item.has-link {
@@ -1885,7 +1885,7 @@ button.quick-button {
 }
 
 .todo-item.has-link.has-notify {
-  grid-template-columns: 22px 32px minmax(0, 1fr) 26px minmax(0, 64px) 26px;
+  grid-template-columns: 22px 32px minmax(0, 1fr) 26px minmax(0, max-content) 26px;
 }
 
 .todo-section.is-compact .todo-item,
@@ -2169,6 +2169,7 @@ button.todo-drag-handle:active {
 }
 
 .todo-notify-button.has-time {
+  padding: 0 8px 0 5px;
   width: auto;
   max-width: 100%;
   min-width: 0;
@@ -2498,7 +2499,8 @@ button.notify-panel-preset:focus-visible:where(:not([data-pointer-focus])) {
   color: var(--muted);
   font-size: calc(var(--app-font-size) - 1px);
   line-height: 18px;
-  overflow: visible;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -7432,7 +7434,7 @@ html[data-theme="dark"] .text-selection-mirror .mark-highlight-violet { --select
 }
 
 .todo-item.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 22px 32px minmax(0, 1fr) minmax(0, 64px) auto 26px;
+  grid-template-columns: 22px 32px minmax(0, 1fr) minmax(0, max-content) auto 26px;
 }
 
 .todo-item.has-link:has(.todo-focus-badge) {
@@ -7440,7 +7442,7 @@ html[data-theme="dark"] .text-selection-mirror .mark-highlight-violet { --select
 }
 
 .todo-item.has-link.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 22px 32px minmax(0, 1fr) 26px minmax(0, 64px) auto 26px;
+  grid-template-columns: 22px 32px minmax(0, 1fr) 26px minmax(0, max-content) auto 26px;
 }
 
 .todo-item:has(.todo-focus-badge) .todo-star-button {
@@ -7452,7 +7454,7 @@ html[data-theme="dark"] .text-selection-mirror .mark-highlight-violet { --select
 }
 
 .today-focus-item.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 24px minmax(0, 1fr) minmax(0, 64px) auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) minmax(0, max-content) auto 26px;
 }
 
 .today-focus-item.has-link:has(.todo-focus-badge) {
@@ -7460,7 +7462,7 @@ html[data-theme="dark"] .text-selection-mirror .mark-highlight-violet { --select
 }
 
 .today-focus-item.has-link.has-notify:has(.todo-focus-badge) {
-  grid-template-columns: 24px minmax(0, 1fr) 26px minmax(0, 64px) auto 26px;
+  grid-template-columns: 24px minmax(0, 1fr) 26px minmax(0, max-content) auto 26px;
 }
 
 .today-focus-item:has(.todo-focus-badge) .todo-star-button {

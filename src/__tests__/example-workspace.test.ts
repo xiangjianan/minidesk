@@ -20,7 +20,9 @@ describe("example workspace", () => {
     expect(groups.flatMap((group) => group.buttons)).toHaveLength(5);
     const todos = Object.values(workspace.todos).flat();
     expect(todos).toHaveLength(5);
-    expect(todos.filter((todo) => todo.notifyAt && todo.notifyAt > Date.now())).toHaveLength(3);
+    const timed = todos.filter((todo) => todo.notifyAt && todo.notifyAt > Date.now());
+    expect(timed).toHaveLength(2);
+    expect(timed[1].notifyAt! - timed[0].notifyAt!).toBeGreaterThan(9 * 24 * 60 * 60 * 1000);
     expect(todos.some((todo) => todo.starred && todo.notifyAt)).toBe(true);
     const marks = workspace.spaces[0].lines.flatMap((line) => (line.marks ?? []).map((mark) => ({ line, mark })));
     expect(marks).toHaveLength(2);

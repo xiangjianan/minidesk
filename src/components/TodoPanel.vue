@@ -2257,6 +2257,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               :ref="(element) => setNotifyPickerAnchor(item.period, item.todo.id, element as Element | null)"
               type="button"
               :aria-label="getTodoCompactNotifyLabel(item.todo) ? uiText.todo.editNotify : uiText.todo.setNotify"
+              :title="getTodoCompactNotifyLabel(item.todo) || undefined"
               @click="handleNotifyClick($event, item.period, item.todo)"
             >
               <span v-if="getTodoCompactNotifyLabel(item.todo)" class="todo-deadline-label">
@@ -2482,6 +2483,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   :ref="(element) => setNotifyPickerAnchor(list.id, entry.todo.id, element as Element | null)"
                   type="button"
                   :aria-label="getTodoCompactNotifyLabel(entry.todo) ? uiText.todo.editNotify : uiText.todo.setNotify"
+                  :title="getTodoCompactNotifyLabel(entry.todo) || undefined"
                   @click="handleNotifyClick($event, list.id, entry.todo)"
                 >
                   <span v-if="getTodoCompactNotifyLabel(entry.todo)" class="todo-deadline-label">
