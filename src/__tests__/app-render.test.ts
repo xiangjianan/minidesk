@@ -2845,8 +2845,11 @@ describe("App shell", () => {
       request: { result?: unknown; error?: unknown; onsuccess: (() => void) | null; onerror: (() => void) | null };
     }> = [];
     const deletedIds: string[] = [];
+    const transactions: Array<{ oncomplete: (() => void) | null }> = [];
+    const putTransactions: Array<{ oncomplete: (() => void) | null }> = [];
     const fakeStore = {
       put: vi.fn((record: { id: string; src?: string }) => {
+        putTransactions.push(transactions[transactions.length - 1]);
         const request: { result: string; error: null; onsuccess: (() => void) | null; onerror: (() => void) | null } = {
           result: record.id,
           error: null,
@@ -2870,11 +2873,11 @@ describe("App shell", () => {
     };
     const fakeDb = {
       objectStoreNames: { contains: vi.fn(() => true) },
-      transaction: vi.fn(() => ({
-        objectStore: vi.fn(() => fakeStore),
-        onerror: undefined,
-        error: null,
-      })),
+      transaction: vi.fn(() => {
+        const transaction = { objectStore: vi.fn(() => fakeStore), oncomplete: null, onerror: null, onabort: null, error: null };
+        transactions.push(transaction);
+        return transaction;
+      }),
       close: vi.fn(),
     };
     vi.stubGlobal("indexedDB", {
@@ -2916,6 +2919,7 @@ describe("App shell", () => {
       });
 
       putRequests[0].request.onsuccess?.();
+      putTransactions[0].oncomplete?.();
       mediaQuery.dispatchEvent({ matches: true } as MediaQueryListEvent);
       await vi.waitFor(() => {
         expect(deletedIds).toEqual([putRequests[0].record.id]);
@@ -8127,6 +8131,7 @@ describe("App shell", () => {
   });
 
   it("shows about information in the companion bubble instead of a modal", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     const wrapper = mountApp();
@@ -10521,15 +10526,11 @@ describe("App inbox revoke wiring", () => {
         ],
       }),
     );
-    const deleteDatabase = vi.fn(() => {
-      const request = {} as IDBOpenDBRequest;
-      queueMicrotask(() => request.onsuccess?.call(request, new Event("success")));
-      return request;
-    });
-    vi.stubGlobal("indexedDB", { deleteDatabase });
+    installMemoryImageDb();
     const wrapper = mountApp();
 
     try {
+      await flushAsyncComponents();
       const settings = wrapper.getComponent(SettingsMenu);
       settings.vm.$emit("clearData", settings.element as HTMLElement);
       await nextTick();
