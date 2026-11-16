@@ -653,6 +653,8 @@ export const UI_TEXT = {
     },
     settings: {
       aiFeatures: "AI 功能",
+      aiEnabled: "AI 功能已开启",
+      aiDisabled: "AI 功能已关闭",
       button: "设置",
       appearance: "外观",
       auto: "跟随系统",
@@ -1166,6 +1168,8 @@ export const UI_TEXT = {
     },
     settings: {
       aiFeatures: "AI features",
+      aiEnabled: "AI features enabled",
+      aiDisabled: "AI features disabled",
       button: "Settings",
       appearance: "Appearance",
       auto: "System",

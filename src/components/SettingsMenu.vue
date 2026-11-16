@@ -54,7 +54,7 @@ const props = withDefaults(defineProps<{
 });
 
 const emit = defineEmits<{
-  toggleAi: [];
+  toggleAi: [anchor?: HTMLElement];
   createWorkspace: [];
   exportWorkspace: [anchor?: HTMLElement];
   exportAll: [anchor?: HTMLElement];
@@ -206,9 +206,9 @@ const options = computed(() => [
 ]);
 
 function handleSelect(key: string): void {
-  keepOpenAfterPreferenceSelect = key === "about" || key === "version" || key.startsWith("language:") || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
+  keepOpenAfterPreferenceSelect = key === "toggle-ai" || key === "about" || key === "version" || key.startsWith("language:") || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
-  if (key === "toggle-ai") emit("toggleAi");
+  if (key === "toggle-ai") emit("toggleAi", triggerRef.value ?? undefined);
   if (key === "create-workspace") emit("createWorkspace");
   if (key === "export-workspace") emit("exportWorkspace", triggerRef.value ?? undefined);
   if (key === "export-all") emit("exportAll", triggerRef.value ?? undefined);

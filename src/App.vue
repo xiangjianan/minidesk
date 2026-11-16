@@ -1263,9 +1263,10 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 // 清空数据后 state.polishCode 消失，下次使用生成新码并重新注册。
 let polishRegisteredCode: string | null = null;
 const aiEnabled = ref(loadAiEnabled());
-function toggleAiEnabled(): void {
+function toggleAiEnabled(anchor?: HTMLElement): void {
   aiEnabled.value = !aiEnabled.value;
   saveAiEnabled(aiEnabled.value);
+  showBubbleText(withKaomoji(aiEnabled.value ? uiText.value.settings.aiEnabled : uiText.value.settings.aiDisabled, "calm"), anchor, { explicit: true, hideCompanionAfter: true });
 }
 
 /** 面板注入的智能粘贴/AI 润色调用：确保配对码存在且已注册后请求服务端润色（style 为可选风格）；注册失败按网络失败（null）降级。 */

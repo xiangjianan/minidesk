@@ -71,6 +71,22 @@ function findVersionBadge(wrapper: ReturnType<typeof mount>) {
 }
 
 describe("SettingsMenu", () => {
+  it("keeps settings open when AI is toggled", async () => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none" },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    const settings = wrapper.findAllComponents(dropdownStub)[1];
+    settings.vm.$emit("update:show", true);
+    await wrapper.vm.$nextTick();
+    await wrapper.find('[data-key="toggle-ai"]').trigger("click");
+    settings.vm.$emit("update:show", false);
+    await wrapper.vm.$nextTick();
+    expect(settings.props("show")).toBe(true);
+    expect(wrapper.emitted("toggleAi")?.[0]).toEqual([expect.any(HTMLElement)]);
+    wrapper.unmount();
+  });
+
   it("spins the update icon only while a check is running", async () => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.0", updateAvailable: false, updateChecking: false, companionGifTheme: "none" },
