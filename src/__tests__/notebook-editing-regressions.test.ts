@@ -19,6 +19,18 @@ function panel(lines: LineItem[]) {
 }
 
 describe('notebook editing audit regressions', () => {
+  it('hides the caret after the window loses focus until the editor regains focus', async () => {
+    const wrapper = panel([{ text: 'note', indent: 0 }]);
+    const field = wrapper.get('textarea');
+    await field.trigger('click');
+    await field.trigger('focus');
+    window.dispatchEvent(new Event('blur'));
+    await wrapper.vm.$nextTick();
+    expect(field.classes()).toContain('window-unfocused');
+    await field.trigger('focus');
+    expect(field.classes()).not.toContain('window-unfocused');
+    wrapper.unmount();
+  });
   it.each(['unchanged', '3. first\n8. second'])('does not emit an update when an unchanged editor loses focus: %s', async (text) => {
     const wrapper = panel([{ text, indent: 0, marks: [mark(0, 3)] }]);
     const field = wrapper.get('textarea');

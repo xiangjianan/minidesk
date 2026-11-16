@@ -960,6 +960,10 @@ button.space-tab {
   overflow: hidden;
 }
 
+.text-editor-textarea.window-unfocused {
+  caret-color: transparent;
+}
+
 .text-mirror,
 .text-editor-textarea {
   width: 100%;

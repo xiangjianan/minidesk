@@ -99,6 +99,11 @@ const mirrorSegments = computed(() => {
  *  镜像字形错位一行。结尾补一个零宽字符把末行空行的行盒撑出来，滚动范围对齐。 */
 const hasTrailingLineBreak = computed(() => text.value.endsWith("\n"));
 const focused = ref(false);
+const windowHasEditorFocus = ref(true);
+function handleWindowBlur(): void { windowHasEditorFocus.value = false; }
+function handleWindowFocus(): void {
+  windowHasEditorFocus.value = document.hasFocus() && document.activeElement === textareaRef.value;
+}
 const editing = ref(false);
 const titleRef = ref<{ openMenuAt: (x: number, y: number, event?: Event) => void } | null>(null);
 interface EditorSnapshot {
@@ -168,11 +173,15 @@ function syncActiveSelection(): void {
 onMounted(() => {
   exclusiveMenu.mount();
   document.addEventListener("selectionchange", syncActiveSelection);
+  window.addEventListener("blur", handleWindowBlur);
+  window.addEventListener("focus", handleWindowFocus);
 });
 onUnmounted(() => {
   isUnmounted = true;
   clearTextDragPreview();
   document.removeEventListener("selectionchange", syncActiveSelection);
+  window.removeEventListener("blur", handleWindowBlur);
+  window.removeEventListener("focus", handleWindowFocus);
   exclusiveMenu.unmount();
 });
 
@@ -555,6 +564,7 @@ function buildMirrorRange(mirror: HTMLElement, start: number, end: number): Rang
 
 function handleFocus(event: FocusEvent): void {
   focused.value = true;
+  windowHasEditorFocus.value = true;
   syncVisibleSelection(event.currentTarget as HTMLTextAreaElement);
   emit("focus", event.currentTarget as HTMLElement);
 }
@@ -1236,6 +1246,7 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
         ref="textareaRef"
         v-model="text"
         class="text-editor-textarea board-textarea large-textarea"
+        :class="{ 'window-unfocused': !windowHasEditorFocus }"
         :placeholder="placeholder"
         :readonly="!editing"
         :inputmode="editing ? 'text' : 'none'"
