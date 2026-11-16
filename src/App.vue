@@ -84,6 +84,7 @@ import {
 import { applyInboxItems, pullAllInboxes } from "./sync/pull";
 import { inboxKeyHash } from "./sync/crypto";
 import { checkInboxKeyStatus, registerInboxKey, revokeInboxKey } from "./sync/inboxClient";
+import { confirmAiDisclosure, loadAiEnabled, saveAiEnabled } from "./sync/aiPreferences";
 import { polishClipboardText } from "./sync/polishClient";
 import type { PolishKind, PolishResult, PolishStyle, PolishTodoItem } from "./sync/polishClient";
 import type { SmartPastePhase } from "./utils/smartPaste";
@@ -1261,9 +1262,15 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 // 智能粘贴配对码：全局唯一（鉴权只要求「已注册」）。会话内注册成功一次即缓存；
 // 清空数据后 state.polishCode 消失，下次使用生成新码并重新注册。
 let polishRegisteredCode: string | null = null;
+const aiEnabled = ref(loadAiEnabled());
+function toggleAiEnabled(): void {
+  aiEnabled.value = !aiEnabled.value;
+  saveAiEnabled(aiEnabled.value);
+}
 
 /** 面板注入的智能粘贴/AI 润色调用：确保配对码存在且已注册后请求服务端润色（style 为可选风格）；注册失败按网络失败（null）降级。 */
 async function polishClipboard(kind: PolishKind, text: string, style?: PolishStyle): Promise<PolishResult> {
+  if (!aiEnabled.value || !confirmAiDisclosure(uiText.value.common.aiDisclosure)) return null;
   let code = state.polishCode;
   if (!code || !isValidInboxCode(code)) {
     code = generateInboxCode();
@@ -4413,6 +4420,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
 
       <template #actions>
         <SettingsMenu
+          :ai-enabled="aiEnabled"
+          @toggle-ai="toggleAiEnabled"
           :theme="state.theme"
           :zone-visibility="activeWorkspace.zoneVisibility"
           :app-version="appVersion"
@@ -4478,7 +4487,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :compact="activeWorkspace.quickCompact"
           :language="state.language"
           :move-targets="workspaceMoveTargets"
-          :polish="polishClipboard"
+          :polish="aiEnabled ? polishClipboard : undefined"
           @title-update="updateTitle"
           @save="saveQuick"
           @delete="deleteQuick"
@@ -4515,7 +4524,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :show-completed="activeWorkspace.showCompletedTodos"
           :language="state.language"
           :move-targets="workspaceMoveTargets"
-          :polish="polishClipboard"
+          :polish="aiEnabled ? polishClipboard : undefined"
           @title-update="updateTitle"
           @create-list="createTodoList"
           @update-list-title="updateTodoListTitle"
@@ -4559,7 +4568,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :edit-space-id="pendingEditSpaceId"
           :language="state.language"
           :move-targets="workspaceMoveTargets"
-          :polish="polishClipboard"
+          :polish="aiEnabled ? polishClipboard : undefined"
           @activate="activateSpace"
           @create="createSpace"
           @rename="renameSpace"
@@ -4650,7 +4659,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       :images="focusTodo?.focusImages ?? []"
       :initial-image-width="focusTodo?.focusImageWidth"
       :language="state.language"
-      :polish="polishClipboard"
+      :polish="aiEnabled ? polishClipboard : undefined"
       @close="closeFocusNow"
       @notes-update="(lines) => focusSession && updateFocusNotes(focusSession.period, focusSession.id, lines)"
       @notes-blur="handleEditorBlur"

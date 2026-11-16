@@ -15,6 +15,8 @@ vi.mock("../sync/inboxClient", () => ({
 }));
 
 beforeEach(() => {
+  vi.spyOn(window, "confirm").mockReturnValue(true);
+  localStorage.removeItem("mini-desk-ai-disclosure-seen");
   postMock.mockReset();
   postMock.mockResolvedValue({ ok: true });
   // 润色开关持久化在 localStorage：隔离各用例，默认从未开启过。
@@ -108,6 +110,7 @@ describe("MobileInboxCapture", () => {
     await fillAndSend(wrapper, "润色一条");
     await until(() => expect(postMock).toHaveBeenCalledTimes(1));
     expect(plainPayload(lastPayload())).toMatchObject({ polish: true });
+    expect(window.confirm).toHaveBeenCalledOnce();
 
     // 换码/重开页面场景：组件卸载重挂后开关仍读取持久化状态。
     wrapper.unmount();

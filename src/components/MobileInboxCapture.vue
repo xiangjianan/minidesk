@@ -12,6 +12,7 @@ import { getUiText } from "../state/i18n";
 import { createId } from "../state/storage";
 import { readClipboardText } from "../utils/clipboard";
 import { INBOX_PLAINTEXT_MAX_CHARS } from "../sync/config";
+import { confirmAiDisclosure } from "../sync/aiPreferences";
 import { loadInboxPolishPref, saveInboxPolishPref } from "../sync/capturePrefs";
 import { inboxKeyHash, type InboxPlainItem } from "../sync/crypto";
 import { postInboxItem, type InboxPostFailure } from "../sync/inboxClient";
@@ -148,6 +149,7 @@ async function send(kind: CaptureKind): Promise<void> {
     .map((line) => line.trim().slice(0, INBOX_PLAINTEXT_MAX_CHARS))
     .filter((line) => line.length > 0);
   if (lines.length === 0 || status.value === "sending") return;
+  if (polishEnabled.value && !confirmAiDisclosure(getUiText(props.language).common.mobileAiDisclosure)) return;
   status.value = "sending";
   activeKind.value = kind;
   codeUnusable.value = false;

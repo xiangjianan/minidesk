@@ -109,7 +109,7 @@ function buildSpaceMoveOptions(): DropdownOption[] {
 const menuOptions = computed<DropdownOption[]>(() => menu.value?.anchor ? [
   { label: uiText.value.space.create, key: "create", icon: renderIcon(AddOutline) },
   { label: uiText.value.common.paste, key: "paste", icon: renderIcon(ClipboardOutline), disabled: !activeSpace.value },
-  { label: uiText.value.common.smartPaste, key: "smart-paste", icon: renderIcon(SmartPasteIcon), disabled: !activeSpace.value || !props.polish || smartPastePending.value },
+  ...(props.polish ? [{ label: uiText.value.common.smartPaste, key: "smart-paste", icon: renderIcon(SmartPasteIcon), disabled: !activeSpace.value || smartPastePending.value }] : []),
   { label: uiText.value.common.tips, key: "guide", icon: renderIcon(HelpCircleOutline) },
 ] : [
   { label: uiText.value.common.rename, key: "edit", icon: renderIcon(CreateOutline) },

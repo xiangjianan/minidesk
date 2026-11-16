@@ -32,6 +32,7 @@ import { ImagesAreaIcon, QuickAreaIcon, RemindersAreaIcon, NotesAreaIcon } from 
 import { createMenuAim, menuAimProps } from "../utils/menuAim";
 
 const props = withDefaults(defineProps<{
+  aiEnabled?: boolean;
   appVersion: string;
   updateAvailable: boolean;
   updateChecking?: boolean;
@@ -43,6 +44,7 @@ const props = withDefaults(defineProps<{
   theme?: ThemeMode;
   zoneVisibility?: ZoneVisibility;
 }>(), {
+  aiEnabled: true,
   language: "zh",
   theme: "light",
   zoneVisibility: () => ({ assets: true, notes: true, tasks: true, workspace: true }),
@@ -51,6 +53,7 @@ const props = withDefaults(defineProps<{
 });
 
 const emit = defineEmits<{
+  toggleAi: [];
   createWorkspace: [];
   exportWorkspace: [anchor?: HTMLElement];
   exportAll: [anchor?: HTMLElement];
@@ -166,6 +169,7 @@ const options = computed(() => [
     })),
   },
   { type: "divider", key: "preferences-divider" },
+  { label: text.value.settings.aiFeatures, key: "toggle-ai", icon: props.aiEnabled ? renderIcon(CheckmarkOutline) : undefined, props: { role: "menuitemcheckbox", "aria-checked": props.aiEnabled } },
   { label: text.value.app.inboxPair, key: "pair-inbox", icon: renderIcon(PhonePortraitOutline) },
   { type: "divider", key: "help-divider" },
   { label: text.value.settings.shortcutHelp, key: "shortcut-help", icon: renderIcon(KeyOutline) },
@@ -192,6 +196,7 @@ const options = computed(() => [
 function handleSelect(key: string): void {
   keepOpenAfterPreferenceSelect = key === "about" || key === "version" || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
+  if (key === "toggle-ai") emit("toggleAi");
   if (key === "create-workspace") emit("createWorkspace");
   if (key === "export-workspace") emit("exportWorkspace", triggerRef.value ?? undefined);
   if (key === "export-all") emit("exportAll", triggerRef.value ?? undefined);

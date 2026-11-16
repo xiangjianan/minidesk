@@ -440,6 +440,8 @@ export const UI_TEXT = {
       copy: "复制",
       paste: "粘贴",
       create: "新建",
+      mobileAiDisclosure: "这段文字会发送到 Mini Desk 的中转服务及 AI 服务提供商用于整理。可通过手机速记的 AI 润色开关关闭。是否继续？",
+      aiDisclosure: "这段文字会发送到 Mini Desk 的中转服务及 AI 服务提供商用于整理。可在设置中关闭 AI 功能。是否继续？",
       smartPaste: "智能粘贴",
       smartPolish: "AI润色",
       polishStyleTech: "技术风格",
@@ -650,6 +652,7 @@ export const UI_TEXT = {
       crossWorkspaceReminder: "「{workspace}」有一个提醒：{text}，是否切换到该空间？",
     },
     settings: {
+      aiFeatures: "AI 功能",
       button: "设置",
       appearance: "外观",
       auto: "跟随系统",
@@ -936,6 +939,8 @@ export const UI_TEXT = {
       copy: "Copy",
       paste: "Paste",
       create: "New",
+      mobileAiDisclosure: "This text will be sent to Mini Desk’s relay and an AI provider for processing. You can turn off AI polish on this screen. Continue?",
+      aiDisclosure: "This text will be sent to Mini Desk’s relay and an AI provider for processing. You can turn AI features off in Settings. Continue?",
       smartPaste: "Smart paste",
       smartPolish: "AI polish",
       polishStyleTech: "Technical",
@@ -1145,6 +1150,7 @@ export const UI_TEXT = {
       crossWorkspaceReminder: "“{workspace}” has a reminder: {text}. Switch there?",
     },
     settings: {
+      aiFeatures: "AI features",
       button: "Settings",
       appearance: "Appearance",
       auto: "System",

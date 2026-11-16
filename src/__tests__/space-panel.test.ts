@@ -57,7 +57,7 @@ describe("SpacePanel", () => {
   it("opens the same notebook menu from the visible button", async () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     await wrapper.get('[data-testid="notebook-menu"]').trigger("click");
-    expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(["create", "paste", "smart-paste", "guide"]);
+    expect(wrapper.findAll(".dropdown-option").map(option => option.attributes("data-key"))).toEqual(["create", "paste", "guide"]);
     await wrapper.get('[data-key="create"]').trigger("click");
     expect(wrapper.emitted("create")).toHaveLength(1);
     wrapper.unmount();
@@ -66,8 +66,10 @@ describe("SpacePanel", () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     const heading = wrapper.get(".desk-zone-heading");
     await heading.trigger("contextmenu");
-    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["新建", "粘贴", "智能粘贴", "Tips"]);
-    expect(wrapper.get('[data-key="smart-paste"]').attributes("disabled")).toBeDefined();
+    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["新建", "粘贴", "Tips"]);
+    expect(wrapper.find('[data-key="smart-paste"]').exists()).toBe(false);
+    await wrapper.setProps({ polish: async () => null });
+    expect(wrapper.find('[data-key="smart-paste"]').exists()).toBe(true);
     await wrapper.get('[data-key="guide"]').trigger("click");
     expect(wrapper.emitted("guide")?.[0]).toEqual(["workspace", heading.element, true]);
     await wrapper.setProps({ language: "en" });
