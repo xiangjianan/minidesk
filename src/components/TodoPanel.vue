@@ -175,12 +175,14 @@ const notifyPickerDrafts = ref<Record<string, number>>({});
 // Quick deadline presets refresh each time the picker opens so the relative
 // durations and today-vs-tomorrow time slots stay current.
 const presetEditor = ref<{ group: "relative" | "time"; index: number } | null>(null);
+const presetEditorOpen = ref(false);
 const presetTimeDraft = ref("");
 const presetMinutesDraft = ref<number | null>(null);
 function editPreset(group: "relative" | "time", index: number): void {
   presetEditor.value = { group, index };
   presetTimeDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index];
   presetMinutesDraft.value = normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index];
+  presetEditorOpen.value = true;
 }
 function savePreset(): void {
   const editor = presetEditor.value;
@@ -197,7 +199,7 @@ function savePreset(): void {
     minutes[editor.index] = value;
     emit("notifyPresetMinutesChange", minutes);
   }
-  presetEditor.value = null;
+  presetEditorOpen.value = false;
 }
 function durationLabel(minutes: number): string {
   const en = props.language === "en";
@@ -1511,7 +1513,7 @@ function removeNotifyPickerDraft(key: string): void {
 function handleFloatingEditorOutsidePointerDown(event: PointerEvent): void {
   const target = event.target;
   if (!(target instanceof Node)) return;
-  if (notifyPicker.value && !presetEditor.value && !notifyPickerRef.value?.contains(target) && !(target as HTMLElement).closest?.(".todo-notify-button")) {
+  if (notifyPicker.value && !presetEditorOpen.value && !notifyPickerRef.value?.contains(target) && !(target as HTMLElement).closest?.(".todo-notify-button")) {
     closeNotifyPicker();
   }
 }
@@ -2612,7 +2614,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
       @confirm="(anchor, title, id) => id ? handleListTitleUpdate(id, title) : emit('createList', anchor, title)"
     />
 
-    <NModal :show="presetEditor !== null" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditor = null; }">
+    <NModal :show="presetEditorOpen" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditorOpen = false; }">
       <p>{{ uiText.todo.notifyPresets.hint }}</p>
       <label class="notify-preset-editor">
         <span>{{ presetEditor?.group === 'time' ? uiText.todo.notifyPresets.timeLabel : uiText.todo.notifyPresets.minutes }}</span>
@@ -2620,7 +2622,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
         <input v-else v-model.number="presetMinutesDraft" type="number" min="1" max="10080" step="1">
       </label>
       <div class="notify-preset-settings-actions">
-        <NButton @click="presetEditor = null">{{ uiText.common.cancel }}</NButton>
+        <NButton @click="presetEditorOpen = false">{{ uiText.common.cancel }}</NButton>
         <NButton type="primary" :disabled="presetEditor?.group === 'time' ? !presetTimeDraft : !presetMinutesDraft || !Number.isInteger(presetMinutesDraft) || presetMinutesDraft < 1 || presetMinutesDraft > 10080" @click="savePreset">{{ uiText.common.save }}</NButton>
       </div>
     </NModal>

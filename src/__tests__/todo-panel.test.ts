@@ -2384,6 +2384,8 @@ describe("TodoPanel", () => {
     (Array.from(document.querySelectorAll(".notify-preset-settings-actions button")).find((button) => button.textContent?.trim() === "保存") as HTMLButtonElement).click();
     await nextTick();
     expect(wrapper.emitted("notifyPresetTimesChange")?.[0]).toEqual([["07:30", "12:00", "15:00", "18:00", "21:00"]]);
+    const editorModal = wrapper.findAllComponents(NModal).find((modal) => modal.props("title") === "编辑预设时段");
+    expect(editorModal?.props("show")).toBe(false);
     wrapper.unmount();
   });
 
