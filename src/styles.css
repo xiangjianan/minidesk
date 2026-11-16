@@ -558,6 +558,30 @@ html[data-theme="dark"] .n-modal-mask {
 .dialog-actions > .n-button { height: auto; min-height: 34px; }
 .dialog-actions > .n-button .n-button__content { white-space: normal; text-align: center; }
 
+.clear-workspace-modal .clear-backup-link {
+  display: inline-block;
+  margin: 10px 0 20px;
+  padding: 2px 0;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--primary);
+  font: inherit;
+  text-align: start;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.clear-workspace-modal .clear-backup-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.clear-workspace-modal .clear-backup-link:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+}
+
 .save-status {
   position: relative;
   width: 34px;

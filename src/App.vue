@@ -4578,7 +4578,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <ul><li v-for="row in storageUsageRows" :key="row.id"><strong>{{ row.title }}</strong> — {{ uiText.settings.storageImages.replace('{count}', String(row.count)).replace('{size}', formatStorageBytes(row.bytes)) }}</li></ul>
       <NButton @click="storageUsageVisible = false">{{ uiText.common.close }}</NButton>
     </NModal>
-    <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
+    <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal clear-workspace-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
       <template v-if="clearWorkspace">
         <p>{{ uiText.settings.clearDataHint }}</p>
         <p>{{ uiText.settings.clearCounts.replace('{todos}', String(Object.values(clearWorkspace.todos).reduce((total, items) => total + items.length, 0))).replace('{images}', String(clearWorkspace.images.length + Object.values(clearWorkspace.todos).reduce((total, items) => total + items.reduce((sum, item) => sum + (item.focusImages?.length ?? 0), 0), 0))).replace('{notes}', String(clearWorkspace.spaces.length)) }}</p>
