@@ -15,7 +15,7 @@ const tooltipStub = {
 /** 右键菜单「格式」组在 menuDropdownStub 里被拍平后的文案序列（子级 + 孙级按渲染顺序，分隔项渲染为空文案）。 */
 const FORMAT_GROUP_LABELS = [
   "格式",
-  "高亮", "琥珀", "玫红", "翠绿", "天蓝", "紫罗兰", "", "清除高亮",
+  "背景色", "琥珀", "玫红", "翠绿", "天蓝", "紫罗兰", "", "清除背景色",
   "文字颜色", "琥珀", "玫红", "翠绿", "天蓝", "紫罗兰", "", "恢复默认",
   "加粗", "中划线", "下划线", "", "清除全部格式",
 ];
@@ -60,7 +60,7 @@ describe("TextPanel", () => {
   });
 
   it.each([
-    ["高亮", "format-highlight-rose", "highlight"],
+    ["背景色", "format-highlight-rose", "highlight"],
     ["文字颜色", "format-color-blue", "color"],
   ])("opens the %s palette and applies its chosen color", async (label, key, type) => {
     guardSelectionOrigin(document);
@@ -83,6 +83,26 @@ describe("TextPanel", () => {
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
       { text: "hello", indent: 0, marks: [{ type, start: 1, end: 4, color: type === "color" ? "blue" : "rose" }] },
     ]);
+    wrapper.unmount();
+  });
+
+  it("hides the selection toolbar when a context menu opens, including delayed selection events", async () => {
+    const wrapper = mount(TextPanel, {
+      attachTo: document.body,
+      props: { titleId: "title", title: "Notes", lines: [{ text: "hello", indent: 0 }] },
+      global: { stubs: { Dropdown: menuDropdownStub, NDropdown: menuDropdownStub } },
+    });
+    const textarea = wrapper.get("textarea").element;
+    textarea.focus();
+    textarea.setSelectionRange(0, 4);
+    await wrapper.get("textarea").trigger("select");
+    await flushPromises();
+    expect(document.querySelector(".selection-toolbar")).not.toBeNull();
+    await wrapper.get("textarea").trigger("contextmenu", { button: 2 });
+    await wrapper.get("textarea").trigger("select");
+    await flushPromises();
+    expect(wrapper.find('[data-key="format"]').exists()).toBe(true);
+    expect(document.querySelector(".selection-toolbar")).toBeNull();
     wrapper.unmount();
   });
 

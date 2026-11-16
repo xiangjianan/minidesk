@@ -837,12 +837,12 @@ function unlockTextareaForMobileKeyboard(textarea: HTMLTextAreaElement, caret: n
 
 function updateSelectionToolbar(): void {
   const textarea = textareaRef.value;
-  if (!textarea || document.activeElement !== textarea || !hasSelection(textarea)) {
+  if (!textarea || (menu.value && !toolbarMenuKind.value) || document.activeElement !== textarea || !hasSelection(textarea)) {
     selectionToolbar.value = null;
     return;
   }
   nextTick(() => {
-    if (document.activeElement !== textarea || !hasSelection(textarea)) return;
+    if ((menu.value && !toolbarMenuKind.value) || document.activeElement !== textarea || !hasSelection(textarea)) return;
     const selected = selectionMirrorRef.value?.querySelector<HTMLElement>(".is-selected");
     const rect = selected?.getBoundingClientRect();
     const frame = textarea.getBoundingClientRect();
@@ -910,6 +910,7 @@ function syncVisibleSelection(textarea: HTMLTextAreaElement): void {
 }
 
 function openTextMenu(event: MouseEvent): void {
+  selectionToolbar.value = null;
   const target = event.target instanceof HTMLTextAreaElement ? event.target : undefined;
   if (!target && props.delegateBlankContextMenu) {
     event.preventDefault();
@@ -1329,8 +1330,8 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
     </div>
     <Teleport to="body">
       <div v-if="selectionToolbar" class="selection-toolbar" :style="{ left: `${selectionToolbar.x}px`, top: `${selectionToolbar.y}px` }" @mousedown.prevent>
-        <button type="button" :aria-label="uiText.common.highlight" :title="uiText.common.highlight" @click="openToolbarMenu($event, 'highlight')"><Highlighter :size="16" /></button>
-        <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @click="openToolbarMenu($event, 'color')"><Palette :size="16" /></button>
+        <button type="button" :aria-label="uiText.common.highlight" :title="uiText.common.highlight" @click="openToolbarMenu($event, 'highlight')"><span class="selection-color-icon selection-background-icon" aria-hidden="true">A</span></button>
+        <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @click="openToolbarMenu($event, 'color')"><span class="selection-color-icon selection-foreground-icon" aria-hidden="true">A</span></button>
         <button type="button" :aria-label="uiText.common.bold" :title="uiText.common.bold" @click="toolbarBold"><Bold :size="16" /></button>
         <button v-if="polish" type="button" :aria-label="uiText.common.smartPolish" :title="uiText.common.smartPolish" @click="openToolbarMenu($event, 'polish')"><SparklesOutlineIcon class="selection-toolbar-icon" /><span>{{ uiText.common.smartPolish }}</span></button>
         <span v-if="showSelectionHint" class="selection-toolbar-hint">{{ uiText.common.selectionHint }}</span>

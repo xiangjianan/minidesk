@@ -8073,3 +8073,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .selection-toolbar button:hover, .selection-toolbar button:focus-visible { background: color-mix(in srgb, var(--text) 10%, transparent); }
 .selection-toolbar-icon { width: 16px; height: 16px; }
 .selection-toolbar-hint { position: absolute; top: calc(100% + 6px); left: 0; padding: 6px 9px; border-radius: 6px; background: var(--card); color: var(--text); box-shadow: 0 3px 12px #0003; font-size: 12px; white-space: nowrap; }
+
+.selection-color-icon { display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; font-size: 13px; font-weight: 700; line-height: 1; }
+.selection-background-icon { color: var(--text); background: var(--mark-highlight-amber); border-radius: 3px; }
+.selection-foreground-icon { color: var(--mark-text-blue); border-bottom: 3px solid var(--mark-text-blue); }
