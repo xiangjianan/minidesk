@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { getMessage, type MessageKey } from "../state/messages";
+import { getConfirmationMessage, getMessage, type MessageKey } from "../state/messages";
 import type { BoardState, GuideKey } from "../types";
 import { getLastPointerPosition, startPointerTracking } from "../utils/pointerPosition";
 
@@ -292,7 +292,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     companionFadeRemaining.value = 0;
     companionFadeStartedAt.value = 0;
     bubbleTimerOptions.value = {};
-    bubbleMessage.value = getMessage(messageKey, Math.random, deps.state.language);
+    bubbleMessage.value = getConfirmationMessage(messageKey, deps.state.language);
     bubbleLink.value = null;
     bubbleSignature.value = "";
     bubbleAnchor.value = anchor ?? null;

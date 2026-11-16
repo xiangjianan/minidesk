@@ -5,6 +5,7 @@ import {
   KAOMOJI_BY_MOOD,
   MESSAGE_CATALOG,
   getMessage,
+  getConfirmationMessage,
   getMessageCatalogSummary,
   withKaomoji,
   ensureBubbleKaomoji,
@@ -69,6 +70,10 @@ const messageKeys = [
 ] as const;
 
 describe("message catalog", () => {
+  it("keeps confirmation wording stable and undecorated", () => {
+    expect(getConfirmationMessage("confirmDeleteSpace", "zh")).toBe("删除这个记事本及其内容？");
+    expect(getConfirmationMessage("confirmDeleteSpace", "en")).toBe("Delete this notebook and its contents?");
+  });
   it("extracts every popup and message scenario into the shared catalog", () => {
     expect(Object.keys(MESSAGE_CATALOG).sort()).toEqual([...messageKeys].sort());
   });

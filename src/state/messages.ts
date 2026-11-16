@@ -828,7 +828,7 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
     mood: "warning",
     surface: "companion",
     variants: [
-      "确认删除列表？",
+      "删除此列表及其中的提醒事项？",
       "提醒事项会删除",
       "删除此提醒事项列表？",
       "列表提醒会移除",
@@ -844,7 +844,7 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
     mood: "warning",
     surface: "companion",
     variants: [
-      "确认删除空间？不可恢复",
+      "删除这个记事本及其内容？",
       "要删掉这个空间吗？内容不会恢复",
       "确定移除空间？不可撤回",
       "删除空间？内容不可恢复",
@@ -1066,9 +1066,9 @@ const EN_MESSAGE_VARIANTS = {
   confirmCancelFocus: ["Cancel this focus? The timer, images, and notes will be cleared."],
   confirmDeleteTodo: ["Delete this reminder?", "Remove this reminder?", "This reminder will be removed."],
   confirmDeleteTodoList: ["Delete this list?", "Reminders in this list will be deleted.", "Remove this reminder list?"],
-  confirmDeleteSpace: ["Delete this space? This cannot be undone.", "Remove this space permanently?", "This space and its content will be deleted."],
+  confirmDeleteSpace: ["Delete this notebook and its contents?", "Remove this space permanently?", "This space and its content will be deleted."],
   deleteWorkspace: ["Workspace deleted", "Workspace removed", "This workspace is gone"],
-  confirmDeleteWorkspace: ["Delete this workspace? This cannot be undone.", "Remove this workspace permanently?", "This workspace and all its content will be deleted."],
+  confirmDeleteWorkspace: ["Delete this workspace and its contents?", "Remove this workspace permanently?", "This workspace and all its content will be deleted."],
   confirmImportWorkspace: ["Import this as a new workspace?", "It will be added as a new workspace; existing ones stay.", "A new workspace will be appended to the list."],
   confirmImportWorkspaceConflict: ["A workspace with this name already exists. Overwrite or add?", "Same-name workspace found — overwrite or add new?", "This name is taken. Overwrite the existing one or add as new?"],
   confirmClearCompleted: ["Clear completed reminders?", "Remove completed items?", "Completed reminders will be removed."],
@@ -1086,6 +1086,11 @@ export function getMessage(key: MessageKey, random = Math.random, language: AppL
   const entry = MESSAGE_CATALOG[key];
   const variants = normalizeLanguage(language) === "en" ? EN_MESSAGE_VARIANTS[key] : entry.variants;
   return withKaomoji(randomItem(variants, random), entry.mood, random);
+}
+
+/** Confirmation copy stays stable and is not decorated with an expression. */
+export function getConfirmationMessage(key: MessageKey, language: AppLanguage = DEFAULT_LANGUAGE): string {
+  return (normalizeLanguage(language) === "en" ? EN_MESSAGE_VARIANTS[key] : MESSAGE_CATALOG[key].variants)[0];
 }
 
 /** Add one expression to plain bubble copy without duplicating an existing one. */
