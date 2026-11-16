@@ -1,4 +1,5 @@
 import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ImagePreview from "../components/ImagePreview.vue";
 import { menuDropdownStub } from "./helpers/menu-dropdown-stub";
@@ -538,6 +539,11 @@ describe("ImagePreview", () => {
     try {
       await wrapper.get('[data-testid="preview-help"]').trigger("click");
       expect(wrapper.get('[data-testid="preview-shortcut-help"]').text()).toContain("WASD");
+      document.body.click();
+      await nextTick();
+      expect(wrapper.find('[data-testid="preview-shortcut-help"]').exists()).toBe(false);
+      await wrapper.get('[data-testid="preview-help"]').trigger("click");
+      expect(wrapper.find('[data-testid="preview-shortcut-help"]').exists()).toBe(true);
       await wrapper.get('[data-testid="preview-help"]').trigger("click");
       await wrapper.get(".preview-zoom-button.is-zoom-in").trigger("click");
       expect(wrapper.get(".preview-stage img").attributes("style")).toContain("scale(1.1)");

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { NIcon } from "naive-ui";
 import { ChevronDownOutline, ChevronUpOutline, CloseOutline, CreateOutline, TrashOutline } from "@vicons/ionicons5";
 import { CircleHelp, ZoomIn, ZoomOut } from "lucide-vue-next";
@@ -16,6 +16,17 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{ navigate: [direction: number]; zoom: [delta: number]; edit: []; delete: [event: MouseEvent]; close: [] }>();
 const uiText = computed(() => getUiText(props.language));
 const helpOpen = ref(false);
+const helpButton = ref<HTMLButtonElement | null>(null);
+const helpPanel = ref<HTMLElement | null>(null);
+
+function closeHelpOnOutsideClick(event: MouseEvent): void {
+  const target = event.target;
+  if (!(target instanceof Node) || helpButton.value?.contains(target) || helpPanel.value?.contains(target)) return;
+  helpOpen.value = false;
+}
+
+onMounted(() => document.addEventListener("click", closeHelpOnOutsideClick, true));
+onUnmounted(() => document.removeEventListener("click", closeHelpOnOutsideClick, true));
 </script>
 
 <template>
@@ -55,10 +66,10 @@ const helpOpen = ref(false);
         <TrashOutline />
       </NIcon>
     </button>
-    <button type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
+    <button ref="helpButton" type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
       <NIcon size="18"><CircleHelp /></NIcon>
     </button>
-    <div v-if="helpOpen" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">
+    <div v-if="helpOpen" ref="helpPanel" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">
       <div class="preview-shortcut-title">{{ uiText.preview.shortcuts }}</div>
       <dl class="preview-shortcut-list">
         <div v-for="row in uiText.preview.shortcutRows" :key="row.action" class="preview-shortcut-row">
