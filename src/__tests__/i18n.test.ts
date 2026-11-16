@@ -135,14 +135,14 @@ describe("localized public copy", () => {
     expect(getUiText("zh").app.mobileTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutTitle).toBe("MiniDesk");
     expect(getUiText("zh").app.aboutDescription).toBe(
-      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本放在一起。\n空间数据保存在浏览器中；手机速记通过中转服务同步，使用 AI 整理时文本会发送至中转服务及 AI 服务提供商。",
+      "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。\n无需登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
     );
     expect(getUiText("zh").app.aboutSignature).toBe("(100% AI BUILT)");
     expect(getUiText("en").app.boardLabel).toBe("MiniDesk");
     expect(getUiText("en").app.mobileTitle).toBe("MiniDesk");
     expect(getUiText("en").app.aboutTitle).toBe("MiniDesk");
     expect(getUiText("en").app.aboutDescription).toBe(
-      "A local-first desk for screenshots, reminders, quick buttons, and notebooks.\nWorkspace data is stored in your browser. Mobile captures sync through a relay, and AI features send text to the relay and an AI provider.",
+      "A lightweight, local-first desk that brings screenshots, reminders, quick buttons, and notebooks together.\nNo login required. Workspace data stays in your browser. Mobile captures sync through a relay server; AI organization sends text to the relay server and an AI provider.",
     );
     expect(getUiText("en").app.aboutSignature).toBe("(100% AI BUILT)");
   });

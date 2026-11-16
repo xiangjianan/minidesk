@@ -78,10 +78,10 @@ describe("message catalog", () => {
     expect(Object.keys(MESSAGE_CATALOG).sort()).toEqual([...messageKeys].sort());
   });
 
-  it("keeps the English about message aligned with sticky naming", () => {
+  it("keeps the English about message aligned with notebook naming", () => {
     const about = getMessage("about", () => 0, "en");
 
-    expect(about).toContain("screenshots, reminders, quick links, and sticky notes");
+    expect(about).toContain("screenshots, reminders, quick buttons, and notebooks");
     expect(about).not.toContain("workspaces");
     expect(about).not.toContain("workspace for organizing");
   });
@@ -99,8 +99,8 @@ describe("message catalog", () => {
         expect(MESSAGE_CATALOG.about.variants).toEqual([
           [
             "MiniDesk",
-            "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本缝合得恰到好处。",
-            "无需任何登录，所有数据全部保存在浏览器本地。",
+            "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。",
+            "无需登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
           ].join("\n"),
         ]);
         continue;

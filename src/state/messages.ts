@@ -946,8 +946,8 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
     variants: [
       [
         "MiniDesk",
-        "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本缝合得恰到好处。",
-        "空间数据保存在浏览器本地；手机速记通过中转服务同步，AI 整理会将文字发送给中转服务和 AI 服务提供商。",
+        "一个本地优先的轻量工作台，把截图、提醒事项、快捷按钮和记事本融合得恰到好处。",
+        "无需登录，空间数据保存在浏览器本地。手机速记通过中转服务器同步；AI 整理会将文字发送至中转服务器和 AI 服务商。",
       ].join("\n"),
     ],
   },
@@ -1076,8 +1076,8 @@ const EN_MESSAGE_VARIANTS = {
   about: [
     [
       "MiniDesk",
-      "A local-first lightweight desk for organizing screenshots, reminders, quick links, and sticky notes.",
-      "Workspace data stays in your browser. Mobile captures use a relay; AI features send text to the relay and an AI provider.",
+      "A lightweight, local-first desk that brings screenshots, reminders, quick buttons, and notebooks together.",
+      "No login required. Workspace data stays in your browser. Mobile captures sync through a relay server; AI organization sends text to the relay server and an AI provider.",
     ].join("\n"),
   ],
 } satisfies Record<MessageKey, string[]>;
