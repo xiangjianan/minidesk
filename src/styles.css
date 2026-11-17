@@ -3367,6 +3367,17 @@ button.companion-undo-button {
   gap: 16px;
 }
 
+.gif-theme-custom-feedback {
+  justify-self: end;
+  max-width: 100%;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--button);
+  color: var(--text);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
 .gif-theme-custom-dialog label {
   display: grid;
   gap: 4px;

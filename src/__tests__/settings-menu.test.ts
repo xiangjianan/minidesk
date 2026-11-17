@@ -602,6 +602,20 @@ describe("SettingsMenu", () => {
     ]);
   });
 
+  it.each([ ["zh", "请先选择至少一个 GIF"], ["en", "Please choose at least one GIF first"] ] as const)("shows an actionable message for an empty custom GIF in %s", async (language, message) => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.0.19", updateAvailable: false, companionGifTheme: "hermes", language },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub, teleport: true, NBadge: { template: "<span><slot /></span>" }, NButton: { template: "<button><slot /></button>" }, NIcon: { template: "<span />" } } },
+    });
+    await wrapper.find('[data-key="gif-theme:custom"]').trigger("click");
+    await wrapper.get(".gif-theme-custom-confirm").trigger("click");
+    expect(wrapper.get('[role="alert"]').text()).toBe(message);
+    expect(wrapper.emitted("customGif")).toBeUndefined();
+    expect(wrapper.find(".gif-theme-custom-dialog").exists()).toBe(true);
+    await wrapper.findAllComponents(uploadStub)[0].vm.$emit("update:file-list", [{ file: new File(["gif"], "light.gif", { type: "image/gif" }) }]);
+    expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+  });
+
   it("opens a custom GIF upload dialog and emits selected GIF files", async () => {
     const wrapper = mount(SettingsMenu, {
       props: {
