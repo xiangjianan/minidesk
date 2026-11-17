@@ -893,7 +893,7 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
-  it("hides the custom GIF in a mode that has no matching custom source", async () => {
+  it("shows the available custom GIF when switching to a mode without one", async () => {
     const wrapper = mount(CompanionBubble, {
       props: {
         visible: true,
@@ -913,7 +913,7 @@ describe("CompanionBubble", () => {
 
     await wrapper.setProps({ theme: "dark" });
 
-    expect(wrapper.find("img").exists()).toBe(false);
+    expect(wrapper.get("img").attributes("src")).toBe("data:image/gif;base64,light");
     wrapper.unmount();
   });
 

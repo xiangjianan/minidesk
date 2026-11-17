@@ -415,12 +415,12 @@ describe("state compatibility", () => {
     expect(getCompanionNotificationIconSrc("custom", "dark", { light: "data:image/gif;base64,light", dark: "data:image/gif;base64,dark" })).toBe("data:image/gif;base64,dark");
   });
 
-  it("does not reuse one custom companion GIF across light and dark modes", () => {
+  it("uses the available custom GIF when the current mode has no GIF", () => {
     expect(getCompanionGifSrc("custom", "light", { light: "data:image/gif;base64,light" })).toBe("data:image/gif;base64,light");
-    expect(getCompanionGifSrc("custom", "dark", { light: "data:image/gif;base64,light" })).toBe("");
-    expect(getCompanionGifSrc("custom", "light", { dark: "data:image/gif;base64,dark" })).toBe("");
+    expect(getCompanionGifSrc("custom", "dark", { light: "data:image/gif;base64,light" })).toBe("data:image/gif;base64,light");
+    expect(getCompanionGifSrc("custom", "light", { dark: "data:image/gif;base64,dark" })).toBe("data:image/gif;base64,dark");
     expect(getCompanionGifSrc("custom", "dark", { dark: "data:image/gif;base64,dark" })).toBe("data:image/gif;base64,dark");
-    expect(getCompanionNotificationIconSrc("custom", "dark", { light: "data:image/gif;base64,light" })).toBe("");
+    expect(getCompanionNotificationIconSrc("custom", "dark", { light: "data:image/gif;base64,light" })).toBe("data:image/gif;base64,light");
   });
 
   it("serializes image metadata without large payloads for localStorage", () => {

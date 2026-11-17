@@ -32,7 +32,7 @@ export function getCompanionGifSrc(theme: CompanionGifTheme | undefined, mode: T
   const activeTheme = theme ?? DEFAULT_COMPANION_GIF_THEME;
   if (activeTheme === "none") return "";
   if (activeTheme === "custom") {
-    return mode === "dark" ? customGif.dark || "" : customGif.light || "";
+    return mode === "dark" ? customGif.dark || customGif.light || "" : customGif.light || customGif.dark || "";
   }
   if (activeTheme === "cat") return mode === "dark" ? catDarkGif : catGif;
   if (activeTheme === "hermes") return mode === "dark" ? hermesDarkGif : hermesGif;
