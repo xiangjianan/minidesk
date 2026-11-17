@@ -1,10 +1,20 @@
 import { describe, expect, it } from "vitest";
 import { createExampleWorkspace } from "../state/exampleWorkspace";
+import { hasExampleWorkspace } from "../state/exampleDesktopText";
 import { buildVisibleQuickButtonGroups } from "../state/quickButtons";
 import { defaultWorkspace } from "../state/defaults";
 import { getSerializableWorkspace, normalizeWorkspaceData } from "../state/storage";
 
 describe("example workspace", () => {
+  it("recognizes marked and previously cleared examples in either language", () => {
+    const named = (title: string) => ({ ...defaultWorkspace(), customTitles: { "board-title": title } });
+    expect(hasExampleWorkspace([{ ...named("Renamed"), isExample: true }])).toBe(true);
+    expect(hasExampleWorkspace([named("示例桌面"), named("Example desk 12")])).toBe(true);
+    expect(hasExampleWorkspace([named("Example desk 2")])).toBe(true);
+    expect(hasExampleWorkspace([named("示例桌面 1")])).toBe(false);
+    expect(hasExampleWorkspace([named("My desk")])).toBe(false);
+  });
+
   it.each(["zh", "en"] as const)("creates editable example content in %s", (language) => {
     const workspace = createExampleWorkspace(language);
     expect(workspace.isExample).toBe(true);

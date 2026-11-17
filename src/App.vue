@@ -63,7 +63,7 @@ import {
 import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY, LEGACY_STORAGE_KEY } from "./state/defaults";
 import { applyThemeColor } from "./state/theme-color";
 import { readWorkbenchWidthRatios, restoreWorkbenchWidthRatios, removeWorkbenchWidths } from "./state/layoutPrefs";
-import { EXAMPLE_DESKTOP_TEXT } from "./state/exampleDesktopText";
+import { EXAMPLE_DESKTOP_TEXT, hasExampleWorkspace } from "./state/exampleDesktopText";
 import { createWorkspaceData, ensureUniqueWorkspaceTitle, getWorkspaceBoardTitle, projectLegacySpaceLines, removeWorkspace, reorderWorkspaces } from "./state/workspaces";
 import * as workspaceMover from "./state/workspaceMoves";
 import { mergeImportedWorkspace } from "./state/workspaceImport";
@@ -1041,7 +1041,7 @@ function moveSpaceAcrossWorkspaces(spaceId: string, workspaceId: string): void {
 }
 
 function requestExampleDesktop(): void {
-  if (state.workspaces.some((workspace) => workspace.isExample)) {
+  if (hasExampleWorkspace(state.workspaces)) {
     exampleRepeatConfirm.value = true;
   } else {
     void loadExampleDesktop();
@@ -3541,7 +3541,7 @@ function confirmClearData(): void {
       pendingEditTodoListId.value = null;
       resetUndoHistory();
       const titles = Object.fromEntries(Object.entries(workspace.customTitles).filter(([key]) => key === "board-title" || key === "board-slogan"));
-      state.workspaces.splice(index, 1, { ...defaultWorkspace(workspaceId, state.language), createdAt: workspace.createdAt, customTitles: titles });
+      state.workspaces.splice(index, 1, { ...defaultWorkspace(workspaceId, state.language), createdAt: workspace.createdAt, customTitles: titles, ...(workspace.isExample ? { isExample: true as const } : {}) });
       removeWorkbenchWidths(workspaceId);
       resetTextGenerationBaseline();
       persistNow();
@@ -4774,7 +4774,13 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
-    <NModal :show="exampleRepeatConfirm" preset="dialog" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" :content="EXAMPLE_DESKTOP_TEXT[state.language].repeatDescription" :positive-text="EXAMPLE_DESKTOP_TEXT[state.language].repeatConfirm" :negative-text="uiText.common.cancel" :positive-button-props="{ loading: exampleLoading }" @positive-click="() => { void loadExampleDesktop(); return false; }" @negative-click="exampleRepeatConfirm = false" @close="exampleRepeatConfirm = false" />
+    <NModal :show="exampleRepeatConfirm" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) exampleRepeatConfirm = false; }">
+      <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].repeatDescription }}</p>
+      <div class="dialog-actions">
+        <NButton :disabled="exampleLoading" @click="exampleRepeatConfirm = false">{{ uiText.common.cancel }}</NButton>
+        <NButton type="primary" :loading="exampleLoading" data-testid="confirm-repeat-example" @click="loadExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].repeatConfirm }}</NButton>
+      </div>
+    </NModal>
     <NModal :show="storageUsageVisible" preset="card" class="workspace-dialog-modal" :title="uiText.settings.storageUsage" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { storageUsageVisible = show; }">
       <p>{{ uiText.settings.storageUsageHint }}</p>
       <p v-if="storageUsageLoading">{{ uiText.images.loading }}</p>

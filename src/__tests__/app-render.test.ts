@@ -276,13 +276,44 @@ describe("example desk entry", () => {
         const dialog = reopened.findAllComponents(modalStub).find((modal) => modal.props("title") === "再载入一份示例桌面？");
         expect(dialog?.props("show")).toBe(true);
         expect(loadState().workspaces).toHaveLength(2);
-        dialog!.vm.$emit("positive-click");
+        await reopened.get('[data-testid="confirm-repeat-example"]').trigger("click");
         await flushAsyncComponents();
         stored = loadState();
         expect(stored.workspaces).toHaveLength(3);
         expect(stored.workspaces[1].customTitles["board-title"]).toBe("My renamed desk");
         expect(stored.workspaces[2].isExample).toBe(true);
       } finally { reopened.unmount(); }
+    } finally { wrapper.unmount(); }
+  });
+});
+
+describe("cleared example desk", () => {
+  it("preserves the example marker when clearing and confirms before loading again", async () => {
+    const workspace = { ...defaultWorkspace(), isExample: true as const, customTitles: { "board-title": "Renamed example" } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace], activeWorkspaceId: workspace.id }));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(SettingsMenu).vm.$emit("clearData");
+      await nextTick();
+      await wrapper.get('[data-testid="confirm-clear-workspace"]').trigger("click");
+      expect(loadState().workspaces[0].isExample).toBe(true);
+      await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
+      await wrapper.get('[data-testid="workspace-example-button"]').trigger("click");
+      expect(wrapper.findAllComponents(modalStub).find((modal) => modal.props("title") === "再载入一份示例桌面？")?.props("show")).toBe(true);
+      expect(loadState().workspaces).toHaveLength(1);
+      expect(wrapper.get('[data-testid="confirm-repeat-example"]').element.parentElement?.classList.contains("dialog-actions")).toBe(true);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("confirms for an example cleared before the marker was preserved", async () => {
+    const workspace = { ...defaultWorkspace(), customTitles: { "board-title": "示例桌面" } };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace], activeWorkspaceId: workspace.id }));
+    const wrapper = mountApp();
+    try {
+      await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
+      await wrapper.get('[data-testid="workspace-example-button"]').trigger("click");
+      expect(wrapper.findAllComponents(modalStub).find((modal) => modal.props("title") === "再载入一份示例桌面？")?.props("show")).toBe(true);
+      expect(loadState().workspaces).toHaveLength(1);
     } finally { wrapper.unmount(); }
   });
 });
