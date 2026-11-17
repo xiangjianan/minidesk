@@ -56,6 +56,9 @@ describe("TextPanel", () => {
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
       { text: "hello", indent: 0, marks: [{ type: "bold", start: 1, end: 4 }] },
     ]);
+    expect([textarea.selectionStart, textarea.selectionEnd]).toEqual([4, 4]);
+    await wrapper.vm.$nextTick();
+    expect(document.querySelector(".selection-toolbar")).toBeNull();
     wrapper.unmount();
   });
 
@@ -83,6 +86,10 @@ describe("TextPanel", () => {
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([
       { text: "hello", indent: 0, marks: [{ type, start: 1, end: 4, color: type === "color" ? "blue" : "rose" }] },
     ]);
+    await flushPromises();
+    expect([textarea.selectionStart, textarea.selectionEnd]).toEqual([4, 4]);
+    expect(document.querySelector(".selection-toolbar")).toBeNull();
+    expect(wrapper.find(".text-selection-mirror .is-selected").exists()).toBe(false);
     wrapper.unmount();
   });
 

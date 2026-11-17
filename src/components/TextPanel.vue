@@ -232,6 +232,17 @@ function applyMarkChange(next: TextMark[]): void {
   emit("update", linesFromEditorState(text.value, next));
 }
 
+function finishFormatChange(target: HTMLTextAreaElement, caret: number): void {
+  lastTextSelection.value = null;
+  lastCaret.value = caret;
+  collapseSelection(target, caret);
+  target.draggable = false;
+  syncVisibleSelection(target);
+  window.setTimeout(() => {
+    if (!hasSelection(target)) syncVisibleSelection(target);
+  });
+}
+
 /** 右键「格式」组：toggle 施加/取消选区格式；父级 key（自身带子菜单）忽略。 */
 function applyFormatFromMenu(key: string, target: HTMLTextAreaElement): void {
   if (key === "format" || key === "format-highlight" || key === "format-color") return;
@@ -239,38 +250,42 @@ function applyFormatFromMenu(key: string, target: HTMLTextAreaElement): void {
   if (range.start === range.end) return;
   if (!editing.value || target.readOnly) startEditingFromTextarea(target);
   const textValue = text.value;
+  const apply = (marks: TextMark[]) => {
+    applyMarkChange(marks);
+    finishFormatChange(target, range.end);
+  };
   if (key === "format-clear-all") {
-    applyMarkChange(clearMarksInRange(editorMarks.value, range));
+    apply(clearMarksInRange(editorMarks.value, range));
     return;
   }
   if (key === "format-highlight-clear") {
-    applyMarkChange(clearMarksInRange(editorMarks.value, range, "highlight"));
+    apply(clearMarksInRange(editorMarks.value, range, "highlight"));
     return;
   }
   if (key === "format-color-clear") {
-    applyMarkChange(clearMarksInRange(editorMarks.value, range, "color"));
+    apply(clearMarksInRange(editorMarks.value, range, "color"));
     return;
   }
   if (key === "format-bold") {
-    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "bold"));
+    apply(toggleMarkInRange(textValue, editorMarks.value, range, "bold"));
     return;
   }
   if (key === "format-strike") {
-    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "strike"));
+    apply(toggleMarkInRange(textValue, editorMarks.value, range, "strike"));
     return;
   }
   if (key === "format-underline") {
-    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "underline"));
+    apply(toggleMarkInRange(textValue, editorMarks.value, range, "underline"));
     return;
   }
   const highlightColor = key.startsWith("format-highlight-") ? parseMarkColor(key.slice("format-highlight-".length)) : null;
   if (highlightColor) {
-    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "highlight", highlightColor));
+    apply(toggleMarkInRange(textValue, editorMarks.value, range, "highlight", highlightColor));
     return;
   }
   const textColor = key.startsWith("format-color-") ? parseMarkColor(key.slice("format-color-".length)) : null;
   if (textColor) {
-    applyMarkChange(toggleMarkInRange(textValue, editorMarks.value, range, "color", textColor));
+    apply(toggleMarkInRange(textValue, editorMarks.value, range, "color", textColor));
   }
 }
 
@@ -294,6 +309,7 @@ function applyFormatShortcut(textarea: HTMLTextAreaElement, shortcut: FormatShor
   const range = getTextSelectionRange(textarea);
   if (range.start === range.end) return;
   applyMarkChange(toggleMarkInRange(text.value, editorMarks.value, range, shortcut.type, shortcut.color));
+  finishFormatChange(textarea, range.end);
 }
 
 const menuOptions = computed<DropdownOption[]>(() => {
@@ -846,7 +862,10 @@ function updateSelectionToolbar(): void {
     return;
   }
   nextTick(() => {
-    if ((menu.value && !toolbarMenuKind.value) || document.activeElement !== textarea || !hasSelection(textarea)) return;
+    if ((menu.value && !toolbarMenuKind.value) || document.activeElement !== textarea || !hasSelection(textarea)) {
+      selectionToolbar.value = null;
+      return;
+    }
     const selected = selectionMirrorRef.value?.querySelector<HTMLElement>(".is-selected");
     const rect = selected?.getBoundingClientRect();
     const frame = textarea.getBoundingClientRect();
