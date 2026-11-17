@@ -528,7 +528,7 @@ describe("SettingsMenu", () => {
       "gif-theme:none",
     ]);
     expect(wrapper.find('[data-key="gif-theme:cat"]').text()).toBe("默认");
-    expect(wrapper.find('[data-key="gif-theme:hermes"]').text()).toBe("主题 1");
+    expect(wrapper.find('[data-key="gif-theme:hermes"]').text()).toBe("云霞");
     expect(wrapper.find('[data-key="gif-theme:ikun"]').text()).toBe("主题 2");
     expect(wrapper.find('[data-key="gif-theme:custom"]').text()).toBe("自定义");
     expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("安静模式");
@@ -538,7 +538,7 @@ describe("SettingsMenu", () => {
     expect(gifOptions.find((option: any) => option.key === "gif-theme:none").label().children[1]?.props.class).toBe("settings-zone-check");
     expect(gifOptions.find((option: any) => option.key === "gif-theme:cat").label().children[1]).toBeNull();
     await wrapper.setProps({ language: "en" });
-    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["Default", "Theme 1", "Theme 2", "Custom", "Quiet mode"]);
+    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["Default", "Yunxia", "Theme 2", "Custom", "Quiet mode"]);
     expect(wrapper.find('[data-key="gif-theme:hermes"]').classes()).not.toContain("is-selected");
   });
 
