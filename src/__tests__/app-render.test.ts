@@ -9430,6 +9430,18 @@ describe("App shell", () => {
     wrapper.unmount();
   });
 
+  it("shows the companion message when a custom GIF has not been selected", async () => {
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(SettingsMenu).vm.$emit("customGifMissing");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.getComponent(CompanionBubble).props("message")).toContain("请先选择至少一个 GIF");
+      expect(wrapper.getComponent(CompanionBubble).props("visible")).toBe(true);
+    } finally {
+      wrapper.unmount();
+    }
+  });
+
   it("persists companion GIF theme selections from settings", async () => {
     const wrapper = mountApp();
 

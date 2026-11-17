@@ -72,6 +72,7 @@ const emit = defineEmits<{
   toggleZone: [zone: ZoneKey];
   gifTheme: [theme: CompanionGifTheme, anchor?: HTMLElement];
   customGif: [files: { light?: File; dark?: File }, anchor?: HTMLElement];
+  customGifMissing: [];
   guide: [key: GuideKey, anchor: HTMLElement];
 }>();
 
@@ -87,7 +88,6 @@ watch(menuOpen, (open) => { if (open) menuAim.start(); else menuAim.stop(); }, {
 let keepOpenAfterPreferenceSelect = false;
 const triggerRef = ref<HTMLElement | null>(null);
 const customGifDialogOpen = ref(false);
-const customGifMissing = ref(false);
 const customGifLightFile = ref<File | undefined>();
 const customGifDarkFile = ref<File | undefined>();
 const customGifLightPreviewSrc = ref<string | undefined>();
@@ -279,7 +279,6 @@ function handleDropdownShow(value: boolean): void {
 
 function handleCustomGifUpload(fileList: UploadFileInfo[], mode: "light" | "dark"): void {
   const file = fileList[0]?.file ?? undefined;
-  if (file) customGifMissing.value = false;
   if (mode === "light") {
     customGifLightFile.value = file;
     setCustomGifPreview("light", file);
@@ -295,11 +294,10 @@ function confirmCustomGif(): void {
       emit("gifTheme", "custom", triggerRef.value ?? undefined);
       customGifDialogOpen.value = false;
     } else {
-      customGifMissing.value = true;
+      emit("customGifMissing");
     }
     return;
   }
-  customGifMissing.value = false;
   emit(
     "customGif",
     {
@@ -316,7 +314,6 @@ function confirmCustomGif(): void {
 
 function closeCustomGifDialog(): void {
   customGifDialogOpen.value = false;
-  customGifMissing.value = false;
   customGifLightFile.value = undefined;
   customGifDarkFile.value = undefined;
   clearCustomGifPreviews();
@@ -454,7 +451,6 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
         <NButton size="small" class="gif-theme-upload-button">{{ text.settings.chooseDarkGif }}</NButton>
       </NUpload>
     </label>
-    <div v-if="customGifMissing" class="gif-theme-custom-feedback" role="alert">{{ text.settings.customGifRequired }}</div>
     <div class="dialog-actions">
       <NButton class="quick-dialog-action gif-theme-custom-cancel" @click="closeCustomGifDialog">{{ text.common.cancel }}</NButton>
       <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" @click="confirmCustomGif">{{ text.common.save }}</NButton>

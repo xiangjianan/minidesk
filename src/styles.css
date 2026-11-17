@@ -3045,6 +3045,14 @@ button.todo-section-menu-button {
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
+body:has(.gif-theme-custom-modal) .focus-companion {
+  z-index: 10102;
+}
+
+body:has(.gif-theme-custom-modal) .companion-popover-shell.n-popover {
+  z-index: 10102 !important;
+}
+
 .focus-companion.is-visible {
   opacity: 1;
   transform: translateY(0);
@@ -3365,17 +3373,6 @@ button.companion-undo-button {
 .gif-theme-custom-dialog {
   display: grid;
   gap: 16px;
-}
-
-.gif-theme-custom-feedback {
-  justify-self: end;
-  max-width: 100%;
-  padding: 7px 10px;
-  border-radius: 10px;
-  background: var(--button);
-  color: var(--text);
-  font-size: 12px;
-  overflow-wrap: anywhere;
 }
 
 .gif-theme-custom-dialog label {
@@ -8178,7 +8175,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 /* Keep glyph advances unchanged so the textarea caret stays aligned with its mirror. */
 .text-mirror .mark-bold { text-shadow: 0.6px 0 currentColor, -0.6px 0 currentColor; }
 .text-selection-mirror .is-selected.mark-bold:not([class*="mark-highlight-"]) { text-shadow: 0.6px 0 var(--selection-text), -0.6px 0 var(--selection-text); }
-.selection-toolbar { position: fixed; z-index: 10050; display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 9px; background: var(--material-elevated); -webkit-backdrop-filter: blur(28px) saturate(1.65); backdrop-filter: blur(28px) saturate(1.7); box-shadow: 0 4px 18px #0003; }
+.selection-toolbar { position: fixed; z-index: 10050; display: flex; align-items: center; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 9px; background: color-mix(in srgb, var(--material-elevated) 65%, transparent); -webkit-backdrop-filter: blur(2px) saturate(1.4); backdrop-filter: blur(2px) saturate(1.4); box-shadow: 0 4px 18px #0003; }
 .selection-toolbar button { display: inline-flex; align-items: center; gap: 5px; min-width: 32px; height: 30px; padding: 0 7px; border: 0; border-radius: 5px; background: transparent; color: var(--text); cursor: pointer; white-space: nowrap; }
 .selection-toolbar button:hover, .selection-toolbar button:focus-visible { background: color-mix(in srgb, var(--text) 10%, transparent); }
 .selection-toolbar-icon { width: 16px; height: 16px; }

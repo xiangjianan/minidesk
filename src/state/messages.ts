@@ -8,6 +8,7 @@ export type MessageKey =
   | "save"
   | "stateConflict"
   | "gifThemeChanged"
+  | "customGifMissing"
   | "workspaceDensityGood"
   | "workspaceDensityAreaOver"
   | "workspaceDensityAllOver"
@@ -150,6 +151,11 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
       "记录已经归位",
       "可以安心继续",
     ],
+  },
+  customGifMissing: {
+    mood: "warning",
+    surface: "companion",
+    variants: ["请先选择至少一个 GIF"],
   },
   gifThemeChanged: {
     mood: "happy",
@@ -954,6 +960,7 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
 };
 
 const EN_MESSAGE_VARIANTS = {
+  customGifMissing: ["Please choose at least one GIF first"],
   gifThemeChanged: ["A fresh new look", "New theme is here", "All dressed up", "A change of mood", "A new look for today", "Ready in a new style", "New look, same desk", "Theme switched", "Looking fresh", "Ready to keep going"],
   save: ["Thought tucked away", "Desk saved it", "This page is tucked away"],
   stateConflict: ["Another window saved newer changes", "Newer board data exists in another tab", "Save paused to avoid overwriting another tab"],

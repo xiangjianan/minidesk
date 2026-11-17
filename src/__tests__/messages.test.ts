@@ -16,6 +16,7 @@ const messageKeys = [
   "save",
   "stateConflict",
   "gifThemeChanged",
+  "customGifMissing",
   "workspaceDensityGood",
   "workspaceDensityAreaOver",
   "workspaceDensityAllOver",
@@ -95,6 +96,10 @@ describe("message catalog", () => {
 
   it("provides ten variants for every popup message", () => {
     for (const key of messageKeys) {
+      if (key === "customGifMissing") {
+        expect(MESSAGE_CATALOG[key].variants).toEqual(["请先选择至少一个 GIF"]);
+        continue;
+      }
       if (key === "about") {
         expect(MESSAGE_CATALOG.about.variants).toEqual([
           [

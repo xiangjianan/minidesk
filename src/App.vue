@@ -4488,6 +4488,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @toggle-zone="toggleActiveWorkspaceZone"
           @gif-theme="updateCompanionGifTheme"
           @custom-gif="updateCustomCompanionGif"
+          @custom-gif-missing="showBubble('customGifMissing', undefined, { force: true, hideCompanionAfter: true })"
           @guide="handleGuideClick"
         />
       </template>
