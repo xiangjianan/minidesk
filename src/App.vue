@@ -4776,7 +4776,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     </NModal>
     <NModal :show="exampleRepeatConfirm" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) exampleRepeatConfirm = false; }">
       <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].repeatDescription }}</p>
-      <div class="dialog-actions">
+      <div class="dialog-actions" style="margin-top: 16px;">
         <NButton :disabled="exampleLoading" @click="exampleRepeatConfirm = false">{{ uiText.common.cancel }}</NButton>
         <NButton type="primary" :loading="exampleLoading" data-testid="confirm-repeat-example" @click="loadExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].repeatConfirm }}</NButton>
       </div>
