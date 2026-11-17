@@ -77,7 +77,7 @@ describe("Naive UI component usage", () => {
     expect(settings).toContain("companionGifTheme");
     expect(settings).toContain("gifTheme");
     expect(settings).toContain("settings.gifTheme");
-    expect(i18n).toContain("GIF 伙伴");
+    expect(i18n).toContain("GIF 主题");
     expect(settings).toContain("NUpload");
     expect(companion).toContain("gifTheme");
     expect(companion).toContain("shouldRenderGif");
