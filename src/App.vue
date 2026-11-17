@@ -724,7 +724,7 @@ onMounted(async () => {
   releaseInactiveWorkspaceImages(state.activeWorkspaceId);
   if (!appMounted) return;
   checkAppVersion();
-  if (!offlineBuild) void checkLatestAppVersion();
+  void checkLatestAppVersion();
   window.addEventListener("keydown", handleGlobalKeydown);
   window.addEventListener("resize", positionMobileSuccessBubble);
   document.addEventListener("scroll", positionMobileSuccessBubble, true);
@@ -748,7 +748,7 @@ onMounted(async () => {
   }
   // 智能粘贴配对码同样启动自愈注册（INSERT IGNORE 幂等；首次使用时仍会串行复核）。
   if (!offlineBuild && state.polishCode && isValidInboxCode(state.polishCode)) registerInbox(state.polishCode);
-  if (!offlineBuild) startVersionPolling();
+  startVersionPolling();
   startNotificationFallbackInterval();
   refreshTodoNotifications();
 });
@@ -2874,7 +2874,6 @@ function replaceFocusImages(destination: FocusDestination, mutate: (list: Stored
 async function handleQuickButton(id: string, anchor?: HTMLElement): Promise<void> {
   const button = activeWorkspace.value.quickButtons.find((item) => item.id === id);
   if (!button) return;
-  if (offlineBuild && (button.type === "link" || button.type === "api")) return;
   if (button.type === "link") {
     // noopener 下 window.open 成功也返回 null（规范行为），返回值判不出弹窗拦截；
     // 与 openQuickApp 同一处理：用户手势触发的打开默认成功，只提示已发起。
@@ -3778,7 +3777,6 @@ function about(anchor?: HTMLElement): void {
 }
 
 function suggestIssue(): void {
-  if (offlineBuild) return;
   const params = new URLSearchParams({
     title: uiText.value.app.suggestIssueTitle,
     body: uiText.value.app.suggestIssueBody,
@@ -4269,7 +4267,6 @@ function invalidateGuideCompanion(nextKey: GuideKey): void {
 }
 
 async function manualCheckUpdate(): Promise<void> {
-  if (offlineBuild) return;
   if (updateChecking.value) return;
   updateChecking.value = true;
   const checkingMessage = uiText.value.updateCheck.checking;

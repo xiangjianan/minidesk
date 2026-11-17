@@ -68,7 +68,7 @@ The code commit is pushed to `main` first; the release commit is created only af
      ```
    - The GitHub release tag in step 9 points at this commit.
 
-7. Build both release packages. The normal package must remain unchanged; the offline package disables networking, AI, and phone quick notes.
+7. Build both release packages. The normal package must remain unchanged; the offline package disables AI and phone quick notes while retaining networking, update checks, feedback, and links.
    - Remove or overwrite only the zip for the new version.
    - Run `npm run build`.
    - Create `dist-<version>.zip` from the generated `dist/` directory, preserving `dist` as the top-level folder in the archive:

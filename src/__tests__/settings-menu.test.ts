@@ -71,19 +71,25 @@ function findVersionBadge(wrapper: ReturnType<typeof mount>) {
 }
 
 describe("SettingsMenu", () => {
-  it("disables AI, phone pairing and network actions in the offline build", async () => {
+  it("disables AI and phone pairing while keeping network actions available in the offline build", async () => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", aiEnabled: false, offline: true },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    for (const key of ["toggle-ai", "pair-inbox", "version", "suggest"]) {
+    for (const key of ["toggle-ai", "pair-inbox"]) {
       const button = wrapper.get(`[data-key="${key}"]`);
       expect(button.attributes("disabled")).toBeDefined();
       await button.trigger("click");
     }
     expect(wrapper.emitted("toggleAi")).toBeUndefined();
     expect(wrapper.emitted("pairInbox")).toBeUndefined();
-    expect(wrapper.emitted("checkUpdate")).toBeUndefined();
+    for (const key of ["version", "suggest"]) {
+      const button = wrapper.get(`[data-key="${key}"]`);
+      expect(button.attributes("disabled")).toBeUndefined();
+      await button.trigger("click");
+    }
+    expect(wrapper.emitted("checkUpdate")).toHaveLength(1);
+    expect(wrapper.emitted("suggest")).toHaveLength(1);
     wrapper.unmount();
   });
 
