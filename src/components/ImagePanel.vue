@@ -16,7 +16,6 @@ import {
   Eye as EyeOutline,
   CircleHelp as HelpCircleOutline,
   Trash2 as TrashOutline,
-  EllipsisVertical,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, ImagePasteFeedback, ImagePasteRequest, StoredImage, WorkspaceMoveTarget } from "../types";
@@ -673,7 +672,6 @@ function handleImageDragWheel(event: WheelEvent): void {
         >
           <NIcon :component="ClipboardOutline" />
         </button>
-        <button class="icon-button" type="button" :aria-label="uiText.common.panelMenu" :title="uiText.common.panelMenu" @click.stop="openMenu($event)"><NIcon :component="EllipsisVertical" /></button>
       </div>
     </div>
 
