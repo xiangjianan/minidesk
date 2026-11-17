@@ -24,6 +24,7 @@ import miniDeskLogo from "../../static/img/mini-desk-logo.svg?url";
 
 const props = defineProps<{
   workspaces: WorkspaceData[];
+  offline?: boolean;
   activeWorkspaceId: string;
   theme: ThemeMode;
   language: AppLanguage;
@@ -154,6 +155,7 @@ function handleExport(event: MouseEvent, id: string): void {
 }
 
 function handlePair(event: MouseEvent, id: string): void {
+  if (props.offline) return;
   event.stopPropagation();
   emit("pairInbox", id);
   close();
@@ -282,6 +284,7 @@ onUnmounted(() => disposeSort?.());
                     type="button"
                     class="workspace-switcher-menu-item"
                     :class="{ 'is-delete': option.key === 'delete' }"
+                    :disabled="offline && option.key === 'pair'"
                     role="menuitem"
                     :data-testid="`workspace-${option.key}-${workspace.id}`"
                     @click="handleWorkspaceMenuAction(String(option.key), $event, workspace.id)"

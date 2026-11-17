@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const offlineBuild = import.meta.env.VITE_MINI_DESK_OFFLINE === "1";
 import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
@@ -437,7 +438,7 @@ const updateCheckVisible = ref(false);
 const updateChecking = ref(false);
 const isMobileBlocked = ref(getInitialMobileBlocked());
 // URL 带 #inbox=<12位码> 时优先；否则回退手机壳本地记忆（主屏图标/微信入口丢 fragment 的场景）。
-const mobileInboxCode = ref<string | null>(parseInboxFragment(window.location.hash) ?? loadRememberedInboxCode());
+const mobileInboxCode = ref<string | null>(offlineBuild ? null : (parseInboxFragment(window.location.hash) ?? loadRememberedInboxCode()));
 const mobileInboxCodeError = ref<string | null>(null);
 const mobileInboxCodeChecking = ref(false);
 // 手机速记草稿上提：换码卸载重挂（甚至跨会话内的多次换码）内容不丢。
@@ -584,6 +585,7 @@ function shouldBlockBoardEffects(): boolean {
 }
 
 function handleHashChange(): void {
+  if (offlineBuild) return;
   // 仅在有合法码时跟进：清掉 fragment 不退出速记页，避免误触返回键丢失入口。
   const code = parseInboxFragment(window.location.hash);
   if (code) mobileInboxCode.value = code;
@@ -591,6 +593,7 @@ function handleHashChange(): void {
 
 /** 输码配对（码由 MobileHome 分组输码拼出后回抛）：格式校验 → 联网验证注册状态（unknown/revoked 拒绝；网络失败 fail-open 放行，发送时兜底）。 */
 async function confirmMobileInboxCode(code: string): Promise<void> {
+  if (offlineBuild) return;
   if (mobileInboxCodeChecking.value) return;
   const normalized = normalizeInboxCode(code);
   if (!isValidInboxCode(normalized)) {
@@ -721,7 +724,7 @@ onMounted(async () => {
   releaseInactiveWorkspaceImages(state.activeWorkspaceId);
   if (!appMounted) return;
   checkAppVersion();
-  void checkLatestAppVersion();
+  if (!offlineBuild) void checkLatestAppVersion();
   window.addEventListener("keydown", handleGlobalKeydown);
   window.addEventListener("resize", positionMobileSuccessBubble);
   document.addEventListener("scroll", positionMobileSuccessBubble, true);
@@ -741,11 +744,11 @@ onMounted(async () => {
   }
   // 注册制迁移与自愈：启动即幂等注册所有已配对码，失败静默等下次启动。
   for (const workspace of state.workspaces) {
-    if (workspace.inbox) registerInbox(workspace.inbox.code);
+    if (!offlineBuild && workspace.inbox) registerInbox(workspace.inbox.code);
   }
   // 智能粘贴配对码同样启动自愈注册（INSERT IGNORE 幂等；首次使用时仍会串行复核）。
-  if (state.polishCode && isValidInboxCode(state.polishCode)) registerInbox(state.polishCode);
-  startVersionPolling();
+  if (!offlineBuild && state.polishCode && isValidInboxCode(state.polishCode)) registerInbox(state.polishCode);
+  if (!offlineBuild) startVersionPolling();
   startNotificationFallbackInterval();
   refreshTodoNotifications();
 });
@@ -1276,6 +1279,7 @@ function handleInboxUpdate(inbox: WorkspaceInbox | null): void {
 
 /** 注销旧配对码：任何失败（网络/服务端/哈希异常）只提示，不抛出；卸载后不再弹气泡。 */
 async function revokeInbox(oldCode: string): Promise<void> {
+  if (offlineBuild) return;
   try {
     const ok = await revokeInboxKey(await inboxKeyHash(oldCode));
     if (!ok && appMounted) showBubbleText(uiText.value.app.inboxRevokeFailed, undefined, { hideCompanionAfter: true });
@@ -1286,6 +1290,7 @@ async function revokeInbox(oldCode: string): Promise<void> {
 
 /** 注册配对码（启动路径幂等补注册，存量码自愈）：失败静默等下次启动；生成/重置路径已在弹窗内前置注册。 */
 function registerInbox(code: string): void {
+  if (offlineBuild) return;
   inboxKeyHash(code)
     .then((hash) => registerInboxKey(hash))
     .catch(() => undefined);
@@ -1298,8 +1303,9 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 // 智能粘贴配对码：全局唯一（鉴权只要求「已注册」）。会话内注册成功一次即缓存；
 // 清空数据后 state.polishCode 消失，下次使用生成新码并重新注册。
 let polishRegisteredCode: string | null = null;
-const aiEnabled = ref(loadAiEnabled());
+const aiEnabled = ref(!offlineBuild && loadAiEnabled());
 function toggleAiEnabled(anchor?: HTMLElement): void {
+  if (offlineBuild) return;
   aiEnabled.value = !aiEnabled.value;
   saveAiEnabled(aiEnabled.value);
   showBubbleText(withKaomoji(aiEnabled.value ? uiText.value.settings.aiEnabled : uiText.value.settings.aiDisabled, "calm"), anchor, { explicit: true, hideCompanionAfter: true });
@@ -1340,7 +1346,7 @@ let inboxLastPullAt = 0;
 const inboxPullInFlight = ref(false);
 // 轮询跟随当前活动空间：只有停在配置过配对码的空间才拉取；
 // 切到未配对空间时定时/聚焦/启动/Ctrl+S 全部静默，不发任何请求。
-const hasInboxConfigured = computed(() => activeWorkspace.value.inbox !== undefined);
+const hasInboxConfigured = computed(() => !offlineBuild && activeWorkspace.value.inbox !== undefined);
 
 type InboxSyncOutcome = "applied" | "uptodate" | "failed" | "skipped";
 
@@ -2868,6 +2874,7 @@ function replaceFocusImages(destination: FocusDestination, mutate: (list: Stored
 async function handleQuickButton(id: string, anchor?: HTMLElement): Promise<void> {
   const button = activeWorkspace.value.quickButtons.find((item) => item.id === id);
   if (!button) return;
+  if (offlineBuild && (button.type === "link" || button.type === "api")) return;
   if (button.type === "link") {
     // noopener 下 window.open 成功也返回 null（规范行为），返回值判不出弹窗拦截；
     // 与 openQuickApp 同一处理：用户手势触发的打开默认成功，只提示已发起。
@@ -3771,6 +3778,7 @@ function about(anchor?: HTMLElement): void {
 }
 
 function suggestIssue(): void {
+  if (offlineBuild) return;
   const params = new URLSearchParams({
     title: uiText.value.app.suggestIssueTitle,
     body: uiText.value.app.suggestIssueBody,
@@ -4261,6 +4269,7 @@ function invalidateGuideCompanion(nextKey: GuideKey): void {
 }
 
 async function manualCheckUpdate(): Promise<void> {
+  if (offlineBuild) return;
   if (updateChecking.value) return;
   updateChecking.value = true;
   const checkingMessage = uiText.value.updateCheck.checking;
@@ -4425,6 +4434,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <template #workspace-trigger>
         <WorkspaceSwitcher
           :workspaces="state.workspaces"
+          :offline="offlineBuild"
           :active-workspace-id="state.activeWorkspaceId"
           :theme="effectiveTheme"
           :language="state.language"
@@ -4461,6 +4471,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <template #actions>
         <SettingsMenu
           :ai-enabled="aiEnabled"
+          :offline="offlineBuild"
           @toggle-ai="toggleAiEnabled"
           :theme="state.theme"
           :zone-visibility="activeWorkspace.zoneVisibility"
@@ -4637,6 +4648,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <MobileHome
       v-else
       :code="mobileInboxCode"
+      :offline="offlineBuild"
       :checking="mobileInboxCodeChecking"
       :error="mobileInboxCodeError"
       :language="state.language"
@@ -4666,7 +4678,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     </Transition>
 
     <WorkspaceInboxDialog
-      v-if="inboxPairTarget"
+      v-if="!offlineBuild && inboxPairTarget"
       :key="inboxPairTarget.id"
       :workspace="inboxPairTarget"
       :language="state.language"

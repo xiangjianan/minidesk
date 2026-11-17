@@ -1,6 +1,6 @@
 ---
 name: release-mini-desk
-description: Publish a Mini Desk project release. Use when the user asks to bump the project version, ship current repository changes to GitHub, deploy the built app to Cloudflare Pages, and create a GitHub release with the generated dist package attached. Any pending uncommitted work is first committed with an intelligently generated message and pushed to main; only then is the separate version-bump commit created, after which the normal release flow continues.
+description: Publish a Mini Desk project release. Use when the user asks to bump the project version, ship current repository changes to GitHub, deploy the built app to Cloudflare Pages, and create a GitHub release with both normal and offline dist packages attached. Any pending uncommitted work is first committed with an intelligently generated message and pushed to main; only then is the separate version-bump commit created, after which the normal release flow continues.
 ---
 
 # Release Mini Desk
@@ -68,15 +68,22 @@ The code commit is pushed to `main` first; the release commit is created only af
      ```
    - The GitHub release tag in step 9 points at this commit.
 
-7. Build the release package.
+7. Build both release packages. The normal package must remain unchanged; the offline package disables networking, AI, and phone quick notes.
    - Remove or overwrite only the zip for the new version.
    - Run `npm run build`.
    - Create `dist-<version>.zip` from the generated `dist/` directory, preserving `dist` as the top-level folder in the archive:
 
 ```bash
-rm -f "dist-<version>.zip"
+rm -f "dist-<version>.zip" "dist-offline-<version>.zip"
 zip -r "dist-<version>.zip" dist
+npm run build:offline
+staging_dir=$(mktemp -d)
+cp -R dist-offline "$staging_dir/dist"
+(cd "$staging_dir" && zip -qr "$OLDPWD/dist-offline-<version>.zip" dist)
+rm -rf "$staging_dir"
 ```
+
+The two ZIPs both contain a top-level `dist/`. Never replace the normal `dist/` with the offline build.
 
 8. Deploy to Cloudflare Pages.
    - Prefer the project script:
@@ -97,25 +104,25 @@ npx wrangler pages deploy dist --project-name=todolist
 9. Create the GitHub release.
    - Tag format: `v<version>`, for example `v1.0.52`.
    - Use the release commit that was pushed to `main` in step 6.
-   - Attach `dist-<version>.zip`.
+   - Attach both `dist-<version>.zip` and `dist-offline-<version>.zip`.
    - Write meaningful release notes from the same curated changes, using the change-type prefixes above. Include Chinese and English; do not use a generic version-only description.
    - Prefer `gh` when available:
 
 ```bash
-gh release create "v<version>" "dist-<version>.zip" --title "v<version>" --notes-file <release-notes-file>
+gh release create "v<version>" "dist-<version>.zip" "dist-offline-<version>.zip" --title "v<version>" --notes-file <release-notes-file>
 ```
 
 10. Clean up the local release package.
-   - After the GitHub release is created successfully, delete the local `dist-<version>.zip`.
+   - After the GitHub release is created successfully, delete both local release ZIPs.
    - Do not delete `dist/`; it is the current build output and may be useful for local inspection.
 
 ```bash
-rm -f "dist-<version>.zip"
+rm -f "dist-<version>.zip" "dist-offline-<version>.zip"
 ```
 
 11. Final response.
    - Report the version, **the code commit hash (step 2, if any) and the release commit hash (step 6)**, pushed branch, Cloudflare Pages URL, GitHub release URL, release asset name, and verification commands.
-   - Confirm that the local `dist-<version>.zip` was removed.
+   - Confirm that both local release ZIPs were removed.
    - Mention any other untracked artifacts left locally.
 
 ## Guardrails

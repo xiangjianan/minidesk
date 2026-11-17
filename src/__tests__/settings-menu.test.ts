@@ -71,6 +71,22 @@ function findVersionBadge(wrapper: ReturnType<typeof mount>) {
 }
 
 describe("SettingsMenu", () => {
+  it("disables AI, phone pairing and network actions in the offline build", async () => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", aiEnabled: false, offline: true },
+      global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
+    });
+    for (const key of ["toggle-ai", "pair-inbox", "version", "suggest"]) {
+      const button = wrapper.get(`[data-key="${key}"]`);
+      expect(button.attributes("disabled")).toBeDefined();
+      await button.trigger("click");
+    }
+    expect(wrapper.emitted("toggleAi")).toBeUndefined();
+    expect(wrapper.emitted("pairInbox")).toBeUndefined();
+    expect(wrapper.emitted("checkUpdate")).toBeUndefined();
+    wrapper.unmount();
+  });
+
   it.each(["zh", "en"] as const)("guides cleanup through both data menu levels in %s", async (language) => {
     const wrapper = mount(SettingsMenu, {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", orphanCount: 2, language },

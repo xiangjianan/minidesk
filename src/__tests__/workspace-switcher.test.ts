@@ -32,6 +32,20 @@ async function clickMenuAction(wrapper: VueWrapper, id: string, action: "export"
 }
 
 describe("WorkspaceSwitcher", () => {
+  it("disables phone pairing in the offline build", async () => {
+    const wrapper = mount(WorkspaceSwitcher, {
+      props: { workspaces, activeWorkspaceId: "a", theme: "light", language: "zh", offline: true },
+      attachTo: document.body,
+    });
+    await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
+    await openWorkspaceMenu(wrapper, "a");
+    const pair = menuAction("a", "pair") as HTMLButtonElement;
+    expect(pair.disabled).toBe(true);
+    pair.click();
+    expect(wrapper.emitted("pairInbox")).toBeUndefined();
+    wrapper.unmount();
+  });
+
   it.each(["zh", "en"] as const)("%s 工作空间菜单按当前空间操作分组，列表操作留在弹窗底部", async (language) => {
     const wrapper = mount(WorkspaceSwitcher, {
       props: { workspaces, activeWorkspaceId: "a", theme: "light", language },

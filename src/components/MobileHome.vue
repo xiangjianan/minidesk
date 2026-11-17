@@ -15,6 +15,7 @@ import type { AppLanguage } from "../types";
 /** Mobile companion: a compact connection row and a full-height writing surface. */
 const props = defineProps<{
   code: string | null;
+  offline?: boolean;
   checking: boolean;
   error: string | null;
   language: AppLanguage;
@@ -196,10 +197,10 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKeydown));
           <div class="mobile-home-hero">
             <p class="mobile-home-eyebrow">{{ app.mobileHeroEyebrow }}</p>
             <h1 id="mobile-home-hero-title" class="mobile-home-hero-title">{{ app.mobileHeroTitle }}</h1>
-            <p class="mobile-home-intro">{{ app.mobileCaptureSubtitle }}</p>
+            <p class="mobile-home-intro">{{ offline ? app.mobileMessage : app.mobileCaptureSubtitle }}</p>
           </div>
 
-          <section class="mobile-home-pair" aria-labelledby="mobile-home-pair-title">
+          <section v-if="!offline" class="mobile-home-pair" aria-labelledby="mobile-home-pair-title">
             <h2 id="mobile-home-pair-title" class="mobile-home-pair-title">{{ app.mobilePairTitle }}</h2>
             <form class="mobile-home-card mobile-home-code-card" novalidate @submit.prevent="submitCode">
               <label class="mobile-home-field-label" for="mobile-inbox-code-g0">{{ app.mobileInboxEnterCode }}</label>

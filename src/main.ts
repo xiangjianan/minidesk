@@ -13,4 +13,8 @@ trackPointerButtonFocus(document);
 guardSelectionOrigin(document);
 
 createApp(App).mount("#app");
-void registerServiceWorker();
+if (import.meta.env.VITE_MINI_DESK_OFFLINE !== "1") void registerServiceWorker();
+else document.addEventListener("click", (event) => {
+  const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+  if (link && /^(https?:)?\/\//i.test(link.getAttribute("href") ?? "")) event.preventDefault();
+}, true);

@@ -34,6 +34,7 @@ import { createMenuAim, menuAimProps } from "../utils/menuAim";
 
 const props = withDefaults(defineProps<{
   aiEnabled?: boolean;
+  offline?: boolean;
   appVersion: string;
   updateAvailable: boolean;
   updateChecking?: boolean;
@@ -194,11 +195,11 @@ const options = computed(() => [
     })),
   },
   { type: "divider", key: "preferences-divider" },
-  { label: text.value.settings.aiFeatures, key: "toggle-ai", icon: renderIcon(props.aiEnabled ? CheckmarkOutline : Ban), props: { role: "menuitemcheckbox", "aria-checked": props.aiEnabled } },
-  { label: text.value.app.inboxPair, key: "pair-inbox", icon: renderIcon(PhonePortraitOutline) },
+  { label: text.value.settings.aiFeatures, key: "toggle-ai", disabled: props.offline, icon: renderIcon(props.aiEnabled ? CheckmarkOutline : Ban), props: { role: "menuitemcheckbox", "aria-checked": props.aiEnabled } },
+  { label: text.value.app.inboxPair, key: "pair-inbox", disabled: props.offline, icon: renderIcon(PhonePortraitOutline) },
   { type: "divider", key: "help-divider" },
   { label: text.value.settings.shortcutHelp, key: "shortcut-help", icon: renderIcon(KeyOutline) },
-  { label: text.value.settings.suggest, key: "suggest", icon: renderIcon(SuggestionIcon) },
+  { label: text.value.settings.suggest, key: "suggest", disabled: props.offline, icon: renderIcon(SuggestionIcon) },
   ...(SUPPORT_AUTHOR_ENABLED
     ? [{ label: text.value.settings.support, key: "support", icon: renderIcon(HeartOutline) }]
     : []),
@@ -214,11 +215,13 @@ const options = computed(() => [
           : null,
       ]),
     key: "version",
+    disabled: props.offline,
     icon: () => h(NIcon, { size: 16 }, { default: () => h(RefreshOutline, { class: { "settings-update-spinning": props.updateChecking } }) }),
   },
 ]);
 
 function handleSelect(key: string): void {
+  if (props.offline && ["toggle-ai", "pair-inbox", "version", "suggest"].includes(key)) return;
   keepOpenAfterPreferenceSelect = key === "toggle-ai" || key === "about" || key === "version" || key.startsWith("language:") || (key.startsWith("gif-theme:") && key !== "gif-theme:custom");
   if (!keepOpenAfterPreferenceSelect) menuOpen.value = false;
   if (key === "toggle-ai") emit("toggleAi", triggerRef.value ?? undefined);
