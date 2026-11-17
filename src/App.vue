@@ -487,7 +487,6 @@ type DensityArea = {
 };
 
 const GUIDE_MESSAGE_DURATION_MS = 5000;
-const SUGGEST_EMAIL = "xiang9872@gmail.com";
 const GITHUB_REPO_URL = "https://github.com/xiangjianan/mini-desk";
 const GITHUB_REPO_LABEL = "xiangjianan / mini-desk";
 const ABOUT_MESSAGE_DURATION_MS = 10000;
@@ -3772,9 +3771,11 @@ function about(anchor?: HTMLElement): void {
 }
 
 function suggestIssue(): void {
-  const subject = encodeURIComponent(uiText.value.app.suggestEmailSubject);
-  const body = encodeURIComponent(uiText.value.app.suggestEmailBody);
-  window.open(`mailto:${SUGGEST_EMAIL}?subject=${subject}&body=${body}`, "_blank", "noopener,noreferrer");
+  const params = new URLSearchParams({
+    title: uiText.value.app.suggestIssueTitle,
+    body: uiText.value.app.suggestIssueBody,
+  });
+  window.open(`${GITHUB_REPO_URL}/issues/new?${params}`, "_blank", "noopener,noreferrer");
 }
 
 function handleGlobalKeydown(event: KeyboardEvent): void {

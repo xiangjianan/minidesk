@@ -9413,7 +9413,7 @@ describe("App shell", () => {
     }
   });
 
-  it("opens an email draft to the author from the settings suggestion action", async () => {
+  it("opens a GitHub issue with the suggestion template from settings", async () => {
     const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
     const wrapper = mountApp();
 
@@ -9421,11 +9421,14 @@ describe("App shell", () => {
     settings.vm.$emit("suggest", settings.element as HTMLElement);
     await wrapper.vm.$nextTick();
 
-    expect(openSpy).toHaveBeenCalledWith(
-      expect.stringMatching(/^mailto:xiang9872@gmail\.com\?subject=.+&body=.+/),
-      "_blank",
-      "noopener,noreferrer",
-    );
+    expect(openSpy).toHaveBeenCalledWith(expect.any(String), "_blank", "noopener,noreferrer");
+    const url = new URL(openSpy.mock.calls[0][0] as string);
+    expect(`${url.origin}${url.pathname}`).toBe("https://github.com/xiangjianan/mini-desk/issues/new");
+    expect(url.searchParams.get("title")).toBe("MiniDesk 使用建议");
+    expect(url.searchParams.get("body")).toContain("【你的场景】");
+    expect(url.searchParams.get("body")).toContain("【期望效果】");
+    expect(url.searchParams.get("body")).toContain("【具体想法（选填）】");
+    expect(url.searchParams.get("body")).toContain("版本 / 设备（选填）：");
 
     wrapper.unmount();
   });

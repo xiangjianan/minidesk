@@ -982,8 +982,7 @@ describe("Naive UI component usage", () => {
     expect(companion).toContain("LogoGithub");
     expect(companion).toContain("companion-link-icon");
     expect(companion).toContain('data-testid="companion-link"');
-    expect(app).toContain("SUGGEST_EMAIL");
-    expect(app).toContain("mailto:");
+    expect(app).toContain("/issues/new?");
     expect(app).not.toContain("LogoGithub");
     expect(app).not.toContain("about-github-link");
     expect(app).not.toContain("aboutVisible");
