@@ -75,7 +75,7 @@ describe("SpacePanel", () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     const heading = wrapper.get(".desk-zone-heading");
     await heading.trigger("contextmenu");
-    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["新建", "粘贴", "Tips"]);
+    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["新建记事本", "粘贴", "Tips"]);
     expect(wrapper.find('[data-key="smart-paste"]').exists()).toBe(false);
     await wrapper.setProps({ polish: async () => null });
     expect(wrapper.find('[data-key="smart-paste"]').exists()).toBe(true);
@@ -83,7 +83,7 @@ describe("SpacePanel", () => {
     expect(wrapper.emitted("guide")?.[0]).toEqual(["workspace", heading.element, true]);
     await wrapper.setProps({ language: "en" });
     await heading.trigger("contextmenu");
-    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["New", "Paste", "Smart paste", "Tips"]);
+    expect(wrapper.findAll(".dropdown-option").map(option => option.text())).toEqual(["New notebook", "Paste", "Smart paste", "Tips"]);
     wrapper.unmount();
   });
 
@@ -373,7 +373,7 @@ describe("SpacePanel", () => {
     expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["重命名", "删除"]);
 
     await wrapper.get(".desk-zone-heading").trigger("contextmenu");
-    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建")?.trigger("click");
+    await wrapper.findAll(".dropdown-option").find((option) => option.text() === "新建记事本")?.trigger("click");
 
     expect(wrapper.emitted("create")?.[0]).toEqual([]);
 

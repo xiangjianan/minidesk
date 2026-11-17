@@ -822,7 +822,7 @@ export const UI_TEXT = {
       list: "记事本列表",
       editName: "编辑记事本名称",
       add: "新增记事本",
-      create: "新建",
+      create: "新建记事本",
     },
     todo: {
       maxColumns: "最多展示列数",
@@ -1346,7 +1346,7 @@ export const UI_TEXT = {
       list: "Notebook list",
       editName: "Edit notebook name",
       add: "Add notebook",
-      create: "New",
+      create: "New notebook",
     },
     todo: {
       maxColumns: "Maximum columns",
