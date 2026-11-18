@@ -785,13 +785,15 @@ html[data-theme="dark"] .n-modal-mask {
 }
 
 .space-unsaved-dot {
-  display: inline-block;
+  position: absolute;
+  inset-inline-end: 3px;
+  top: 50%;
   width: 6px;
   height: 6px;
-  margin-inline-start: 5px;
   border-radius: 50%;
   background: var(--primary);
-  vertical-align: middle;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
 
 button.space-tab {
