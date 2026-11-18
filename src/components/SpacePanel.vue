@@ -15,6 +15,7 @@ import {
   Trash2 as TrashOutline,
   CircleHelp as HelpCircleOutline,
   EllipsisVertical,
+  Smartphone,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, LineItem, WorkspaceMoveTarget, WorkspaceSpace } from "../types";
@@ -29,6 +30,7 @@ import TextPanel from "./TextPanel.vue";
 
 const props = withDefaults(defineProps<{
   spaces: WorkspaceSpace[];
+  inboxNoteTarget?: string;
   activeSpaceId: string;
   dirtySpaceIds?: string[];
   editSpaceId?: string | null;
@@ -433,6 +435,7 @@ onUnmounted(() => disposeSort?.());
               @drop="handleDrop($event, space.id)"
             >
               {{ space.title }}
+              <Smartphone v-if="space.id === inboxNoteTarget" class="inbox-target-icon" :aria-label="uiText.app.inboxPair" :title="uiText.app.inboxPair" data-testid="inbox-note-indicator" />
               <span v-if="dirtySpaceIds?.includes(space.id)" class="space-unsaved-dot" :title="uiText.space.unsaved" :aria-label="uiText.space.unsaved" />
             </button>
             <span

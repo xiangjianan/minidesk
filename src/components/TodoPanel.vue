@@ -28,6 +28,7 @@ import {
   Timer as TimerOutline,
   Trash2 as TrashOutline,
   EllipsisVertical,
+  Smartphone,
 } from "lucide-vue-next";
 import { NDatePicker, NIcon, NModal, NButton } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
@@ -76,6 +77,7 @@ import { computePanelColumnCount, normalizeTodoMaxColumns, TODO_COLUMN_LIMIT_OPT
 
 const props = withDefaults(defineProps<{
   todoLists?: TodoListConfig[];
+  inboxTodoListId?: string;
   maxColumns?: number;
   notifyPresetTimes?: string[];
   notifyPresetMinutes?: number[];
@@ -2369,6 +2371,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               role="img"
               :aria-label="uiText.todo.overdue"
             />
+            <Smartphone v-if="list.id === inboxTodoListId" class="inbox-target-icon" :aria-label="uiText.app.inboxPair" :title="uiText.app.inboxPair" data-testid="inbox-todo-indicator" />
             <EditableTitle
               :id="list.id"
               :max-length="TITLE_MAX_LENGTH"

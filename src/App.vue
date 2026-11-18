@@ -967,23 +967,24 @@ function deleteSpace(id: string): void {
     if (activeWorkspace.value.activeSpaceId === id) {
       activeWorkspace.value.activeSpaceId = activeWorkspace.value.spaces[Math.max(0, index - 1)]?.id ?? activeWorkspace.value.spaces[0].id;
     }
-    // 便签落点空间被删：配对码一并清空（手机端立即失效），云端队列走手动清除同路径注销，失败仅气泡警告。
-    const removedInbox = activeWorkspace.value.inbox;
-    if (removedInbox && removedInbox.noteTarget === id) {
-      delete activeWorkspace.value.inbox;
-
-    }
+    const inbox = activeWorkspace.value.inbox;
+    const fallback = activeWorkspace.value.spaces[0];
+    const movedInboxTarget = inbox?.noteTarget === id && fallback;
+    if (movedInboxTarget && inbox) inbox.noteTarget = fallback.id;
     syncLegacySpaceLines();
     persistNow();
-    showDeleteUndo(getMessage("deleteSpace", Math.random, state.language), anchor, () => {
+    const deleteMessage = movedInboxTarget
+      ? uiText.value.app.inboxNoteTargetMoved.replace("{name}", getDisplaySpaceTitle(fallback, state.language))
+      : getMessage("deleteSpace", Math.random, state.language);
+    showDeleteUndo(deleteMessage, anchor, () => {
       const workspace = state.workspaces.find((item) => item.id === workspaceId);
       if (!workspace || workspace.spaces.some((item) => item.id === id)) return;
       workspace.spaces.splice(Math.min(index, workspace.spaces.length), 0, removedSpace);
       if (wasActive && state.activeWorkspaceId === workspaceId) workspace.activeSpaceId = id;
-      if (removedInbox?.noteTarget === id && !workspace.inbox) workspace.inbox = removedInbox;
+      if (movedInboxTarget && workspace.inbox?.code === inbox?.code && workspace.inbox.noteTarget === fallback.id) workspace.inbox.noteTarget = id;
       if (state.activeWorkspaceId === workspaceId) syncLegacySpaceLines();
       persistNow();
-    }, () => { if (removedInbox?.noteTarget === id) void revokeInbox(removedInbox.code); });
+    });
   }, undefined, { confirmText: uiText.value.app.deleteSpace, cancelText: uiText.value.common.cancel, highlightTarget: getSpaceGroupTargets(id) });
 }
 
@@ -3076,17 +3077,25 @@ function removeTodoList(listId: TodoListId, anchor?: HTMLElement): void {
   const completedVisible = activeWorkspace.value.showCompletedTodos[listId];
   const doomedFocusIds = collectTodoFocusPayloadIds(getTodos(listId) ?? []);
   activeWorkspace.value.todoLists.splice(index, 1);
+  const inbox = activeWorkspace.value.inbox;
+  const fallbackList = activeWorkspace.value.todoLists[0];
+  const movedInboxTarget = inbox?.todoListId === listId;
+  if (movedInboxTarget && inbox) inbox.todoListId = fallbackList.id;
   const next = removeTodoListData(activeWorkspace.value.todos, activeWorkspace.value.showCompletedTodos, listId);
   activeWorkspace.value.todos = next.todos;
   activeWorkspace.value.showCompletedTodos = next.showCompletedTodos;
   clearEmptyTodoRemovalTimersForList(listId);
   if (pendingEditTodoListId.value === listId) pendingEditTodoListId.value = null;
   persistNow();
-  showDeleteUndo(uiText.value.app.todoListDeleted, anchor, () => {
+  const deleteMessage = movedInboxTarget
+    ? uiText.value.app.inboxTodoTargetMoved.replace("{name}", getDisplayTodoListTitle(fallbackList, state.language))
+    : uiText.value.app.todoListDeleted;
+  showDeleteUndo(deleteMessage, anchor, () => {
     const workspace = state.workspaces.find((item) => item.id === workspaceId);
     if (!workspace || workspace.todoLists.some((item) => item.id === listId)) return;
     workspace.todoLists.splice(Math.min(index, workspace.todoLists.length), 0, removedList);
     workspace.todos[listId] = removedTodos;
+    if (movedInboxTarget && workspace.inbox?.code === inbox?.code && workspace.inbox.todoListId === fallbackList.id) workspace.inbox.todoListId = listId;
     if (completedVisible !== undefined) workspace.showCompletedTodos[listId] = completedVisible;
     persistNow();
     scheduleNextTodoNotification();
@@ -4566,6 +4575,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <template #tasks>
         <TodoPanel
           :todo-lists="displayTodoLists"
+          :inbox-todo-list-id="activeWorkspace.inbox?.todoListId"
           :max-columns="activeWorkspace.todoMaxColumns ?? 1"
           :notify-preset-times="state.notifyPresetTimes"
           :notify-preset-minutes="state.notifyPresetMinutes"
@@ -4617,6 +4627,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         <SpacePanel
           class="workspace-panel"
           :spaces="displaySpaces"
+          :inbox-note-target="activeWorkspace.inbox?.noteTarget"
           :active-space-id="activeWorkspace.activeSpaceId"
           :dirty-space-ids="activeWorkspace.spaces.filter(space => dirtyNotebookIds.has(`${activeWorkspace.id}:${space.id}`)).map(space => space.id)"
           :edit-space-id="pendingEditSpaceId"

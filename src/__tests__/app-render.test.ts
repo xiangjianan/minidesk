@@ -10418,12 +10418,14 @@ describe("App inbox revoke wiring", () => {
     }
   });
 
-  it("删除配对便签落点的空间时清空配对并注销旧码", async () => {
+  it("删除配对便签落点时保留配对并切换接收位置", async () => {
     seedPairedWithNoteTarget();
     vi.useFakeTimers();
     const wrapper = mountApp();
 
     try {
+      expect(wrapper.find('[data-testid="inbox-note-indicator"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="inbox-todo-indicator"]').exists()).toBe(true);
       wrapper.getComponent(SpacePanel).vm.$emit("delete", "target");
       await nextTick();
       // Enter 直达逻辑确认态（不等 200ms 气泡入场动画，同 handleConfirmKeydown 契约）。
@@ -10436,13 +10438,10 @@ describe("App inbox revoke wiring", () => {
       const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       const workspace = stored.workspaces[0];
       expect(workspace.spaces.map((space: { id: string }) => space.id)).toEqual([DEFAULT_SPACE_ID]);
-      expect(workspace.inbox).toBeUndefined();
-      expect(revokeInboxKey).not.toHaveBeenCalled();
+      expect(workspace.inbox).toEqual({ code: "AB2CDE4FGHJK", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 7 });
       await vi.advanceTimersByTimeAsync(3000);
       await flushAsyncComponents();
-      expect(revokeInboxKey).toHaveBeenCalledTimes(1);
-      const [keyHash] = vi.mocked(revokeInboxKey).mock.calls[0];
-      expect(keyHash).toMatch(/^[0-9a-f]{64}$/);
+      expect(revokeInboxKey).not.toHaveBeenCalled();
     } finally {
       wrapper.unmount();
       vi.useRealTimers();

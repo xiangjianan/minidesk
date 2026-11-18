@@ -8207,3 +8207,5 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .notify-preset-units button.is-active { background: var(--button-hover); color: var(--primary); }
 .notify-preset-settings-actions { margin-top: 20px; }
 .n-dialog__action.dialog-actions > .n-button + .n-button { margin-left: 0; }
+
+.inbox-target-icon { width: 13px; height: 13px; flex: none; vertical-align: middle; margin-inline: 4px; opacity: .65; }
