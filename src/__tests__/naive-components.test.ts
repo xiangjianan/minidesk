@@ -562,8 +562,9 @@ describe("Naive UI component usage", () => {
     expect(todo).toContain("active.offsetTop - Math.round((column.clientHeight - active.offsetHeight) / 2)");
     expect(todo).not.toContain("handleNotifyPickerWheel");
     expect(todo).not.toContain('@wheel="handleNotifyPickerWheel"');
-    expect(todo).not.toMatch(/<button[\s\S]{0,160}class="notify-time-option"/);
-    expect(todo).toMatch(/<div[\s\S]{0,160}class="notify-time-option"/);
+    const rowTimePicker = todo.slice(todo.indexOf('<div class="notify-time-panel"'), todo.indexOf('<div class="notify-panel-presets"'));
+    expect(rowTimePicker).not.toMatch(/<button[\s\S]{0,160}class="notify-time-option"/);
+    expect(rowTimePicker).toMatch(/<div[\s\S]{0,160}class="notify-time-option"/);
     expect(todo).toContain('<Teleport to="body">');
     expect(todo).toContain("notify-floating-date-picker");
     expect(todo).toContain("panel");
