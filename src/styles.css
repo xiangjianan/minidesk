@@ -769,8 +769,7 @@ html[data-theme="dark"] .n-modal-mask {
   font-size: var(--app-font-size);
   font-weight: 600;
   background: transparent;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
   white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
@@ -786,13 +785,24 @@ html[data-theme="dark"] .n-modal-mask {
 
 .space-unsaved-dot {
   position: absolute;
-  inset-inline-end: 3px;
-  top: 3px;
+  inset-inline-end: -3px;
+  top: -3px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--primary);
   pointer-events: none;
+}
+
+.space-unsaved-enter-active, .space-unsaved-leave-active {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+.space-unsaved-enter-from, .space-unsaved-leave-to {
+  opacity: 0;
+  transform: scale(0.65);
+}
+@media (prefers-reduced-motion: reduce) {
+  .space-unsaved-enter-active, .space-unsaved-leave-active { transition: none; }
 }
 
 button.space-tab {

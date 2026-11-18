@@ -393,10 +393,10 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   box-shadow: var(--desk-content-shadow);
 }
 
-/* 42px outer strip = 5px inset + 32px tab row + 5px inset. */
-.workbench-shell .space-tabs-scrollbar { height: 42px; min-height: 42px; padding: 5px 4px; }
+/* Give the badge room outside the 32px tabs within the scroll viewport. */
+.workbench-shell .space-tabs-scrollbar { height: 42px; min-height: 42px; padding: 2px 4px; }
 .workbench-shell .space-tabs-scrollbar-inner,
-.workbench-shell .space-tabs { height: 32px; min-height: 32px; }
+.workbench-shell .space-tabs { height: 38px; min-height: 38px; }
 .workbench-shell .space-tabs-scrollbar {
   flex-basis: 42px;
   border: 0;
