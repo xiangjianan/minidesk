@@ -8192,6 +8192,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 
 .image-card.is-missing { cursor: pointer; }
 
+.notify-preset-time-editor, .notify-preset-duration-editor { margin-top: 16px; }
 .notify-preset-time-editor { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .notify-preset-time-editor label { display: grid; gap: 6px; text-align: center; }
 .notify-preset-time-editor select { width: 76px; height: 160px; padding: 4px; border: 1px solid var(--line-subtle); border-radius: var(--radius); background: var(--panel); color: var(--text); font-size: 18px; text-align: center; }
@@ -8204,4 +8205,5 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .notify-preset-stepper input { width: 76px; height: 40px; padding: 4px; font-size: 20px; text-align: center; appearance: textfield; -moz-appearance: textfield; }
 .notify-preset-stepper input::-webkit-inner-spin-button, .notify-preset-stepper input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 .notify-preset-units button.is-active { background: var(--button-hover); color: var(--primary); }
-.notify-preset-settings-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+.notify-preset-settings-actions { margin-top: 20px; }
+.n-dialog__action.dialog-actions > .n-button + .n-button { margin-left: 0; }

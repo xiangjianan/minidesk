@@ -4768,7 +4768,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">
       <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].description }}</p>
       <template #footer>
-        <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px">
+        <div class="dialog-actions">
           <NButton :disabled="exampleLoading" data-testid="skip-example-desktop" @click="skipExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].skip }}</NButton>
           <NButton type="primary" :loading="exampleLoading" data-testid="load-example-desktop" @click="loadExampleDesktop">{{ EXAMPLE_DESKTOP_TEXT[state.language].load }}</NButton>
         </div>
@@ -4826,8 +4826,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
-    <NModal :show="fullImport !== null" preset="dialog" :title="uiText.settings.restoreAll" :content="uiText.settings.restoreAllConfirm" :positive-text="uiText.settings.restoreAll" :negative-text="uiText.common.cancel" @positive-click="restoreFullImport" @negative-click="fullImport = null" @close="fullImport = null" />
-    <NModal :show="orphanConfirm" preset="dialog" :title="uiText.settings.cleanOrphans" :content="uiText.settings.cleanOrphansConfirm" :positive-text="uiText.settings.cleanOrphans" :negative-text="uiText.common.cancel" @positive-click="cleanOrphans" @negative-click="orphanConfirm = false" @close="orphanConfirm = false" />
+    <NModal :show="fullImport !== null" preset="dialog" action-class="dialog-actions" :title="uiText.settings.restoreAll" :content="uiText.settings.restoreAllConfirm" :positive-text="uiText.settings.restoreAll" :negative-text="uiText.common.cancel" @positive-click="restoreFullImport" @negative-click="fullImport = null" @close="fullImport = null" />
+    <NModal :show="orphanConfirm" preset="dialog" action-class="dialog-actions" :title="uiText.settings.cleanOrphans" :content="uiText.settings.cleanOrphansConfirm" :positive-text="uiText.settings.cleanOrphans" :negative-text="uiText.common.cancel" @positive-click="cleanOrphans" @negative-click="orphanConfirm = false" @close="orphanConfirm = false" />
     <NModal :show="exportWorkspaceId !== null" :auto-focus="false" preset="card" class="workspace-dialog-modal" :title="uiText.settings.exportCurrentWorkspace" style="max-width: 360px; width: calc(100vw - 32px)" @update:show="(show: boolean) => { if (!show) exportWorkspaceId = null; }">
       <p class="workspace-export-hint">{{ uiText.app.exportScopeHint }}</p>
       <p>{{ uiText.app.exportChooseZones }}</p>

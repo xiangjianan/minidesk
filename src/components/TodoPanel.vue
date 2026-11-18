@@ -2662,7 +2662,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           <button type="button" :class="{ 'is-active': presetDurationUnit === 'hours' }" :aria-pressed="presetDurationUnit === 'hours'" @click="setDurationUnit('hours')">{{ uiText.todo.notifyPresets.hours }}</button>
         </div>
       </div>
-      <div class="notify-preset-settings-actions">
+      <div class="dialog-actions notify-preset-settings-actions">
         <NButton @click="presetEditorOpen = false">{{ uiText.common.cancel }}</NButton>
         <NButton type="primary" :disabled="presetEditor?.group === 'time' ? !presetTimeDraft : presetDurationMinutes === null" @click="savePreset">{{ uiText.common.save }}</NButton>
       </div>
