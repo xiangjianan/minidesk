@@ -412,7 +412,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   border-radius: 8px 8px 0 0;
   background: transparent;
   box-shadow: none;
-  padding-inline: 12px;
+  padding-inline: 12px 19px;
 }
 .workbench-shell .space-tab.is-active {
   border-radius: 8px;
