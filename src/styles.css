@@ -785,8 +785,9 @@ html[data-theme="dark"] .n-modal-mask {
 
 .space-unsaved-dot {
   position: absolute;
-  inset-inline-end: -3px;
-  top: -3px;
+  /* Center on the 8px rounded corner, at approximately 45 degrees. */
+  inset-inline-end: -0.5px;
+  top: -0.5px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
