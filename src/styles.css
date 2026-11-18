@@ -8194,9 +8194,9 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 
 .notify-preset-time-editor, .notify-preset-duration-editor { margin-top: 16px; }
 .notify-preset-time-editor { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.notify-preset-time-editor label { display: grid; gap: 6px; text-align: center; }
-.notify-preset-time-editor select { width: 76px; height: 160px; padding: 4px; border: 1px solid var(--line-subtle); border-radius: var(--radius); background: var(--panel); color: var(--text); font-size: 18px; text-align: center; }
-.notify-preset-time-editor option { padding: 3px; }
+.notify-preset-time-field { display: grid; gap: 6px; text-align: center; }
+.notify-preset-time-field .notify-time-column { width: 76px; height: 160px; }
+.notify-preset-time-field .notify-time-option { height: 32px; font-size: 18px; }
 .notify-preset-time-separator { padding-top: 22px; font-size: 22px; }
 .notify-preset-duration-editor { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; }
 .notify-preset-stepper, .notify-preset-units { display: flex; align-items: center; gap: 4px; }

@@ -2390,11 +2390,13 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("notifyPresetMinutesChange")?.[1]).toEqual([[120, 30, 60, 120, 240]]);
     buttons[5].dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
     await nextTick();
-    const timeSelects = document.querySelectorAll<HTMLSelectElement>(".notify-preset-time-editor select");
-    timeSelects[0].value = "07";
-    timeSelects[0].dispatchEvent(new Event("change", { bubbles: true }));
-    timeSelects[1].value = "30";
-    timeSelects[1].dispatchEvent(new Event("change", { bubbles: true }));
+    const timeColumns = document.querySelectorAll<HTMLElement>(".notify-preset-time-editor .notify-time-column");
+    expect(timeColumns[0].querySelectorAll(".notify-time-option")).toHaveLength(24 * 5);
+    expect(timeColumns[1].querySelectorAll(".notify-time-option")).toHaveLength(60 * 5);
+    expect(timeColumns[1].querySelectorAll(".notify-time-option")[59].textContent?.trim()).toBe("59");
+    expect(timeColumns[1].querySelectorAll(".notify-time-option")[60].textContent?.trim()).toBe("00");
+    (Array.from(timeColumns[0].querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent?.trim() === "07"))!.click();
+    (Array.from(timeColumns[1].querySelectorAll<HTMLButtonElement>("button")).find((button) => button.textContent?.trim() === "30"))!.click();
     await nextTick();
     (Array.from(document.querySelectorAll(".notify-preset-settings-actions button")).find((button) => button.textContent?.trim() === "保存") as HTMLButtonElement).click();
     await nextTick();

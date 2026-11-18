@@ -176,6 +176,7 @@ const notifyPickerDrafts = ref<Record<string, number>>({});
 // durations and today-vs-tomorrow time slots stay current.
 const presetEditor = ref<{ group: "relative" | "time"; index: number } | null>(null);
 const presetEditorOpen = ref(false);
+const presetTimeEditorRef = ref<HTMLElement | null>(null);
 const presetTimeDraft = ref("");
 const presetDurationUnit = ref<"minutes" | "hours">("minutes");
 const presetDurationValue = ref<number | null>(null);
@@ -211,6 +212,17 @@ function editPreset(group: "relative" | "time", index: number): void {
   presetDurationUnit.value = minutes % 60 === 0 ? "hours" : "minutes";
   presetDurationValue.value = presetDurationUnit.value === "hours" ? minutes / 60 : minutes;
   presetEditorOpen.value = true;
+  if (group === "time") {
+    void nextTick(() => window.requestAnimationFrame(() => centerNotifyTimeColumns(presetTimeEditorRef.value)));
+  }
+}
+function handlePresetTimeKeydown(event: KeyboardEvent, unit: "hour" | "minute"): void {
+  if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+  event.preventDefault();
+  const value = unit === "hour" ? presetHour : presetMinute;
+  const count = unit === "hour" ? 24 : 60;
+  value.value = formatNotifyTimeUnit((Number(value.value) + (event.key === "ArrowUp" ? -1 : 1) + count) % count);
+  void nextTick(() => centerNotifyTimeColumns(presetTimeEditorRef.value));
 }
 function savePreset(): void {
   const editor = presetEditor.value;
@@ -1355,7 +1367,11 @@ function openNotifyPicker(period: TodoPeriod, id: string, anchor?: HTMLElement):
 }
 
 function scrollNotifyTimePickerActiveItems(animated = false): void {
-  notifyPickerRef.value
+  centerNotifyTimeColumns(notifyPickerRef.value, animated);
+}
+
+function centerNotifyTimeColumns(container: HTMLElement | null, animated = false): void {
+  container
     ?.querySelectorAll<HTMLElement>(".notify-time-column")
     .forEach((column) => {
       const active = column.querySelector<HTMLElement>(".notify-time-option.is-scroll-anchor")
@@ -2646,10 +2662,20 @@ onUnmounted(() => focusRegionAnimation?.cancel());
 
     <NModal :show="presetEditorOpen" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditorOpen = false; }">
       <p>{{ uiText.todo.notifyPresets.hint }}</p>
-      <div v-if="presetEditor?.group === 'time'" class="notify-preset-time-editor">
-        <label><span>{{ uiText.todo.notifyPresets.hours }}</span><select v-model="presetHour" size="5" :aria-label="uiText.todo.notifyPresets.hours"><option v-for="hour in NOTIFY_HOURS" :key="hour" :value="formatNotifyTimeUnit(hour)">{{ formatNotifyTimeUnit(hour) }}</option></select></label>
+      <div v-if="presetEditor?.group === 'time'" ref="presetTimeEditorRef" class="notify-preset-time-editor">
+        <div class="notify-preset-time-field">
+          <span>{{ uiText.todo.notifyPresets.hours }}</span>
+          <div class="notify-time-column" role="listbox" tabindex="0" :aria-label="uiText.todo.notifyPresets.hours" @keydown="handlePresetTimeKeydown($event, 'hour')" @scroll="handleNotifyTimeColumnScroll($event, NOTIFY_HOURS.length)">
+            <button v-for="hour in NOTIFY_LOOPED_HOURS" :key="hour.key" type="button" tabindex="-1" class="notify-time-option" :class="{ 'is-active': presetHour === formatNotifyTimeUnit(hour.value), 'is-scroll-anchor': hour.isScrollAnchor && presetHour === formatNotifyTimeUnit(hour.value) }" role="option" :aria-selected="presetHour === formatNotifyTimeUnit(hour.value)" @click="presetHour = formatNotifyTimeUnit(hour.value)">{{ formatNotifyTimeUnit(hour.value) }}</button>
+          </div>
+        </div>
         <span class="notify-preset-time-separator">:</span>
-        <label><span>{{ uiText.todo.notifyPresets.minutes }}</span><select v-model="presetMinute" size="5" :aria-label="uiText.todo.notifyPresets.minutes"><option v-for="minute in NOTIFY_MINUTES" :key="minute" :value="formatNotifyTimeUnit(minute)">{{ formatNotifyTimeUnit(minute) }}</option></select></label>
+        <div class="notify-preset-time-field">
+          <span>{{ uiText.todo.notifyPresets.minutes }}</span>
+          <div class="notify-time-column" role="listbox" tabindex="0" :aria-label="uiText.todo.notifyPresets.minutes" @keydown="handlePresetTimeKeydown($event, 'minute')" @scroll="handleNotifyTimeColumnScroll($event, NOTIFY_MINUTES.length)">
+            <button v-for="minute in NOTIFY_LOOPED_MINUTES" :key="minute.key" type="button" tabindex="-1" class="notify-time-option" :class="{ 'is-active': presetMinute === formatNotifyTimeUnit(minute.value), 'is-scroll-anchor': minute.isScrollAnchor && presetMinute === formatNotifyTimeUnit(minute.value) }" role="option" :aria-selected="presetMinute === formatNotifyTimeUnit(minute.value)" @click="presetMinute = formatNotifyTimeUnit(minute.value)">{{ formatNotifyTimeUnit(minute.value) }}</button>
+          </div>
+        </div>
       </div>
       <div v-else class="notify-preset-duration-editor">
         <div class="notify-preset-stepper">
