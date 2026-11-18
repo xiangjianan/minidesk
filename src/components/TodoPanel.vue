@@ -2371,7 +2371,6 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               role="img"
               :aria-label="uiText.todo.overdue"
             />
-            <Smartphone v-if="list.id === inboxTodoListId" class="inbox-target-icon" :aria-label="uiText.app.inboxPair" :title="uiText.app.inboxPair" data-testid="inbox-todo-indicator" />
             <EditableTitle
               :id="list.id"
               :max-length="TITLE_MAX_LENGTH"
@@ -2381,6 +2380,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               @update="(_id, value) => handleListTitleUpdate(list.id, value)"
               @edit-state="(_id, editing) => setListTitleEditing(list.id, editing)"
             />
+            <Smartphone v-if="list.id === inboxTodoListId" class="inbox-target-icon" :aria-label="uiText.app.inboxPair" :title="uiText.app.inboxPair" data-testid="inbox-todo-indicator" />
           </h3>
 
           <div class="todo-heading-actions">

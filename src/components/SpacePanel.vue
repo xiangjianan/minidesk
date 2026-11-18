@@ -434,7 +434,7 @@ onUnmounted(() => disposeSort?.());
               @dragleave="dragHoverTabId = null"
               @drop="handleDrop($event, space.id)"
             >
-              {{ space.title }}
+              <span class="space-tab-title">{{ space.title }}</span>
               <Smartphone v-if="space.id === inboxNoteTarget" class="inbox-target-icon" :aria-label="uiText.app.inboxPair" :title="uiText.app.inboxPair" data-testid="inbox-note-indicator" />
               <span v-if="dirtySpaceIds?.includes(space.id)" class="space-unsaved-dot" :title="uiText.space.unsaved" :aria-label="uiText.space.unsaved" />
             </button>
