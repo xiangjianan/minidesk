@@ -9768,7 +9768,6 @@ describe("App shell", () => {
         ],
       }),
     );
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = mountApp();
 
     try {
@@ -9780,6 +9779,7 @@ describe("App shell", () => {
       expect(wrapper.findComponent(WorkspaceInboxDialog).exists()).toBe(true);
 
       await wrapper.get('[data-testid="inbox-clear"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
 
       const persisted = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
       expect(persisted.workspaces[0].inbox).toBeUndefined();
@@ -10145,7 +10145,6 @@ describe("App inbox pull wiring", () => {
         resolvePull = resolve;
       }),
     );
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = mountApp();
 
     try {
@@ -10158,6 +10157,7 @@ describe("App inbox pull wiring", () => {
       await wrapper.get('[data-testid="workspace-pair-default"]').trigger("click");
       await flushAsyncComponents();
       await wrapper.get('[data-testid="inbox-clear"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await nextTick();
 
       resolvePull({
@@ -10360,12 +10360,12 @@ describe("App inbox revoke wiring", () => {
 
   it("清除配对后对旧码 keyHash 发送注销且不弹失败警告", async () => {
     seedPaired();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = mountApp();
 
     try {
       await openInboxDialog(wrapper);
       await wrapper.get('[data-testid="inbox-clear"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushAsyncComponents();
 
       expect(revokeInboxKey).toHaveBeenCalledTimes(1);
@@ -10379,12 +10379,12 @@ describe("App inbox revoke wiring", () => {
 
   it("重置配对（新码≠旧码）同样注销旧码；保存未改码不注销", async () => {
     seedPaired();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = mountApp();
 
     try {
       await openInboxDialog(wrapper);
       await wrapper.get('[data-testid="inbox-rotate"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushAsyncComponents();
       expect(revokeInboxKey).toHaveBeenCalledTimes(1);
 
@@ -10399,13 +10399,13 @@ describe("App inbox revoke wiring", () => {
   it("注销失败时气泡警告云端清理失败", async () => {
     seedPaired();
     vi.useFakeTimers();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.mocked(revokeInboxKey).mockResolvedValue(false);
     const wrapper = mountApp();
 
     try {
       await openInboxDialog(wrapper);
       await wrapper.get('[data-testid="inbox-clear"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushAsyncComponents();
       // 气泡文案有 200ms 入场延迟（POPOVER_DELAY_MS）：推进假时钟越过它再断言 DOM 文本。
       await vi.advanceTimersByTimeAsync(300);
@@ -10682,7 +10682,6 @@ describe("App inbox register wiring", () => {
 
   it("重置注册失败：旧码保留、不注销旧码、不落新码", async () => {
     seedPaired();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     vi.mocked(registerInboxKey).mockResolvedValue(false);
     vi.mocked(revokeInboxKey).mockClear();
     const wrapper = mountApp();
@@ -10691,6 +10690,7 @@ describe("App inbox register wiring", () => {
       await openInboxDialog(wrapper);
       const oldCode = wrapper.get('[data-testid="inbox-code"]').text();
       await wrapper.get('[data-testid="inbox-rotate"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushAsyncComponents();
 
       expect(wrapper.get('[data-testid="inbox-code"]').text()).toBe(oldCode);
@@ -10759,7 +10759,6 @@ describe("App inbox register wiring", () => {
 
   it("重置注册在途时重置按钮禁用且防重复触发", async () => {
     seedPaired();
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     let resolveRegister!: (ok: boolean) => void;
     vi.mocked(registerInboxKey).mockImplementation(
       () => new Promise<boolean>((resolve) => { resolveRegister = resolve; }),
@@ -10771,6 +10770,7 @@ describe("App inbox register wiring", () => {
       await flushAsyncComponents();
       const callsAfterStartup = vi.mocked(registerInboxKey).mock.calls.length;
       await wrapper.get('[data-testid="inbox-rotate"]').trigger("click");
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushAsyncComponents();
 
       expect(vi.mocked(registerInboxKey).mock.calls.length).toBe(callsAfterStartup + 1);

@@ -7,9 +7,9 @@ export function loadAiEnabled(): boolean {
 export function saveAiEnabled(enabled: boolean): void {
   try { localStorage.setItem(ENABLED_KEY, String(enabled)); } catch { /* session preference remains active */ }
 }
-export function confirmAiDisclosure(message: string): boolean {
+export async function confirmAiDisclosure(requestConfirmation: () => Promise<boolean>): Promise<boolean> {
   try { if (localStorage.getItem(DISCLOSURE_KEY) === "true") return true; } catch { /* ask again if storage is unavailable */ }
-  if (!window.confirm(message)) return false;
+  if (!await requestConfirmation()) return false;
   try { localStorage.setItem(DISCLOSURE_KEY, "true"); } catch { /* ask again next time */ }
   return true;
 }

@@ -86,6 +86,8 @@ import {
 import { applyInboxItems, pullAllInboxes } from "./sync/pull";
 import { inboxKeyHash } from "./sync/crypto";
 import { checkInboxKeyStatus, registerInboxKey, revokeInboxKey } from "./sync/inboxClient";
+import StyledConfirm from "./components/StyledConfirm.vue";
+import { useStyledConfirm } from "./sync/useStyledConfirm";
 import { confirmAiDisclosure, loadAiEnabled, saveAiEnabled } from "./sync/aiPreferences";
 import { polishClipboardText } from "./sync/polishClient";
 import type { PolishKind, PolishResult, PolishStyle, PolishTodoItem } from "./sync/polishClient";
@@ -1304,6 +1306,7 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 // 智能粘贴配对码：全局唯一（鉴权只要求「已注册」）。会话内注册成功一次即缓存；
 // 清空数据后 state.polishCode 消失，下次使用生成新码并重新注册。
 let polishRegisteredCode: string | null = null;
+const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
 const aiEnabled = ref(!offlineBuild && loadAiEnabled());
 function toggleAiEnabled(anchor?: HTMLElement): void {
   if (offlineBuild) return;
@@ -1314,7 +1317,7 @@ function toggleAiEnabled(anchor?: HTMLElement): void {
 
 /** 面板注入的智能粘贴/AI 润色调用：确保配对码存在且已注册后请求服务端润色（style 为可选风格）；注册失败按网络失败（null）降级。 */
 async function polishClipboard(kind: PolishKind, text: string, style?: PolishStyle): Promise<PolishResult> {
-  if (!aiEnabled.value || !confirmAiDisclosure(uiText.value.common.aiDisclosure)) return null;
+  if (!aiEnabled.value || !await confirmAiDisclosure(requestAiConfirm)) return null;
   let code = state.polishCode;
   if (!code || !isValidInboxCode(code)) {
     code = generateInboxCode();
@@ -4874,4 +4877,5 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       </div>
     </NModal>
   </NConfigProvider>
+  <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.confirm" @resolve="resolveAiConfirm" />
 </template>

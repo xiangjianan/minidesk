@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NButton, NIcon, NModal, NSelect } from "naive-ui";
 import { CheckmarkOutline, CloseCircleOutline } from "@vicons/ionicons5";
 import QRCode from "qrcode";
+import StyledConfirm from "./StyledConfirm.vue";
+import { useStyledConfirm } from "../sync/useStyledConfirm";
 import { buildInboxAddress, generateInboxCode, INBOX_APP_STORE_URL, isValidInboxCode } from "../sync/pairing";
 import { inboxKeyHash } from "../sync/crypto";
 import { registerInboxKey } from "../sync/inboxClient";
@@ -26,6 +28,8 @@ const emit = defineEmits<{
 
 const text = computed(() => getUiText(props.language));
 const show = ref(true);
+const { confirmVisible, requestConfirm, resolveConfirm } = useStyledConfirm();
+const confirmAction = ref<"rotate" | "clear">("rotate");
 // 关闭统一两段式：先撤下 show 播放 NModal 内置离场过渡（遮罩淡出 + 卡片缩放，
 // ~200ms），after-leave 后才 emit close 让父级 v-if 真正卸载；closing 防重复请求。
 const closing = ref(false);
@@ -36,6 +40,7 @@ function requestClose(): void {
   // 关闭即弃置：真实 NModal 从关闭请求到卸载有 ~200ms 离场过渡，窗口内迟到的
   // 注册成功仍会写码+emit（最坏：清除配对后复活配对）；closing 单向，这里置位安全。
   disposed = true;
+  resolveConfirm(false);
   show.value = false;
 }
 // 弹窗可从任意工作空间的「⋯」菜单或设置菜单打开：标明手机将同步到哪个空间。
@@ -123,7 +128,9 @@ function buildInbox(): WorkspaceInbox {
 }
 
 async function rotate(): Promise<void> {
-  if (registering.value || !window.confirm(text.value.app.inboxRotateConfirm)) return;
+  if (registering.value || confirmVisible.value) return;
+  confirmAction.value = "rotate";
+  if (!await requestConfirm() || disposed) return;
   registering.value = true;
   registerError.value = false;
   try {
@@ -180,8 +187,10 @@ async function copyCode(): Promise<void> {
   }, COPY_FEEDBACK_MS);
 }
 
-function clear(): void {
-  if (!window.confirm(text.value.app.inboxClearConfirm)) return;
+async function clear(): Promise<void> {
+  if (confirmVisible.value || registering.value) return;
+  confirmAction.value = "clear";
+  if (!await requestConfirm() || disposed) return;
   emit("update", null);
   requestClose();
 }
@@ -352,4 +361,5 @@ function save(): void {
       </NButton>
     </div>
   </NModal>
+  <StyledConfirm :show="confirmVisible" :title="confirmAction === 'rotate' ? text.app.inboxRotate : text.app.inboxClear" :message="confirmAction === 'rotate' ? text.app.inboxRotateConfirm : text.app.inboxClearConfirm" :cancel-text="text.common.cancel" :confirm-text="confirmAction === 'rotate' ? text.app.inboxRotate : text.app.inboxClear" danger @resolve="resolveConfirm" />
 </template>

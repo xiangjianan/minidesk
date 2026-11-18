@@ -15,11 +15,11 @@ describe("AI preferences", () => {
     expect(loadAiEnabled()).toBe(true);
   });
 
-  it("asks again after cancellation and remembers acceptance", () => {
-    const confirm = vi.spyOn(window, "confirm").mockReturnValueOnce(false).mockReturnValue(true);
-    expect(confirmAiDisclosure("notice")).toBe(false);
-    expect(confirmAiDisclosure("notice")).toBe(true);
-    expect(confirmAiDisclosure("notice")).toBe(true);
+  it("asks again after cancellation and remembers acceptance", async () => {
+    const confirm = vi.fn().mockResolvedValueOnce(false).mockResolvedValue(true);
+    expect(await confirmAiDisclosure(confirm)).toBe(false);
+    expect(await confirmAiDisclosure(confirm)).toBe(true);
+    expect(await confirmAiDisclosure(confirm)).toBe(true);
     expect(confirm).toHaveBeenCalledTimes(2);
   });
 });

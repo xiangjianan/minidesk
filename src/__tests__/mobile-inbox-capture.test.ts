@@ -15,7 +15,6 @@ vi.mock("../sync/inboxClient", () => ({
 }));
 
 beforeEach(() => {
-  vi.spyOn(window, "confirm").mockReturnValue(true);
   localStorage.removeItem("mini-desk-ai-disclosure-seen");
   postMock.mockReset();
   postMock.mockResolvedValue({ ok: true });
@@ -24,12 +23,14 @@ beforeEach(() => {
 });
 
 function mountCapture() {
-  return mount(MobileInboxCapture, { props: { code: CODE, language: "zh" } });
+  return mount(MobileInboxCapture, { props: { code: CODE, language: "zh" }, global: { stubs: { Modal: { props: ["show"], template: '<div v-if="show"><slot /></div>' } } } });
 }
 
 async function fillAndSend(wrapper: ReturnType<typeof mountCapture>, text: string, kind: "todo" | "note" = "todo") {
   await wrapper.find('[data-testid="mobile-inbox-text"]').setValue(text);
   await wrapper.find(`[data-testid="mobile-inbox-send-${kind}"]`).trigger("click");
+  const accept = wrapper.find('[data-testid="styled-confirm-accept"]');
+  if (accept.exists()) await accept.trigger("click");
 }
 
 function draftValue(wrapper: ReturnType<typeof mountCapture>): string {
@@ -110,7 +111,7 @@ describe("MobileInboxCapture", () => {
     await fillAndSend(wrapper, "润色一条");
     await until(() => expect(postMock).toHaveBeenCalledTimes(1));
     expect(plainPayload(lastPayload())).toMatchObject({ polish: true });
-    expect(window.confirm).toHaveBeenCalledOnce();
+    expect(localStorage.getItem("mini-desk-ai-disclosure-seen")).toBe("true");
 
     // 换码/重开页面场景：组件卸载重挂后开关仍读取持久化状态。
     wrapper.unmount();

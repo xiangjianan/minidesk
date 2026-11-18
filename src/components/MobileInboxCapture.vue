@@ -12,6 +12,8 @@ import { getUiText } from "../state/i18n";
 import { createId } from "../state/storage";
 import { readClipboardText } from "../utils/clipboard";
 import { INBOX_PLAINTEXT_MAX_CHARS } from "../sync/config";
+import StyledConfirm from "./StyledConfirm.vue";
+import { useStyledConfirm } from "../sync/useStyledConfirm";
 import { confirmAiDisclosure } from "../sync/aiPreferences";
 import { loadInboxPolishPref, saveInboxPolishPref } from "../sync/capturePrefs";
 import { inboxKeyHash, type InboxPlainItem } from "../sync/crypto";
@@ -34,6 +36,7 @@ defineExpose({ getEditorElement: () => editorElement.value });
 const app = computed(() => getUiText(props.language).app);
 // 草稿上提到父级（App.vue）：换码导致组件卸载重挂后内容不丢。
 const draft = defineModel<string>({ default: "" });
+const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
 const status = ref<CaptureStatus>("idle");
 /** sending 态修饰哪个按钮：发送中反馈只落在实际使用的那个按钮上。 */
 const activeKind = ref<CaptureKind | null>(null);
@@ -149,7 +152,7 @@ async function send(kind: CaptureKind): Promise<void> {
     .map((line) => line.trim().slice(0, INBOX_PLAINTEXT_MAX_CHARS))
     .filter((line) => line.length > 0);
   if (lines.length === 0 || status.value === "sending") return;
-  if (polishEnabled.value && !confirmAiDisclosure(getUiText(props.language).common.mobileAiDisclosure)) return;
+  if (polishEnabled.value && !await confirmAiDisclosure(requestAiConfirm)) return;
   status.value = "sending";
   activeKind.value = kind;
   codeUnusable.value = false;
@@ -339,5 +342,6 @@ onBeforeUnmount(() => {
         {{ pasteNotice }}
       </p>
     </Transition>
+    <StyledConfirm :show="aiConfirmVisible" :title="getUiText(language).common.aiDisclosureTitle" :message="getUiText(language).common.mobileAiDisclosure" :cancel-text="getUiText(language).common.cancel" :confirm-text="getUiText(language).common.confirm" @resolve="resolveAiConfirm" />
   </div>
 </template>

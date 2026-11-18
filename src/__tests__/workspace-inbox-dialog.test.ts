@@ -283,16 +283,15 @@ describe("WorkspaceInboxDialog", () => {
   });
 
   it("重置 confirm 拒绝时保持原码且不 emit", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(false);
     const wrapper = mountDialog(INBOX);
     expect(wrapper.find('[data-testid="inbox-rotate"]').text()).toBe("重置配对码");
     await wrapper.find('[data-testid="inbox-rotate"]').trigger("click");
+    await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
     expect(wrapper.find('[data-testid="inbox-code"]').text()).toBe("AB2CDE4FGHJK");
     expect(wrapper.emitted("update")).toBeUndefined();
   });
 
   it("重置确认后立即 emit 新码并保持弹窗打开，保存时新码紧随 close", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     // 记录事件顺序以验证「update 后紧随 close」。
     const order: string[] = [];
     const wrapper = mountDialog(INBOX, undefined, {
@@ -300,6 +299,7 @@ describe("WorkspaceInboxDialog", () => {
       onClose: () => order.push("close"),
     });
     await wrapper.find('[data-testid="inbox-rotate"]').trigger("click");
+    await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
     await waitForRegistrationEmit(wrapper);
     const [payload] = updatePayloads(wrapper);
     expect(payload?.code).toMatch(/^[0-9A-HJKMNP-TV-Z]{12}$/);
@@ -319,17 +319,17 @@ describe("WorkspaceInboxDialog", () => {
   });
 
   it("清除配对（confirm 通过）emit update(null) 并关闭弹窗", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     const wrapper = mountDialog(INBOX);
     await wrapper.find('[data-testid="inbox-clear"]').trigger("click");
+    await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
     expect(wrapper.emitted("update")?.[0]?.[0]).toBeNull();
     expect(wrapper.emitted("close")).toHaveLength(1);
   });
 
   it("confirm 拒绝时不清除配对", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(false);
     const wrapper = mountDialog(INBOX);
     await wrapper.find('[data-testid="inbox-clear"]').trigger("click");
+    await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
     expect(wrapper.emitted("update")).toBeUndefined();
   });
 
