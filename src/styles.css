@@ -763,7 +763,6 @@ html[data-theme="dark"] .n-modal-mask {
   height: 34px;
   min-height: 34px;
   padding: 0 10px;
-  padding-inline-end: 19px;
   border: 0;
   border-color: var(--border);
   border-radius: var(--radius);
@@ -787,13 +786,12 @@ html[data-theme="dark"] .n-modal-mask {
 
 .space-unsaved-dot {
   position: absolute;
-  inset-inline-end: 6px;
-  top: 50%;
+  inset-inline-end: 3px;
+  top: 3px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--primary);
-  transform: translateY(-50%);
   pointer-events: none;
 }
 
