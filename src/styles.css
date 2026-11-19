@@ -8236,29 +8236,80 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   width: max-content;
   max-width: min(520px, calc(100vw - 32px));
 }
-/* Element-style neutral info palette; explicit colors survive body teleport. */
+/* A compact row keeps the icon, message and controls aligned in both themes. */
 .default-message .n-alert {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 24px;
+  align-items: center;
+  column-gap: 10px;
+  padding: 9px 10px 9px 14px;
   background: #f4f4f5;
-  border: 1px solid #e9e9eb;
-  border-radius: 4px;
+  border: 1px solid #e4e4e7;
+  border-radius: 10px;
   box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
   color: #606266;
 }
-.default-message .n-alert .n-alert-body__content,
-.default-message .n-alert .n-alert__icon,
-.default-message .n-alert .n-alert__close { color: #606266; }
+.default-message .n-alert .n-alert__icon {
+  position: static;
+  grid-column: 1;
+  grid-row: 1;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  font-size: 16px;
+  color: #909399;
+}
+.default-message .n-alert .n-alert-body {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  padding: 0;
+}
+.default-message .n-alert .n-alert-body__content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: #606266;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.default-message .n-alert .n-alert__close {
+  position: static;
+  grid-column: 3;
+  grid-row: 1;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  color: #909399;
+}
+.default-message .default-message-action {
+  flex: none;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-weight: 500;
+}
 html[data-theme="dark"] .default-message .n-alert {
   background: #292a2c;
   border-color: #414243;
   color: #cfd3dc;
   box-shadow: 0 4px 12px rgb(0 0 0 / 28%);
 }
-html[data-theme="dark"] .default-message .n-alert .n-alert-body__content,
+html[data-theme="dark"] .default-message .n-alert .n-alert-body__content { color: #cfd3dc; }
 html[data-theme="dark"] .default-message .n-alert .n-alert__icon,
-html[data-theme="dark"] .default-message .n-alert .n-alert__close { color: #cfd3dc; }
-.default-message .n-alert__border { border-color: #e9e9eb; }
-html[data-theme="dark"] .default-message .n-alert__border { border-color: #414243; }
-.default-message a, .default-message .n-button { margin-left: 8px; }
+html[data-theme="dark"] .default-message .n-alert .n-alert__close { color: #a3a6ad; }
+html[data-theme="dark"] .default-message .default-message-action {
+  --n-color: #3b3d41 !important;
+  --n-color-hover: #484b50 !important;
+  --n-color-pressed: #333539 !important;
+  --n-text-color: #e5e7eb !important;
+  --n-text-color-hover: #fff !important;
+  --n-text-color-pressed: #fff !important;
+  --n-border: 1px solid #65686e !important;
+  --n-border-hover: 1px solid #858991 !important;
+  --n-border-pressed: 1px solid #858991 !important;
+}
 .default-message-motion-enter-active,
 .default-message-motion-leave-active { transition: opacity 220ms ease, transform 220ms ease; }
 .default-message-motion-enter-from,

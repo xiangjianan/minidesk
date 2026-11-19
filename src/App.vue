@@ -4780,11 +4780,11 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <Teleport to="body">
     <Transition name="default-message-motion">
     <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
-      <NAlert type="info" closable @close="hideBubbleMessage()">
+      <NAlert type="info" :bordered="false" closable @close="hideBubbleMessage()">
         <span>{{ withoutKaomoji(bubbleMessage) }}</span>
         <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>
         <span v-if="bubbleSignature">{{ bubbleSignature }}</span>
-        <NButton v-if="bubbleActionText" text type="primary" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</NButton>
+        <NButton v-if="bubbleActionText" size="tiny" class="default-message-action" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</NButton>
       </NAlert>
     </div>
     </Transition>
