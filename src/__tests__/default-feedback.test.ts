@@ -61,6 +61,22 @@ describe("default theme feedback", () => {
     } finally { wrapper.unmount(); }
   });
 
+  it.each(["cat", "hermes", "ikun", "custom", "none"] as const)("opens about as a dialog and clears existing feedback for %s", async (companionGifTheme) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme }));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      const settings = wrapper.getComponent(SettingsMenu);
+      settings.vm.$emit("customGifMissing");
+      await wrapper.vm.$nextTick();
+      settings.vm.$emit("about");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.get('[data-testid="about-content"]').text()).toContain("MiniDesk");
+      expect(document.querySelector('[data-testid="default-message"]')).toBeNull();
+      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+
   it("localizes the about dialog", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), language: "en" }));
     const wrapper = mountApp();

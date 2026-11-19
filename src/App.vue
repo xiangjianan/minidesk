@@ -3779,6 +3779,7 @@ async function restoreFullImport(): Promise<void> {
 }
 
 function about(): void {
+  hideCompanion();
   aboutVisible.value = true;
 }
 
