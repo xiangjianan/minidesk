@@ -4,6 +4,7 @@ import { mountApp } from "./helpers/mount-app";
 import TodoPanel from "../components/TodoPanel.vue";
 import SettingsMenu from "../components/SettingsMenu.vue";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
+import { withoutKaomoji, KAOMOJI_BY_MOOD } from "../state/messages";
 import { useCompanionBubble, type CompanionBubbleDeps } from "../composables/useCompanionBubble";
 
 vi.mock("naive-ui", async () => {
@@ -35,7 +36,7 @@ describe("default theme feedback", () => {
       wrapper.getComponent(SettingsMenu).vm.$emit("customGifMissing");
       await wrapper.vm.$nextTick();
       const message = document.querySelector('[data-testid="default-message"]');
-      expect(message?.parentElement).toBe(document.body);
+      expect(message?.closest("transition-stub")?.parentElement).toBe(document.body);
       expect(message?.textContent).toBeTruthy();
     } finally { wrapper.unmount(); }
   });
@@ -58,6 +59,13 @@ describe("default theme feedback", () => {
       await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!).workspaces[0].todoLists.map((list: { id: string }) => list.id)).toEqual(["home"]);
     } finally { wrapper.unmount(); }
+  });
+
+  it("removes decorative faces while preserving ordinary message text", () => {
+    for (const faces of Object.values(KAOMOJI_BY_MOOD)) {
+      for (const face of faces) expect(withoutKaomoji(`已保存 ${face}`)).toBe("已保存");
+    }
+    expect(withoutKaomoji("请求失败 (；′⌒`)\n请检查网络 (HTTP 500)")).toBe("请求失败\n请检查网络 (HTTP 500)");
   });
 
   it("keeps a confirmation open until answered and cancels safely", async () => {

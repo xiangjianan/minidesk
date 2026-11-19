@@ -30,7 +30,7 @@ import {
   orphanedImagePayloads,
   storeImagePayload,
 } from "./state/images";
-import { getMessage, withKaomoji, type MessageKey } from "./state/messages";
+import { getMessage, withKaomoji, withoutKaomoji, type MessageKey } from "./state/messages";
 import {
   getDefaultTitles,
   getDisplaySpaceTitle,
@@ -4778,14 +4778,16 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @gif-theme-change="(theme: string) => updateCompanionGifTheme(theme as CompanionGifTheme)"
     />
     <Teleport to="body">
+    <Transition name="default-message-motion">
     <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
-      <NAlert type="info" :show-icon="false" closable @close="hideBubbleMessage()">
-        <span>{{ bubbleMessage }}</span>
+      <NAlert type="info" closable @close="hideBubbleMessage()">
+        <span>{{ withoutKaomoji(bubbleMessage) }}</span>
         <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>
         <span v-if="bubbleSignature">{{ bubbleSignature }}</span>
         <NButton v-if="bubbleActionText" text type="primary" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</NButton>
       </NAlert>
     </div>
+    </Transition>
     </Teleport>
     <StyledConfirm v-if="state.companionGifTheme === 'none'" :show="Boolean(pendingConfirm)" :title="pendingConfirm?.danger ? uiText.common.delete : uiText.common.confirm" :message="bubbleMessage" :cancel-text="pendingConfirm?.cancelText ?? uiText.common.cancel" :confirm-text="pendingConfirm?.confirmText ?? uiText.common.confirm" :danger="pendingConfirm?.danger" :hint="pendingConfirm?.confirmHint" :secondary-text="pendingConfirm?.secondaryText" @resolve="(accepted) => accepted ? confirmCompanionAction() : cancelCompanionAction()" @secondary="secondaryCompanionAction" />
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />

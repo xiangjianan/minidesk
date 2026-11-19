@@ -1095,6 +1095,19 @@ export function getMessage(key: MessageKey, random = Math.random, language: AppL
   return withKaomoji(randomItem(variants, random), entry.mood, random);
 }
 
+/** Remove decorative faces from system-style messages without changing ordinary parentheses. */
+export function withoutKaomoji(text: string): string {
+  let result = text;
+  for (const faces of Object.values(KAOMOJI_BY_MOOD)) {
+    for (const face of faces) result = result.split(face).join("");
+  }
+  return result
+    .replace(/[（(][^()（）\n]{0,24}[・＾￣⌒ω▽﹏；°･꒳][^()（）\n]{0,24}[)）ヾ]/gu, "")
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .join("\n");
+}
+
 /** Confirmation copy stays stable and is not decorated with an expression. */
 export function getConfirmationMessage(key: MessageKey, language: AppLanguage = DEFAULT_LANGUAGE): string {
   return (normalizeLanguage(language) === "en" ? EN_MESSAGE_VARIANTS[key] : MESSAGE_CATALOG[key].variants)[0];
