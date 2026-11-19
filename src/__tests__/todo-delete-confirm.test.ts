@@ -3,6 +3,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
 import { mountApp } from "./helpers/mount-app";
 
+// These legacy interaction tests exercise the animated companion explicitly.
+// Default-theme behavior is covered by default-feedback.test.ts.
+vi.mock("../state/companionGifThemes", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../state/companionGifThemes")>();
+  return {
+    ...actual,
+    DEFAULT_COMPANION_GIF_THEME: "cat",
+    normalizeCompanionGifTheme: (value: unknown) => value === undefined ? "cat" : actual.normalizeCompanionGifTheme(value),
+  };
+});
+
 vi.mock("naive-ui", async () => {
   const { createNaiveUiStubModule } = await import("./helpers/naive-ui-mock");
   return createNaiveUiStubModule();

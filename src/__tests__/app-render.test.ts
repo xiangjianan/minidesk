@@ -26,6 +26,17 @@ import type { InboxPullResult } from "../sync/pull";
 import { FALLBACK_APP_VERSION } from "../state/version";
 import { loadState } from "../state/storage";
 
+// These legacy interaction tests exercise the animated companion explicitly.
+// Default-theme behavior is covered by default-feedback.test.ts.
+vi.mock("../state/companionGifThemes", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("../state/companionGifThemes")>();
+  return {
+    ...actual,
+    DEFAULT_COMPANION_GIF_THEME: "cat",
+    normalizeCompanionGifTheme: (value: unknown) => value === undefined ? "cat" : actual.normalizeCompanionGifTheme(value),
+  };
+});
+
 vi.mock("naive-ui", async () => {
   const { createNaiveUiStubModule } = await import("./helpers/naive-ui-mock");
   return createNaiveUiStubModule();
@@ -9485,7 +9496,7 @@ describe("App shell", () => {
 
       expect(wrapper.getComponent(SettingsMenu).props("companionGifTheme")).toBe("none");
       expect(JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}").companionGifTheme).toBe("none");
-      expect(wrapper.getComponent(CompanionBubble).props("gifTheme")).toBe("none");
+      expect(wrapper.findComponent(CompanionBubble).exists()).toBe(false);
     } finally {
       wrapper.unmount();
     }
