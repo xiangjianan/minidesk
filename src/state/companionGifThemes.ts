@@ -12,16 +12,16 @@ import ikunDarkNotificationIcon from "../../static/img/kun-dark.jpg?url";
 import hermesNotificationIcon from "../../static/img/yunxia.jpg?url";
 import hermesDarkNotificationIcon from "../../static/img/yunxia-dark.jpg?url";
 
-export const DEFAULT_COMPANION_GIF_THEME: CompanionGifTheme = "cat";
+export const DEFAULT_COMPANION_GIF_THEME: CompanionGifTheme = "none";
 
 export const COMPANION_GIF_THEME_OPTIONS: Array<{
   value: CompanionGifTheme;
 }> = [
+  { value: "none" },
   { value: "cat" },
   { value: "hermes" },
   { value: "ikun" },
   { value: "custom" },
-  { value: "none" },
 ];
 
 export function normalizeCompanionGifTheme(value: unknown): CompanionGifTheme {

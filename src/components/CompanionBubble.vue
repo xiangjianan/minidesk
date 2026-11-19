@@ -212,7 +212,7 @@ const gifSrc = computed(() => {
   // 安静模式选的是「不养常驻伴宠」，气泡弹出时配品牌静态图而非动画 GIF，
   // 消息气泡（显式 Tips/关于）与二次确认框统一同一形象；纯伴宠可见性
   // （无气泡内容）保持隐藏。
-  return hasPopoverPayload.value ? getCompanionNotificationIconSrc(DEFAULT_COMPANION_GIF_THEME, props.theme ?? "light") : "";
+  return hasPopoverPayload.value ? getCompanionNotificationIconSrc("cat", props.theme ?? "light") : "";
 });
 const shouldRenderGif = computed(() => Boolean(gifSrc.value));
 const surfaceVisible = computed(() => {

@@ -75,7 +75,7 @@ describe("CompanionBubble", () => {
     vi.useFakeTimers();
     const wrapper = mount(CompanionBubble, {
       attachTo: document.body,
-      props: { visible: true, message: "Tips" },
+      props: { visible: true, message: "Tips", gifTheme: "cat" },
       global: { stubs: { NPopover: popoverStub } },
     });
     await vi.advanceTimersByTimeAsync(200);
@@ -217,6 +217,7 @@ describe("CompanionBubble", () => {
       attachTo: document.body,
       props: {
         visible: true,
+        gifTheme: "cat",
         message: "保存好了",
       },
       global: {
@@ -400,6 +401,7 @@ describe("CompanionBubble", () => {
     const wrapper = mount(CompanionBubble, {
       props: {
         visible: true,
+        gifTheme: "cat",
         message: "",
       },
       global: {
@@ -795,10 +797,11 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
-  it("uses the default cat GIF assets and keeps that theme when switching dark mode", async () => {
+  it("uses the pixel cat GIF assets and keeps that theme when switching dark mode", async () => {
     const wrapper = mount(CompanionBubble, {
       props: {
         visible: true,
+        gifTheme: "cat",
         message: "",
         theme: "light",
       },

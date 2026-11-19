@@ -366,9 +366,9 @@ describe("state compatibility", () => {
     expect(removeEmptyTodo(ws().todos, "morning", "missing")).toEqual(ws().todos);
   });
 
-  it("defaults to the pixel cat companion GIF theme", () => {
+  it("defaults to the non-animated companion theme", () => {
     expect(defaultState().companionGifTheme).toBe(DEFAULT_COMPANION_GIF_THEME);
-    expect(defaultState().companionGifTheme).toBe("cat");
+    expect(defaultState().companionGifTheme).toBe("none");
   });
 
   it("preserves the disabled companion GIF theme during import and serialization", () => {
@@ -397,10 +397,10 @@ describe("state compatibility", () => {
     expect(getSerializableState(state, { includeCustomGifData: true }).customCompanionGif).toEqual(state.customCompanionGif);
   });
 
-  it("normalizes unknown companion GIF themes to the pixel cat", () => {
-    expect(normalizeImportedState({ companionGifTheme: "future-theme" }).companionGifTheme).toBe("cat");
-    expect(normalizeImportedState({ companionGifTheme: "" }).companionGifTheme).toBe("cat");
-    expect(normalizeImportedState({ companionGifTheme: null }).companionGifTheme).toBe("cat");
+  it("normalizes unknown companion GIF themes to the default", () => {
+    expect(normalizeImportedState({ companionGifTheme: "future-theme" }).companionGifTheme).toBe("none");
+    expect(normalizeImportedState({ companionGifTheme: "" }).companionGifTheme).toBe("none");
+    expect(normalizeImportedState({ companionGifTheme: null }).companionGifTheme).toBe("none");
   });
 
   it("uses still image assets for built-in reminder notification icons", () => {
