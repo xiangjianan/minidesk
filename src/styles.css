@@ -6859,6 +6859,7 @@ body,
 }
 .workspace-switcher-menu .workspace-switcher-menu-item:hover:not(:disabled) { background: var(--color-hover, rgba(0,0,0,0.06)); }
 .workspace-switcher-menu .workspace-switcher-menu-item:disabled { color: var(--muted); opacity: 0.45; cursor: not-allowed; }
+.workspace-switcher-menu .workspace-switcher-menu-item.is-delete:disabled { color: var(--danger); }
 .workspace-switcher-menu .workspace-switcher-menu-item .n-icon { flex: none; }
 
 /* ---- 手机速记配对弹窗 ---- */
