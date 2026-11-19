@@ -15,12 +15,12 @@ function createDeps(companionGifTheme: "none" | "cat"): CompanionBubbleDeps {
 }
 
 describe("companion none theme gating", () => {
-  it("none 主题时普通消息可显示", () => {
+  it("none 主题时普通消息不显示", () => {
     const { showBubbleText, bubbleVisible, bubbleMessage, companionFocused } = useCompanionBubble(createDeps("none"));
     showBubbleText("已保存", undefined);
-    expect(bubbleVisible.value).toBe(true);
-    expect(bubbleMessage.value).toBe("已保存");
-    expect(companionFocused.value).toBe(true);
+    expect(bubbleVisible.value).toBe(false);
+    expect(bubbleMessage.value).toBe("");
+    expect(companionFocused.value).toBe(false);
   });
 
   it("none 主题时二次确认弹框照常弹出", () => {

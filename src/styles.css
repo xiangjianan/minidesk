@@ -8232,7 +8232,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3000;
+  z-index: 11000;
   width: max-content;
   max-width: min(520px, calc(100vw - 32px));
 }

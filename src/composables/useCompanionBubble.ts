@@ -134,6 +134,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
 
   function showBubbleText(message: string, anchor?: HTMLElement, options: BubbleOptions = {}, duration = 3000): void {
     if (deps.isBoardBlocked() && !options.force) return;
+    // 默认主题保持安静：只显示强制反馈和用户主动请求的消息。
+    if (deps.state.companionGifTheme === "none" && !options.force && !options.explicit) return;
     dismissBubbleAction();
     companionDismissing.value = false;
     window.clearTimeout(bubbleTimer.value);

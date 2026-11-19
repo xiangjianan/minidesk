@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises } from "@vue/test-utils";
 import { mountApp } from "./helpers/mount-app";
 import TodoPanel from "../components/TodoPanel.vue";
+import SettingsMenu from "../components/SettingsMenu.vue";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
 import { useCompanionBubble, type CompanionBubbleDeps } from "../composables/useCompanionBubble";
 
@@ -13,7 +14,7 @@ vi.mock("naive-ui", async () => {
 beforeEach(() => { localStorage.clear(); });
 
 describe("default theme feedback", () => {
-  it("shows save feedback at the top without a companion", async () => {
+  it("suppresses routine save feedback without showing a companion", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
     const wrapper = mountApp();
     try {
@@ -21,8 +22,21 @@ describe("default theme feedback", () => {
       await vi.dynamicImportSettled();
       window.dispatchEvent(new KeyboardEvent("keydown", { key: "s", ctrlKey: true, bubbles: true }));
       await flushPromises();
-      expect(wrapper.find('[data-testid="default-message"]').exists()).toBe(true);
+      expect(document.querySelector('[data-testid="default-message"]')).toBeNull();
       expect(wrapper.find('[data-testid="companion-bubble"]').exists()).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("renders necessary feedback above the app in the document body", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(SettingsMenu).vm.$emit("customGifMissing");
+      await wrapper.vm.$nextTick();
+      const message = document.querySelector('[data-testid="default-message"]');
+      expect(message?.parentElement).toBe(document.body);
+      expect(message?.textContent).toBeTruthy();
     } finally { wrapper.unmount(); }
   });
 
