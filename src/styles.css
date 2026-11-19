@@ -8327,4 +8327,5 @@ html[data-theme="dark"] .default-message .default-message-action {
 .about-heading .about-name { color: var(--text); font-size: 16px; }
 .about-heading span:not(.about-name) { color: var(--muted); font-size: 11px; }
 .about-content p { margin: 0; color: var(--text); }
-.about-content a { color: var(--link); width: fit-content; }
+.about-content a { color: var(--link); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
+.about-github-icon { width: 16px; height: 16px; flex: none; }

@@ -4,6 +4,7 @@ import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { darkTheme, dateEnUS, dateZhCN, enUS, NAlert, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
+import { LogoGithub } from "@vicons/ionicons5";
 import DialogInputContextMenu from "./components/DialogInputContextMenu.vue";
 import ImagePanel from "./components/ImagePanel.vue";
 import ImagePreview from "./components/ImagePreview.vue";
@@ -4799,7 +4800,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       <div class="about-content" data-testid="about-content">
         <div class="about-heading"><span class="about-name">{{ uiText.app.aboutTitle }}</span><span>{{ uiText.app.aboutSignature }}</span></div>
         <p v-for="paragraph in uiText.app.aboutDescription.split('\n')" :key="paragraph">{{ paragraph }}</p>
-        <a :href="GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer">{{ GITHUB_REPO_LABEL }}</a>
+        <a :href="GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer"><LogoGithub class="about-github-icon" aria-hidden="true" /><span>{{ GITHUB_REPO_LABEL }}</span></a>
       </div>
     </NModal>
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
