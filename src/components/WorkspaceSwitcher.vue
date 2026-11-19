@@ -142,6 +142,7 @@ function handleSwitch(id: string): void {
 
 function handleDelete(event: MouseEvent, id: string): void {
   event.stopPropagation();
+  if (props.workspaces.length <= 1) return;
   const anchor = event.currentTarget as HTMLElement;
   emit("delete", id, anchor);
   close();
@@ -284,7 +285,7 @@ onUnmounted(() => disposeSort?.());
                     type="button"
                     class="workspace-switcher-menu-item"
                     :class="{ 'is-delete': option.key === 'delete' }"
-                    :disabled="offline && option.key === 'pair'"
+                    :disabled="(offline && option.key === 'pair') || (option.key === 'delete' && workspaces.length <= 1)"
                     role="menuitem"
                     :data-testid="`workspace-${option.key}-${workspace.id}`"
                     @click="handleWorkspaceMenuAction(String(option.key), $event, workspace.id)"

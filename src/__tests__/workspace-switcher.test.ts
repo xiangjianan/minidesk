@@ -32,6 +32,25 @@ async function clickMenuAction(wrapper: VueWrapper, id: string, action: "export"
 }
 
 describe("WorkspaceSwitcher", () => {
+  it("disables deleting the last space and enables it again when another is added", async () => {
+    const wrapper = mount(WorkspaceSwitcher, {
+      props: { workspaces: [workspaces[0]], activeWorkspaceId: "a", theme: "light", language: "zh" },
+      attachTo: document.body,
+    });
+    try {
+      await wrapper.get('[data-testid="workspace-trigger"]').trigger("click");
+      await openWorkspaceMenu(wrapper, "a");
+      const remove = menuAction("a", "delete") as HTMLButtonElement;
+      expect(remove.disabled).toBe(true);
+      remove.click();
+      expect(wrapper.emitted("delete")).toBeUndefined();
+      await wrapper.setProps({ workspaces });
+      expect(remove.disabled).toBe(false);
+      remove.click();
+      expect(wrapper.emitted("delete")?.[0]?.[0]).toBe("a");
+    } finally { wrapper.unmount(); }
+  });
+
   it("disables phone pairing in the offline build", async () => {
     const wrapper = mount(WorkspaceSwitcher, {
       props: { workspaces, activeWorkspaceId: "a", theme: "light", language: "zh", offline: true },
