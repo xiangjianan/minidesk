@@ -627,6 +627,44 @@ describe("ImagePanel", () => {
     wrapper.unmount();
   });
 
+  it("opens a gap during a native thumbnail drag and commits the gap position on drop", async () => {
+    const wrapper = mountImagePanel([
+      { id: "a", src: "data:image/png;base64,aW1n", createdAt: 1 },
+      { id: "b", src: "data:image/png;base64,YmFy", createdAt: 2 },
+    ]);
+    const [source, target] = wrapper.findAll<HTMLButtonElement>(".image-card");
+    mockRect(source.element, { left: 20, top: 100, width: 220, height: 74 });
+    mockRect(target.element, { left: 20, top: 190, width: 220, height: 74 });
+    const dataTransfer = createImageDataTransfer();
+    const previousHitTest = Object.getOwnPropertyDescriptor(document, "elementFromPoint");
+    Object.defineProperty(document, "elementFromPoint", { configurable: true, value: () => target.element });
+
+    try {
+      await source.get("img").trigger("dragstart", { dataTransfer });
+      await target.trigger("dragover", { dataTransfer, clientX: 40, clientY: 250 });
+      expect(target.element.nextElementSibling?.classList.contains("sort-gap")).toBe(true);
+      expect(source.element.style.display).toBe("none");
+      expect(wrapper.emitted("reorder")).toBeUndefined();
+
+      await wrapper.get(".image-list").trigger("drop", { dataTransfer });
+      expect(wrapper.emitted("reorder")).toEqual([["a", "b"]]);
+      expect(wrapper.find(".sort-gap").exists()).toBe(false);
+      expect(source.element.style.display).toBe("");
+
+      await source.get("img").trigger("dragstart", { dataTransfer });
+      await target.trigger("dragover", { dataTransfer, clientX: 40, clientY: 250 });
+      expect(wrapper.find(".sort-gap").exists()).toBe(true);
+      await source.get("img").trigger("dragend", { dataTransfer });
+      expect(wrapper.find(".sort-gap").exists()).toBe(false);
+      expect(source.element.style.display).toBe("");
+      expect(wrapper.emitted("reorder")).toHaveLength(1);
+    } finally {
+      if (previousHitTest) Object.defineProperty(document, "elementFromPoint", previousHitTest);
+      else Reflect.deleteProperty(document, "elementFromPoint");
+      wrapper.unmount();
+    }
+  });
+
   it("does not duplicate an image when an in-panel thumbnail drag drops on the empty list area", async () => {
     const wrapper = mountImagePanel([
       { id: "a", src: "data:image/png;base64,aW1n", createdAt: 1 },

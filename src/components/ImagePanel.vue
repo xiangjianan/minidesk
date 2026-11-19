@@ -118,6 +118,7 @@ const DRAG_WHEEL_AUTO_SCROLL_PAUSE_MS = 150;
 const IMAGE_CLICK_SUPPRESS_MS = 350;
 const IMAGE_DRAG_SORT_MIME = "application/x-mini-desk-image";
 let imagePointerDrag: ImagePointerDrag | null = null;
+let nativeImageDragId: string | null = null;
 let suppressImageClickUntil = 0;
 let pasteHighlightTimer: number | undefined;
 // 拖拽图片时靠近列表上下边缘自动滚动；滚轮事件会暂停一小段时间让手动滚动优先。
@@ -171,8 +172,8 @@ onMounted(() => {
 onUnmounted(() => {
   exclusiveMenu.unmount();
   window.removeEventListener("wheel", handleImageDragWheel, { capture: true });
+  finishImageNativeDrag();
   cleanupImagePointerDrag();
-  dragAutoScroll.reset();
   if (pasteHighlightTimer !== undefined) window.clearTimeout(pasteHighlightTimer);
   missingImageTimers.forEach((timer) => window.clearTimeout(timer));
   missingImageTimers.clear();
@@ -340,7 +341,10 @@ function handleExternalDrop(event: DragEvent): void {
   isDragHover.value = false;
   externalDropTargetId.value = null;
   dragAutoScroll.reset();
-  if (hasImageSortDrag(event)) return;
+  if (hasImageSortDrag(event)) {
+    finishImageNativeDrag();
+    return;
+  }
   const files = Array.from(event.dataTransfer?.files ?? []);
   if (files.length === 0) return;
   emit("dropFiles", files, event.currentTarget as HTMLElement);
@@ -392,6 +396,7 @@ function handleImageNativeDragStart(event: DragEvent, image: StoredImage, index:
   const file = dataUrlToFile(image.src, fileName);
   if (file) transfer.items?.add(file);
   transfer.setDragImage?.(event.currentTarget as Element, 0, 0);
+  nativeImageDragId = image.id;
 }
 
 function handleImageDragEnter(event: DragEvent): void {
@@ -477,11 +482,6 @@ function isExternalFileDrag(event: DragEvent): boolean {
 }
 
 function handleImageCardDragOver(event: DragEvent, targetId: string): void {
-  if (hasImageSortDrag(event)) {
-    event.preventDefault();
-    if (event.dataTransfer) event.dataTransfer.dropEffect = "move";
-    return;
-  }
   if (!isExternalFileDrag(event)) return;
   // External file drags only fire `drop` on the card when dragover allows it.
   event.preventDefault();
@@ -494,14 +494,6 @@ function handleImageCardDragLeave(targetId: string): void {
 }
 
 function handleImageCardDrop(event: DragEvent, targetId: string): void {
-  if (hasImageSortDrag(event)) {
-    const sourceId = event.dataTransfer?.getData(IMAGE_DRAG_SORT_MIME);
-    if (!sourceId || sourceId === targetId) return;
-    event.preventDefault();
-    event.stopPropagation();
-    emit("reorder", sourceId, targetId);
-    return;
-  }
   if (!isExternalFileDrag(event)) return;
   const files = Array.from(event.dataTransfer?.files ?? []);
   if (files.length === 0) return;
@@ -509,6 +501,51 @@ function handleImageCardDrop(event: DragEvent, targetId: string): void {
   event.stopPropagation();
   externalDropTargetId.value = null;
   emit("dropFiles", files, event.currentTarget as HTMLElement, targetId);
+}
+
+function handleImageListDragOver(event: DragEvent): void {
+  if (!nativeImageDragId || !event.dataTransfer || !hasImageSortDrag(event)) return;
+  event.dataTransfer.dropEffect = "move";
+  const card = imageCardRefs.get(nativeImageDragId);
+  const list = event.currentTarget as HTMLElement;
+  if (!sortGap && card) sortGap = createSortGap(card, ".image-card");
+  sortGap?.update(list, event.clientX, event.clientY);
+}
+
+function handleImageListDragLeave(event: DragEvent): void {
+  if (!nativeImageDragId || !sortGap) return;
+  const list = event.currentTarget as HTMLElement;
+  const next = event.relatedTarget ?? document.elementFromPoint?.(event.clientX, event.clientY);
+  if (next instanceof Node && list.contains(next)) return;
+  sortGap.restore();
+  sortGap = null;
+}
+
+function finishImageNativeDrag(): void {
+  if (!nativeImageDragId) return;
+  nativeImageDragId = null;
+  sortGap?.restore();
+  sortGap = null;
+}
+
+function handleImageListDrop(event: DragEvent): void {
+  if (!hasImageSortDrag(event)) {
+    handleExternalDrop(event);
+    return;
+  }
+  const sourceId = event.dataTransfer?.getData(IMAGE_DRAG_SORT_MIME);
+  if (!sourceId || sourceId !== nativeImageDragId) return;
+
+  const targetId = sortGap
+    ? getSortGapTargetId()
+    : (event.target as HTMLElement).closest<HTMLElement>(".image-card")?.dataset.imageId;
+  if (sortGap && panelRef.value && targetId && targetId !== sourceId) suppressSortCommitMotion(panelRef.value);
+  finishImageNativeDrag();
+  if (targetId && targetId !== sourceId) emit("reorder", sourceId, targetId);
+}
+
+function getSortGapTargetId(): string | undefined {
+  return sortGap?.indexTarget()?.dataset.imageId;
 }
 
 function removeImagePointerListeners(): void {
@@ -534,8 +571,7 @@ function finishImagePointerDrag(event?: PointerEvent, canceled = false): void {
   if (event && !canceled && panelRef.value) sortGap?.update(panelRef.value, event.clientX, event.clientY);
   const hadGap = Boolean(sortGap);
   if (hadGap && event && !canceled && panelRef.value) suppressSortCommitMotion(panelRef.value);
-  const gapTarget = sortGap?.indexTarget();
-  const gapTargetId = gapTarget ? Array.from(imageCardRefs).find(([, el]) => el === gapTarget)?.[0] : null;
+  const gapTargetId = getSortGapTargetId();
   sortGap?.restore(); sortGap = null;
   if (state.started && event && !canceled) {
     event.preventDefault();
@@ -652,7 +688,7 @@ function handleImageDragWheel(event: WheelEvent): void {
     @drop.prevent.stop="handleExternalDrop"
     @dragenter="handleImageDragEnter"
     @dragleave="handleImageDragLeave"
-    @dragend="handleImageDragLeave"
+    @dragend="finishImageNativeDrag(); handleImageDragLeave()"
     @contextmenu="openMenu($event)"
   >
     <div v-if="!hideHeader" class="panel-header desk-zone-heading">
@@ -680,8 +716,9 @@ function handleImageDragWheel(event: WheelEvent): void {
       trigger="none"
       :aria-label="uiText.images.list"
       @click="closeMenu"
-      @dragover.prevent
-      @drop.prevent.stop="handleExternalDrop"
+      @dragover.prevent="handleImageListDragOver"
+      @dragleave="handleImageListDragLeave"
+      @drop.prevent.stop="handleImageListDrop"
       @contextmenu.prevent.stop="openMenu($event)"
     >
       <p v-if="images.length === 0" class="workbench-empty-hint image-empty-hint">{{ uiText.images.emptyHint }}</p>
@@ -691,6 +728,7 @@ function handleImageDragWheel(event: WheelEvent): void {
         :key="image.id"
         :ref="(element) => setImageCardRef(image.id, element)"
         class="image-card"
+        :data-image-id="image.id"
         :class="{
           'is-dragging': draggingId === image.id,
           'is-active': image.id === activePreviewId,
