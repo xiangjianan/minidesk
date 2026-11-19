@@ -4787,7 +4787,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <NModal :show="aboutVisible" preset="card" :title="uiText.settings.about" class="workspace-dialog-modal about-modal" :mask-closable="false" @update:show="(show: boolean) => { if (!show) aboutVisible = false; }">
       <div class="about-content" data-testid="about-content">
-        <div class="about-heading"><strong>{{ uiText.app.aboutTitle }}</strong><span>{{ uiText.app.aboutSignature }}</span></div>
+        <div class="about-heading"><span class="about-name">{{ uiText.app.aboutTitle }}</span><span>{{ uiText.app.aboutSignature }}</span></div>
         <p v-for="paragraph in uiText.app.aboutDescription.split('\n')" :key="paragraph">{{ paragraph }}</p>
         <a :href="GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer">{{ GITHUB_REPO_LABEL }}</a>
       </div>
