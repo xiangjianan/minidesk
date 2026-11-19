@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { flushPromises } from "@vue/test-utils";
+import { NModal } from "naive-ui";
 import { mountApp } from "./helpers/mount-app";
 import TodoPanel from "../components/TodoPanel.vue";
 import SettingsMenu from "../components/SettingsMenu.vue";
@@ -38,6 +39,36 @@ describe("default theme feedback", () => {
       const message = document.querySelector('[data-testid="default-message"]');
       expect(message?.closest("transition-stub")?.parentElement).toBe(document.body);
       expect(message?.textContent).toBeTruthy();
+    } finally { wrapper.unmount(); }
+  });
+
+  it("opens about information in a dialog and closes it", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(SettingsMenu).vm.$emit("about");
+      await wrapper.vm.$nextTick();
+      const content = wrapper.get('[data-testid="about-content"]');
+      expect(content.text()).toContain("MiniDesk");
+      expect(content.get("a").attributes("href")).toBe("https://github.com/xiangjianan/mini-desk");
+      expect(document.querySelector('[data-testid="default-message"]')).toBeNull();
+      const modal = wrapper.findAllComponents(NModal).find((item) => item.props("title") === "关于");
+      expect(modal).toBeDefined();
+      modal!.vm.$emit("update:show", false);
+      await wrapper.vm.$nextTick();
+      expect(wrapper.find('[data-testid="about-content"]').exists()).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+
+  it("localizes the about dialog", async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), language: "en" }));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(SettingsMenu).vm.$emit("about");
+      await wrapper.vm.$nextTick();
+      expect(wrapper.get('[data-testid="about-content"]').text()).toContain("local-first");
     } finally { wrapper.unmount(); }
   });
 

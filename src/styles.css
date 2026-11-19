@@ -8318,3 +8318,11 @@ html[data-theme="dark"] .default-message .default-message-action {
   .default-message-motion-enter-active,
   .default-message-motion-leave-active { transition-duration: 1ms; }
 }
+
+.about-modal.n-card { width: min(480px, calc(100vw - 32px)); }
+.about-content { display: grid; gap: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.about-heading { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.about-heading strong { color: var(--text); font-size: 16px; }
+.about-heading span { color: var(--muted); font-size: 11px; }
+.about-content p { margin: 0; color: var(--text); }
+.about-content a { color: var(--link); width: fit-content; }

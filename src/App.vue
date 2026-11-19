@@ -435,6 +435,7 @@ const emptyTodoRemovalTimers = new Map<string, number>();
 const pendingImagePayloadDeletions = new Map<string, number>();
 const pendingClearPayloadIds = new Set<string>();
 const shortcutHelpVisible = ref(false);
+const aboutVisible = ref(false);
 const supportDialogVisible = ref(false);
 const updateCheckVisible = ref(false);
 const updateChecking = ref(false);
@@ -492,7 +493,6 @@ type DensityArea = {
 const GUIDE_MESSAGE_DURATION_MS = 5000;
 const GITHUB_REPO_URL = "https://github.com/xiangjianan/mini-desk";
 const GITHUB_REPO_LABEL = "xiangjianan / mini-desk";
-const ABOUT_MESSAGE_DURATION_MS = 10000;
 const activeGuideKey = ref<GuideKey | null>(null);
 /** GIF 点击 Tips 的轮换状态：换指南区域从头开始，同区域逐条前进。 */
 const companionTipPick = ref<TipPickState | null>(null);
@@ -3778,14 +3778,8 @@ async function restoreFullImport(): Promise<void> {
   importFeedbackAnchor.value = undefined;
 }
 
-function about(anchor?: HTMLElement): void {
-  showBubbleText(
-    [`${uiText.value.app.aboutTitle} ${uiText.value.app.aboutSignature}`, uiText.value.app.aboutDescription].join("\n"),
-    anchor,
-    // 「关于」是设置菜单里的显式请求：explicit 穿透「不显示」安静模式照常弹出。
-    { hideCompanionAfter: true, explicit: true, linkText: GITHUB_REPO_LABEL, linkHref: GITHUB_REPO_URL },
-    ABOUT_MESSAGE_DURATION_MS,
-  );
+function about(): void {
+  aboutVisible.value = true;
 }
 
 function suggestIssue(): void {
@@ -4791,6 +4785,13 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     </Teleport>
     <StyledConfirm v-if="state.companionGifTheme === 'none'" :show="Boolean(pendingConfirm)" :title="pendingConfirm?.danger ? uiText.common.delete : uiText.common.confirm" :message="bubbleMessage" :cancel-text="pendingConfirm?.cancelText ?? uiText.common.cancel" :confirm-text="pendingConfirm?.confirmText ?? uiText.common.confirm" :danger="pendingConfirm?.danger" :hint="pendingConfirm?.confirmHint" :secondary-text="pendingConfirm?.secondaryText" @resolve="(accepted) => accepted ? confirmCompanionAction() : cancelCompanionAction()" @secondary="secondaryCompanionAction" />
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
+    <NModal :show="aboutVisible" preset="card" :title="uiText.settings.about" class="workspace-dialog-modal about-modal" :mask-closable="false" @update:show="(show: boolean) => { if (!show) aboutVisible = false; }">
+      <div class="about-content" data-testid="about-content">
+        <div class="about-heading"><strong>{{ uiText.app.aboutTitle }}</strong><span>{{ uiText.app.aboutSignature }}</span></div>
+        <p v-for="paragraph in uiText.app.aboutDescription.split('\n')" :key="paragraph">{{ paragraph }}</p>
+        <a :href="GITHUB_REPO_URL" target="_blank" rel="noopener noreferrer">{{ GITHUB_REPO_LABEL }}</a>
+      </div>
+    </NModal>
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
     <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">

@@ -960,7 +960,7 @@ describe("Naive UI component usage", () => {
     expect(rule).toContain("#f87171");
   });
 
-  it("routes about information through the companion bubble and suggestions via email", () => {
+  it("routes about information through a dialog and suggestions to GitHub", () => {
     const app = read("src/App.vue");
     const companion = read("src/components/CompanionBubble.vue");
     const messages = read("src/state/messages.ts");
@@ -986,11 +986,11 @@ describe("Naive UI component usage", () => {
     expect(app).toContain("/issues/new?");
     expect(app).not.toContain("LogoGithub");
     expect(app).not.toContain("about-github-link");
-    expect(app).not.toContain("aboutVisible");
+    expect(app).toContain("aboutVisible");
     expect(app).not.toContain("about-confirm-button");
     expect(app).not.toContain("naiveDialog.info");
     expect(app).not.toContain('positiveText: "知道了"');
-    expect(styles).not.toContain(".about-modal");
+    expect(styles).toContain(".about-modal");
     expect(styles).not.toContain(".about-confirm-button");
     expect(styles).toContain(".companion-link");
     expect(styles).toContain(".companion-link-icon");
@@ -1053,9 +1053,8 @@ describe("Naive UI component usage", () => {
     // 桌面引导文案由首页壳的桌面示意图 caption 承担（App.vue 不再引用）。
     expect(home).toContain("app.mobileMessage");
     expect(app).toContain('v-if="!isMobileBlocked"');
-    // 伴宠气泡常挂载（无 v-if 门控）：移动端仅速记发送成功经 handleMobileInboxSent 强制弹出，
-    // 其余桌面板效仍被 isBoardBlocked 屏蔽。
-    expect(app).not.toMatch(/<CompanionBubble\s+v-if=/);
+    // 默认主题改用顶部消息，伴宠主题仍支持移动端发送反馈。
+    expect(app).toContain(`v-if="state.companionGifTheme !== 'none'"`);
     expect(app).toContain('@sent="handleMobileInboxSent"');
     expect(app).toContain(':visible="companionVisible"');
     expect(i18n).toContain("完整工作台，请在电脑端打开");

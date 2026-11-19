@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import { useCompanionBubble } from "../composables/useCompanionBubble";
 import type { CompanionBubbleDeps } from "../composables/useCompanionBubble";
@@ -52,13 +50,6 @@ describe("companion none theme gating", () => {
     expect(bubbleVisible.value).toBe(false);
     showBubbleText("已发送 1 条", undefined, { force: true });
     expect(bubbleVisible.value).toBe(true);
-  });
-
-  it("设置「关于」气泡在安静模式仍弹出（显式菜单请求带 explicit）", () => {
-    const app = readFileSync(resolve(__dirname, "../App.vue"), "utf8");
-    expect(app).toContain(
-      "{ hideCompanionAfter: true, explicit: true, linkText: GITHUB_REPO_LABEL, linkHref: GITHUB_REPO_URL }",
-    );
   });
 
   it("非 none 主题普通气泡不受影响（回归）", () => {
