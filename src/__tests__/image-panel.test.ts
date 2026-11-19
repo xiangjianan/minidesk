@@ -585,7 +585,10 @@ describe("ImagePanel", () => {
       setDragImage,
     };
 
-    await wrapper.get(".image-card img").trigger("dragstart", { dataTransfer });
+    const thumbnail = wrapper.get(".image-card img");
+    mockRect(thumbnail.element, { left: 20, top: 100, width: 180, height: 74 });
+    dispatchPointer(thumbnail.element, "pointerdown", { clientX: 47, clientY: 138 });
+    await thumbnail.trigger("dragstart", { dataTransfer, clientX: 54, clientY: 145 });
 
     expect(dataTransfer.effectAllowed).toBe("copyMove");
     expect(setData).toHaveBeenCalledWith("DownloadURL", "image/png:mini-desk-image-1.png:data:image/png;base64,aW1n");
@@ -594,7 +597,7 @@ describe("ImagePanel", () => {
     expect(add).toHaveBeenCalledWith(expect.any(File));
     expect(add.mock.calls[0][0].name).toBe("mini-desk-image-1.png");
     expect(add.mock.calls[0][0].type).toBe("image/png");
-    expect(setDragImage).toHaveBeenCalledWith(wrapper.get(".image-card img").element, 0, 0);
+    expect(setDragImage).toHaveBeenCalledWith(thumbnail.element, 27, 38);
     wrapper.unmount();
   });
 

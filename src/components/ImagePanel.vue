@@ -119,6 +119,7 @@ const IMAGE_CLICK_SUPPRESS_MS = 350;
 const IMAGE_DRAG_SORT_MIME = "application/x-mini-desk-image";
 let imagePointerDrag: ImagePointerDrag | null = null;
 let nativeImageDragId: string | null = null;
+let thumbnailDragOrigin: { thumbnail: HTMLImageElement; clientX: number; clientY: number } | null = null;
 let suppressImageClickUntil = 0;
 let pasteHighlightTimer: number | undefined;
 // 拖拽图片时靠近列表上下边缘自动滚动；滚轮事件会暂停一小段时间让手动滚动优先。
@@ -395,7 +396,11 @@ function handleImageNativeDragStart(event: DragEvent, image: StoredImage, index:
 
   const file = dataUrlToFile(image.src, fileName);
   if (file) transfer.items?.add(file);
-  transfer.setDragImage?.(event.currentTarget as Element, 0, 0);
+  const thumbnail = event.currentTarget as HTMLImageElement;
+  const origin = thumbnailDragOrigin?.thumbnail === thumbnail ? thumbnailDragOrigin : event;
+  const bounds = thumbnail.getBoundingClientRect();
+  transfer.setDragImage?.(thumbnail, origin.clientX - bounds.left, origin.clientY - bounds.top);
+  thumbnailDragOrigin = null;
   nativeImageDragId = image.id;
 }
 
@@ -587,10 +592,19 @@ function finishImagePointerDrag(event?: PointerEvent, canceled = false): void {
 }
 
 function handleImagePointerDown(event: PointerEvent, image: StoredImage): void {
-  if (event.button !== 0 || event.altKey) return;
+  thumbnailDragOrigin = null;
+  if (event.button !== 0) return;
   // The thumbnail must keep the browser's native drag gesture so it can
   // leave the window as an image. Card padding still starts pointer sorting.
-  if (event.target instanceof HTMLImageElement) return;
+  if (event.target instanceof HTMLImageElement) {
+    thumbnailDragOrigin = {
+      thumbnail: event.target,
+      clientX: event.clientX,
+      clientY: event.clientY,
+    };
+    return;
+  }
+  if (event.altKey) return;
   event.preventDefault();
   const element = event.currentTarget as HTMLElement;
   const rect = element.getBoundingClientRect();
