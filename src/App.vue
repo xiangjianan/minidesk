@@ -3778,9 +3778,18 @@ async function restoreFullImport(): Promise<void> {
   importFeedbackAnchor.value = undefined;
 }
 
-function about(): void {
-  hideCompanion();
-  aboutVisible.value = true;
+function about(anchor?: HTMLElement): void {
+  if (state.companionGifTheme === "none") {
+    hideCompanion();
+    aboutVisible.value = true;
+    return;
+  }
+  showBubbleText(
+    [`${uiText.value.app.aboutTitle} ${uiText.value.app.aboutSignature}`, uiText.value.app.aboutDescription].join("\n"),
+    anchor,
+    { hideCompanionAfter: true, explicit: true, linkText: GITHUB_REPO_LABEL, linkHref: GITHUB_REPO_URL },
+    10000,
+  );
 }
 
 function suggestIssue(): void {

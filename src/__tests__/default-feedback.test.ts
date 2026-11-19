@@ -4,6 +4,7 @@ import { NModal } from "naive-ui";
 import { mountApp } from "./helpers/mount-app";
 import TodoPanel from "../components/TodoPanel.vue";
 import SettingsMenu from "../components/SettingsMenu.vue";
+import CompanionBubble from "../components/CompanionBubble.vue";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
 import { withoutKaomoji, KAOMOJI_BY_MOOD } from "../state/messages";
 import { useCompanionBubble, type CompanionBubbleDeps } from "../composables/useCompanionBubble";
@@ -61,19 +62,18 @@ describe("default theme feedback", () => {
     } finally { wrapper.unmount(); }
   });
 
-  it.each(["cat", "hermes", "ikun", "custom", "none"] as const)("opens about as a dialog and clears existing feedback for %s", async (companionGifTheme) => {
+  it.each(["cat", "hermes", "ikun", "custom"] as const)("uses the companion bubble for about with %s", async (companionGifTheme) => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme }));
     const wrapper = mountApp();
     try {
       await flushPromises();
-      const settings = wrapper.getComponent(SettingsMenu);
-      settings.vm.$emit("customGifMissing");
+      wrapper.getComponent(SettingsMenu).vm.$emit("about");
       await wrapper.vm.$nextTick();
-      settings.vm.$emit("about");
-      await wrapper.vm.$nextTick();
-      expect(wrapper.get('[data-testid="about-content"]').text()).toContain("MiniDesk");
-      expect(document.querySelector('[data-testid="default-message"]')).toBeNull();
-      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
+      expect(wrapper.find('[data-testid="about-content"]').exists()).toBe(false);
+      const companion = wrapper.getComponent(CompanionBubble);
+      expect(companion.props("visible")).toBe(true);
+      expect(companion.props("message")).toContain("MiniDesk");
+      expect(companion.props("linkHref")).toBe("https://github.com/xiangjianan/mini-desk");
     } finally { wrapper.unmount(); }
   });
 
