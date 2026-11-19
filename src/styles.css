@@ -8225,3 +8225,16 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 
 .space-tab-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .inbox-target-icon { width: 13px; height: 13px; flex: none; margin-inline-start: 4px; opacity: .65; }
+
+/* Default theme feedback stays independent of the companion artwork. */
+.default-message {
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3000;
+  width: max-content;
+  max-width: min(520px, calc(100vw - 32px));
+}
+.default-message .n-alert { box-shadow: 0 4px 20px rgb(0 0 0 / 12%); }
+.default-message a, .default-message .n-button { margin-left: 8px; }

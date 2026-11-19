@@ -2,7 +2,7 @@
 const offlineBuild = import.meta.env.VITE_MINI_DESK_OFFLINE === "1";
 import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
-import { darkTheme, dateEnUS, dateZhCN, enUS, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
+import { darkTheme, dateEnUS, dateZhCN, enUS, NAlert, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
 import DialogInputContextMenu from "./components/DialogInputContextMenu.vue";
 import ImagePanel from "./components/ImagePanel.vue";
@@ -4746,6 +4746,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <!-- 伴宠气泡（GIF + 消息）：常挂载，桌面端随编辑/保存触发；移动端速记发送成功时
          经 handleMobileInboxSent 强制在右下角弹出，其余板效仍被 isBoardBlocked 屏蔽。 -->
     <CompanionBubble
+      v-if="state.companionGifTheme !== 'none'"
       :visible="companionVisible"
       :dismissing="companionDismissing"
       :action-text="bubbleActionText"
@@ -4776,6 +4777,15 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @gif-click="handleCompanionGifClick"
       @gif-theme-change="(theme: string) => updateCompanionGifTheme(theme as CompanionGifTheme)"
     />
+    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
+      <NAlert type="info" :show-icon="false" closable @close="hideBubbleMessage()">
+        <span>{{ bubbleMessage }}</span>
+        <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>
+        <span v-if="bubbleSignature">{{ bubbleSignature }}</span>
+        <NButton v-if="bubbleActionText" text type="primary" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</NButton>
+      </NAlert>
+    </div>
+    <StyledConfirm v-if="state.companionGifTheme === 'none'" :show="Boolean(pendingConfirm)" :title="pendingConfirm?.danger ? uiText.common.delete : uiText.common.confirm" :message="bubbleMessage" :cancel-text="pendingConfirm?.cancelText ?? uiText.common.cancel" :confirm-text="pendingConfirm?.confirmText ?? uiText.common.confirm" :danger="pendingConfirm?.danger" :hint="pendingConfirm?.confirmHint" :secondary-text="pendingConfirm?.secondaryText" @resolve="(accepted) => accepted ? confirmCompanionAction() : cancelCompanionAction()" @secondary="secondaryCompanionAction" />
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
