@@ -553,14 +553,14 @@ describe("SettingsMenu", () => {
     expect(wrapper.find('[data-key="gif-theme:hermes"]').text()).toBe("云霞");
     expect(wrapper.find('[data-key="gif-theme:ikun"]').text()).toBe("篮球");
     expect(wrapper.find('[data-key="gif-theme:custom"]').text()).toBe("自定义");
-    expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("默认");
+    expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("不显示 GIF");
     expect(wrapper.find('[data-key="gif-theme:none"]').classes()).toContain("is-selected");
     const gifOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "gif-theme").children;
     expect(gifOptions.every((option: any) => typeof option.icon === "function")).toBe(true);
     expect(gifOptions.find((option: any) => option.key === "gif-theme:none").label().children[1]?.props.class).toBe("settings-zone-check");
     expect(gifOptions.find((option: any) => option.key === "gif-theme:cat").label().children[1]).toBeNull();
     await wrapper.setProps({ language: "en" });
-    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["Default", "Pixel Cat", "Yunxia", "Basketball", "Custom"]);
+    expect(wrapper.findAll('[data-key^="gif-theme:"]').map((item) => item.text())).toEqual(["No GIF", "Pixel Cat", "Yunxia", "Basketball", "Custom"]);
     expect(wrapper.find('[data-key="gif-theme:hermes"]').classes()).not.toContain("is-selected");
   });
 
