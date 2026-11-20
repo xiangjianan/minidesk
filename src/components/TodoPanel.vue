@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { beginDragDelete } from "../utils/dragDelete";
 import { RemindersAreaIcon as CheckboxOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -830,6 +831,8 @@ function handleListDragStart(event: DragEvent, listId: TodoListId): void {
     return;
   }
   draggedListId.value = listId;
+  const anchor = event.currentTarget as HTMLElement;
+  beginDragDelete(() => emit("deleteList", listId, anchor));
   if (event.dataTransfer) {
     event.dataTransfer.effectAllowed = "move";
     event.dataTransfer.setData("application/x-todo-list-id", listId);
@@ -1338,6 +1341,8 @@ function handleNotifyClick(event: MouseEvent, period: TodoPeriod, todo: TodoItem
 function handleTodoDragStart(event: DragEvent, period: TodoPeriod, todo: TodoItem): void {
   dragged.value = { period, id: todo.id };
   if (!event.dataTransfer) return;
+  const anchor = event.currentTarget as HTMLElement;
+  beginDragDelete(() => emit("remove", period, todo.id, anchor));
   event.dataTransfer.effectAllowed = "copyMove";
   event.dataTransfer.setData("application/x-todo-id", `${period}:${todo.id}`);
   event.dataTransfer.setData("application/x-todo-text", todo.text);

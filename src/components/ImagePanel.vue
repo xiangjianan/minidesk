@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { beginDragDelete, cancelDragDelete, finishDragDelete, updateDragDelete } from "../utils/dragDelete";
 import { ImagesAreaIcon as ImageOutline } from "../utils/areaIcons";
 import ContextMenu from "./ContextMenu.vue";
 import { suppressSortCommitMotion } from "../utils/sortCommit";
@@ -384,6 +385,8 @@ function handleImageNativeDragStart(event: DragEvent, image: StoredImage, index:
   if (!transfer || !image.src) return;
 
   cleanupImagePointerDrag();
+  const anchor = event.currentTarget as HTMLElement;
+  beginDragDelete(() => emit("delete", image.id, anchor));
   const mimeType = getImageDragMimeType(image.src);
   const fileName = getImageDragFileName(image, index);
   // "copyMove" allows both the in-panel move sort (drop on a card) and the
@@ -452,6 +455,8 @@ function startImagePointerDrag(state: ImagePointerDrag, event: PointerEvent): vo
   const card = imageCardRefs.get(state.id);
   if (card) sortGap = createSortGap(card, '.image-card');
   draggingId.value = state.id;
+  const anchor = imageCardRefs.get(state.id);
+  beginDragDelete(() => emit("delete", state.id, anchor));
   closeMenu();
   updateImageDragPreview(state, event);
   if (panelRef.value) sortGap?.update(panelRef.value, event.clientX, event.clientY);
@@ -560,6 +565,7 @@ function removeImagePointerListeners(): void {
 }
 
 function cleanupImagePointerDrag(): void {
+  if (imagePointerDrag?.started) cancelDragDelete();
   removeImagePointerListeners();
   sortGap?.restore(); sortGap = null;
   imagePointerDrag = null;
@@ -578,11 +584,13 @@ function finishImagePointerDrag(event?: PointerEvent, canceled = false): void {
   if (hadGap && event && !canceled && panelRef.value) suppressSortCommitMotion(panelRef.value);
   const gapTargetId = getSortGapTargetId();
   sortGap?.restore(); sortGap = null;
+  const deleted = state.started && event && !canceled ? finishDragDelete(event.clientX, event.clientY) : false;
+  if (!deleted) cancelDragDelete();
   if (state.started && event && !canceled) {
     event.preventDefault();
     suppressImageClickUntil = performance.now() + IMAGE_CLICK_SUPPRESS_MS;
     const targetId = gapTargetId ?? (hadGap ? state.id : getImageDropTargetId(event.clientY));
-    if (targetId && targetId !== state.id) emit("reorder", state.id, targetId);
+    if (!deleted && targetId && targetId !== state.id) emit("reorder", state.id, targetId);
   }
 
   imagePointerDrag = null;
@@ -641,6 +649,7 @@ function handleImagePointerMove(event: PointerEvent): void {
 
   event.preventDefault();
   updateImageDragPreview(state, event);
+  updateDragDelete(event.clientX, event.clientY);
   if (panelRef.value) sortGap?.update(panelRef.value, event.clientX, event.clientY);
   dragAutoScroll.update(state.scrollContainer ?? getCurrentImageListScrollContainer(), event.clientY);
 }

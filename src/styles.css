@@ -8352,3 +8352,47 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
 .about-content p { margin: 0; color: var(--text); }
 .about-content a { color: var(--link); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
 .about-github-icon { width: 16px; height: 16px; flex: none; }
+
+/* A quiet, wide landing area appears only while an internal item is dragged. */
+.drag-delete-zone {
+  position: fixed;
+  z-index: 12000;
+  left: 50%;
+  bottom: 0;
+  width: min(360px, calc(100vw - 32px));
+  height: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 16px 16px;
+  border: 1px solid color-mix(in srgb, var(--danger) 25%, transparent);
+  border-bottom: 0;
+  border-radius: 24px 24px 0 0;
+  color: var(--danger);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--danger) 20%, var(--card)) 0%, color-mix(in srgb, var(--danger) 8%, var(--card)) 100%);
+  box-shadow: 0 -8px 32px color-mix(in srgb, var(--danger) 10%, transparent);
+  font-size: 12px;
+  font-weight: 500;
+  transform: translateX(-50%);
+  transition: background 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+.drag-delete-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--danger) 12%, var(--card));
+}
+.drag-delete-zone.is-over {
+  border-color: color-mix(in srgb, var(--danger) 58%, transparent);
+  background: linear-gradient(0deg, color-mix(in srgb, var(--danger) 32%, var(--card)), color-mix(in srgb, var(--danger) 15%, var(--card)));
+  box-shadow: 0 -8px 36px color-mix(in srgb, var(--danger) 20%, transparent);
+}
+.drag-delete-enter-active, .drag-delete-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
+.drag-delete-enter-from, .drag-delete-leave-to { opacity: 0; transform: translate(-50%, 20px); }
+@media (prefers-reduced-motion: reduce) {
+  .drag-delete-zone, .drag-delete-enter-active, .drag-delete-leave-active { transition: none; }
+}

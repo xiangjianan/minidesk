@@ -6,8 +6,12 @@
 let lastPointer: { x: number; y: number } | null = null;
 let tracking = false;
 
+export function setLastPointerPosition(x: number, y: number): void {
+  lastPointer = { x, y };
+}
+
 function recordPointer(event: MouseEvent): void {
-  lastPointer = { x: event.clientX, y: event.clientY };
+  setLastPointerPosition(event.clientX, event.clientY);
 }
 
 /** 幂等启动追踪：捕获阶段监听，避免被业务层的 stopPropagation 拦掉。 */

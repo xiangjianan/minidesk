@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { beginDragDelete } from "../utils/dragDelete";
 import { QuickAreaIcon as FlashOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -605,9 +606,17 @@ function handleToggleShowHidden(anchor?: HTMLElement, tagId?: string): void {
   if (anchor) emit("guide", "toggleHiddenQuick", anchor);
 }
 
+function handleTagDragStart(event: DragEvent, id: string): void {
+  draggingTagId.value = id;
+  const anchor = event.currentTarget as HTMLElement;
+  beginDragDelete(() => emit("deleteTagWithButtons", id, anchor));
+}
+
 function handleQuickButtonDragStart(event: DragEvent, button: QuickButton): void {
   draggingId.value = button.id;
   if (!event.dataTransfer) return;
+  const anchor = event.currentTarget as HTMLElement;
+  beginDragDelete(() => emit("delete", button.id, anchor));
   event.dataTransfer.effectAllowed = "copyMove";
   event.dataTransfer.setData("application/x-quick-text", button.value);
 }
@@ -945,7 +954,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
             :draggable="group.reorderable && editingTagId !== group.id"
             @dblclick="startInlineTagRename(group.id, group.title)"
             @contextmenu="openTagMenu($event, group.id)"
-            @dragstart="group.reorderable && editingTagId !== group.id && (draggingTagId = group.id)"
+            @dragstart="group.reorderable && editingTagId !== group.id && handleTagDragStart($event, group.id)"
             @dragover="handleTagDragOver($event, group.id)"
             @drop.stop.prevent="onTagDrop($event, group.id)"
             @dragend="draggingTagId = null"

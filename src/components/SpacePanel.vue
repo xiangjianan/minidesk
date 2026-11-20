@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { beginDragDelete } from "../utils/dragDelete";
 import { NotesAreaIcon as DocumentTextOutline } from "../utils/areaIcons";
 import SmartPasteIcon from "./SmartPasteIcon.vue";
 import ContextMenu from "./ContextMenu.vue";
@@ -299,6 +300,7 @@ function handleMenuSelect(key: string): void {
 function handleDragStart(event: DragEvent, id: string): void {
   draggedSpaceId.value = id;
   if (!event.dataTransfer) return;
+  beginDragDelete(() => emit("delete", id));
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("application/x-space-id", id);
   event.dataTransfer.setDragImage?.(event.currentTarget as Element, 0, 0);

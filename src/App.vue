@@ -4,6 +4,8 @@ import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { darkTheme, dateEnUS, dateZhCN, enUS, NAlert, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
+import { Trash2 } from "lucide-vue-next";
+import { dragDelete, updateDragDelete, finishDragDelete, cancelDragDelete } from "./utils/dragDelete";
 import { LogoGithub } from "@vicons/ionicons5";
 import DialogInputContextMenu from "./components/DialogInputContextMenu.vue";
 import ImagePanel from "./components/ImagePanel.vue";
@@ -684,7 +686,22 @@ async function copyMobileInboxCode(): Promise<void> {
 let stopMobileBreakpoint: (() => void) | undefined;
 let stopSystemThemeListener: (() => void) | undefined;
 
+function trackDeleteDrag(event: DragEvent): void {
+  updateDragDelete(event.clientX, event.clientY);
+}
+function cancelDeleteOnEscape(event: KeyboardEvent): void {
+  if (event.key === "Escape") cancelDragDelete();
+}
+function dropOnDeleteZone(event: DragEvent): void {
+  event.preventDefault();
+  event.stopPropagation();
+  finishDragDelete(event.clientX, event.clientY, true);
+}
+
 onMounted(async () => {
+  window.addEventListener("dragover", trackDeleteDrag, true);
+  window.addEventListener("keydown", cancelDeleteOnEscape, true);
+  window.addEventListener("dragend", cancelDragDelete, true);
   appMounted = true;
   void Promise.resolve().then(() => orphanedImagePayloads(collectSafeRetainedIds())).then((usage) => {
     if (appMounted) orphanUsage.value = usage;
@@ -757,6 +774,10 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  window.removeEventListener("dragover", trackDeleteDrag, true);
+  window.removeEventListener("keydown", cancelDeleteOnEscape, true);
+  window.removeEventListener("dragend", cancelDragDelete, true);
+  cancelDragDelete();
   appMounted = false;
   window.removeEventListener("keydown", handleGlobalKeydown);
   window.removeEventListener("resize", positionMobileSuccessBubble);
@@ -4767,6 +4788,16 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @gif-click="handleCompanionGifClick"
       @gif-theme-change="(theme: string) => updateCompanionGifTheme(theme as CompanionGifTheme)"
     />
+    <Teleport to="body">
+      <Transition name="drag-delete">
+        <div v-if="dragDelete" class="drag-delete-zone" :class="{ 'is-over': dragDelete.over }"
+          data-drag-delete-zone role="status" :aria-label="uiText.common.dragToDelete"
+          @dragover.prevent.stop @drop="dropOnDeleteZone">
+          <span class="drag-delete-icon"><Trash2 :size="20" :stroke-width="1.8" /></span>
+          <span>{{ uiText.common.dragToDelete }}</span>
+        </div>
+      </Transition>
+    </Teleport>
     <Teleport to="body">
     <Transition name="default-message-motion">
     <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
