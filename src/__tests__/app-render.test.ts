@@ -2403,21 +2403,8 @@ describe("App shell", () => {
       await wrapper.findAll(".dropdown-option").find((option) => option.text() === "删除")?.trigger("click");
       await wrapper.vm.$nextTick();
 
-      // 确认框在场时：被删的那一行高亮，其余行不高亮。
-      expect(rows[0].attributes("data-confirm-target")).toBeDefined();
-      expect(rows[0].get(".todo-input").attributes("data-confirm-target")).toBeUndefined();
-      expect(rows[1].attributes("data-confirm-target")).toBeUndefined();
-      expect(rows[2].attributes("data-confirm-target")).toBeUndefined();
-
-      await vi.advanceTimersByTimeAsync(200); // 确认框 200ms 入场延迟
-      await wrapper.vm.$nextTick();
-      await wrapper.get('[data-testid="companion-no"]').trigger("click");
-      await wrapper.vm.$nextTick();
-
-      expect(rows[0].attributes("data-confirm-target")).toBeUndefined();
-      expect(wrapper.find(".companion-popover-shell").classes()).toContain("is-popover-fading");
-      await vi.advanceTimersByTimeAsync(260);
-      expect(wrapper.find('[data-testid="companion-confirm"]').exists()).toBe(false);
+      expect(wrapper.findAll(".todo-item")).toHaveLength(2);
+      expect(wrapper.find('[data-testid="companion-yes"]').exists()).toBe(false);
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -3242,11 +3229,7 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("删除");
-      expect(wrapper.get('[data-testid="companion-no"]').text()).toBe("取消");
-      expect(wrapper.get('[data-testid="companion-yes"]').classes()).toContain("is-danger");
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
@@ -4014,10 +3997,7 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("删除");
-      expect(wrapper.get('[data-testid="companion-no"]').text()).toBe("取消");
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
@@ -4068,7 +4048,6 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
@@ -4268,15 +4247,13 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
       // 删除反馈保留确认框的位置。
-      const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      expect(style).toContain("right:");
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -4316,7 +4293,6 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(3200);
@@ -4329,11 +4305,8 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      // GIF 右缘 = 200+52+50 = 302；GIF 垂直中心对齐鼠标 y=300 → top = 275。
-      expect(style).toContain("100vw - 302px");
-      expect(style).toContain("top: 275px");
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("删除");
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="companion-yes"]').exists()).toBe(false);
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -4386,15 +4359,13 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
       // 删除反馈保留确认框的位置。
-      const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      expect(style).toContain("right:");
+      expect(wrapper.find('[data-testid="companion-action"]').exists()).toBe(true);
     } finally {
       wrapper.unmount();
       vi.useRealTimers();
@@ -4419,10 +4390,7 @@ describe("App shell", () => {
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
 
-      expect(wrapper.get('[data-testid="companion-yes"]').text()).toBe("删除");
-      expect(wrapper.get('[data-testid="companion-no"]').text()).toBe("取消");
 
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
       await wrapper.vm.$nextTick();
@@ -5155,7 +5123,7 @@ describe("App shell", () => {
 
       expect(globalBackspace.defaultPrevented).toBe(true);
       await vi.waitFor(() => {
-        expect(wrapper.find('[data-testid="companion-yes"]').exists()).toBe(true);
+        expect(wrapper.getComponent(ImagePanel).props("images")).toHaveLength(0);
       });
     } finally {
       wrapper.unmount();
@@ -6479,7 +6447,6 @@ describe("App shell", () => {
       panel.vm.$emit("delete", "img-undo", panel.element as HTMLElement);
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
 
@@ -6517,7 +6484,6 @@ describe("App shell", () => {
       panel.vm.$emit("delete", "img-del", panel.element as HTMLElement);
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
 
@@ -6555,7 +6521,6 @@ describe("App shell", () => {
       panel.vm.$emit("delete", "img-del", panel.element as HTMLElement);
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
 
@@ -6605,7 +6570,6 @@ describe("App shell", () => {
       wrapper.getComponent(TodoPanel).vm.$emit("remove", "morning", "todo-1", todoSection);
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
 
@@ -7067,7 +7031,6 @@ describe("App shell", () => {
       wrapper.getComponent(TodoPanel).vm.$emit("remove", "morning", "todo-1", todoSection);
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
-      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       expect(wrapper.getComponent(TodoPanel).props("todos").morning).toEqual([]);

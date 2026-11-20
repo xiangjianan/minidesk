@@ -188,6 +188,7 @@ onMounted(() => {
   window.addEventListener("blur", handleWindowBlur);
 });
 onUnmounted(() => {
+  cancelToolbarMenuClose();
   isUnmounted = true;
   clearTextDragPreview();
   document.removeEventListener("selectionchange", syncActiveSelection);
@@ -874,7 +875,23 @@ function updateSelectionToolbar(): void {
   });
 }
 
+let toolbarMenuCloseTimer: ReturnType<typeof setTimeout> | undefined;
+function cancelToolbarMenuClose(): void {
+  clearTimeout(toolbarMenuCloseTimer);
+}
+function closeColorMenu(): void {
+  cancelToolbarMenuClose();
+  if (toolbarMenuKind.value === "highlight" || toolbarMenuKind.value === "color") closeMenu();
+}
+function scheduleToolbarMenuClose(): void {
+  cancelToolbarMenuClose();
+  if (toolbarMenuKind.value === "highlight" || toolbarMenuKind.value === "color") {
+    toolbarMenuCloseTimer = setTimeout(closeMenu, 150);
+  }
+}
+
 function openToolbarMenu(event: MouseEvent, kind: "highlight" | "color" | "polish"): void {
+  cancelToolbarMenuClose();
   const target = textareaRef.value;
   if (!target) return;
   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -1357,15 +1374,15 @@ function restoreSelection(textarea: HTMLTextAreaElement, selection: { start: num
       />
     </div>
     <Teleport to="body">
-      <div v-if="selectionToolbar" class="selection-toolbar" :style="{ left: `${selectionToolbar.x}px`, top: `${selectionToolbar.y}px` }" @mousedown.prevent>
-        <button type="button" :aria-label="uiText.common.highlight" :title="uiText.common.highlight" @click="openToolbarMenu($event, 'highlight')"><span class="selection-color-icon selection-background-icon" aria-hidden="true">A</span></button>
-        <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @click="openToolbarMenu($event, 'color')"><span class="selection-color-icon selection-foreground-icon" aria-hidden="true">A</span></button>
-        <button type="button" :aria-label="uiText.common.bold" :title="uiText.common.bold" @click="toolbarBold"><Bold :size="16" /></button>
-        <button v-if="polish" type="button" :aria-label="uiText.common.smartPolish" :title="uiText.common.smartPolish" @click="openToolbarMenu($event, 'polish')"><SparklesOutlineIcon class="selection-toolbar-icon" /><span>{{ uiText.common.smartPolish }}</span></button>
+      <div v-if="selectionToolbar" class="selection-toolbar" :style="{ left: `${selectionToolbar.x}px`, top: `${selectionToolbar.y}px` }" @mousedown.prevent @mouseenter="cancelToolbarMenuClose" @mouseleave="scheduleToolbarMenuClose">
+        <button type="button" :aria-label="uiText.common.highlight" :title="uiText.common.highlight" @mouseenter="openToolbarMenu($event, 'highlight')" @click="openToolbarMenu($event, 'highlight')"><span class="selection-color-icon selection-background-icon" aria-hidden="true">A</span></button>
+        <button type="button" :aria-label="uiText.common.textColor" :title="uiText.common.textColor" @mouseenter="openToolbarMenu($event, 'color')" @click="openToolbarMenu($event, 'color')"><span class="selection-color-icon selection-foreground-icon" aria-hidden="true">A</span></button>
+        <button type="button" :aria-label="uiText.common.bold" :title="uiText.common.bold" @mouseenter="closeColorMenu" @click="toolbarBold"><Bold :size="16" /></button>
+        <button v-if="polish" type="button" :aria-label="uiText.common.smartPolish" :title="uiText.common.smartPolish" @mouseenter="closeColorMenu" @click="openToolbarMenu($event, 'polish')"><SparklesOutlineIcon class="selection-toolbar-icon" /><span>{{ uiText.common.smartPolish }}</span></button>
       </div>
     </Teleport>
     <ContextMenu v-if="menu" :x="menu.x" :y="menu.y" :options="activeMenuOptions"
       :polish-labels="true"
-      @select="handleMenuSelect" @clickoutside="exclusiveMenu.handleClickOutside" />
+      @mouseenter="cancelToolbarMenuClose" @mouseleave="scheduleToolbarMenuClose" @select="handleMenuSelect" @clickoutside="exclusiveMenu.handleClickOutside" />
   </section>
 </template>

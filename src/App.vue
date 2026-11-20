@@ -2176,60 +2176,56 @@ function moveImageToBottom(id: string): void {
 
 function deleteImage(id: string, anchor?: HTMLElement): void {
   const feedbackAnchor = getImageUndoAnchor(anchor);
-  requestConfirmation("confirmDeleteImage", anchor, async () => {
-    const index = activeWorkspace.value.images.findIndex((image) => image.id === id);
-    if (index < 0) return;
-    const workspaceId = activeWorkspace.value.id;
-    const deletedImage = JSON.parse(JSON.stringify(activeWorkspace.value.images[index]));
-    const nextPreviewImage = activeWorkspace.value.images[index + 1] ?? activeWorkspace.value.images[index - 1];
-    activeWorkspace.value.images = activeWorkspace.value.images.filter((image) => image.id !== id);
-    if (activePreviewId.value === id) {
-      if (nextPreviewImage) {
-        activePreviewId.value = nextPreviewImage.id;
-        activeEditorId.value = undefined;
-        closingPreviewId.value = undefined;
-        window.clearTimeout(previewCloseTimer.value);
-        previewCloseTimer.value = undefined;
-      } else {
-        clearImagePreview();
-      }
-    } else if (closingPreviewId.value === id) {
+  const index = activeWorkspace.value.images.findIndex((image) => image.id === id);
+  if (index < 0) return;
+  const workspaceId = activeWorkspace.value.id;
+  const deletedImage = JSON.parse(JSON.stringify(activeWorkspace.value.images[index]));
+  const nextPreviewImage = activeWorkspace.value.images[index + 1] ?? activeWorkspace.value.images[index - 1];
+  activeWorkspace.value.images = activeWorkspace.value.images.filter((image) => image.id !== id);
+  if (activePreviewId.value === id) {
+    if (nextPreviewImage) {
+      activePreviewId.value = nextPreviewImage.id;
+      activeEditorId.value = undefined;
+      closingPreviewId.value = undefined;
+      window.clearTimeout(previewCloseTimer.value);
+      previewCloseTimer.value = undefined;
+    } else {
       clearImagePreview();
     }
+  } else if (closingPreviewId.value === id) {
+    clearImagePreview();
+  }
+  persistNow();
+  showDeleteUndo(getMessage("deleteImage", Math.random, state.language), feedbackAnchor, () => {
+    const workspace = state.workspaces.find((item) => item.id === workspaceId);
+    if (!workspace || workspace.images.some((item) => item.id === id)) return;
+    workspace.images.splice(Math.min(index, workspace.images.length), 0, deletedImage);
     persistNow();
-    showDeleteUndo(getMessage("deleteImage", Math.random, state.language), feedbackAnchor, () => {
-      const workspace = state.workspaces.find((item) => item.id === workspaceId);
-      if (!workspace || workspace.images.some((item) => item.id === id)) return;
-      workspace.images.splice(Math.min(index, workspace.images.length), 0, deletedImage);
-      persistNow();
-    }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)));
-  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel });
+  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)));
 }
 
-/** 专注贴图删除：与 board 删除同款二次确认 + 5 秒宽限（撤销可保住）。 */
+/** 专注贴图删除保留撤销宽限。 */
 function deleteFocusImage(id: string, anchor?: HTMLElement): void {
-  requestConfirmation("confirmDeleteImage", anchor, async () => {
-    const session = focusSession.value;
-    const todo = focusTodo.value;
-    if (!session || !todo) return;
-    const index = (todo.focusImages ?? []).findIndex((item) => item.id === id);
-    if (index < 0) return;
-    const deleted = JSON.parse(JSON.stringify(todo.focusImages![index]));
-    const workspaceId = activeWorkspace.value.id;
-    const period = session.period;
-    const todoId = session.id;
-    replaceFocusImages({ period, id: todoId }, (list) => list.filter((item) => item.id !== id));
-    showDeleteUndo(getMessage("deleteImage", Math.random, state.language), anchor, () => {
-      const workspace = state.workspaces.find((item) => item.id === workspaceId);
-      const target = workspace?.todos[period]?.find((item) => item.id === todoId);
-      if (!target) return;
-      const images = target.focusImages ?? [];
-      if (images.some((item) => item.id === id)) return;
-      images.splice(Math.min(index, images.length), 0, deleted);
-      target.focusImages = images;
-      persistNow();
-    }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)));
-  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, danger: true });
+  const session = focusSession.value;
+  const todo = focusTodo.value;
+  if (!session || !todo) return;
+  const index = (todo.focusImages ?? []).findIndex((item) => item.id === id);
+  if (index < 0) return;
+  const deleted = JSON.parse(JSON.stringify(todo.focusImages![index]));
+  const workspaceId = activeWorkspace.value.id;
+  const period = session.period;
+  const todoId = session.id;
+  replaceFocusImages({ period, id: todoId }, (list) => list.filter((item) => item.id !== id));
+  showDeleteUndo(getMessage("deleteImage", Math.random, state.language), anchor, () => {
+    const workspace = state.workspaces.find((item) => item.id === workspaceId);
+    const target = workspace?.todos[period]?.find((item) => item.id === todoId);
+    if (!target) return;
+    const images = target.focusImages ?? [];
+    if (images.some((item) => item.id === id)) return;
+    images.splice(Math.min(index, images.length), 0, deleted);
+    target.focusImages = images;
+    persistNow();
+  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)));
 }
 
 function openImagePreview(id: string): void {
@@ -2594,20 +2590,18 @@ function applyQuickApiConfig(
 }
 
 function deleteQuick(id: string, anchor?: HTMLElement): void {
-  requestConfirmation("confirmDeleteQuick", anchor, () => {
-    const index = activeWorkspace.value.quickButtons.findIndex((button) => button.id === id);
-    if (index < 0) return;
-    const workspaceId = activeWorkspace.value.id;
-    const removed = JSON.parse(JSON.stringify(activeWorkspace.value.quickButtons[index]));
-    activeWorkspace.value.quickButtons = activeWorkspace.value.quickButtons.filter((button) => button.id !== id);
+  const index = activeWorkspace.value.quickButtons.findIndex((button) => button.id === id);
+  if (index < 0) return;
+  const workspaceId = activeWorkspace.value.id;
+  const removed = JSON.parse(JSON.stringify(activeWorkspace.value.quickButtons[index]));
+  activeWorkspace.value.quickButtons = activeWorkspace.value.quickButtons.filter((button) => button.id !== id);
+  persistNow();
+  showDeleteUndo(getMessage("deleteQuick", Math.random, state.language), anchor, () => {
+    const workspace = state.workspaces.find((item) => item.id === workspaceId);
+    if (!workspace || workspace.quickButtons.some((button) => button.id === id)) return;
+    workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, removed);
     persistNow();
-    showDeleteUndo(getMessage("deleteQuick", Math.random, state.language), anchor, () => {
-      const workspace = state.workspaces.find((item) => item.id === workspaceId);
-      if (!workspace || workspace.quickButtons.some((button) => button.id === id)) return;
-      workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, removed);
-      persistNow();
-    });
-  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel });
+  });
 }
 
 function toggleQuickHidden(id: string): void {
@@ -3347,17 +3341,8 @@ function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): bo
   return true;
 }
 
-// 每次删除都走二次确认（历史上的「连击超过两次后直接删除」旁路已移除——
-// 30 秒窗口内静默跳过确认会吞掉误删保护；批量清理请用「清除已完成」）。
 function removeTodo(period: TodoPeriod, id: string, anchor?: HTMLElement): void {
-  if (!isConfiguredTodoListId(period)) return;
-  requestConfirmation("confirmDeleteTodo", anchor, () => {
-    deleteTodoNow(period, id, anchor);
-  }, undefined, {
-    confirmText: uiText.value.common.delete,
-    cancelText: uiText.value.common.cancel,
-    highlightTarget: anchor?.closest<HTMLElement>(".todo-item, .today-focus-item") ?? anchor,
-  });
+  deleteTodoNow(period, id, anchor);
 }
 
 function clearDone(period?: TodoPeriod, anchor?: HTMLElement): void {

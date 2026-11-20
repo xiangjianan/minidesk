@@ -78,9 +78,9 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("select");
     await flushPromises();
     const button = document.querySelector<HTMLButtonElement>(`.selection-toolbar button[aria-label="${label}"]`)!;
-    button.dispatchEvent(new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 }));
-    button.click();
+    button.dispatchEvent(new MouseEvent("mouseenter"));
     await wrapper.vm.$nextTick();
+    expect(wrapper.find(`[data-key="${key}"]`).exists()).toBe(true);
     expect([textarea.selectionStart, textarea.selectionEnd]).toEqual([1, 4]);
     await wrapper.get(`[data-key="${key}"]`).trigger("click");
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toEqual([

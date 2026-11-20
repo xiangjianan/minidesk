@@ -57,15 +57,6 @@ function confirmButtonsVisible(wrapper: ReturnType<typeof mountApp>): boolean {
   return wrapper.find('[data-testid="companion-yes"]').exists();
 }
 
-function bubbleText(wrapper: ReturnType<typeof mountApp>): string {
-  return wrapper.find('[data-testid="companion-confirm"]').text();
-}
-
-async function clickConfirm(wrapper: ReturnType<typeof mountApp>, testid: "companion-yes" | "companion-no") {
-  await wrapper.get(`[data-testid="${testid}"]`).trigger("click");
-  await nextTick();
-}
-
 describe("todo delete confirmation", () => {
   beforeEach(() => {
     localStorage.clear();
@@ -78,92 +69,14 @@ describe("todo delete confirmation", () => {
     localStorage.clear();
   });
 
-  it("prompts on every consecutive delete, including the third and fourth", async () => {
-    const wrapper = mountApp();
-    try {
-      // Regression 1: the second consecutive delete must also show the confirm
-      // bubble (it used to appear missing while the previous toast was up).
-      // Regression 2: a former streak bypass deleted directly from the third
-      // delete on — every delete must prompt, with no time-window exemption.
-      for (let nth = 1; nth <= 4; nth += 1) {
-        await deleteViaMenu(wrapper);
-        expect(confirmButtonsVisible(wrapper), `第 ${nth} 次删除必须弹出确认`).toBe(true);
-        await clickConfirm(wrapper, "companion-yes");
-        expect(remainingTodos(wrapper)).toBe(4 - nth);
-        // 确认后的删除反馈经 180ms 替换动画落地（cdfc2ff），先等动画完成。
-        await vi.advanceTimersByTimeAsync(200);
-        expect(bubbleText(wrapper)).toMatch(/已删|已移除|已清|删除完成/);
-      }
-    } finally {
-      wrapper.unmount();
-    }
-  });
-
-  it("cancelling keeps the todo and the next delete still prompts", async () => {
+  it("deletes immediately and supports undo", async () => {
     const wrapper = mountApp();
     try {
       await deleteViaMenu(wrapper);
-      expect(confirmButtonsVisible(wrapper)).toBe(true);
-      await clickConfirm(wrapper, "companion-no");
-      expect(remainingTodos(wrapper)).toBe(4);
-      await vi.advanceTimersByTimeAsync(300);
-      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
-      await vi.advanceTimersByTimeAsync(2000);
-      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
-
-      // The next delete is not remembered as part of any streak — it prompts again.
-      await deleteViaMenu(wrapper);
-      expect(confirmButtonsVisible(wrapper)).toBe(true);
-      await clickConfirm(wrapper, "companion-yes");
-      expect(remainingTodos(wrapper)).toBe(3);
-    } finally {
-      wrapper.unmount();
-    }
-  });
-
-  it("does not bring the GIF back after a confirmation times out", async () => {
-    const wrapper = mountApp();
-    try {
-      await deleteViaMenu(wrapper);
-      await vi.advanceTimersByTimeAsync(12000);
-      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
-      await vi.advanceTimersByTimeAsync(12000);
-      expect(wrapper.find(".focus-companion.is-visible").exists()).toBe(false);
-      expect(remainingTodos(wrapper)).toBe(4);
-    } finally { wrapper.unmount(); }
-  });
-
-  it("keeps the confirmation position and restores only the deleted todo", async () => {
-    const wrapper = mountApp();
-    try {
-      await deleteViaMenu(wrapper);
-      const position = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
-      await clickConfirm(wrapper, "companion-yes");
-      await vi.advanceTimersByTimeAsync(200);
-      expect(wrapper.get('[data-testid="companion-bubble"]').attributes("style")).toBe(position);
+      expect(confirmButtonsVisible(wrapper)).toBe(false);
       expect(remainingTodos(wrapper)).toBe(3);
       await wrapper.get('[data-testid="companion-action"]').trigger("click");
-      expect(remainingTodos(wrapper)).toBe(4);
       expect(wrapper.findAll(".todo-item[data-todo-id]").map(item => item.attributes("data-todo-id"))).toEqual(["a", "b", "c", "d"]);
     } finally { wrapper.unmount(); }
-  });
-
-  it("still prompts after a long gap since the last delete", async () => {
-    const wrapper = mountApp();
-    try {
-      await deleteViaMenu(wrapper);
-      await clickConfirm(wrapper, "companion-yes");
-      expect(remainingTodos(wrapper)).toBe(3);
-
-      // A former streak expired here; now there is no streak at all, so the
-      // prompt must appear regardless of elapsed time.
-      await vi.advanceTimersByTimeAsync(60_000);
-      await deleteViaMenu(wrapper);
-      expect(confirmButtonsVisible(wrapper)).toBe(true);
-      await clickConfirm(wrapper, "companion-yes");
-      expect(remainingTodos(wrapper)).toBe(2);
-    } finally {
-      wrapper.unmount();
-    }
   });
 });
