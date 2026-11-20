@@ -502,6 +502,18 @@ describe("CompanionBubble", () => {
     wrapper.unmount();
   });
 
+  it.each([ ["none", true], ["cat", false] ] as const)("scopes the stronger undo border for %s theme", async (gifTheme, strongerBorder) => {
+    vi.useFakeTimers();
+    const wrapper = mount(CompanionBubble, {
+      attachTo: document.body,
+      props: { visible: true, message: "提醒已删除", actionText: "撤销", gifTheme },
+      global: { stubs: { NPopover: popoverStub } },
+    });
+    await vi.advanceTimersByTimeAsync(200);
+    expect(document.body.querySelector('[data-testid="companion-action"]')?.classList.contains("is-no-gif")).toBe(strongerBorder);
+    wrapper.unmount();
+  });
+
   it("confirms the bubble immediately when pressing Enter", async () => {
     vi.useFakeTimers();
     const wrapper = mount(CompanionBubble, {

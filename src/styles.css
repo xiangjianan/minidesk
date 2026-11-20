@@ -3160,7 +3160,7 @@ button.companion-undo-button {
   cursor: pointer;
 }
 
-html:not([data-theme="dark"]) button.companion-undo-button:not(:hover):not(:focus-visible) {
+html:not([data-theme="dark"]) button.companion-undo-button.is-no-gif:not(:hover):not(:focus-visible) {
   border-color: rgba(60, 60, 67, 0.4);
 }
 
