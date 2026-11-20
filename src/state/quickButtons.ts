@@ -168,13 +168,14 @@ export function assignQuickTagColumn(
   return assignColumn(tags, draggedId, targetColumn, anchorId, insertBefore);
 }
 
-const QUICK_COPY_PREVIEW_MAX_LENGTH = 120;
+const QUICK_COPY_PREVIEW_MAX_LENGTH = 30;
 
 /** Collapse whitespace and cap length for showing copied text inside a bubble. */
 export function formatQuickCopiedPreview(value: string, maxLength = QUICK_COPY_PREVIEW_MAX_LENGTH): string {
   const collapsed = value.replace(/\s+/g, " ").trim();
-  if (collapsed.length <= maxLength) return collapsed;
-  return `${collapsed.slice(0, maxLength)}…`;
+  const characters = Array.from(collapsed);
+  if (characters.length <= maxLength) return collapsed;
+  return `${characters.slice(0, maxLength).join("")}…`;
 }
 
 export function filterVisibleQuickButtonGroups(

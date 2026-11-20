@@ -3004,7 +3004,7 @@ async function readQuickApiResponseBody(response: Response): Promise<string> {
 function getQuickApiStatusMessage(status: number, responseBody?: string): string {
   const bodyLine = responseBody === undefined
     ? ""
-    : `\n${state.language === "en" ? "Response body" : "响应体"}：${formatQuickApiResponseBody(responseBody)}`;
+    : `\n${state.language === "en" ? "Response body" : "响应体"}：${formatQuickCopiedPreview(responseBody)}`;
   if (status >= 200 && status < 300) {
     return state.language === "en"
       ? `✅ ${status} Success, the API responded normally (＾▽＾)${bodyLine}`
@@ -3028,11 +3028,6 @@ function getQuickApiStatusMessage(status: number, responseBody?: string): string
   return state.language === "en"
     ? `ℹ️ ${status} Response received, status is uncommon (・∀・)${bodyLine}`
     : `ℹ️ ${status} 已收到响应，这个状态码比较少见 (・∀・)${bodyLine}`;
-}
-
-function formatQuickApiResponseBody(value: string): string {
-  const maxLength = 500;
-  return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value;
 }
 
 function createTodoList(anchor?: HTMLElement, title?: string): void {

@@ -1966,8 +1966,8 @@ describe("formatQuickCopiedPreview", () => {
   it("truncates long text with an ellipsis", () => {
     const long = "a".repeat(200);
     const preview = formatQuickCopiedPreview(long);
-    expect(preview.length).toBeLessThan(long.length);
-    expect(preview.endsWith("…")).toBe(true);
+    expect(preview).toBe(`${"a".repeat(30)}…`);
+    expect(formatQuickCopiedPreview("😀".repeat(31))).toBe(`${"😀".repeat(30)}…`);
   });
 });
 
