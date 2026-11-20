@@ -15,6 +15,7 @@ const transfer = () => ({ effectAllowed: "", setData: vi.fn(), setDragImage: vi.
 describe("drag to delete", () => {
   beforeEach(() => {
     vi.useFakeTimers();
+    vi.stubGlobal("innerHeight", 500);
     localStorage.clear();
     const workspace = defaultWorkspace();
     workspace.todoLists = [
@@ -32,7 +33,7 @@ describe("drag to delete", () => {
     workspace.activeSpaceId = "space-1";
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: "none", workspaces: [workspace] }));
   });
-  afterEach(() => { cancelDragDelete(); vi.useRealTimers(); localStorage.clear(); document.body.innerHTML = ""; });
+  afterEach(() => { cancelDragDelete(); vi.unstubAllGlobals(); vi.useRealTimers(); localStorage.clear(); document.body.innerHTML = ""; });
 
   it.each([
     [".image-card img", false],
@@ -49,6 +50,8 @@ describe("drag to delete", () => {
       const zone = document.querySelector<HTMLElement>("[data-drag-delete-zone]")!;
       expect(zone).not.toBeNull();
       vi.spyOn(zone, "getBoundingClientRect").mockReturnValue({ left: 100, right: 300, top: 400, bottom: 500, width: 200, height: 100, x: 100, y: 400, toJSON: () => ({}) });
+      expect(dragDelete.value?.expanded).toBe(false);
+      updateDragDelete(200, 490);
       updateDragDelete(200, 450);
       expect(dragDelete.value?.over).toBe(true);
       zone.dispatchEvent(new MouseEvent("drop", { bubbles: true, cancelable: true, clientX: 200, clientY: 450 }));
@@ -93,6 +96,7 @@ describe("drag to delete", () => {
       const zone = document.querySelector<HTMLElement>("[data-drag-delete-zone]")!;
       expect(zone).not.toBeNull();
       vi.spyOn(zone, "getBoundingClientRect").mockReturnValue({ left: 100, right: 300, top: 400, bottom: 500, width: 200, height: 100, x: 100, y: 400, toJSON: () => ({}) });
+      pointer(window, "pointermove", 200, 490);
       pointer(window, "pointermove", 200, 450);
       await nextTick();
       expect(zone.classList.contains("is-over")).toBe(true);
@@ -104,19 +108,37 @@ describe("drag to delete", () => {
     } finally { wrapper.unmount(); }
   });
 
+  it("stays collapsed while sorting and opens only near the bottom", () => {
+    const remove = vi.fn();
+    const zone = document.createElement("div");
+    zone.dataset.dragDeleteZone = "";
+    zone.getBoundingClientRect = () => ({ left: 100, right: 300, top: 400, bottom: 500, width: 200, height: 100, x: 100, y: 400, toJSON: () => ({}) });
+    document.body.append(zone);
+    dragDelete.value = { remove, over: false, expanded: false };
+    updateDragDelete(200, 450);
+    expect(dragDelete.value?.expanded).toBe(false);
+    expect(finishDragDelete(200, 450)).toBe(false);
+    dragDelete.value = { remove, over: false, expanded: false };
+    updateDragDelete(200, 490);
+    expect(dragDelete.value?.expanded).toBe(true);
+    updateDragDelete(200, 300);
+    expect(dragDelete.value?.expanded).toBe(false);
+    expect(remove).not.toHaveBeenCalled();
+  });
+
   it("does not delete when the drag is cancelled or released elsewhere", () => {
     const remove = vi.fn();
     const zone = document.createElement("div");
     zone.dataset.dragDeleteZone = "";
     zone.getBoundingClientRect = () => ({ left: 100, right: 300, top: 400, bottom: 500, width: 200, height: 100, x: 100, y: 400, toJSON: () => ({}) });
     document.body.append(zone);
-    dragDelete.value = { remove, over: false };
+    dragDelete.value = { remove, over: false, expanded: true };
     expect(finishDragDelete(30, 30)).toBe(false);
     expect(remove).not.toHaveBeenCalled();
-    dragDelete.value = { remove, over: false };
+    dragDelete.value = { remove, over: false, expanded: true };
     expect(finishDragDelete(105, 405)).toBe(false); // transparent corner of the arc
     expect(remove).not.toHaveBeenCalled();
-    dragDelete.value = { remove, over: false };
+    dragDelete.value = { remove, over: false, expanded: true };
     cancelDragDelete();
     expect(remove).not.toHaveBeenCalled();
   });

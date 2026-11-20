@@ -8374,14 +8374,31 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
     transparent 100%);
   font-size: 12px;
   font-weight: 500;
-  transform: translateX(-50%);
+  transform: translate(-50%, calc(100% - 10px));
+  transition: transform 200ms var(--motion-ease);
 }
+.drag-delete-zone::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  border-radius: 100% 100% 0 0;
+  background: radial-gradient(ellipse 50% 140% at 50% 100%, color-mix(in srgb, var(--danger) 45%, transparent), transparent);
+  transition: opacity 160ms ease;
+}
+.drag-delete-zone.is-expanded { transform: translate(-50%, 0); }
+.drag-delete-zone.is-expanded::before { opacity: 0; }
 .drag-delete-icon {
   display: grid;
   place-items: center;
   width: 36px;
   height: 36px;
+  opacity: 0;
+  transition: opacity 160ms ease;
 }
+.drag-delete-zone.is-expanded .drag-delete-icon { opacity: 1; }
 .drag-delete-zone.is-over {
   background: radial-gradient(ellipse 50% 100% at 50% 100%,
     color-mix(in srgb, var(--danger) 44%, transparent) 0%,
@@ -8390,7 +8407,7 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
     transparent 100%);
 }
 .drag-delete-enter-active, .drag-delete-leave-active { transition: opacity 160ms ease, transform 160ms ease; }
-.drag-delete-enter-from, .drag-delete-leave-to { opacity: 0; transform: translate(-50%, 20px); }
+.drag-delete-enter-from, .drag-delete-leave-to { opacity: 0; transform: translate(-50%, 100%); }
 @media (prefers-reduced-motion: reduce) {
   .drag-delete-zone, .drag-delete-enter-active, .drag-delete-leave-active { transition: none; }
 }
