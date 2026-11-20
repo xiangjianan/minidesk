@@ -8299,7 +8299,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   white-space: pre-line;
 }
 .default-message .n-alert .n-alert__close {
-  position: static;
+  position: relative;
   grid-column: 3;
   grid-row: 1;
   width: 24px;
