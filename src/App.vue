@@ -276,7 +276,6 @@ const {
   companionFocused,
   companionPosition,
   bubbleAnchor,
-  bubblePointer,
   pendingConfirm,
   bubbleClearSignal,
   showBubble,
@@ -944,11 +943,6 @@ function renameSpace(id: string, title: string): void {
 function finishSpaceEdit(id: string): void {
   if (pendingEditSpaceId.value === id) pendingEditSpaceId.value = null;
 }
-
-const defaultMessagePointerStyle = computed(() => bubblePointer.value ? {
-  left: `${Math.max(8, Math.min(bubblePointer.value.x + 16, window.innerWidth - 268))}px`,
-  top: `${Math.max(8, Math.min(bubblePointer.value.y, window.innerHeight - 80))}px`,
-} : undefined);
 
 function showDeleteUndo(message: string, anchor: HTMLElement | undefined, restore: () => void, cleanup?: () => void, nearPointer = false): void {
   let restored = false;
@@ -4775,7 +4769,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     />
     <Teleport to="body">
     <Transition name="default-message-motion">
-    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" :class="{ 'is-near-pointer': bubblePointer }" :style="defaultMessagePointerStyle" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
+    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
       <NAlert type="info" :bordered="false" closable @close="hideBubbleMessage()">
         <span>{{ withoutKaomoji(bubbleMessage) }}</span>
         <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>

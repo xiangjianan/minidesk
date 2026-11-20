@@ -8252,10 +8252,6 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   width: max-content;
   max-width: min(520px, calc(100vw - 32px));
 }
-.default-message.is-near-pointer {
-  transform: none;
-  max-width: min(260px, calc(100vw - 16px));
-}
 /* A compact row keeps the icon, message and controls aligned in both themes. */
 .default-message .n-alert {
   display: grid;
@@ -8338,8 +8334,6 @@ html[data-theme="dark"] .default-message .default-message-action {
 .default-message-motion-leave-active { transition: opacity 220ms ease, transform 220ms ease; }
 .default-message-motion-enter-from,
 .default-message-motion-leave-to { opacity: 0; transform: translate(-50%, -16px); }
-.default-message.is-near-pointer.default-message-motion-enter-from,
-.default-message.is-near-pointer.default-message-motion-leave-to { transform: translateY(-16px); }
 @media (prefers-reduced-motion: reduce) {
   .default-message-motion-enter-active,
   .default-message-motion-leave-active { transition-duration: 1ms; }

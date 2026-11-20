@@ -45,7 +45,7 @@ describe("default theme feedback", () => {
     } finally { wrapper.unmount(); }
   });
 
-  it.each([ ["none", "todo"], ["none", "image"], ["none", "quick"], ["cat", "todo"], ["cat", "image"], ["cat", "quick"] ] as const)("positions %s theme %s deletion feedback near the pointer", async (theme, kind) => {
+  it.each([ ["none", "todo"], ["none", "image"], ["none", "quick"], ["cat", "todo"], ["cat", "image"], ["cat", "quick"] ] as const)("positions %s theme %s deletion feedback appropriately", async (theme, kind) => {
     const workspace = defaultWorkspace();
     workspace.todoLists = [{ id: "work", title: "工作", collapsed: false, compact: false, column: 0 }];
     workspace.todos = { work: [{ id: "todo-1", text: "提醒", done: false }] };
@@ -61,8 +61,8 @@ describe("default theme feedback", () => {
       await wrapper.vm.$nextTick();
       if (theme === "none") {
         const message = document.querySelector<HTMLElement>('[data-testid="default-message"]');
-        expect(message?.classList.contains("is-near-pointer")).toBe(true);
-        expect(message?.getAttribute("style")).toContain("316px");
+        expect(message).not.toBeNull();
+        expect(message?.getAttribute("style")).toBeNull();
         expect(message?.querySelector('[data-testid="default-message-action"]')).not.toBeNull();
       } else {
         expect(wrapper.getComponent(CompanionBubble).props("position")).toEqual({ right: "calc(100vw - 402px)", bottom: "auto", top: "175px" });
