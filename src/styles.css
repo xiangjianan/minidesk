@@ -8299,17 +8299,22 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   margin: 0;
   color: #909399;
 }
-.default-message .default-message-action {
+.default-message button.default-message-action {
   flex: none;
   min-height: 26px;
   padding: 0 10px;
+  border: 1px solid rgba(60, 60, 67, 0.3);
   border-radius: 6px;
+  color: var(--text);
+  background: transparent;
   font-weight: 500;
-  --n-border: 1px solid rgba(60, 60, 67, 0.4) !important;
-  --n-border-hover: 1px solid var(--line-focus) !important;
-  --n-border-pressed: 1px solid var(--line-focus) !important;
-  --n-border-focus: 1px solid var(--line-focus) !important;
 }
+.default-message button.default-message-action:hover,
+.default-message button.default-message-action:focus-visible {
+  border-color: var(--line-focus);
+  background: var(--button-hover);
+}
+
 html[data-theme="dark"] .default-message .n-alert {
   background: #292a2c;
   border-color: #414243;
@@ -8319,17 +8324,17 @@ html[data-theme="dark"] .default-message .n-alert {
 html[data-theme="dark"] .default-message .n-alert .n-alert-body__content { color: #cfd3dc; }
 html[data-theme="dark"] .default-message .n-alert .n-alert__icon,
 html[data-theme="dark"] .default-message .n-alert .n-alert__close { color: #a3a6ad; }
-html[data-theme="dark"] .default-message .default-message-action {
-  --n-color: #3b3d41 !important;
-  --n-color-hover: #484b50 !important;
-  --n-color-pressed: #333539 !important;
-  --n-text-color: #e5e7eb !important;
-  --n-text-color-hover: #fff !important;
-  --n-text-color-pressed: #fff !important;
-  --n-border: 1px solid #65686e !important;
-  --n-border-hover: 1px solid #858991 !important;
-  --n-border-pressed: 1px solid #858991 !important;
+html[data-theme="dark"] .default-message button.default-message-action {
+  color: #e5e7eb;
+  background: #3b3d41;
+  border-color: #65686e;
 }
+html[data-theme="dark"] .default-message button.default-message-action:hover,
+html[data-theme="dark"] .default-message button.default-message-action:focus-visible {
+  background: #484b50;
+  border-color: #858991;
+}
+
 .default-message-motion-enter-active,
 .default-message-motion-leave-active { transition: opacity 220ms ease, transform 220ms ease; }
 .default-message-motion-enter-from,

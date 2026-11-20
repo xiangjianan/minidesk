@@ -4774,7 +4774,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         <span>{{ withoutKaomoji(bubbleMessage) }}</span>
         <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>
         <span v-if="bubbleSignature">{{ bubbleSignature }}</span>
-        <NButton v-if="bubbleActionText" size="tiny" class="default-message-action" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</NButton>
+        <button v-if="bubbleActionText" type="button" class="default-message-action" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</button>
       </NAlert>
     </div>
     </Transition>

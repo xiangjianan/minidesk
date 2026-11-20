@@ -50,7 +50,7 @@ describe("default theme feedback", () => {
     workspace.todoLists = [{ id: "work", title: "工作", collapsed: false, compact: false, column: 0 }];
     workspace.todos = { work: [{ id: "todo-1", text: "提醒", done: false }] };
     workspace.images = [{ id: "image-1", src: "data:image/png;base64,AA==", createdAt: 1 }];
-    workspace.quickButtons = [{ id: "quick-1", title: "快捷", value: "内容", type: "text" }];
+    workspace.quickButtons = [{ id: "quick-1", title: "快捷", value: "内容", type: "text", hidden: false }];
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: theme, workspaces: [workspace] }));
     const wrapper = mountApp();
     try {
