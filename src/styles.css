@@ -8359,7 +8359,7 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
   z-index: 12000;
   left: 50%;
   bottom: 0;
-  width: min(100vw, max(480px, 33.333vw));
+  width: min(100vw, max(540px, 38vw));
   height: 144px;
   display: flex;
   flex-direction: column;
