@@ -4168,6 +4168,30 @@ describe("App shell", () => {
     }
   });
 
+  it("keeps the current image preview open when undo restores a deleted image", async () => {
+    const restoreIndexedDb = installMemoryImageDb();
+    const images = [
+      { id: "undo-preview-1", src: "data:image/png;base64,b25l", createdAt: 1 },
+      { id: "undo-preview-2", src: "data:image/png;base64,dHdv", createdAt: 2 },
+    ];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ images }));
+    for (const image of images) await storeImagePayload(image);
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(ImagePanel).vm.$emit("preview", images[0].id);
+      await flushAsyncComponents();
+      getImagePreview(wrapper).vm.$emit("delete", images[0].id);
+      await wrapper.vm.$nextTick();
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "z", ctrlKey: true }));
+      await flushPromises();
+      expect(wrapper.getComponent(ImagePanel).props("images")).toHaveLength(2);
+      expect(getImagePreview(wrapper).props("activeId")).toBe(images[1].id);
+    } finally {
+      wrapper.unmount();
+      restoreIndexedDb();
+    }
+  });
+
   it("hydrates the previous image payload when undoing an edit", async () => {
     const restoreIndexedDb = installMemoryImageDb();
     localStorage.setItem(

@@ -27,8 +27,8 @@ export interface UndoHistoryDeps {
   isMounted: () => boolean;
   /** Clear debounced edit timers + pending empty-todo removal timers before restoring. */
   cancelPendingEdits: () => void;
-  /** Close any open image preview and pending sub-panel edit ids. */
-  clearTransientUi: () => void;
+  /** Reconcile transient UI against the restored state. */
+  clearTransientUi: (nextState: BoardState) => void;
   /** Persist the restored state immediately and adopt its generation baseline. */
   persistAfterRestore: () => void;
 }
@@ -96,7 +96,7 @@ export function useUndoHistory(state: BoardState, deps: UndoHistoryDeps) {
       restoringUndo = true;
       undoSnapshots.value = undoSnapshots.value.slice(0, -1);
       deps.cancelPendingEdits();
-      deps.clearTransientUi();
+      deps.clearTransientUi(nextState);
       const liveButtonClicks = captureQuickButtonClicks(state);
       Object.assign(state, nextState);
       // 撤销恢复的是内容，不是使用分析：现行计数在恢复后、立即保存前回填。

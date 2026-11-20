@@ -71,6 +71,28 @@ describe("default theme feedback", () => {
     } finally { wrapper.unmount(); }
   });
 
+  it("shows quick copy and API feedback without a GIF theme", async () => {
+    const workspace = defaultWorkspace();
+    workspace.quickButtons = [
+      { id: "copy", title: "复制", value: "内容", type: "text", hidden: false },
+      { id: "api", title: "接口", value: "https://example.com", type: "api", hidden: false },
+    ];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), workspaces: [workspace] }));
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ status: 200, text: async () => "ok" }));
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
+    const wrapper = mountApp();
+    try {
+      await wrapper.findAll(".quick-button")[0].trigger("click");
+      await flushPromises();
+      expect(writeText).toHaveBeenCalledWith("内容");
+      expect(document.querySelector('[data-testid="default-message"]')?.textContent).toMatch(/复制|剪贴板/);
+      await wrapper.findAll(".quick-button")[1].trigger("click");
+      await flushPromises();
+      expect(document.querySelector('[data-testid="default-message"]')?.textContent).toContain("200");
+    } finally { wrapper.unmount(); vi.unstubAllGlobals(); }
+  });
+
   it("opens about information in a dialog and closes it", async () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultState()));
     const wrapper = mountApp();

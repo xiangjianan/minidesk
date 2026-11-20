@@ -173,8 +173,13 @@ const {
     emptyTodoRemovalTimers.forEach((timer) => window.clearTimeout(timer));
     emptyTodoRemovalTimers.clear();
   },
-  clearTransientUi: () => {
-    clearImagePreview();
+  clearTransientUi: (nextState) => {
+    const restoredWorkspace = nextState.workspaces.find((workspace) => workspace.id === nextState.activeWorkspaceId);
+    if (nextState.activeWorkspaceId !== state.activeWorkspaceId || !activePreviewId.value || !restoredWorkspace?.images.some((image) => image.id === activePreviewId.value)) {
+      clearImagePreview();
+    } else {
+      activeEditorId.value = undefined;
+    }
     pendingEditSpaceId.value = null;
     pendingEditTodoListId.value = null;
   },
@@ -2916,9 +2921,9 @@ async function copyQuickValue(value: string, anchor?: HTMLElement): Promise<void
   const copied = await copyTextToClipboard(value, shouldBlockBoardEffects);
   if (shouldBlockBoardEffects()) return;
   if (copied) {
-    showBubbleText(getQuickTextCopiedMessage(value), anchor, { hideCompanionAfter: true }, 4000);
+    showBubbleText(getQuickTextCopiedMessage(value), anchor, { explicit: true, hideCompanionAfter: true }, 4000);
   } else {
-    showBubble("quickTextCopyFailed", anchor, { hideCompanionAfter: true });
+    showBubble("quickTextCopyFailed", anchor, { explicit: true, hideCompanionAfter: true });
   }
 }
 
@@ -2935,16 +2940,16 @@ async function copyQuickText(id: string, anchor?: HTMLElement): Promise<void> {
 }
 
 async function callQuickApi(button: QuickButton, anchor?: HTMLElement): Promise<void> {
-  showBubbleText(getQuickApiInvokedMessage(button.title), anchor, { hideCompanionAfter: true }, 2200);
+  showBubbleText(getQuickApiInvokedMessage(button.title), anchor, { explicit: true, hideCompanionAfter: true }, 2200);
   try {
     const response = await fetch(normalizeLink(button.value), buildQuickApiRequest(button));
     if (shouldBlockBoardEffects()) return;
     const responseBody = await readQuickApiResponseBody(response);
     if (shouldBlockBoardEffects()) return;
-    showBubbleText(getQuickApiStatusMessage(response.status, responseBody), anchor, { hideCompanionAfter: true }, 5200);
+    showBubbleText(getQuickApiStatusMessage(response.status, responseBody), anchor, { explicit: true, hideCompanionAfter: true }, 5200);
   } catch {
     if (shouldBlockBoardEffects()) return;
-    showBubbleText(state.language === "en" ? "❌ API request failed. Check the URL, CORS, or network (；′⌒`)" : "❌ 接口调用失败，检查 URL、跨域或网络吧 (；′⌒`)", anchor, { hideCompanionAfter: true }, 4200);
+    showBubbleText(state.language === "en" ? "❌ API request failed. Check the URL, CORS, or network (；′⌒`)" : "❌ 接口调用失败，检查 URL、跨域或网络吧 (；′⌒`)", anchor, { explicit: true, hideCompanionAfter: true }, 4200);
   }
 }
 
