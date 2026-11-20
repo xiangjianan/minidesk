@@ -1449,7 +1449,6 @@ function updateNotifyPickerDate(value: number | null): void {
   // Only the date changes — keep the selected hour:minute intact.
   const next = preserveNotifyTimeOnDateChange(getNotifyPickerValue(), value);
   notifyPickerDrafts.value = { ...notifyPickerDrafts.value, [key]: next };
-  commitNotifyPickerSelection(next);
 }
 
 function preserveNotifyTimeOnDateChange(currentValue: number, nextValue: number): number {
@@ -1468,7 +1467,6 @@ function applyNotifyPickerToday(): void {
   void nextTick(() => {
     window.requestAnimationFrame(() => scrollNotifyTimePickerActiveItems(true));
   });
-  commitNotifyPickerSelection(next);
 }
 
 function getNotifyPickerHour(): number {
@@ -1493,7 +1491,6 @@ function updateNotifyPickerTime(unit: "hour" | "minute", value: number): void {
   current.setSeconds(0, 0);
   const next = current.getTime();
   notifyPickerDrafts.value = { ...notifyPickerDrafts.value, [key]: next };
-  commitNotifyPickerSelection(next);
 }
 
 function applyNotifyTimePreset(index: number): void {
@@ -1505,20 +1502,7 @@ function applyNotifyTimePreset(index: number): void {
   const next = current.getTime();
   const key = todoKey(picker.period, picker.id);
   notifyPickerDrafts.value = { ...notifyPickerDrafts.value, [key]: next };
-  commitNotifyPickerSelection(next);
   void nextTick(() => window.requestAnimationFrame(() => scrollNotifyTimePickerActiveItems(true)));
-}
-
-/**
- * Saves the picked value right away — no confirm step. The picker stays open so
- * the user can keep fine-tuning (every manual date/time pick commits), and a
- * later outside click just dismisses it without discarding the saved value.
- */
-function commitNotifyPickerSelection(value: number): void {
-  const picker = notifyPicker.value;
-  if (!picker) return;
-  const key = todoKey(picker.period, picker.id);
-  emit("notify", picker.period, picker.id, value, notifyPickerAnchors.get(key));
 }
 
 function confirmNotifyPicker(value: number | null): void {
