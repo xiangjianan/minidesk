@@ -4794,7 +4794,6 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           data-drag-delete-zone role="status" :aria-label="uiText.common.dragToDelete"
           @dragover.prevent.stop @drop="dropOnDeleteZone">
           <span class="drag-delete-icon"><Trash2 :size="20" :stroke-width="1.8" /></span>
-          <span>{{ uiText.common.dragToDelete }}</span>
         </div>
       </Transition>
     </Teleport>

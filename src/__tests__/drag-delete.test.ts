@@ -114,6 +114,9 @@ describe("drag to delete", () => {
     expect(finishDragDelete(30, 30)).toBe(false);
     expect(remove).not.toHaveBeenCalled();
     dragDelete.value = { remove, over: false };
+    expect(finishDragDelete(105, 405)).toBe(false); // transparent corner of the arc
+    expect(remove).not.toHaveBeenCalled();
+    dragDelete.value = { remove, over: false };
     cancelDragDelete();
     expect(remove).not.toHaveBeenCalled();
   });

@@ -12,7 +12,10 @@ function containsPoint(x: number, y: number): boolean {
   const zone = document.querySelector<HTMLElement>("[data-drag-delete-zone]");
   if (!zone) return false;
   const rect = zone.getBoundingClientRect();
-  return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  if (!rect.width || !rect.height || y < rect.top || y > rect.bottom) return false;
+  const horizontal = (x - (rect.left + rect.width / 2)) / (rect.width / 2);
+  const vertical = (rect.bottom - y) / rect.height;
+  return horizontal * horizontal + vertical * vertical <= 1;
 }
 
 export function updateDragDelete(x: number, y: number): void {
