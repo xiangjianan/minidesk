@@ -8303,7 +8303,7 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   flex: none;
   min-height: 26px;
   padding: 0 10px;
-  border: 1px solid rgba(60, 60, 67, 0.3);
+  border: 1px solid var(--line-control);
   border-radius: 999px;
   color: var(--text);
   background: transparent;
@@ -8328,12 +8328,11 @@ html[data-theme="dark"] .default-message .n-alert .n-alert__close { color: #a3a6
 html[data-theme="dark"] .default-message button.default-message-action {
   color: #e5e7eb;
   background: #3b3d41;
-  border-color: #65686e;
 }
 html[data-theme="dark"] .default-message button.default-message-action:hover,
 html[data-theme="dark"] .default-message button.default-message-action:focus-visible {
   background: #484b50;
-  border-color: #858991;
+  border-color: var(--line-focus);
 }
 
 .default-message-motion-enter-active,
