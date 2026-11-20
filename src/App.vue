@@ -3323,7 +3323,7 @@ function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): bo
   persistNow();
   showBubble("deleteTodo", anchor, {
     hideCompanionAfter: true,
-    keepPosition: true,
+    position: state.companionGifTheme === "none" ? undefined : "pointer",
     force: true,
     actionText: uiText.value.imageEditor.undo,
     onAction: () => {

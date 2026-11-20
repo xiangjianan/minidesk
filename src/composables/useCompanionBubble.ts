@@ -22,6 +22,8 @@ const CONFIRM_TARGET_MARK = "data-confirm-target";
 export interface BubbleOptions {
   hideCompanionAfter?: boolean;
   keepPosition?: boolean;
+  /** 将反馈放在最近的鼠标位置附近，沿用确认框的边界处理。 */
+  position?: "pointer";
   actionText?: string;
   onAction?: () => void;
   onDismiss?: () => void;
@@ -148,9 +150,9 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     deps.setActiveGuideKey(options.guideKey ?? null);
     companionFocused.value = true;
     bubbleAnchor.value = anchor ?? null;
-    // 所有提示消息气泡 —— 普通 toast、整理提醒、右键「Tips」、确认后的成功提示 ——
-    // 统一落到屏幕右下角；只有二次确认弹框例外，贴近鼠标。
-    if (!options.keepPosition) companionPosition.value = getToastPosition();
+    // 普通提示默认落在屏幕角落；需要跟随鼠标的反馈复用确认框定位。
+    if (options.position === "pointer") companionPosition.value = getConfirmPosition();
+    else if (!options.keepPosition) companionPosition.value = getToastPosition();
     bubbleVisible.value = true;
     bubbleTimerOptions.value = options;
     bubbleActionText.value = options.actionText ?? "";

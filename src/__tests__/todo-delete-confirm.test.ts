@@ -2,6 +2,7 @@ import { nextTick } from "vue";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
 import { mountApp } from "./helpers/mount-app";
+import TodoPanel from "../components/TodoPanel.vue";
 
 // These legacy interaction tests exercise the animated companion explicitly.
 // Default-theme behavior is covered by default-feedback.test.ts.
@@ -67,6 +68,22 @@ describe("todo delete confirmation", () => {
     vi.useRealTimers();
     document.body.innerHTML = "";
     localStorage.clear();
+  });
+
+  it("places GIF deletion feedback beside the pointer", async () => {
+    const wrapper = mountApp();
+    try {
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 300, clientY: 200 }));
+      wrapper.getComponent(TodoPanel).vm.$emit("remove", "work", "a");
+      await nextTick();
+      await vi.advanceTimersByTimeAsync(200);
+      const style = wrapper.get('[data-testid="companion-bubble"]').attributes("style");
+      expect(style).toContain("100vw - 402px");
+      expect(style).toContain("top: 175px");
+      expect(remainingTodos(wrapper)).toBe(3);
+      await wrapper.get('[data-testid="companion-action"]').trigger("click");
+      expect(remainingTodos(wrapper)).toBe(4);
+    } finally { wrapper.unmount(); }
   });
 
   it("deletes immediately and supports undo", async () => {

@@ -73,6 +73,18 @@ describe("companion bubble placement", () => {
     expect(companionPosition.value).toBeUndefined();
   });
 
+  it("positions pointer feedback like a confirmation, including after a previous toast", () => {
+    const bubble = useCompanionBubble(createDeps());
+    bubble.showBubble("deleteTodo", createZoneAnchor());
+    movePointerTo(300, 200);
+    bubble.showBubble("deleteTodo", createZoneAnchor(), { position: "pointer", keepPosition: true });
+    expect(bubble.companionPosition.value).toEqual({ right: "calc(100vw - 402px)", bottom: "auto", top: "175px" });
+    movePointerTo(1000, 0);
+    bubble.showBubble("deleteTodo", createZoneAnchor(), { position: "pointer" });
+    expect(bubble.companionPosition.value).toEqual({ right: "calc(100vw - 1016px)", bottom: "auto", top: "150px" });
+    bubble.clearTimers();
+  });
+
   it("keeps guide Tips at the screen corner too, ignoring the zone anchor", () => {
     const { showBubbleText, companionPosition } = useCompanionBubble(createDeps());
     // 右键「Tips」/ GIF 点击轮换的指南气泡也统一落屏幕右下角。
