@@ -655,6 +655,10 @@ function handleImagePointerCancel(event: PointerEvent): void {
   finishImagePointerDrag(event, true);
 }
 
+function positionLeavingImage(element: Element): void {
+  if (element instanceof HTMLElement) element.style.top = `${element.offsetTop}px`;
+}
+
 function handleImageCardClick(event: MouseEvent, id: string): void {
   if (performance.now() < suppressImageClickUntil) {
     event.preventDefault();
@@ -736,7 +740,7 @@ function handleImageDragWheel(event: WheelEvent): void {
       @contextmenu.prevent.stop="openMenu($event)"
     >
       <p v-if="images.length === 0" class="workbench-empty-hint image-empty-hint">{{ uiText.images.emptyHint }}</p>
-      <TransitionGroup name="image-reorder" tag="div" class="image-list">
+      <TransitionGroup name="image-reorder" tag="div" class="image-list" @before-leave="positionLeavingImage">
       <button
         v-for="(image, index) in images"
         :key="image.id"

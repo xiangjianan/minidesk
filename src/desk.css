@@ -1031,6 +1031,19 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
     box-shadow var(--motion-fast) ease;
 }
 
+:is(.workbench-zone-assets, .focus-now-images) .image-list .image-card.image-reorder-leave-active {
+  left: 2px;
+  right: 12px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.workbench-shell, .focus-now-images) .image-card.image-reorder-move,
+  :is(.workbench-shell, .focus-now-images) .image-card.image-reorder-enter-active,
+  :is(.workbench-shell, .focus-now-images) .image-card.image-reorder-leave-active {
+    transition: none;
+  }
+}
+
 :is(.workbench-shell, .focus-now-images) .image-card:hover {
   box-shadow: var(--desk-card-shadow, inset 0 0 0 1px var(--line-subtle)), 0 0 0 1px color-mix(in srgb, var(--primary) 25%, transparent);
 }
