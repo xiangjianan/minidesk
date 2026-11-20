@@ -571,7 +571,7 @@ describe("Naive UI component usage", () => {
     expect(todo).not.toContain(':to="false"');
     expect(todo).not.toContain(':show="isNotifyPickerShown');
     expect(todo).toContain('@update:value="updateNotifyPickerDate"');
-    expect(todo).toContain("commitNotifyPickerSelection");
+    expect(todo).toContain('@click="confirmNotifyPicker(getNotifyPickerValue())"');
     expect(todo).toContain("applyNotifyPickerToday");
     expect(todo).toContain("clearNotifyPicker");
     expect(todo).toContain("notify-time-column is-hour");
