@@ -1496,6 +1496,19 @@ function updateNotifyPickerTime(unit: "hour" | "minute", value: number): void {
   commitNotifyPickerSelection(next);
 }
 
+function applyNotifyTimePreset(index: number): void {
+  const picker = notifyPicker.value;
+  if (!picker) return;
+  const [hour, minute] = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index].split(":").map(Number);
+  const current = new Date(getNotifyPickerValue());
+  current.setHours(hour, minute, 0, 0);
+  const next = current.getTime();
+  const key = todoKey(picker.period, picker.id);
+  notifyPickerDrafts.value = { ...notifyPickerDrafts.value, [key]: next };
+  commitNotifyPickerSelection(next);
+  void nextTick(() => window.requestAnimationFrame(() => scrollNotifyTimePickerActiveItems(true)));
+}
+
 /**
  * Saves the picked value right away — no confirm step. The picker stays open so
  * the user can keep fine-tuning (every manual date/time pick commits), and a
@@ -2645,7 +2658,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                 type="button"
                 class="notify-panel-preset"
                 :title="uiText.todo.notifyPresets.hint"
-                @click="confirmNotifyPicker(preset.at)"
+                @click="applyNotifyTimePreset(index)"
                 @contextmenu.stop.prevent="editPreset('time', index)"
               >
                 {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}

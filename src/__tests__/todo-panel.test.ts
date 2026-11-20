@@ -2406,6 +2406,31 @@ describe("TodoPanel", () => {
     wrapper.unmount();
   });
 
+  it("applies time presets to the selected date and keeps the picker open", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(2026, 4, 25, 22, 30));
+    const wrapper = mount(TodoPanel, {
+      props: { todos: { morning: [{ id: "a", text: "Test", done: false }], noon: [], evening: [] }, titles: DEFAULT_TITLES },
+      global: { stubs: { NDatePicker: datePickerStub, NTooltip: tooltipStub } },
+    });
+    await wrapper.get(".todo-notify-button").trigger("click");
+    const picker = wrapper.getComponent({ name: "NDatePicker" });
+    await picker.vm.$emit("update:value", new Date(2026, 4, 28).getTime());
+    await nextTick();
+    const buttons = document.body.querySelectorAll<HTMLButtonElement>(".notify-panel-preset");
+    buttons[5].click();
+    await nextTick();
+    expect(picker.props("value")).toBe(new Date(2026, 4, 28, 9).getTime());
+    expect(wrapper.emitted("notify")?.at(-1)).toEqual(["morning", "a", new Date(2026, 4, 28, 9).getTime(), expect.any(HTMLElement)]);
+    expect(document.body.querySelector(".notify-floating-date-picker")).toBeTruthy();
+    buttons[6].click();
+    await nextTick();
+    expect(picker.props("value")).toBe(new Date(2026, 4, 28, 12).getTime());
+    expect(document.body.querySelector(".notify-floating-date-picker")).toBeTruthy();
+    wrapper.unmount();
+    vi.useRealTimers();
+  });
+
   it("commits a quick preset deadline in one step", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 4, 25, 10, 30));
@@ -2439,6 +2464,8 @@ describe("TodoPanel", () => {
     const presetBtn = Array.from(pickerEl!.querySelectorAll(".notify-panel-preset"))
       .find((btn) => (btn as HTMLElement).textContent?.trim() === "1 小时") as HTMLButtonElement;
     presetBtn.click();
+    await nextTick();
+    expect(document.body.querySelector(".notify-floating-date-picker")).toBeFalsy();
 
     expect(wrapper.emitted("notify")?.[0]).toEqual([
       "morning",
