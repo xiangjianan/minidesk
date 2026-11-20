@@ -109,7 +109,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
    * 二次确认弹框的落点：鼠标右上方 —— GIF 在鼠标右侧（水平间距 40px，鼠标大致
    * 落在弹框删除按钮的正下方），GIF 垂直中心对齐鼠标；弹框本体由 NPopover 的
    * top-end 布局弹在 GIF 上方，按钮始终在鼠标上方。鼠标贴近视口顶缘时 GIF 下压
-   * 到预留线，保证弹框不必翻转；贴近视口右缘时钳制在边缘内。没有指针记录时
+   * 到预留线，保证弹框不必翻转；贴近视口右缘或底缘时钳制在边缘内。没有指针记录时
    * （纯键盘触发的新页面等）回退到屏幕右下角。
    */
   function getConfirmPosition(): { right: string; bottom?: string; top?: string } | undefined {
@@ -118,7 +118,8 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     }
     const pointer = getLastPointerPosition();
     if (!pointer) return getToastPosition();
-    const top = Math.max(pointer.y - CONFIRM_GIF_SIZE / 2, CONFIRM_TOP_RESERVE);
+    const maxTop = Math.max(0, window.innerHeight - CONFIRM_GIF_SIZE - CONFIRM_VIEWPORT_MARGIN);
+    const top = Math.min(Math.max(pointer.y - CONFIRM_GIF_SIZE / 2, CONFIRM_TOP_RESERVE), maxTop);
     const gifRightEdge = Math.min(
       pointer.x + CONFIRM_POINTER_GAP + CONFIRM_GIF_SIZE,
       window.innerWidth - CONFIRM_VIEWPORT_MARGIN,

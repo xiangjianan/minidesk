@@ -136,6 +136,18 @@ describe("companion bubble placement", () => {
     });
   });
 
+  it("keeps the GIF fully visible for deletion feedback and confirmations at the bottom edge", () => {
+    const bubble = useCompanionBubble(createDeps());
+    movePointerTo(300, window.innerHeight - 1);
+    const expectedTop = `${window.innerHeight - 58}px`;
+    bubble.showBubble("deleteTodo", createZoneAnchor(), { position: "pointer", actionText: "撤销" });
+    expect(bubble.companionPosition.value?.top).toBe(expectedTop);
+    expect(bubble.bubbleActionText.value).toBe("撤销");
+    bubble.requestConfirmation("confirmDeleteTodoList", createZoneAnchor(), vi.fn());
+    expect(bubble.companionPosition.value?.top).toBe(expectedTop);
+    bubble.clearTimers();
+  });
+
   it("falls back to the screen corner when no pointer has been recorded", () => {
     const { requestConfirmation, companionPosition } = useCompanionBubble(createDeps());
     requestConfirmation("confirmDeleteTodo", createZoneAnchor(), vi.fn());
