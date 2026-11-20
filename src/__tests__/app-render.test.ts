@@ -4893,7 +4893,7 @@ describe("App shell", () => {
       await wrapper.vm.$nextTick();
       expect(wrapper.get('[data-testid="companion-confirm"]').text()).toContain("已发起调用");
 
-      apiResult.resolve({ status: 201, text: vi.fn().mockResolvedValue("响应".repeat(30)) });
+      apiResult.resolve({ status: 201, text: vi.fn().mockResolvedValue("响应".repeat(60)) });
       await Promise.resolve();
       await wrapper.vm.$nextTick();
       await vi.advanceTimersByTimeAsync(200);
@@ -4903,8 +4903,8 @@ describe("App shell", () => {
       expect(message).toContain("201");
       expect(message).toMatch(/调用成功|正常响应/);
       expect(message).toMatch(/✅|\(＾▽＾\)/);
-      expect(message).toContain(`响应体：${"响应".repeat(15)}…`);
-      expect(message).not.toContain("响应".repeat(16));
+      expect(message).toContain(`响应体：${"响应".repeat(50)}…`);
+      expect(message).not.toContain("响应".repeat(51));
     } finally {
       wrapper.unmount();
       vi.useRealTimers();

@@ -3004,7 +3004,7 @@ async function readQuickApiResponseBody(response: Response): Promise<string> {
 function getQuickApiStatusMessage(status: number, responseBody?: string): string {
   const bodyLine = responseBody === undefined
     ? ""
-    : `\n${state.language === "en" ? "Response body" : "响应体"}：${formatQuickCopiedPreview(responseBody)}`;
+    : `\n${state.language === "en" ? "Response body" : "响应体"}：${formatQuickCopiedPreview(responseBody, 100)}`;
   if (status >= 200 && status < 300) {
     return state.language === "en"
       ? `✅ ${status} Success, the API responded normally (＾▽＾)${bodyLine}`
