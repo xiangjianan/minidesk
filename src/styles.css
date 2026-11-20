@@ -8304,9 +8304,10 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
   min-height: 26px;
   padding: 0 10px;
   border: 1px solid rgba(60, 60, 67, 0.3);
-  border-radius: 6px;
+  border-radius: 999px;
   color: var(--text);
   background: transparent;
+  font-size: 12px;
   font-weight: 500;
 }
 .default-message button.default-message-action:hover,
