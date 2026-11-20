@@ -276,6 +276,7 @@ const {
   companionFocused,
   companionPosition,
   bubbleAnchor,
+  bubblePointer,
   pendingConfirm,
   bubbleClearSignal,
   showBubble,
@@ -944,10 +945,15 @@ function finishSpaceEdit(id: string): void {
   if (pendingEditSpaceId.value === id) pendingEditSpaceId.value = null;
 }
 
-function showDeleteUndo(message: string, anchor: HTMLElement | undefined, restore: () => void, cleanup?: () => void): void {
+const defaultMessagePointerStyle = computed(() => bubblePointer.value ? {
+  left: `${Math.max(8, Math.min(bubblePointer.value.x + 16, window.innerWidth - 268))}px`,
+  top: `${Math.max(8, Math.min(bubblePointer.value.y, window.innerHeight - 80))}px`,
+} : undefined);
+
+function showDeleteUndo(message: string, anchor: HTMLElement | undefined, restore: () => void, cleanup?: () => void, nearPointer = false): void {
   let restored = false;
   showBubbleText(message, anchor, {
-    keepPosition: true, force: true, hideCompanionAfter: true,
+    keepPosition: true, position: nearPointer ? "pointer" : undefined, force: true, hideCompanionAfter: true,
     actionText: uiText.value.imageEditor.undo,
     onAction: () => { restore(); restored = true; },
     onDismiss: () => { if (!restored) cleanup?.(); },
@@ -2201,7 +2207,7 @@ function deleteImage(id: string, anchor?: HTMLElement): void {
     if (!workspace || workspace.images.some((item) => item.id === id)) return;
     workspace.images.splice(Math.min(index, workspace.images.length), 0, deletedImage);
     persistNow();
-  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)));
+  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)), true);
 }
 
 /** 专注贴图删除保留撤销宽限。 */
@@ -2225,7 +2231,7 @@ function deleteFocusImage(id: string, anchor?: HTMLElement): void {
     images.splice(Math.min(index, images.length), 0, deleted);
     target.focusImages = images;
     persistNow();
-  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)));
+  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)), true);
 }
 
 function openImagePreview(id: string): void {
@@ -2601,7 +2607,7 @@ function deleteQuick(id: string, anchor?: HTMLElement): void {
     if (!workspace || workspace.quickButtons.some((button) => button.id === id)) return;
     workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, removed);
     persistNow();
-  });
+  }, undefined, true);
 }
 
 function toggleQuickHidden(id: string): void {
@@ -3323,7 +3329,7 @@ function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): bo
   persistNow();
   showBubble("deleteTodo", anchor, {
     hideCompanionAfter: true,
-    position: state.companionGifTheme === "none" ? undefined : "pointer",
+    position: "pointer",
     force: true,
     actionText: uiText.value.imageEditor.undo,
     onAction: () => {
@@ -4769,7 +4775,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     />
     <Teleport to="body">
     <Transition name="default-message-motion">
-    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
+    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" :class="{ 'is-near-pointer': bubblePointer }" :style="defaultMessagePointerStyle" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
       <NAlert type="info" :bordered="false" closable @close="hideBubbleMessage()">
         <span>{{ withoutKaomoji(bubbleMessage) }}</span>
         <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>

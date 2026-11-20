@@ -77,6 +77,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   const companionPosition = ref<{ right: string; bottom?: string; top?: string } | undefined>();
   /** 当前气泡的锚点：GIF 点击 Tips 用它解析气泡归属的区域。 */
   const bubbleAnchor = ref<HTMLElement | null>(null);
+  const bubblePointer = ref<{ x: number; y: number } | null>(null);
   const pendingConfirm = ref<PendingConfirm | null>(null);
   const bubbleTimer = ref<number | undefined>();
   const bubbleFadeTimer = ref<number | undefined>();
@@ -150,6 +151,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     deps.setActiveGuideKey(options.guideKey ?? null);
     companionFocused.value = true;
     bubbleAnchor.value = anchor ?? null;
+    bubblePointer.value = options.position === "pointer" && !deps.isMobileLayout() ? getLastPointerPosition() : null;
     // 普通提示默认落在屏幕角落；需要跟随鼠标的反馈复用确认框定位。
     if (options.position === "pointer") companionPosition.value = getConfirmPosition();
     else if (!options.keepPosition) companionPosition.value = getToastPosition();
@@ -378,6 +380,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     companionFocused,
     companionPosition,
     bubbleAnchor,
+    bubblePointer,
     pendingConfirm,
     bubbleClearSignal,
     showBubble,

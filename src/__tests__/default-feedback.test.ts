@@ -3,6 +3,8 @@ import { flushPromises } from "@vue/test-utils";
 import { NModal } from "naive-ui";
 import { mountApp } from "./helpers/mount-app";
 import TodoPanel from "../components/TodoPanel.vue";
+import ImagePanel from "../components/ImagePanel.vue";
+import QuickButtons from "../components/QuickButtons.vue";
 import SettingsMenu from "../components/SettingsMenu.vue";
 import CompanionBubble from "../components/CompanionBubble.vue";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
@@ -40,6 +42,32 @@ describe("default theme feedback", () => {
       const message = document.querySelector('[data-testid="default-message"]');
       expect(message?.closest("transition-stub")?.parentElement).toBe(document.body);
       expect(message?.textContent).toBeTruthy();
+    } finally { wrapper.unmount(); }
+  });
+
+  it.each([ ["none", "todo"], ["none", "image"], ["none", "quick"], ["cat", "todo"], ["cat", "image"], ["cat", "quick"] ] as const)("positions %s theme %s deletion feedback near the pointer", async (theme, kind) => {
+    const workspace = defaultWorkspace();
+    workspace.todoLists = [{ id: "work", title: "工作", collapsed: false, compact: false, column: 0 }];
+    workspace.todos = { work: [{ id: "todo-1", text: "提醒", done: false }] };
+    workspace.images = [{ id: "image-1", src: "data:image/png;base64,AA==", createdAt: 1 }];
+    workspace.quickButtons = [{ id: "quick-1", title: "快捷", value: "内容", type: "text" }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: theme, workspaces: [workspace] }));
+    const wrapper = mountApp();
+    try {
+      window.dispatchEvent(new MouseEvent("mousemove", { clientX: 300, clientY: 200 }));
+      if (kind === "todo") wrapper.getComponent(TodoPanel).vm.$emit("remove", "work", "todo-1");
+      else if (kind === "image") wrapper.getComponent(ImagePanel).vm.$emit("delete", "image-1");
+      else wrapper.getComponent(QuickButtons).vm.$emit("delete", "quick-1");
+      await wrapper.vm.$nextTick();
+      if (theme === "none") {
+        const message = document.querySelector<HTMLElement>('[data-testid="default-message"]');
+        expect(message?.classList.contains("is-near-pointer")).toBe(true);
+        expect(message?.getAttribute("style")).toContain("316px");
+        expect(message?.querySelector('[data-testid="default-message-action"]')).not.toBeNull();
+      } else {
+        expect(wrapper.getComponent(CompanionBubble).props("position")).toEqual({ right: "calc(100vw - 402px)", bottom: "auto", top: "175px" });
+        expect(wrapper.getComponent(CompanionBubble).props("actionText")).toBeTruthy();
+      }
     } finally { wrapper.unmount(); }
   });
 
