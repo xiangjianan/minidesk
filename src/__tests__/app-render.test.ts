@@ -7832,6 +7832,29 @@ describe("App shell", () => {
     }
   });
 
+  it("omits phone pairing from all workspace backups without changing local pairings", async () => {
+    let blob: Blob | undefined;
+    Object.assign(URL, { createObjectURL: vi.fn((value: Blob) => { blob = value; return "blob:export"; }), revokeObjectURL: vi.fn() });
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    const source = defaultState();
+    source.workspaces[0].inbox = { code: "0123456789AB", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 123 };
+    source.workspaces[0].spaces[0].lines = [{ text: "已同步的速记", indent: 0 }];
+    const second = defaultWorkspace("second");
+    second.inbox = { code: "AB2CDE4FGHJK", todoListId: "morning", noteTarget: DEFAULT_SPACE_ID, lastSeenAt: 456 };
+    source.workspaces.push(second);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(source));
+    const wrapper = mountApp();
+    try {
+      wrapper.getComponent(SettingsMenu).vm.$emit("exportAll");
+      await vi.waitFor(() => expect(blob).toBeDefined());
+      const exported = JSON.parse(await blob!.text());
+      expect(exported.workspaces).toHaveLength(2);
+      expect(exported.workspaces.every((workspace: { inbox?: unknown }) => !("inbox" in workspace))).toBe(true);
+      expect(exported.workspaces[0].spaces[0].lines[0].text).toBe("已同步的速记");
+      expect(loadState().workspaces.map((workspace) => workspace.inbox)).toEqual(source.workspaces.map((workspace) => workspace.inbox));
+    } finally { wrapper.unmount(); }
+  });
+
   it("exports through a generated browser download without requesting file-system access", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 9, 29, 0, 4, 5));

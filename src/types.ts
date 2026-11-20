@@ -240,7 +240,7 @@ export interface BoardState {
 export interface SerializableOptions {
   includeImageData?: boolean;
   includeCustomGifData?: boolean;
-  /** 空间导出用：排除手机速记配对配置；本地存储和撤销快照仍保留。 */
+  /** 导出用：排除手机速记配对配置；本地存储和撤销快照仍保留。 */
   omitInbox?: boolean;
   /** 撤销快照用：剥除 quickButtons[].clicks——点击计数是使用分析而非可撤销内容。 */
   omitQuickButtonClicks?: boolean;

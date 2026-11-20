@@ -1269,7 +1269,7 @@ async function exportAllData(anchor?: HTMLElement): Promise<void> {
   if (workspaceExporting.value) return;
   workspaceExporting.value = true;
   try {
-    const backup = getSerializableState(state, { includeImageData: true, includeCustomGifData: true });
+    const backup = getSerializableState(state, { includeImageData: true, includeCustomGifData: true, omitInbox: true });
     const lists = backup.workspaces.flatMap((workspace) => [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))]);
     const images = lists.flat();
     const hydrated = await hydrateStoredImages(images);
