@@ -272,6 +272,10 @@ const {
 });
 
 const {
+  defaultMessages,
+  dismissDefaultMessage,
+  pauseDefaultMessage,
+  resumeDefaultMessage,
   bubbleMessage,
   bubbleSequence,
   bubbleLink,
@@ -4803,16 +4807,16 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       </Transition>
     </Teleport>
     <Teleport to="body">
-    <Transition name="default-message-motion">
-    <div v-if="state.companionGifTheme === 'none' && bubbleVisible && !pendingConfirm" class="default-message" data-testid="default-message" @mouseenter="pauseBubbleTimer" @mouseleave="resumeBubbleTimer">
-      <NAlert type="info" :bordered="false" closable @close="hideBubbleMessage()">
-        <span>{{ withoutKaomoji(bubbleMessage) }}</span>
-        <a v-if="bubbleLink" :href="bubbleLink.href" target="_blank" rel="noopener noreferrer">{{ bubbleLink.text }}</a>
-        <span v-if="bubbleSignature">{{ bubbleSignature }}</span>
-        <button v-if="bubbleActionText" type="button" class="default-message-action" data-testid="default-message-action" @click="runBubbleAction">{{ bubbleActionText }}</button>
-      </NAlert>
-    </div>
-    </Transition>
+    <TransitionGroup v-if="state.companionGifTheme === 'none'" name="default-message-motion" tag="div" class="default-message-stack" aria-live="polite">
+      <div v-for="message in defaultMessages" :key="message.id" class="default-message" data-testid="default-message" @mouseenter="pauseDefaultMessage(message.id)" @mouseleave="resumeDefaultMessage(message.id)">
+        <NAlert type="info" :bordered="false" closable @close="dismissDefaultMessage(message.id)">
+          <span>{{ withoutKaomoji(message.text) }}</span>
+          <a v-if="message.link" :href="message.link.href" target="_blank" rel="noopener noreferrer">{{ message.link.text }}</a>
+          <span v-if="message.signature">{{ message.signature }}</span>
+          <button v-if="message.actionText" type="button" class="default-message-action" data-testid="default-message-action" @click="dismissDefaultMessage(message.id, true)">{{ message.actionText }}</button>
+        </NAlert>
+      </div>
+    </TransitionGroup>
     </Teleport>
     <StyledConfirm v-if="state.companionGifTheme === 'none'" :show="Boolean(pendingConfirm)" :title="pendingConfirm?.danger ? uiText.common.delete : uiText.common.confirm" :message="bubbleMessage" :cancel-text="pendingConfirm?.cancelText ?? uiText.common.cancel" :confirm-text="pendingConfirm?.confirmText ?? uiText.common.confirm" :danger="pendingConfirm?.danger" :hint="pendingConfirm?.confirmHint" :secondary-text="pendingConfirm?.secondaryText" @resolve="(accepted) => accepted ? confirmCompanionAction() : cancelCompanionAction()" @secondary="secondaryCompanionAction" />
     <input ref="importInput" type="file" accept="application/json,.json" hidden @change="importData" />

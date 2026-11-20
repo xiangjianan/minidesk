@@ -86,6 +86,43 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   const companionFadeStartedAt = ref(0);
   const bubbleTimerOptions = ref<BubbleOptions>({});
   const bubbleClearSignal = ref(0);
+  const defaultMessages = ref<Array<{ id: number; text: string; link: { text: string; href: string } | null; signature: string; actionText: string }>>([]);
+  const defaultMessageTimers = new Map<number, { timer?: number; remaining: number; started: number; options: BubbleOptions }>();
+  let nextDefaultMessageId = 0;
+
+  function dismissDefaultMessage(id: number, act = false): void {
+    const entry = defaultMessageTimers.get(id);
+    if (!entry) return;
+    window.clearTimeout(entry.timer);
+    defaultMessageTimers.delete(id);
+    defaultMessages.value = defaultMessages.value.filter((message) => message.id !== id);
+    if (act) entry.options.onAction?.();
+    entry.options.onDismiss?.();
+    applyGuideClear(entry.options);
+  }
+
+  function pauseDefaultMessage(id: number): void {
+    const entry = defaultMessageTimers.get(id);
+    if (!entry || entry.timer === undefined) return;
+    window.clearTimeout(entry.timer);
+    entry.timer = undefined;
+    entry.remaining = Math.max(0, entry.remaining - (Date.now() - entry.started));
+  }
+
+  function resumeDefaultMessage(id: number): void {
+    const entry = defaultMessageTimers.get(id);
+    if (!entry || entry.timer !== undefined) return;
+    entry.started = Date.now();
+    entry.timer = window.setTimeout(() => dismissDefaultMessage(id), entry.remaining);
+  }
+
+  function enqueueDefaultMessage(text: string, options: BubbleOptions, duration: number): void {
+    const id = ++nextDefaultMessageId;
+    defaultMessages.value.push({ id, text, link: options.linkText && options.linkHref ? { text: options.linkText, href: options.linkHref } : null, signature: options.signatureText ?? "", actionText: options.actionText ?? "" });
+    defaultMessageTimers.set(id, { remaining: duration, started: Date.now(), options });
+    resumeDefaultMessage(id);
+  }
+
   /** 当前被二次确认高亮的元素（组删除时为多个，如整个标签/列表）：确认框在场时逐个标记。 */
   let confirmHighlightTargets: HTMLElement[] = [];
 
@@ -139,6 +176,11 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
     if (deps.isBoardBlocked() && !options.force) return;
     // 默认主题保持安静：只显示强制反馈和用户主动请求的消息。
     if (deps.state.companionGifTheme === "none" && !options.force && !options.explicit) return;
+    if (deps.state.companionGifTheme === "none") {
+      clearPendingConfirm();
+      enqueueDefaultMessage(message, options, duration);
+      return;
+    }
     dismissBubbleAction();
     companionDismissing.value = false;
     window.clearTimeout(bubbleTimer.value);
@@ -360,6 +402,7 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   }
 
   function clearTimers(): void {
+    for (const id of [...defaultMessageTimers.keys()]) dismissDefaultMessage(id);
     dismissBubbleAction();
     window.clearTimeout(bubbleTimer.value);
     window.clearTimeout(bubbleFadeTimer.value);
@@ -368,6 +411,10 @@ export function useCompanionBubble(deps: CompanionBubbleDeps) {
   }
 
   return {
+    defaultMessages,
+    dismissDefaultMessage,
+    pauseDefaultMessage,
+    resumeDefaultMessage,
     bubbleMessage,
     bubbleSequence,
     bubbleLink,

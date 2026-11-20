@@ -29,27 +29,28 @@ describe("companion none theme gating", () => {
   });
 
   it("none 主题时 force 气泡仍显示（手机发送反馈）", () => {
-    const { showBubbleText, bubbleVisible, bubbleMessage } = useCompanionBubble(createDeps("none"));
+    const { showBubbleText, defaultMessages, clearTimers } = useCompanionBubble(createDeps("none"));
     showBubbleText("已发送 1 条", undefined, { force: true });
-    expect(bubbleVisible.value).toBe(true);
-    expect(bubbleMessage.value).toBe("已发送 1 条");
+    expect(defaultMessages.value[0].text).toBe("已发送 1 条");
+    clearTimers();
   });
 
   it("none 主题时 explicit 气泡仍显示（右键菜单 Tips 是用户显式请求）", () => {
-    const { showBubbleText, bubbleVisible, bubbleMessage } = useCompanionBubble(createDeps("none"));
+    const { showBubbleText, defaultMessages, clearTimers } = useCompanionBubble(createDeps("none"));
     showBubbleText("Tip：试试拖拽文本", undefined, { explicit: true, guideKey: "quickButtons" });
-    expect(bubbleVisible.value).toBe(true);
-    expect(bubbleMessage.value).toBe("Tip：试试拖拽文本");
+    expect(defaultMessages.value[0].text).toBe("Tip：试试拖拽文本");
+    clearTimers();
   });
 
   it("explicit 只绕过安静模式，board 阻断仍拦截（force 才两者都绕过）", () => {
     const deps = createDeps("none");
     deps.isBoardBlocked = () => true;
-    const { showBubbleText, bubbleVisible } = useCompanionBubble(deps);
+    const { showBubbleText, defaultMessages, clearTimers } = useCompanionBubble(deps);
     showBubbleText("Tip：试试拖拽文本", undefined, { explicit: true });
-    expect(bubbleVisible.value).toBe(false);
+    expect(defaultMessages.value).toHaveLength(0);
     showBubbleText("已发送 1 条", undefined, { force: true });
-    expect(bubbleVisible.value).toBe(true);
+    expect(defaultMessages.value).toHaveLength(1);
+    clearTimers();
   });
 
   it("非 none 主题普通气泡不受影响（回归）", () => {

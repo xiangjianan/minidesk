@@ -8243,14 +8243,22 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 .inbox-target-icon { width: 13px; height: 13px; flex: none; margin-inline-start: 4px; opacity: .65; }
 
 /* Default theme feedback stays independent of the companion artwork. */
-.default-message {
+.default-message-stack {
   position: fixed;
   top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 0;
+  right: 0;
   z-index: 11000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+}
+.default-message {
   width: max-content;
   max-width: min(520px, calc(100vw - 32px));
+  pointer-events: auto;
 }
 /* A compact row keeps the icon, message and controls aligned in both themes. */
 .default-message .n-alert {
@@ -8336,9 +8344,11 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
 }
 
 .default-message-motion-enter-active,
-.default-message-motion-leave-active { transition: opacity 220ms ease, transform 220ms ease; }
+.default-message-motion-leave-active,
+.default-message-motion-move { transition: opacity 220ms ease, transform 220ms ease; }
+.default-message-motion-leave-active { position: absolute; }
 .default-message-motion-enter-from,
-.default-message-motion-leave-to { opacity: 0; transform: translate(-50%, -16px); }
+.default-message-motion-leave-to { opacity: 0; transform: translateY(-16px); }
 @media (prefers-reduced-motion: reduce) {
   .default-message-motion-enter-active,
   .default-message-motion-leave-active { transition-duration: 1ms; }

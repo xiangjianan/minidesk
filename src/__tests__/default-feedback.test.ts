@@ -40,7 +40,7 @@ describe("default theme feedback", () => {
       wrapper.getComponent(SettingsMenu).vm.$emit("customGifMissing");
       await wrapper.vm.$nextTick();
       const message = document.querySelector('[data-testid="default-message"]');
-      expect(message?.closest("transition-stub")?.parentElement).toBe(document.body);
+      expect(message?.closest(".default-message-stack")?.parentElement).toBe(document.body);
       expect(message?.textContent).toBeTruthy();
     } finally { wrapper.unmount(); }
   });
@@ -89,8 +89,33 @@ describe("default theme feedback", () => {
       expect(document.querySelector('[data-testid="default-message"]')?.textContent).toMatch(/复制|剪贴板/);
       await wrapper.findAll(".quick-button")[1].trigger("click");
       await flushPromises();
-      expect(document.querySelector('[data-testid="default-message"]')?.textContent).toContain("200");
+      expect([...document.querySelectorAll('[data-testid="default-message"]')].some((message) => message.textContent?.includes("200"))).toBe(true);
     } finally { wrapper.unmount(); vi.unstubAllGlobals(); }
+  });
+
+  it("stacks messages with independent timers, pause and actions", async () => {
+    vi.useFakeTimers();
+    const action = vi.fn();
+    const dismissed = vi.fn();
+    const feedback = useCompanionBubble({
+      state: { language: "zh", companionGifTheme: "none" } as CompanionBubbleDeps["state"],
+      setActiveGuideKey: vi.fn(), confirmLabels: () => ({ yes: "是", no: "否" }),
+      isBoardBlocked: () => false, isMobileLayout: () => false,
+    });
+    try {
+      feedback.showBubbleText("第一条", undefined, { explicit: true, actionText: "撤销", onAction: action, onDismiss: dismissed }, 1000);
+      await vi.advanceTimersByTimeAsync(300);
+      feedback.showBubbleText("第二条", undefined, { explicit: true }, 1000);
+      const [first, second] = feedback.defaultMessages.value;
+      expect([first.text, second.text]).toEqual(["第一条", "第二条"]);
+      feedback.pauseDefaultMessage(first.id);
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(feedback.defaultMessages.value.map((message) => message.text)).toEqual(["第一条"]);
+      feedback.dismissDefaultMessage(first.id, true);
+      expect(action).toHaveBeenCalledOnce();
+      expect(dismissed).toHaveBeenCalledOnce();
+      expect(feedback.defaultMessages.value).toHaveLength(0);
+    } finally { feedback.clearTimers(); vi.useRealTimers(); }
   });
 
   it("opens about information in a dialog and closes it", async () => {
