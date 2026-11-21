@@ -1348,7 +1348,7 @@ function toggleAiEnabled(anchor?: HTMLElement): void {
 
 /** 面板注入的智能粘贴/AI 润色调用：确保配对码存在且已注册后请求服务端润色（style 为可选风格）；注册失败按网络失败（null）降级。 */
 async function polishClipboard(kind: PolishKind, text: string, style?: PolishStyle): Promise<PolishResult> {
-  if (!aiEnabled.value || !await confirmAiDisclosure(requestAiConfirm)) return null;
+  if (!aiEnabled.value || !await confirmAiDisclosure(requestAiConfirm)) return { cancelled: true };
   let code = state.polishCode;
   if (!code || !isValidInboxCode(code)) {
     code = generateInboxCode();
@@ -1366,6 +1366,11 @@ async function polishClipboard(kind: PolishKind, text: string, style?: PolishSty
 
 /** 面板上浮的智能粘贴气泡：working 长驻等结果替换，done/fallback 常规停留。 */
 function handlePolishStatus(phase: SmartPastePhase, message: string, anchor?: HTMLElement): void {
+  if (phase === "cancelled") {
+    for (const item of defaultMessages.value.filter((item) => item.text === uiText.value.app.polishWorking)) dismissDefaultMessage(item.id);
+    if (bubbleMessage.value === uiText.value.app.polishWorking) hideBubbleMessage({ fadeCompanion: true });
+    return;
+  }
   if (phase === "working") {
     showBubbleText(message, anchor, {}, POLISH_WORKING_BUBBLE_MS);
     return;

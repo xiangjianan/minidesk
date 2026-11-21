@@ -16,7 +16,7 @@ export interface PolishTodoItem {
 }
 
 /** 成功：整理后的条目/快捷按钮（服务端保证非空）；降级：LLM 失败（200 + fallback 标记）；null：网络/HTTP/结构非法。 */
-export type PolishResult = { items: PolishTodoItem[] } | { button: QuickPolishButton } | { fallback: true } | null;
+export type PolishResult = { items: PolishTodoItem[] } | { button: QuickPolishButton } | { fallback: true } | { cancelled: true } | null;
 
 /** 与服务端 MAX_POLISH_CHARS 对齐：超长不请求，直接走原文粘贴。 */
 export const POLISH_MAX_CHARS = 2000;

@@ -9,7 +9,7 @@ import type { QuickButtonType } from "../types";
  */
 
 /** 气泡阶段：working=整理中（长驻，等结果替换），done=成功，fallback=降级（粘贴=插原文，润色=保留原文）。 */
-export type SmartPastePhase = "working" | "done" | "fallback";
+export type SmartPastePhase = "working" | "done" | "fallback" | "cancelled";
 
 export interface SmartPasteMessages {
   working: string;
@@ -81,6 +81,10 @@ export async function runQuickSmartPaste(options: QuickSmartPasteOptions): Promi
   } catch {
     result = null; // 宿主包装异常视同网络失败：任何异常都不击穿「最坏=普通粘贴」承诺。
   }
+  if (result !== null && "cancelled" in result) {
+    notify("cancelled", "", anchor);
+    return;
+  }
   if (result !== null && "button" in result && result.button) {
     options.insert(result.button);
     notify("done", messages.done(1), anchor);
@@ -106,6 +110,10 @@ async function polishText(raw: string, base: PolishFlowBase, apply: (items: Poli
     result = await base.polish(base.kind, raw, base.style);
   } catch {
     result = null; // 宿主包装异常视同网络失败：任何异常都不击穿「最坏=普通粘贴」承诺。
+  }
+  if (result !== null && "cancelled" in result) {
+    notify("cancelled", "", anchor);
+    return;
   }
   if (result !== null && "items" in result && result.items.length > 0) {
     apply(result.items);

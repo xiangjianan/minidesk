@@ -100,6 +100,23 @@ afterEach(() => {
   Object.assign(navigator, { clipboard: undefined });
 });
 
+it("cancels all polish flows without applying or falling back", async () => {
+  const paste = setup("原文", { cancelled: true });
+  await paste.run();
+  expect(paste.insert).not.toHaveBeenCalled();
+  expect(paste.notify.mock.calls.map(([phase]) => phase)).toEqual(["working", "cancelled"]);
+
+  const quick = setupQuick("原文", { cancelled: true });
+  await quick.run();
+  expect(quick.insert).not.toHaveBeenCalled();
+  expect(quick.notify.mock.calls.map(([phase]) => phase)).toEqual(["working", "cancelled"]);
+
+  const selection = setupSelection("原文", { cancelled: true });
+  await selection.run();
+  expect(selection.apply).not.toHaveBeenCalled();
+  expect(selection.notify.mock.calls.map(([phase]) => phase)).toEqual(["working", "cancelled"]);
+});
+
 describe("runSmartPaste", () => {
   it("剪贴板为空/非文本时提示后返回：不插入、不调服务端", async () => {
     for (const clipboard of [undefined, "", "   "]) {
