@@ -2,7 +2,7 @@ const ENABLED_KEY = "mini-desk-ai-enabled";
 const DISCLOSURE_KEY = "mini-desk-ai-disclosure-seen";
 
 export function loadAiEnabled(): boolean {
-  try { return localStorage.getItem(ENABLED_KEY) !== "false"; } catch { return true; }
+  try { return localStorage.getItem(ENABLED_KEY) === "true"; } catch { return false; }
 }
 export function saveAiEnabled(enabled: boolean): void {
   try { localStorage.setItem(ENABLED_KEY, String(enabled)); } catch { /* session preference remains active */ }

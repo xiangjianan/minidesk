@@ -8,7 +8,7 @@ describe("AI preferences", () => {
   });
 
   it("persists the AI switch", () => {
-    expect(loadAiEnabled()).toBe(true);
+    expect(loadAiEnabled()).toBe(false);
     saveAiEnabled(false);
     expect(loadAiEnabled()).toBe(false);
     saveAiEnabled(true);

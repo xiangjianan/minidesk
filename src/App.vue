@@ -91,7 +91,7 @@ import { inboxKeyHash } from "./sync/crypto";
 import { checkInboxKeyStatus, registerInboxKey, revokeInboxKey } from "./sync/inboxClient";
 import StyledConfirm from "./components/StyledConfirm.vue";
 import { useStyledConfirm } from "./sync/useStyledConfirm";
-import { confirmAiDisclosure, loadAiEnabled, saveAiEnabled } from "./sync/aiPreferences";
+import { loadAiEnabled, saveAiEnabled } from "./sync/aiPreferences";
 import { polishClipboardText } from "./sync/polishClient";
 import type { PolishKind, PolishResult, PolishStyle, PolishTodoItem } from "./sync/polishClient";
 import type { SmartPastePhase } from "./utils/smartPaste";
@@ -1339,8 +1339,9 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 let polishRegisteredCode: string | null = null;
 const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
 const aiEnabled = ref(!offlineBuild && loadAiEnabled());
-function toggleAiEnabled(anchor?: HTMLElement): void {
+async function toggleAiEnabled(anchor?: HTMLElement): Promise<void> {
   if (offlineBuild) return;
+  if (!aiEnabled.value && !await requestAiConfirm()) return;
   aiEnabled.value = !aiEnabled.value;
   saveAiEnabled(aiEnabled.value);
   showBubbleText(withKaomoji(aiEnabled.value ? uiText.value.settings.aiEnabled : uiText.value.settings.aiDisabled, "calm"), anchor, { explicit: true, hideCompanionAfter: true });
@@ -1348,7 +1349,7 @@ function toggleAiEnabled(anchor?: HTMLElement): void {
 
 /** 面板注入的智能粘贴/AI 润色调用：确保配对码存在且已注册后请求服务端润色（style 为可选风格）；注册失败按网络失败（null）降级。 */
 async function polishClipboard(kind: PolishKind, text: string, style?: PolishStyle): Promise<PolishResult> {
-  if (!aiEnabled.value || !await confirmAiDisclosure(requestAiConfirm)) return { cancelled: true };
+  if (!aiEnabled.value) return { cancelled: true };
   let code = state.polishCode;
   if (!code || !isValidInboxCode(code)) {
     code = generateInboxCode();

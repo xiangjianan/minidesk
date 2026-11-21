@@ -46,7 +46,7 @@ const props = withDefaults(defineProps<{
   theme?: ThemeMode;
   zoneVisibility?: ZoneVisibility;
 }>(), {
-  aiEnabled: true,
+  aiEnabled: false,
   language: "zh",
   theme: "light",
   zoneVisibility: () => ({ assets: true, notes: true, tasks: true, workspace: true }),

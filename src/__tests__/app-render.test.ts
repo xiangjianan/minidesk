@@ -66,6 +66,40 @@ async function flushAsyncComponents() {
   await nextTick();
 }
 
+describe("AI privacy consent", () => {
+  it("enables AI only after confirmation and asks again when re-enabled", async () => {
+    localStorage.clear();
+    const wrapper = mountApp();
+    try {
+      const settings = wrapper.getComponent(SettingsMenu);
+      expect(settings.props("aiEnabled")).toBe(false);
+      settings.vm.$emit("toggleAi");
+      await nextTick();
+      expect(settings.props("aiEnabled")).toBe(false);
+      expect(localStorage.getItem("mini-desk-ai-enabled")).toBeNull();
+      await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
+      await flushPromises();
+      expect(settings.props("aiEnabled")).toBe(false);
+
+      settings.vm.$emit("toggleAi");
+      await nextTick();
+      await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
+      await flushPromises();
+      expect(settings.props("aiEnabled")).toBe(true);
+      expect(localStorage.getItem("mini-desk-ai-enabled")).toBe("true");
+
+      settings.vm.$emit("toggleAi");
+      await nextTick();
+      expect(settings.props("aiEnabled")).toBe(false);
+      expect(localStorage.getItem("mini-desk-ai-enabled")).toBe("false");
+      settings.vm.$emit("toggleAi");
+      await nextTick();
+      expect(wrapper.find('[data-testid="styled-confirm-accept"]').exists()).toBe(true);
+      expect(settings.props("aiEnabled")).toBe(false);
+    } finally { wrapper.unmount(); }
+  });
+});
+
 // The workspace row's overflow menu (NPopover under the shared stub) opens once
 // its controlled `:show` flips, after which the menu items render inline in the
 // component subtree and are reachable via wrapper.get.
