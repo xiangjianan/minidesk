@@ -1355,6 +1355,7 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 let polishRegisteredCode: string | null = null;
 const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
 const aiConsentChecked = ref(false);
+const aiConsentPointerFocus = ref(false);
 const aiPrivacyAccepted = ref(loadAiPrivacyConsent());
 const aiEnabled = ref(!offlineBuild && loadAiEnabled());
 async function toggleAiEnabled(anchor?: HTMLElement): Promise<void> {
@@ -1362,6 +1363,7 @@ async function toggleAiEnabled(anchor?: HTMLElement): Promise<void> {
   if (!aiEnabled.value && !aiPrivacyAccepted.value) {
     if (aiConfirmVisible.value) return;
     aiConsentChecked.value = false;
+    aiConsentPointerFocus.value = false;
     if (!await requestAiConfirm()) return;
     aiPrivacyAccepted.value = true;
     saveAiPrivacyConsent();
@@ -4967,8 +4969,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           <h3 id="ai-privacy-heading">{{ uiText.common.aiPrivacyHeading }}</h3>
           <p>{{ uiText.common.aiPrivacyDescription }}</p>
         </section>
-        <label class="ai-consent-label">
-          <input v-model="aiConsentChecked" type="checkbox" data-testid="ai-consent-checkbox" />
+        <label class="ai-consent-label" @pointerdown="aiConsentPointerFocus = true" @keydown="aiConsentPointerFocus = false">
+          <input v-model="aiConsentChecked" :data-pointer-focus="aiConsentPointerFocus ? '' : undefined" type="checkbox" data-testid="ai-consent-checkbox" @blur="aiConsentPointerFocus = false" />
           <span>{{ uiText.common.aiConsentLabel }}</span>
         </label>
       </div>

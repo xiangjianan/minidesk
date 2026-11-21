@@ -89,6 +89,10 @@ describe("AI privacy consent", () => {
 
       settings.vm.$emit("toggleAi");
       await nextTick();
+      await wrapper.get('.ai-consent-label').trigger("pointerdown");
+      expect(wrapper.get('[data-testid="ai-consent-checkbox"]').attributes("data-pointer-focus")).toBeDefined();
+      await wrapper.get('[data-testid="ai-consent-checkbox"]').trigger("keydown", { key: "Tab" });
+      expect(wrapper.get('[data-testid="ai-consent-checkbox"]').attributes("data-pointer-focus")).toBeUndefined();
       await wrapper.get('[data-testid="ai-consent-checkbox"]').setValue(true);
       await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushPromises();

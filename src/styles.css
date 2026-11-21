@@ -572,6 +572,8 @@ html[data-theme="dark"] .n-modal-mask {
 .ai-disclosure li + li { margin-top: 6px; }
 .ai-consent-label { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9em; line-height: 1.5; cursor: pointer; }
 .ai-consent-label input { flex: none; margin: 0; accent-color: var(--accent); }
+.ai-consent-label input:focus { box-shadow: none; }
+.ai-consent-label input:focus-visible:not([data-pointer-focus]) { box-shadow: var(--focus-ring); }
 
 .clear-workspace-modal .clear-backup-link {
   display: inline-block;
