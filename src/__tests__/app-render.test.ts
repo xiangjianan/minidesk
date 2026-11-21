@@ -67,7 +67,7 @@ async function flushAsyncComponents() {
 }
 
 describe("AI privacy consent", () => {
-  it("enables AI only after confirmation and asks again when re-enabled", async () => {
+  it("requires consent once, then enables AI without another prompt", async () => {
     localStorage.clear();
     const wrapper = mountApp();
     try {
@@ -82,6 +82,7 @@ describe("AI privacy consent", () => {
       expect(wrapper.get(".ai-disclosure").text()).toContain("第三方 AI 服务提供商");
       expect(wrapper.get('[data-testid="styled-confirm-accept"]').attributes("disabled")).toBeDefined();
       expect(localStorage.getItem("mini-desk-ai-enabled")).toBeNull();
+      expect(localStorage.getItem("mini-desk-ai-privacy-consent")).toBeNull();
       await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
       await flushPromises();
       expect(settings.props("aiEnabled")).toBe(false);
@@ -93,6 +94,7 @@ describe("AI privacy consent", () => {
       await flushPromises();
       expect(settings.props("aiEnabled")).toBe(true);
       expect(localStorage.getItem("mini-desk-ai-enabled")).toBe("true");
+      expect(localStorage.getItem("mini-desk-ai-privacy-consent")).toBe("true");
 
       settings.vm.$emit("toggleAi");
       await nextTick();
@@ -100,9 +102,9 @@ describe("AI privacy consent", () => {
       expect(localStorage.getItem("mini-desk-ai-enabled")).toBe("false");
       settings.vm.$emit("toggleAi");
       await nextTick();
-      expect(wrapper.find('[data-testid="styled-confirm-accept"]').exists()).toBe(true);
-      expect((wrapper.get('[data-testid="ai-consent-checkbox"]').element as HTMLInputElement).checked).toBe(false);
-      expect(settings.props("aiEnabled")).toBe(false);
+      expect(wrapper.find('[data-testid="styled-confirm-accept"]').exists()).toBe(false);
+      expect(settings.props("aiEnabled")).toBe(true);
+      expect(localStorage.getItem("mini-desk-ai-enabled")).toBe("true");
     } finally { wrapper.unmount(); }
   });
 });

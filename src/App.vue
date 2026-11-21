@@ -91,7 +91,7 @@ import { inboxKeyHash } from "./sync/crypto";
 import { checkInboxKeyStatus, registerInboxKey, revokeInboxKey } from "./sync/inboxClient";
 import StyledConfirm from "./components/StyledConfirm.vue";
 import { useStyledConfirm } from "./sync/useStyledConfirm";
-import { loadAiEnabled, saveAiEnabled } from "./sync/aiPreferences";
+import { loadAiEnabled, loadAiPrivacyConsent, saveAiEnabled, saveAiPrivacyConsent } from "./sync/aiPreferences";
 import { polishClipboardText } from "./sync/polishClient";
 import type { PolishKind, PolishResult, PolishStyle, PolishTodoItem } from "./sync/polishClient";
 import type { SmartPastePhase } from "./utils/smartPaste";
@@ -1355,13 +1355,16 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 let polishRegisteredCode: string | null = null;
 const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
 const aiConsentChecked = ref(false);
+const aiPrivacyAccepted = ref(loadAiPrivacyConsent());
 const aiEnabled = ref(!offlineBuild && loadAiEnabled());
 async function toggleAiEnabled(anchor?: HTMLElement): Promise<void> {
   if (offlineBuild) return;
-  if (!aiEnabled.value) {
+  if (!aiEnabled.value && !aiPrivacyAccepted.value) {
     if (aiConfirmVisible.value) return;
     aiConsentChecked.value = false;
     if (!await requestAiConfirm()) return;
+    aiPrivacyAccepted.value = true;
+    saveAiPrivacyConsent();
   }
   aiEnabled.value = !aiEnabled.value;
   saveAiEnabled(aiEnabled.value);
@@ -4951,7 +4954,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </div>
     </NModal>
-    <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.aiAgreeAndEnable" :confirm-disabled="!aiConsentChecked" @resolve="(accepted) => resolveAiConfirm(accepted && aiConsentChecked)">
+    <StyledConfirm :show="aiConfirmVisible" :auto-focus="false" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.aiAgreeAndEnable" :confirm-disabled="!aiConsentChecked" @resolve="(accepted) => resolveAiConfirm(accepted && aiConsentChecked)">
       <div class="ai-disclosure">
         <section aria-labelledby="ai-features-heading">
           <h3 id="ai-features-heading">{{ uiText.common.aiFeaturesHeading }}</h3>

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { NButton, NModal } from "naive-ui";
 
-defineProps<{ show: boolean; title: string; message: string; cancelText: string; confirmText: string; confirmDisabled?: boolean; danger?: boolean; hint?: string; secondaryText?: string }>();
+withDefaults(defineProps<{ show: boolean; title: string; message: string; cancelText: string; confirmText: string; autoFocus?: boolean; confirmDisabled?: boolean; danger?: boolean; hint?: string; secondaryText?: string }>(), { autoFocus: true });
 const emit = defineEmits<{ resolve: [accepted: boolean]; secondary: [] }>();
 </script>
 
 <template>
-  <NModal :show="show" preset="card" class="workspace-dialog-modal" :title="title"
+  <NModal :show="show" :auto-focus="autoFocus" preset="card" class="workspace-dialog-modal" :title="title"
     style="width: min(440px, calc(100vw - 32px))" :mask-closable="false"
     @update:show="(visible: boolean) => { if (!visible) emit('resolve', false); }">
     <slot><p>{{ message }}</p></slot>

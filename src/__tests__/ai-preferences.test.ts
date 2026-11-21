@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { confirmAiDisclosure, loadAiEnabled, saveAiEnabled } from "../sync/aiPreferences";
+import { confirmAiDisclosure, loadAiEnabled, loadAiPrivacyConsent, saveAiEnabled, saveAiPrivacyConsent } from "../sync/aiPreferences";
 
 describe("AI preferences", () => {
   beforeEach(() => {
@@ -21,5 +21,12 @@ describe("AI preferences", () => {
     expect(await confirmAiDisclosure(confirm)).toBe(true);
     expect(await confirmAiDisclosure(confirm)).toBe(true);
     expect(confirm).toHaveBeenCalledTimes(2);
+  });
+
+  it("records desktop privacy consent separately from the older mobile notice", () => {
+    localStorage.setItem("mini-desk-ai-disclosure-seen", "true");
+    expect(loadAiPrivacyConsent()).toBe(false);
+    saveAiPrivacyConsent();
+    expect(loadAiPrivacyConsent()).toBe(true);
   });
 });
