@@ -60,6 +60,7 @@ const emit = defineEmits<{
   exportWorkspace: [anchor?: HTMLElement];
   exportAll: [anchor?: HTMLElement];
   storageUsage: [];
+  menuOpen: [];
   import: [anchor?: HTMLElement];
   pairInbox: [anchor?: HTMLElement];
   clearData: [anchor?: HTMLElement];
@@ -277,6 +278,7 @@ function handleDropdownShow(value: boolean): void {
     return;
   }
   menuOpen.value = value;
+  if (value) emit("menuOpen");
 }
 
 function handleCustomGifUpload(fileList: UploadFileInfo[], mode: "light" | "dark"): void {

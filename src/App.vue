@@ -336,10 +336,25 @@ const storageUsageLoading = ref(false);
 const storageUsageError = ref(false);
 const orphanScanError = ref(false);
 const orphanUsage = ref({ count: 0, bytes: 0 });
+let orphanScanSequence = 0;
+async function refreshOrphanUsage(): Promise<void> {
+  const sequence = ++orphanScanSequence;
+  try {
+    const usage = await orphanedImagePayloads(collectSafeRetainedIds());
+    if (appMounted && sequence === orphanScanSequence) orphanUsage.value = usage;
+  } catch {
+    if (sequence === orphanScanSequence) orphanUsage.value = { count: 0, bytes: 0 };
+  }
+}
+function refreshOrphanUsageForMenu(): void {
+  orphanUsage.value = { count: 0, bytes: 0 };
+  void refreshOrphanUsage();
+}
 const orphanConfirm = ref(false);
 const fullImport = ref<BoardState | null>(null);
 const storageUsageRows = ref<Array<{ id: string; title: string; count: number; bytes: number; imageBytes: number }>>([]);
 async function showStorageUsage(): Promise<void> {
+  const sequence = ++orphanScanSequence;
   storageUsageVisible.value = true;
   storageUsageLoading.value = true;
   storageUsageError.value = false;
@@ -357,7 +372,10 @@ async function showStorageUsage(): Promise<void> {
       rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes, imageBytes });
     }
     storageUsageRows.value = rows;
-    try { orphanUsage.value = await orphanedImagePayloads(collectSafeRetainedIds()); }
+    try {
+      const usage = await orphanedImagePayloads(collectSafeRetainedIds());
+      if (sequence === orphanScanSequence) orphanUsage.value = usage;
+    }
     catch { orphanScanError.value = true; storageUsageError.value = true; }
   } catch {
     storageUsageError.value = true;
@@ -712,9 +730,6 @@ onMounted(async () => {
   window.addEventListener("keydown", cancelDeleteOnEscape, true);
   window.addEventListener("dragend", cancelDragDelete, true);
   appMounted = true;
-  void Promise.resolve().then(() => orphanedImagePayloads(collectSafeRetainedIds())).then((usage) => {
-    if (appMounted) orphanUsage.value = usage;
-  }).catch(() => {});
   document.title = boardTitle.value;
   stopMobileBreakpoint = observeMediaQuery(MOBILE_BREAKPOINT_QUERY, updateMobileBlocked);
   // 先同步一次系统明暗偏好，再 applyTheme：auto 模式下首帧即为正确的明/暗，避免先浅后深。
@@ -752,6 +767,7 @@ onMounted(async () => {
   }
   releaseInactiveWorkspaceImages(state.activeWorkspaceId);
   if (!appMounted) return;
+  void refreshOrphanUsage();
   checkAppVersion();
   void checkLatestAppVersion();
   window.addEventListener("keydown", handleGlobalKeydown);
@@ -1704,10 +1720,12 @@ async function applyImageReplacementConflict(
 }
 
 function scheduleImagePayloadPrune(): void {
+  orphanScanSequence++;
+  orphanUsage.value = { count: 0, bytes: 0 };
   window.clearTimeout(imagePayloadPruneTimer.value);
   imagePayloadPruneTimer.value = window.setTimeout(() => {
     imagePayloadPruneTimer.value = undefined;
-    void pruneStoredImagePayloads(collectRetainedImagePayloadIds()).catch(() => {
+    void pruneStoredImagePayloads(collectRetainedImagePayloadIds()).then(() => refreshOrphanUsage()).catch(() => {
       // Payload pruning is best-effort and must not interrupt board persistence.
     });
   }, 500);
@@ -4509,6 +4527,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           :update-available="versionPromptVisible"
           :update-checking="updateChecking"
           :orphan-count="orphanUsage.count"
+          @menu-open="refreshOrphanUsageForMenu"
           :companion-gif-theme="state.companionGifTheme"
           :custom-companion-gif="state.customCompanionGif"
           :has-custom-companion-gif="Boolean(state.customCompanionGif.light || state.customCompanionGif.dark || state.customCompanionGifStored.light || state.customCompanionGifStored.dark)"

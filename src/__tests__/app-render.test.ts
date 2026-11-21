@@ -100,6 +100,37 @@ describe("AI privacy consent", () => {
   });
 });
 
+describe("storage cleanup indicator", () => {
+  it("refreshes stale counts and ignores an older scan that finishes later", async () => {
+    localStorage.clear();
+    let finishOldScan!: (usage: { count: number; bytes: number }) => void;
+    const oldScan = new Promise<{ count: number; bytes: number }>((resolve) => { finishOldScan = resolve; });
+    const scan = vi.spyOn(imageState, "orphanedImagePayloads")
+      .mockImplementationOnce(() => oldScan)
+      .mockResolvedValue({ count: 0, bytes: 0 });
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      expect(scan).toHaveBeenCalledTimes(1);
+      const settings = wrapper.getComponent(SettingsMenu);
+      settings.vm.$emit("menuOpen");
+      await flushPromises();
+      expect(settings.props("orphanCount")).toBe(0);
+      finishOldScan({ count: 1, bytes: 10 });
+      await flushPromises();
+      expect(settings.props("orphanCount")).toBe(0);
+
+      settings.vm.$emit("storageUsage");
+      await flushPromises();
+      expect(wrapper.text()).toContain("可清理的未引用图片：0 项");
+      expect(settings.props("orphanCount")).toBe(0);
+    } finally {
+      wrapper.unmount();
+      scan.mockRestore();
+    }
+  });
+});
+
 // The workspace row's overflow menu (NPopover under the shared stub) opens once
 // its controlled `:show` flips, after which the menu items render inline in the
 // component subtree and are reachable via wrapper.get.
