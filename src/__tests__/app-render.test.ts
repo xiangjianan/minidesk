@@ -76,6 +76,11 @@ describe("AI privacy consent", () => {
       settings.vm.$emit("toggleAi");
       await nextTick();
       expect(settings.props("aiEnabled")).toBe(false);
+      expect(wrapper.get(".ai-disclosure").text()).toContain("功能与用法");
+      expect(wrapper.get(".ai-disclosure").text()).toContain("快捷按钮、提醒事项或记事本");
+      expect(wrapper.get(".ai-disclosure").text()).toContain("隐私说明");
+      expect(wrapper.get(".ai-disclosure").text()).toContain("第三方 AI 服务提供商");
+      expect(wrapper.get('[data-testid="styled-confirm-accept"]').attributes("disabled")).toBeDefined();
       expect(localStorage.getItem("mini-desk-ai-enabled")).toBeNull();
       await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
       await flushPromises();
@@ -83,6 +88,7 @@ describe("AI privacy consent", () => {
 
       settings.vm.$emit("toggleAi");
       await nextTick();
+      await wrapper.get('[data-testid="ai-consent-checkbox"]').setValue(true);
       await wrapper.get('[data-testid="styled-confirm-accept"]').trigger("click");
       await flushPromises();
       expect(settings.props("aiEnabled")).toBe(true);
@@ -95,6 +101,7 @@ describe("AI privacy consent", () => {
       settings.vm.$emit("toggleAi");
       await nextTick();
       expect(wrapper.find('[data-testid="styled-confirm-accept"]').exists()).toBe(true);
+      expect((wrapper.get('[data-testid="ai-consent-checkbox"]').element as HTMLInputElement).checked).toBe(false);
       expect(settings.props("aiEnabled")).toBe(false);
     } finally { wrapper.unmount(); }
   });

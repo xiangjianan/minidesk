@@ -1354,10 +1354,15 @@ const POLISH_RESULT_BUBBLE_MS = 4000;
 // 清空数据后 state.polishCode 消失，下次使用生成新码并重新注册。
 let polishRegisteredCode: string | null = null;
 const { confirmVisible: aiConfirmVisible, requestConfirm: requestAiConfirm, resolveConfirm: resolveAiConfirm } = useStyledConfirm();
+const aiConsentChecked = ref(false);
 const aiEnabled = ref(!offlineBuild && loadAiEnabled());
 async function toggleAiEnabled(anchor?: HTMLElement): Promise<void> {
   if (offlineBuild) return;
-  if (!aiEnabled.value && !await requestAiConfirm()) return;
+  if (!aiEnabled.value) {
+    if (aiConfirmVisible.value) return;
+    aiConsentChecked.value = false;
+    if (!await requestAiConfirm()) return;
+  }
   aiEnabled.value = !aiEnabled.value;
   saveAiEnabled(aiEnabled.value);
   showBubbleText(withKaomoji(aiEnabled.value ? uiText.value.settings.aiEnabled : uiText.value.settings.aiDisabled, "calm"), anchor, { explicit: true, hideCompanionAfter: true });
@@ -4946,6 +4951,24 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </div>
     </NModal>
-    <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.confirm" @resolve="resolveAiConfirm" />
+    <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.aiAgreeAndEnable" :confirm-disabled="!aiConsentChecked" @resolve="(accepted) => resolveAiConfirm(accepted && aiConsentChecked)">
+      <div class="ai-disclosure">
+        <section aria-labelledby="ai-features-heading">
+          <h3 id="ai-features-heading">{{ uiText.common.aiFeaturesHeading }}</h3>
+          <ul>
+            <li>{{ uiText.common.aiSmartPasteDescription }}</li>
+            <li>{{ uiText.common.aiPolishDescription }}</li>
+          </ul>
+        </section>
+        <section aria-labelledby="ai-privacy-heading">
+          <h3 id="ai-privacy-heading">{{ uiText.common.aiPrivacyHeading }}</h3>
+          <p>{{ uiText.common.aiPrivacyDescription }}</p>
+        </section>
+        <label class="ai-consent-label">
+          <input v-model="aiConsentChecked" type="checkbox" data-testid="ai-consent-checkbox" />
+          <span>{{ uiText.common.aiConsentLabel }}</span>
+        </label>
+      </div>
+    </StyledConfirm>
   </NConfigProvider>
 </template>

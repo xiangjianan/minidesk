@@ -558,6 +558,21 @@ html[data-theme="dark"] .n-modal-mask {
 .dialog-actions > .n-button { height: auto; min-height: 34px; }
 .dialog-actions > .n-button .n-button__content { white-space: normal; text-align: center; }
 
+.ai-disclosure {
+  display: grid;
+  gap: 16px;
+  max-height: min(55vh, 420px);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  line-height: 1.6;
+}
+.ai-disclosure h3 { margin: 0 0 6px; font-size: 1em; font-weight: 600; }
+.ai-disclosure p { margin: 0; }
+.ai-disclosure ul { margin: 0; padding-inline-start: 1.25em; }
+.ai-disclosure li + li { margin-top: 6px; }
+.ai-consent-label { display: flex; align-items: flex-start; gap: 8px; cursor: pointer; }
+.ai-consent-label input { flex: none; margin: 0.35em 0 0; accent-color: var(--accent); }
+
 .clear-workspace-modal .clear-backup-link {
   display: inline-block;
   margin: 10px 0 20px;
