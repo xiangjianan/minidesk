@@ -4921,6 +4921,6 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </div>
     </NModal>
+    <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.confirm" @resolve="resolveAiConfirm" />
   </NConfigProvider>
-  <StyledConfirm :show="aiConfirmVisible" :title="uiText.common.aiDisclosureTitle" :message="uiText.common.aiDisclosure" :cancel-text="uiText.common.cancel" :confirm-text="uiText.common.confirm" @resolve="resolveAiConfirm" />
 </template>
