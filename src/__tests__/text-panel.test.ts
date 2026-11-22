@@ -123,6 +123,9 @@ describe("TextPanel", () => {
     await wrapper.get("textarea").trigger("select");
     await flushPromises();
     expect(document.querySelector(".selection-toolbar")).not.toBeNull();
+    // Let the editor's deferred initial selection restoration finish before
+    // simulating a subsequent user change to the selection.
+    await new Promise((resolve) => setTimeout(resolve, 0));
     if (event === "input") {
       textarea.setRangeText("", 1, 4, "end");
       await wrapper.get("textarea").trigger("input");
