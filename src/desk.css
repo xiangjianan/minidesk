@@ -387,7 +387,7 @@ html[data-theme="dark"] .workbench-shell,
 }
 
 html[data-theme="dark"] .workbench-shell .space-text-panel {
-  background: var(--card);
+  background: #282c33;
 }
 
 /* Use the same quiet elevation on all three dark content surfaces. */
