@@ -381,7 +381,7 @@ html[data-theme="dark"] .workbench-shell,
 
 /* Give the notebook a subtle tint while keeping it distinct from the desk. */
 .workbench-shell .space-text-panel {
-  background: #fafbfc;
+  background: #fcfcfd;
   border-radius: 0 0 var(--desk-card-radius) var(--desk-card-radius);
   box-shadow: var(--desk-card-shadow);
 }
