@@ -379,11 +379,15 @@ html[data-theme="dark"] .workbench-shell,
 .workbench-shell .todo-input { font-size: 14px; }
 .workbench-shell .todo-section.is-collapsed { flex-shrink: 0; }
 
-/* Keep the tab editor quiet while the notebook reads as a white card. */
+/* Give the notebook a subtle tint while keeping it distinct from the desk. */
 .workbench-shell .space-text-panel {
-  background: var(--card);
+  background: #fafbfc;
   border-radius: 0 0 var(--desk-card-radius) var(--desk-card-radius);
   box-shadow: var(--desk-card-shadow);
+}
+
+html[data-theme="dark"] .workbench-shell .space-text-panel {
+  background: var(--card);
 }
 
 /* Use the same quiet elevation on all three dark content surfaces. */
