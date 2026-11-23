@@ -1205,15 +1205,17 @@ describe("TodoPanel", () => {
       global: { stubs: { NDropdown: dropdownStub, NTooltip: tooltipStub } },
     });
     expect(wrapper.find('.todo-section[data-list-id="morning"] .todo-add-row').exists()).toBe(false);
+    await wrapper.get('.todo-section[data-list-id="morning"] [data-testid="todo-edge-add"]').trigger("click");
     await wrapper.get('.todo-section[data-list-id="morning"] .todo-list-shell').trigger("click");
 
     await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
+    expect(wrapper.find('.todo-section[data-list-id="morning"] [data-testid="todo-edge-add"]').exists()).toBe(false);
     const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
     expect(button.text()).toBe("添加提醒");
     expect(button.attributes("aria-label")).toBe("新增提醒事项");
     expect(button.attributes("type")).toBe("button");
     await button.trigger("click");
-    expect(wrapper.emitted("create")).toEqual([["morning"], ["morning"]]);
+    expect(wrapper.emitted("create")).toEqual([["morning"], ["morning"], ["morning"]]);
     wrapper.unmount();
   });
 

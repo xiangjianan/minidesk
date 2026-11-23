@@ -283,7 +283,7 @@ html[data-theme="dark"] .workbench-shell,
 }
 .workbench-shell .todo-column {
   gap: var(--desk-group-gap);
-  padding-block: 0 16px;
+  padding-block: 0 24px;
   padding-inline-start: var(--desk-group-scroll-gutter);
   padding-inline-end: max(0px, calc(var(--desk-group-scroll-gutter) - var(--desk-scroll-rail-inset) - var(--todo-scrollbar-width, 0px)));
   scrollbar-gutter: auto;
@@ -631,15 +631,14 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   .workbench-zone-assets .panel-header { flex-wrap: wrap; }
 }
 
-/* Populated lists omit the bottom add button and leave a compact, symmetric
-   clickable bottom inset so clicking below the last item adds a reminder. */
-.workbench-shell .todo-list-shell { cursor: pointer; }
-.workbench-shell .todo-list { padding: 8px 8px 16px; }
-.workbench-shell .todo-list .todo-item { cursor: default; }
+/* Symmetric 8px card padding at rest; clicking blank column canvas or the
+   hovering edge-straddling + button adds a reminder with zero extra height. */
+.workbench-shell .todo-list-shell { cursor: default; }
+.workbench-shell .todo-list { padding: 8px; }
 .workbench-shell .todo-list .todo-item:last-child { margin-bottom: 0; }
 .workbench-shell .todo-empty-list { padding: 0; }
 .workbench-shell .todo-list.is-sort-preview-empty { padding: 0; }
-.workbench-shell .todo-list.is-sort-preview-filled { padding: 8px 8px 16px; }
+.workbench-shell .todo-list.is-sort-preview-filled { padding: 8px; }
 .workbench-shell .todo-empty-hint { display: none; }
 .workbench-shell .todo-add-row {
   display: flex;
@@ -1099,9 +1098,74 @@ html[data-theme="dark"] .workbench-shell {
   isolation: isolate;
   background-color: var(--desk-surface);
 }
-.workbench-shell .todo-section,
 .workbench-shell .quick-tag-group {
   clip-path: inset(0 round var(--desk-card-radius));
+}
+.workbench-shell .todo-section {
+  position: relative;
+  /* Preserve top rounded corner masking for sticky headings while letting the
+     bottom edge-straddling + circle button float cleanly below the card edge. */
+  clip-path: inset(0 -6px -18px -6px round var(--desk-card-radius) var(--desk-card-radius) 0 0);
+}
+
+/* Edge-straddling circular + button on populated reminder cards (Notion/Craft style). */
+.workbench-shell button.todo-edge-add {
+  position: absolute;
+  left: 50%;
+  bottom: -12px;
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 3px) scale(0.88);
+  transition:
+    opacity 150ms ease,
+    transform 170ms var(--motion-ease),
+    background-color 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+html[data-theme="dark"] .workbench-shell button.todo-edge-add {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: #303540;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.36);
+}
+
+.workbench-shell .todo-section:hover > button.todo-edge-add,
+.workbench-shell button.todo-edge-add:focus-visible:not([data-pointer-focus]) {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.workbench-shell button.todo-edge-add:hover {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--primary) 32%, transparent);
+}
+
+@media (hover: none) {
+  .workbench-shell button.todo-edge-add {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translate(-50%, 0) scale(1);
+  }
 }
 .workbench-shell :is(.quick-tag-count, .todo-count) {
   min-width: 20px;

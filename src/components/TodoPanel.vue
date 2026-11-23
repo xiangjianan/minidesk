@@ -2561,6 +2561,18 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           </button>
           </div>
         </div>
+        <button
+          v-if="!list.collapsed && listEntries[list.id].length > 0"
+          type="button"
+          class="todo-edge-add"
+          data-testid="todo-edge-add"
+          :aria-label="uiText.todo.addItem"
+          :title="uiText.desk.addReminder"
+          @mousedown.prevent
+          @click.stop="handleHeadingAddClick(list)"
+        >
+          <NIcon :component="AddOutline" :size="14" />
+        </button>
       </section>
       </Teleport>
     </div>
