@@ -58,7 +58,7 @@ describe("visible workbench actions", () => {
     await flushPromises();
     expect(readText).toHaveBeenCalledOnce();
     expect(polish).not.toHaveBeenCalled();
-    expect(wrapper.get('[aria-label="粘贴"]').text()).toBe("粘贴");
+    expect(wrapper.get('[aria-label="粘贴"]').attributes("title")).toBe("粘贴");
     expect(textarea.element.value).toBe("Keep the first line\nLast line\nclipboard draft");
     expect(wrapper.emitted("update")?.at(-1)?.[0]).toBe("notes");
   });
@@ -67,6 +67,6 @@ describe("visible workbench actions", () => {
     const { wrapper } = mountPastePanel(vi.fn(async () => null));
     await wrapper.setProps({ polish: undefined, language: "en" });
     expect(wrapper.get('[aria-label="Paste"]').attributes("title")).toBe("Paste");
-    expect(wrapper.get('[aria-label="Paste"]').text()).toBe("Paste");
+    expect(wrapper.get('[aria-label="Paste"]').classes()).toContain("icon-button");
   });
 });

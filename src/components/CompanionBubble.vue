@@ -2,8 +2,7 @@
 import { computed, h, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type { Component, VNode } from "vue";
 import { LogoGithub } from "@vicons/ionicons5";
-import { Undo2 } from "lucide-vue-next";
-import { CloseOutline, EyeOffOutline } from "@vicons/ionicons5";
+import { EyeOff as EyeOffOutline, Undo2, X as CloseOutline } from "lucide-vue-next";
 import { NButton, NDropdown, NIcon, NPopover } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, CompanionGifTheme } from "../types";

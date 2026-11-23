@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, h, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import {
-  Plus as AddOutline,
   Check as CheckmarkOutline,
   CloudDownload as CloudDownloadOutline,
   CloudUpload as CloudUploadOutline,
@@ -11,6 +10,7 @@ import {
   Images as ImagesOutline,
   Info as InformationCircleOutline,
   KeyRound as KeyOutline,
+  Monitor,
   Smartphone as PhonePortraitOutline,
   Database as ServerOutline,
   Settings as SettingsOutline,
@@ -97,15 +97,15 @@ const customGifDarkPreviewSrc = ref<string | undefined>();
 const text = computed(() => getUiText(props.language));
 const customGifLightPreview = computed(() => customGifLightPreviewSrc.value ?? props.customCompanionGif.light);
 const customGifDarkPreview = computed(() => customGifDarkPreviewSrc.value ?? props.customCompanionGif.dark);
-const preferenceOpen = ref<"zones" | null>(null);
+const preferenceOpen = ref<"zones" | "appearance" | null>(null);
 let keepPreferenceOpen = false;
-const nextAppearance = computed<ThemeMode>(() => props.theme === "light" ? "dark" : props.theme === "dark" ? "auto" : "light");
-function selectAppearance(): void {
-  preferenceOpen.value = null;
-  keepPreferenceOpen = false;
-  menuOpen.value = false;
-  emit("theme", nextAppearance.value);
-}
+const appearanceIcons: Record<ThemeMode, Component> = { light: Sun, dark: Moon, auto: Monitor };
+const appearanceOptions = computed(() => (["light", "dark", "auto"] as const).map((mode) => ({
+  label: selectionLabel(text.value.settings[mode], props.theme === mode),
+  key: `theme:${mode}`,
+  icon: renderIcon(appearanceIcons[mode]),
+  props: { role: "menuitemradio", "aria-checked": props.theme === mode },
+})));
 const zoneIcons = { assets: ImagesAreaIcon, notes: QuickAreaIcon, tasks: RemindersAreaIcon, workspace: NotesAreaIcon };
 function selectionLabel(label: string, selected: boolean) {
   return () => h("span", { class: "settings-zone-label" }, [
@@ -126,7 +126,7 @@ const zoneOptions = computed(() => [
   })),
   { type: "render" as const, key: "zone-hint", render: () => h("div", { class: "settings-zone-hint" }, text.value.zoneVisibility.restoreHint) },
 ]);
-function handlePreferenceShow(kind: "zones", show: boolean): void {
+function handlePreferenceShow(kind: "zones" | "appearance", show: boolean): void {
   if (!show && preferenceOpen.value !== kind) return;
   if (!show && keepPreferenceOpen) { keepPreferenceOpen = false; return; }
   keepPreferenceOpen = false;
@@ -134,6 +134,12 @@ function handlePreferenceShow(kind: "zones", show: boolean): void {
   if (show) menuOpen.value = false;
 }
 function handlePreferenceSelect(key: string): void {
+  if (key.startsWith("theme:")) {
+    keepPreferenceOpen = false;
+    preferenceOpen.value = null;
+    emit("theme", key.slice(6) as ThemeMode);
+    return;
+  }
   keepPreferenceOpen = true;
   emit("toggleZone", key.slice(5) as ZoneKey);
 }
@@ -157,7 +163,6 @@ const options = computed(() => [
     icon: renderIcon(ServerOutline),
     children: [
       { type: "render" as const, key: "data-storage-hint", render: () => h("div", { class: "settings-data-hint" }, text.value.settings.dataStorageHint) },
-      { label: text.value.settings.createWorkspace, key: "create-workspace", icon: renderIcon(AddOutline) },
       { label: text.value.settings.import, key: "import", icon: renderIcon(CloudUploadOutline) },
       { label: text.value.settings.exportCurrentWorkspace, key: "export-workspace", icon: renderIcon(CloudDownloadOutline) },
       { label: text.value.settings.exportAll, key: "export-all", icon: renderIcon(CloudDownloadOutline) },
@@ -385,15 +390,16 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
         <NIcon :component="GridOutline" />
       </button>
     </NDropdown>
-    <button type="button" class="icon-button appearance-button" data-testid="appearance-controls"
-      :data-theme-mode="theme" :aria-label="`${text.settings.appearance}: ${text.settings[theme]}`"
-      :title="`${text.settings[theme]} → ${text.settings[nextAppearance]}`" @click="selectAppearance">
-      <svg v-if="theme === 'auto'" data-testid="appearance-system-icon" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
-        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.5" />
-        <path d="M12 4 A8 8 0 0 1 12 20 Z" fill="currentColor" />
-      </svg>
-      <NIcon v-else :component="theme === 'light' ? Sun : Moon" />
-    </button>
+    <NDropdown trigger="click" placement="bottom-end" :show="preferenceOpen === 'appearance'"
+      :z-index="CONTEXT_MENU_Z_INDEX" :options="appearanceOptions"
+      @select="handlePreferenceSelect" @update:show="(show) => handlePreferenceShow('appearance', show)">
+      <button type="button" class="icon-button appearance-button" data-testid="appearance-controls"
+        :data-theme-mode="theme" :aria-label="`${text.settings.appearance}: ${text.settings[theme]}`"
+        :title="`${text.settings.appearance}: ${text.settings[theme]}`"
+        :aria-expanded="preferenceOpen === 'appearance'">
+        <NIcon :component="appearanceIcons[theme]" :data-testid="theme === 'auto' ? 'appearance-system-icon' : undefined" />
+      </button>
+    </NDropdown>
   <NDropdown
     trigger="click"
     placement="bottom-end"
@@ -457,7 +463,7 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
     </label>
     <div class="dialog-actions">
       <NButton class="quick-dialog-action gif-theme-custom-cancel" @click="closeCustomGifDialog">{{ text.common.cancel }}</NButton>
-      <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" @click="confirmCustomGif">{{ text.common.save }}</NButton>
+      <NButton class="quick-dialog-action quick-dialog-submit gif-theme-custom-confirm" type="primary" @click="confirmCustomGif">{{ text.common.save }}</NButton>
     </div>
   </section>
   </NModal>

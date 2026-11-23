@@ -16,6 +16,7 @@ import {
   Pencil as CreateOutline,
   Eye as EyeOutline,
   CircleHelp as HelpCircleOutline,
+  ImagePlus,
   Trash2 as TrashOutline,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
@@ -258,6 +259,19 @@ function closeMenu(): void {
 
 function pasteFromHeader(): void {
   emit("paste", { placement: "append", anchor: pasteButtonRef.value ?? undefined });
+}
+
+function openLocalFilePicker(): void {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.multiple = true;
+  input.addEventListener("change", () => {
+    const files = Array.from(input.files ?? []);
+    if (files.length === 0) return;
+    emit("dropFiles", files, pasteButtonRef.value ?? panelRef.value ?? undefined);
+  }, { once: true });
+  input.click();
 }
 
 function setImageCardRef(id: string, element: Element | ComponentPublicInstance | null): void {
@@ -726,6 +740,16 @@ function handleImageDragWheel(event: WheelEvent): void {
       <div class="header-actions">
         <span class="count">{{ images.length }}</span>
         <button
+          class="image-upload-button icon-button"
+          data-testid="image-upload-button"
+          type="button"
+          :aria-label="uiText.images.uploadImage"
+          :title="uiText.images.uploadImage"
+          @click.stop="openLocalFilePicker"
+        >
+          <NIcon :component="ImagePlus" />
+        </button>
+        <button
           ref="pasteButtonRef"
           class="image-paste-button icon-button"
           type="button"
@@ -748,9 +772,14 @@ function handleImageDragWheel(event: WheelEvent): void {
       @drop.prevent.stop="handleImageListDrop"
       @contextmenu.prevent.stop="openMenu($event)"
     >
-      <p v-if="images.length === 0" class="workbench-empty-hint image-empty-hint">{{ uiText.images.emptyHint }}</p>
-      <TransitionGroup name="image-reorder" tag="div" class="image-list" @before-leave="positionLeavingImage">
       <button
+        v-if="images.length === 0"
+        type="button"
+        class="workbench-empty-hint image-empty-hint"
+        @click.stop="openLocalFilePicker"
+      >{{ uiText.images.emptyHint }}</button>
+      <TransitionGroup name="image-reorder" tag="div" class="image-list" @before-leave="positionLeavingImage">
+      <div
         v-for="(image, index) in images"
         :key="image.id"
         :ref="(element) => setImageCardRef(image.id, element)"
@@ -763,10 +792,12 @@ function handleImageDragWheel(event: WheelEvent): void {
           'is-drop-target': image.id === externalDropTargetId,
           'is-missing': missingImageIds.has(image.id),
         }"
-        type="button"
+        role="button"
+        tabindex="0"
         @click="handleImageCardClick($event, image.id)"
         @keydown="handleCardSortKey($event, image.id)"
         @keydown.enter.stop.prevent="handleCardEnter(image.id)"
+        @keydown.space.stop.prevent="handleImageCardClick($event as unknown as MouseEvent, image.id)"
         @dblclick.stop.prevent="!missingImageIds.has(image.id) && emit('copy', image.id)"
         @contextmenu.stop="openMenu($event, image.id)"
         @dragover="handleImageCardDragOver($event, image.id)"
@@ -775,6 +806,36 @@ function handleImageDragWheel(event: WheelEvent): void {
         @pointerdown="handleImagePointerDown($event, image)"
       >
         <span class="image-index">{{ index + 1 }}</span>
+        <div
+          v-if="image.src && !missingImageIds.has(image.id)"
+          class="image-card-actions"
+          @pointerdown.stop
+          @click.stop
+          @dblclick.stop
+        >
+          <button
+            type="button"
+            class="image-card-action-btn"
+            :data-testid="`image-card-copy-${image.id}`"
+            :aria-label="uiText.images.copyImage"
+            :title="uiText.images.copyImage"
+            @click.stop="emit('copy', image.id)"
+            @keydown.stop
+          >
+            <NIcon :component="CopyOutline" :size="13" />
+          </button>
+          <button
+            type="button"
+            class="image-card-action-btn is-delete"
+            :data-testid="`image-card-delete-${image.id}`"
+            :aria-label="uiText.images.deleteImage"
+            :title="uiText.images.deleteImage"
+            @click.stop="emit('delete', image.id, ($event.currentTarget as HTMLElement))"
+            @keydown.stop
+          >
+            <NIcon :component="TrashOutline" :size="13" />
+          </button>
+        </div>
         <img
           v-if="image.src && !missingImageIds.has(image.id)"
           :src="image.src"
@@ -786,7 +847,7 @@ function handleImageDragWheel(event: WheelEvent): void {
           @dragstart.stop="handleImageNativeDragStart($event, image, index)"
         />
         <span v-else class="image-missing">{{ missingImageIds.has(image.id) ? uiText.images.missingDelete : uiText.images.loading }}</span>
-      </button>
+      </div>
       </TransitionGroup>
     </NScrollbar>
 

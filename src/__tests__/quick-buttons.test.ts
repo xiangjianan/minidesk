@@ -1247,16 +1247,16 @@ describe("QuickButtons", () => {
     wrapper.unmount();
   });
 
-  it("shows mutually exclusive link, text, API, and app type checkboxes with link selected by default", async () => {
+  it("shows mutually exclusive link, text, API, and app type segments with link selected by default", async () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
 
-    const options = wrapper.findAll(".checkbox-stub");
+    const options = wrapper.findAll(".quick-type-segment");
     expect(wrapper.findAll(".quick-form input")[0].attributes("placeholder")).toBe("输入按钮名称");
     expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入链接地址");
     expect(options.map((option) => option.text())).toEqual(["链接", "复制文本", "打开应用", "接口调用"]);
-    expect(options.map((option) => option.attributes("data-checked"))).toEqual(["true", "false", "false", "false"]);
+    expect(options.map((option) => option.attributes("aria-checked"))).toEqual(["true", "false", "false", "false"]);
     expect(wrapper.get(".quick-form").text()).toContain("链接地址");
 
     await options[1].trigger("click");
@@ -1270,7 +1270,7 @@ describe("QuickButtons", () => {
     await options[3].trigger("click");
     await wrapper.vm.$nextTick();
 
-    expect(options.map((option) => option.attributes("data-checked"))).toEqual(["false", "false", "false", "true"]);
+    expect(options.map((option) => option.attributes("aria-checked"))).toEqual(["false", "false", "false", "true"]);
     expect(wrapper.get(".quick-form").text()).toContain("请求链接");
     expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入请求链接");
 
@@ -1281,7 +1281,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.get(".quick-app-preset-select").setValue("wechat://");
     await wrapper.get("form").trigger("submit.prevent");
 
@@ -1297,7 +1297,7 @@ describe("QuickButtons", () => {
   it("syncs the title with the shortcut name while creating an app action", async () => {
     const wrapper = mountQuickButtons();
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.get(".quick-app-preset-select").setValue("shortcuts://run-shortcut?name=");
     const inputs = wrapper.findAll(".quick-form input");
     await inputs[1].setValue("shortcuts://run-shortcut?name=打开购物列表");
@@ -1314,7 +1314,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click"); // 接口调用
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click"); // 接口调用
     await wrapper.get(".quick-api-template-getJson").trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("获取用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
@@ -1337,7 +1337,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click"); // 接口调用
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click"); // 接口调用
     await wrapper.get(".quick-api-template-postJson").trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("创建用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
@@ -1358,7 +1358,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("我的应用");
     await wrapper.findAll(".quick-form input")[1].setValue("myapp://open");
     await wrapper.get("form").trigger("submit.prevent");
@@ -1376,7 +1376,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("创建用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
     await wrapper.get(".quick-api-method-select").setValue("POST");
@@ -1409,7 +1409,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[1].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[1].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("片段");
     await wrapper.get("textarea").setValue("第一行\n第二行");
     await wrapper.get("form").trigger("submit.prevent");

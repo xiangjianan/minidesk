@@ -297,8 +297,10 @@ interface FormatShortcut {
 
 function getFormatShortcut(event: KeyboardEvent): FormatShortcut | null {
   if (event.repeat) return null;
-  if (!event.shiftKey || !(event.ctrlKey || event.metaKey) || event.altKey) return null;
+  if (!(event.ctrlKey || event.metaKey) || event.altKey) return null;
   const key = event.key.toLowerCase();
+  if (!event.shiftKey && key === "b") return { type: "bold" };
+  if (!event.shiftKey) return null;
   if (key === "h") return { type: "highlight", color: "amber" };
   if (key === "x") return { type: "strike" };
   if (key === "u") return { type: "underline" };

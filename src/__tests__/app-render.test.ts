@@ -414,8 +414,7 @@ describe("App shell", () => {
     expect(wrapper.find('[aria-label="应用导航"]').exists()).toBe(false);
     expect(wrapper.find(".workbench-rail").exists()).toBe(false);
     expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).toContain("MiniDesk");
-    expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("搜索或执行命令");
-    expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("⌘K");
+    expect(wrapper.get('[data-testid="command-palette-trigger"]').text()).toContain("⌘K");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
     expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");
     expect(wrapper.get(".workbench-zone-tasks").attributes("aria-label")).toBe("提醒事项");

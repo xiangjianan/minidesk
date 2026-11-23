@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { NIcon, NPopover } from "naive-ui";
-import { CheckmarkOutline, GridOutline } from "@vicons/ionicons5";
+import { Check as CheckmarkOutline, LayoutGrid as GridOutline } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
 import { CONTEXT_MENU_Z_INDEX } from "../utils/contextMenu";
 import type { AppLanguage, ZoneKey, ZoneVisibility } from "../types";

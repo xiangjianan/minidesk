@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import {
   RefreshCw as SyncOutline,
   CircleHelp as HelpCircleOutline,
+  Search as SearchOutline,
 } from "lucide-vue-next";
 import { NIcon } from "naive-ui";
 import { ImagesAreaIcon, QuickAreaIcon, RemindersAreaIcon, NotesAreaIcon } from "../utils/areaIcons";
@@ -73,6 +74,7 @@ const expandHint = computed(() => (props.language === "en" ? "Click to expand" :
 const emit = defineEmits<{
   syncInbox: [];
   randomTip: [anchor: HTMLElement];
+  openCommandPalette: [];
 }>();
 
 defineSlots<{
@@ -106,7 +108,7 @@ const DESKTOP_RESIZE_BREAKPOINT = 1180;
 const WORKBENCH_HEADER_STORAGE_KEY = "mini-desk-workbench-header-hidden";
 const LEGACY_WORKBENCH_HEADER_STORAGE_KEY = "todo-board-workbench-header-hidden";
 // Default zone widths: images, quick actions, reminders, and notes.
-const DEFAULT_COLUMN_WEIGHTS = [0.12, 0.27, 0.27, 0.34] as const;
+const DEFAULT_COLUMN_WEIGHTS = [0.15, 0.26, 0.26, 0.33] as const;
 const MIN_COLUMN_WIDTHS = [100, 100, 100, 100] as const;
 // Canonical zone order matches DEFAULT_COLUMN_WEIGHTS / MIN_COLUMN_WIDTHS indices.
 const ZONE_INDEX = { assets: 0, notes: 1, tasks: 2, workspace: 3 } as const;
@@ -650,6 +652,27 @@ function expandZoneToDefault(canonicalIndex: number): void {
   syncImagePreviewLeft();
 }
 
+function resetColumnWidths(): void {
+  stopVisibilityAnimation();
+  const metrics = readGridMetrics();
+  if (!metrics) return;
+  if (activeIndices.value.length === 1 && activeIndices.value[0] === ZONE_INDEX.assets) {
+    columnWidths.value = [Math.max(activeMins.value[0], Math.round(metrics.contentWidth * SOLO_ASSETS_WIDTH_RATIO))];
+    syncImagePreviewLeft();
+    return;
+  }
+  columnWidths.value = defaultColumnWidths(metrics.rect.width, activeMins.value, activeWeights.value);
+  usingDefaultWidths = true;
+  if (typeof localStorage !== "undefined") {
+    try {
+      localStorage.removeItem(widthStorageKey());
+    } catch {
+      // ignore storage errors
+    }
+  }
+  syncImagePreviewLeft();
+}
+
 function setHeaderHidden(hidden: boolean): void {
   window.clearTimeout(headerPeekTimer);
   headerPeek.value = false;
@@ -806,6 +829,17 @@ onUnmounted(() => {
           <div class="workbench-command-actions">
             <button
               type="button"
+              class="workbench-search-trigger"
+              data-testid="command-palette-trigger"
+              :aria-label="uiText.desk.quickSearch"
+              :title="`${uiText.desk.quickSearch} (Ctrl/⌘ + K)`"
+              @click="emit('openCommandPalette')"
+            >
+              <NIcon :component="SearchOutline" :size="14" />
+              <kbd class="workbench-search-kbd">⌘K</kbd>
+            </button>
+            <button
+              type="button"
               class="icon-button workbench-header-hide-button"
               data-testid="workbench-header-hide"
               :aria-label="headerHidden ? uiText.common.showHeader : uiText.common.hideHeader"
@@ -888,8 +922,10 @@ onUnmounted(() => {
           role="separator"
           aria-orientation="vertical"
           :aria-label="handle.label"
+          :title="uiText.desk.resetLayoutHint"
           :style="handle.style"
           @pointerdown="startResize($event, handle.column, handle.trailing)"
+          @dblclick.stop.prevent="resetColumnWidths"
           @keydown="resizeWithKeyboard($event, handle.column, handle.trailing)"
         />
       </div>

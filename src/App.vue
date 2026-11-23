@@ -4,6 +4,7 @@ import { TITLE_MAX_LENGTH, limitTitle } from "./state/titleLimits";
 import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { darkTheme, dateEnUS, dateZhCN, enUS, NAlert, NButton, NCheckbox, NConfigProvider, NGlobalStyle, NInput, NModal, zhCN } from "naive-ui";
 import CompanionBubble from "./components/CompanionBubble.vue";
+import CommandPalette from "./components/CommandPalette.vue";
 import { Trash2 } from "lucide-vue-next";
 import { dragDelete, updateDragDelete, finishDragDelete, cancelDragDelete } from "./utils/dragDelete";
 import { LogoGithub } from "@vicons/ionicons5";
@@ -465,6 +466,42 @@ const emptyTodoRemovalTimers = new Map<string, number>();
 const pendingImagePayloadDeletions = new Map<string, number>();
 const pendingClearPayloadIds = new Set<string>();
 const shortcutHelpVisible = ref(false);
+const commandPaletteVisible = ref(false);
+
+function runQuickButtonFromPalette(id: string): void {
+  if (!activeWorkspace.value.zoneVisibility.notes) {
+    toggleActiveWorkspaceZone("notes");
+  }
+  const el = document.querySelector<HTMLElement>(`.quick-button[data-id="${CSS.escape(id)}"]`) ?? undefined;
+  void handleQuickButton(id, el);
+}
+
+function selectTodoFromPalette(period: string, id: string): void {
+  if (!activeWorkspace.value.zoneVisibility.tasks) {
+    toggleActiveWorkspaceZone("tasks");
+  }
+  void nextTick(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      `.todo-input[data-period="${CSS.escape(period)}"][data-todo-id="${CSS.escape(id)}"]`,
+    );
+    if (!input) return;
+    input.scrollIntoView({ block: "center", behavior: "smooth" });
+    input.click();
+    input.focus({ preventScroll: true });
+  });
+}
+
+function selectSpaceFromPalette(id: string): void {
+  if (!activeWorkspace.value.zoneVisibility.workspace) {
+    toggleActiveWorkspaceZone("workspace");
+  }
+  activateSpace(id);
+  void nextTick(() => {
+    const textarea = document.querySelector<HTMLTextAreaElement>(".workspace-panel .text-editor-textarea");
+    textarea?.click();
+    textarea?.focus({ preventScroll: true });
+  });
+}
 const aboutVisible = ref(false);
 const supportDialogVisible = ref(false);
 const updateCheckVisible = ref(false);
@@ -3848,6 +3885,17 @@ function suggestIssue(): void {
 function handleGlobalKeydown(event: KeyboardEvent): void {
   if (isMobileBlocked.value) return;
   if (event.defaultPrevented) return;
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    commandPaletteVisible.value = !commandPaletteVisible.value;
+    return;
+  }
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key === "/") {
+    event.preventDefault();
+    shortcutHelpVisible.value = !shortcutHelpVisible.value;
+    return;
+  }
+  if (commandPaletteVisible.value) return;
   const previewId = activePreviewId.value;
   // 预览快捷键只在被预览图片仍真实在场时接管：撤销/竞态等可能让图片离开
   // 列表而 activePreviewId 残留（浮层因查不到图而不可见），此时继续武装
@@ -4486,6 +4534,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       :inbox-syncing="inboxPullInFlight"
       @sync-inbox="requestManualInboxSync"
       @random-tip="handleHeaderRandomTip"
+      @open-command-palette="commandPaletteVisible = true"
       @dragover.prevent
       @drop.prevent="handleBoardDrop"
     >
@@ -4858,6 +4907,30 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       </div>
     </NModal>
     <ShortcutHelp :show="shortcutHelpVisible" :language="state.language" @close="shortcutHelpVisible = false" />
+    <CommandPalette
+      v-if="!isMobileBlocked"
+      :show="commandPaletteVisible"
+      :language="state.language"
+      :theme="state.theme"
+      :workspaces="state.workspaces"
+      :active-workspace-id="state.activeWorkspaceId"
+      :zone-visibility="activeWorkspace.zoneVisibility"
+      :quick-buttons="activeWorkspace.quickButtons"
+      :quick-tags="activeWorkspace.quickTags"
+      :todo-lists="displayTodoLists"
+      :todos="activeWorkspace.todos"
+      :spaces="displaySpaces"
+      @close="commandPaletteVisible = false"
+      @run-quick-button="runQuickButtonFromPalette"
+      @select-todo="selectTodoFromPalette"
+      @select-space="selectSpaceFromPalette"
+      @switch-workspace="switchWorkspace"
+      @set-theme="(theme) => { state.theme = theme; hideCompanion(); }"
+      @toggle-zone="toggleActiveWorkspaceZone"
+      @create-workspace="openCreateWorkspace"
+      @export-workspace="exportCurrentWorkspace()"
+      @open-shortcut-help="shortcutHelpVisible = true"
+    />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
     <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">
       <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].description }}</p>

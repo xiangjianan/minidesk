@@ -2296,6 +2296,17 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               ⏱ {{ formatFocusDuration(item.todo.focusElapsedMs ?? 0) }}
             </button>
             <button
+              v-else-if="!item.todo.done"
+              class="todo-focus-trigger"
+              type="button"
+              :data-testid="`todo-focus-trigger-${item.todo.id}`"
+              :aria-label="uiText.todo.focusNow"
+              :title="uiText.todo.focusNow"
+              @click.stop="emit('focusNow', item.period, item.todo.id)"
+            >
+              <NIcon :component="TimerOutline" />
+            </button>
+            <button
               class="todo-star-button is-starred"
               type="button"
               :aria-label="uiText.todo.unpin"
@@ -2523,6 +2534,17 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   ⏱ {{ formatFocusDuration(entry.todo.focusElapsedMs ?? 0) }}
                 </button>
                 <button
+                  v-else-if="!entry.todo.done"
+                  class="todo-focus-trigger"
+                  type="button"
+                  :data-testid="`todo-focus-trigger-${entry.todo.id}`"
+                  :aria-label="uiText.todo.focusNow"
+                  :title="uiText.todo.focusNow"
+                  @click.stop="emit('focusNow', list.id, entry.todo.id)"
+                >
+                  <NIcon :component="TimerOutline" />
+                </button>
+                <button
                   class="todo-star-button"
                   :class="{ 'is-starred': entry.todo.starred }"
                   type="button"
@@ -2555,6 +2577,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             @click.stop="handleHeadingAddClick(list)"
           >
             <NIcon :component="AddOutline" />
+            <span class="todo-add-row-label">{{ uiText.desk.addReminder }}</span>
           </button>
           </div>
         </div>
@@ -2573,6 +2596,36 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           :style="notifyPickerStyle"
           :aria-label="uiText.todo.setNotify"
         >
+          <div class="notify-panel-presets">
+            <div class="notify-panel-preset-group">
+              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.relativeLabel }}</span>
+              <button
+                v-for="(preset, index) in relativeNotifyPresets"
+                :key="preset.key"
+                type="button"
+                class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
+                @click="confirmNotifyPicker(preset.at)"
+                @contextmenu.stop.prevent="editPreset('relative', index)"
+              >
+                {{ durationLabel(normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index]) }}
+              </button>
+            </div>
+            <div class="notify-panel-preset-group">
+              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.timeLabel }}</span>
+              <button
+                v-for="(preset, index) in timeNotifyPresets"
+                :key="preset.key"
+                type="button"
+                class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
+                @click="applyNotifyTimePreset(index)"
+                @contextmenu.stop.prevent="editPreset('time', index)"
+              >
+                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
+              </button>
+            </div>
+          </div>
           <NDatePicker
             class="notify-date-picker"
             type="date"
@@ -2617,36 +2670,6 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   {{ formatNotifyTimeUnit(minute.value) }}
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="notify-panel-presets">
-            <div class="notify-panel-preset-group">
-              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.relativeLabel }}</span>
-              <button
-                v-for="(preset, index) in relativeNotifyPresets"
-                :key="preset.key"
-                type="button"
-                class="notify-panel-preset"
-                :title="uiText.todo.notifyPresets.hint"
-                @click="confirmNotifyPicker(preset.at)"
-                @contextmenu.stop.prevent="editPreset('relative', index)"
-              >
-                {{ durationLabel(normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index]) }}
-              </button>
-            </div>
-            <div class="notify-panel-preset-group">
-              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.timeLabel }}</span>
-              <button
-                v-for="(preset, index) in timeNotifyPresets"
-                :key="preset.key"
-                type="button"
-                class="notify-panel-preset"
-                :title="uiText.todo.notifyPresets.hint"
-                @click="applyNotifyTimePreset(index)"
-                @contextmenu.stop.prevent="editPreset('time', index)"
-              >
-                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
-              </button>
             </div>
           </div>
           <div class="notify-panel-actions">
