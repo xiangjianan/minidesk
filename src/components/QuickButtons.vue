@@ -11,7 +11,7 @@ import { installPointerSort } from "../utils/pointerSort";
 import { isGroupDropBefore } from "../utils/groupDrop";
 import { computed, h, nextTick, onBeforeUpdate, onMounted, onUnmounted, onUpdated, reactive, ref } from "vue";
 import type { Component, ComponentPublicInstance, VNode } from "vue";
-import { NButton, NCheckbox, NIcon, NInput, NModal, NScrollbar, NSelect } from "naive-ui";
+import { NButton, NIcon, NInput, NModal, NScrollbar, NSelect } from "naive-ui";
 import {
   Plus as AddOutline,
   LayoutGrid as AppsOutline,
@@ -26,7 +26,7 @@ import {
   Maximize2 as ResizeOutline,
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,
-  EllipsisVertical,
+  Ellipsis,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, QuickApiBodyType, QuickApiHeader, QuickApiMethod, QuickButton, QuickButtonType, QuickTag, WorkspaceMoveTarget } from "../types";
@@ -905,11 +905,6 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
         <span>{{ getIconHeadingText(title, 'quick') }}</span>
       </h2>
       <div class="header-actions">
-        <button type="button" class="quick-add-button icon-button"
-          :aria-label="uiText.quick.newList" :title="uiText.quick.newList"
-          @click.stop="listCreateDialog?.open($event.currentTarget as HTMLElement)">
-          <NIcon :component="AddOutline" />
-        </button>
         <button
           type="button"
           class="quick-menu-button icon-button"
@@ -917,7 +912,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           :title="uiText.quick.menu"
           @click="openHeaderMenu"
         >
-          <NIcon :component="EllipsisVertical" />
+          <NIcon :component="Ellipsis" />
         </button>
       </div>
     </div>
@@ -992,6 +987,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="quick-tag-add-button"
               :aria-label="uiText.quick.addInTag"
               :title="uiText.common.create"
+              @mousedown.prevent
               @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)"
               @dblclick.stop
             >
@@ -1003,6 +999,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="icon-button desk-paste-button"
               :aria-label="uiText.common.paste"
               :title="uiText.common.paste"
+              @mousedown.prevent
               @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '')"
               @dblclick.stop
             >
@@ -1014,10 +1011,11 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="quick-tag-menu-button icon-button"
               :aria-label="uiText.quick.menu"
               :title="uiText.quick.menu"
+              @mousedown.prevent
               @click.stop="isRealTagGroup(group.id) ? openTagMenu($event, group.id, true) : openHeaderMenu($event)"
               @dblclick.stop
             >
-              <NIcon :component="EllipsisVertical" />
+              <NIcon :component="Ellipsis" />
             </button>
           </div>
           <div
@@ -1067,7 +1065,17 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
                 </span>
               </button>
             </MemoTransitionGroup>
-            <button v-if="!globalSearchNormalized && group.title && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" type="button" class="workbench-empty-hint quick-empty-hint" @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)">{{ uiText.quick.emptyHint }}</button>
+            <button
+              v-if="!globalSearchNormalized && group.title && group.buttons.length === 0"
+              type="button"
+              class="quick-add-row"
+              :aria-label="uiText.quick.addInTag"
+              :title="uiText.common.create"
+              @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)"
+            >
+              <NIcon :component="AddOutline" />
+              <span class="quick-add-row-label">{{ uiText.quick.addInTag }}</span>
+            </button>
             </div>
           </div>
         </section>
@@ -1091,19 +1099,55 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           <span>{{ uiText.quick.title }}</span>
           <NInput ref="titleInput" v-model:value="form.title" :placeholder="uiText.quick.titlePlaceholder" autocomplete="off" />
         </label>
-        <div class="quick-type-options">
-          <label class="checkbox-row">
-            <NCheckbox :checked="form.type === 'link'" @update:checked="setQuickType('link')">{{ uiText.quick.linkType }}</NCheckbox>
-          </label>
-          <label class="checkbox-row">
-            <NCheckbox :checked="form.type === 'text'" @update:checked="setQuickType('text')">{{ uiText.quick.textType }}</NCheckbox>
-          </label>
-          <label class="checkbox-row">
-            <NCheckbox :checked="form.type === 'app'" @update:checked="setQuickType('app')">{{ uiText.quick.appType }}</NCheckbox>
-          </label>
-          <label class="checkbox-row">
-            <NCheckbox :checked="form.type === 'api'" @update:checked="setQuickType('api')">{{ uiText.quick.apiType }}</NCheckbox>
-          </label>
+        <div class="quick-type-options quick-type-segmented" role="radiogroup" :aria-label="uiText.quick.dialogAdd">
+          <button
+            type="button"
+            role="radio"
+            class="quick-type-segment"
+            :class="{ 'is-active': form.type === 'link' }"
+            :aria-checked="form.type === 'link'"
+            data-type="link"
+            @click="setQuickType('link')"
+          >
+            <NIcon :component="LinkOutline" :size="14" />
+            <span>{{ uiText.quick.linkType }}</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            class="quick-type-segment"
+            :class="{ 'is-active': form.type === 'text' }"
+            :aria-checked="form.type === 'text'"
+            data-type="text"
+            @click="setQuickType('text')"
+          >
+            <NIcon :component="CopyOutline" :size="14" />
+            <span>{{ uiText.quick.textType }}</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            class="quick-type-segment"
+            :class="{ 'is-active': form.type === 'app' }"
+            :aria-checked="form.type === 'app'"
+            data-type="app"
+            @click="setQuickType('app')"
+          >
+            <NIcon :component="AppsOutline" :size="14" />
+            <span>{{ uiText.quick.appType }}</span>
+          </button>
+          <button
+            type="button"
+            role="radio"
+            class="quick-type-segment"
+            :class="{ 'is-active': form.type === 'api' }"
+            :aria-checked="form.type === 'api'"
+            data-type="api"
+            @click="setQuickType('api')"
+          >
+            <NIcon :component="CloudUploadOutline" :size="14" />
+            <span>{{ uiText.quick.apiType }}</span>
+          </button>
         </div>
         <label v-if="form.type === 'app'">
           <span>{{ uiText.quick.commonApp }}</span>
@@ -1190,7 +1234,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
         </template>
         <div class="dialog-actions">
           <NButton class="quick-dialog-action quick-dialog-cancel" type="default" @click="closeDialog">{{ uiText.common.cancel }}</NButton>
-          <NButton class="quick-dialog-action quick-dialog-submit" attr-type="submit" type="default" :disabled="!canSubmit">{{ uiText.common.save }}</NButton>
+          <NButton class="quick-dialog-action quick-dialog-submit" attr-type="submit" type="primary" :disabled="!canSubmit">{{ uiText.common.save }}</NButton>
         </div>
       </form>
     </NModal>

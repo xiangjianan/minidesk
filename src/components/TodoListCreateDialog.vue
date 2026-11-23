@@ -58,7 +58,7 @@ defineExpose({ open });
       <p v-if="duplicate && (attempted || Boolean(limitTitle(title)))" role="alert">{{ uiText.todo.duplicateList }}</p>
       <div class="dialog-actions">
         <NButton class="quick-dialog-action todo-list-create-cancel" @click="show = false">{{ uiText.common.cancel }}</NButton>
-        <NButton class="quick-dialog-action quick-dialog-submit todo-list-create-confirm" attr-type="submit" :disabled="!canSubmit">{{ uiText.common.save }}</NButton>
+        <NButton class="quick-dialog-action quick-dialog-submit todo-list-create-confirm" type="primary" attr-type="submit" :disabled="!canSubmit">{{ uiText.common.save }}</NButton>
       </div>
     </form>
   </NModal>

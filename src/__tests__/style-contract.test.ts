@@ -460,8 +460,8 @@ describe("workbench style contract", () => {
     const text = readFileSync(resolve(__dirname, "../components/TextPanel.vue"), "utf8");
     const todo = readFileSync(resolve(__dirname, "../components/TodoPanel.vue"), "utf8");
 
-    // 便签头部使用普通粘贴按钮。
-    expect(space).toContain('class="desk-ai-action desk-paste-button"');
+    // 便签头部使用普通粘贴图标按钮，与其他区域视觉节奏一致。
+    expect(space).toContain('class="icon-button desk-paste-button"');
     expect(space).not.toContain('class="smart-paste-icon-flow"');
     expect(space).not.toContain("polish-menu-flow");
     expectSelectorBody(desk, ".workbench-shell .desk-ai-button", "color: var(--muted)");

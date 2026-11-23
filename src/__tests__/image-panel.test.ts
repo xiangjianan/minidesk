@@ -558,7 +558,7 @@ describe("ImagePanel", () => {
     wrapper.unmount();
   });
 
-  it("places the count immediately left of paste on the header row", () => {
+  it("places count, local upload, and paste on the header row and supports hover card actions", async () => {
     const wrapper = mountImagePanel([
       { id: "a", src: "data:image/png;base64,a", createdAt: 1 },
       { id: "b", src: "data:image/png;base64,b", createdAt: 2 },
@@ -567,9 +567,17 @@ describe("ImagePanel", () => {
     const children = actions.element.children;
 
     expect(children[0]).toBe(wrapper.get(".count").element);
-    expect(children[1]).toBe(wrapper.get(".image-paste-button").element);
-    expect(children).toHaveLength(2);
+    expect(children[1]).toBe(wrapper.get(".image-upload-button").element);
+    expect(children[2]).toBe(wrapper.get(".image-paste-button").element);
     expect(wrapper.get(".count").text()).toBe("2");
+
+    await wrapper.get('[data-testid="image-card-copy-a"]').trigger("click");
+    expect(wrapper.emitted("copy")).toEqual([["a"]]);
+    expect(wrapper.emitted("preview")).toBeUndefined();
+
+    await wrapper.get('[data-testid="image-card-delete-b"]').trigger("click");
+    expect(wrapper.emitted("delete")?.[0]?.[0]).toBe("b");
+    expect(wrapper.emitted("preview")).toBeUndefined();
     wrapper.unmount();
   });
 

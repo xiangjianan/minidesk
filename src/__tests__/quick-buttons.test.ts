@@ -146,26 +146,26 @@ function readSource(path: string): string {
 }
 
 describe("QuickButtons", () => {
-  it("guides the last empty list even when earlier lists have actions", async () => {
+  it("shows the inline add-button row only in empty groups to keep populated groups compact", async () => {
     const wrapper = mountQuickButtons({
       tags: [{ id: "first", title: "常用" }, { id: "last", title: "工作" }],
       buttons: [{ id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" }],
     });
     try {
-      expect(wrapper.find('[data-tag-id="first"] .quick-empty-hint').exists()).toBe(false);
-      expect(wrapper.get('[data-tag-id="last"] .quick-empty-hint').text()).toContain("添加快捷按钮");
+      expect(wrapper.find('[data-tag-id="first"] .quick-add-row').exists()).toBe(false);
+      expect(wrapper.get('[data-tag-id="last"] .quick-add-row').text()).toContain("添加快捷按钮");
       await wrapper.setProps({ buttons: [
         { id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" },
         { id: "two", title: "文本", value: "内容", type: "text", hidden: false, tagId: "last" },
       ] });
-      expect(wrapper.find(".quick-empty-hint").exists()).toBe(false);
+      expect(wrapper.find(".quick-add-row").exists()).toBe(false);
     } finally { wrapper.unmount(); }
   });
 
-  it("opens the empty list's action dialog from its hint", async () => {
+  it("opens the group's action dialog from its inline add row", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "work", title: "工作" }] });
     try {
-      await wrapper.get('[data-tag-id="work"] .quick-empty-hint').trigger("click");
+      await wrapper.get('[data-tag-id="work"] .quick-add-row').trigger("click");
       await wrapper.findAll(".quick-form input")[0].setValue("动作");
       await wrapper.findAll(".quick-form input")[1].setValue("https://example.com");
       await wrapper.get("form").trigger("submit");
@@ -655,7 +655,8 @@ describe("QuickButtons", () => {
       tags: [{ id: "tag-a", title: "甲" }, { id: "tag-b", title: "乙" }],
     });
 
-    await wrapper.get(".quick-add-button").trigger("click");
+    await wrapper.get(".quick-menu-button").trigger("click");
+    await wrapper.get('.dropdown-option[data-key="create-list"]').trigger("click");
     await wrapper.vm.$nextTick();
 
     const rowInputs = wrapper.findAll(".quick-tag-manager-row .quick-tag-name-input");
@@ -1247,16 +1248,16 @@ describe("QuickButtons", () => {
     wrapper.unmount();
   });
 
-  it("shows mutually exclusive link, text, API, and app type checkboxes with link selected by default", async () => {
+  it("shows mutually exclusive link, text, API, and app type segments with link selected by default", async () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
 
-    const options = wrapper.findAll(".checkbox-stub");
+    const options = wrapper.findAll(".quick-type-segment");
     expect(wrapper.findAll(".quick-form input")[0].attributes("placeholder")).toBe("输入按钮名称");
     expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入链接地址");
     expect(options.map((option) => option.text())).toEqual(["链接", "复制文本", "打开应用", "接口调用"]);
-    expect(options.map((option) => option.attributes("data-checked"))).toEqual(["true", "false", "false", "false"]);
+    expect(options.map((option) => option.attributes("aria-checked"))).toEqual(["true", "false", "false", "false"]);
     expect(wrapper.get(".quick-form").text()).toContain("链接地址");
 
     await options[1].trigger("click");
@@ -1270,7 +1271,7 @@ describe("QuickButtons", () => {
     await options[3].trigger("click");
     await wrapper.vm.$nextTick();
 
-    expect(options.map((option) => option.attributes("data-checked"))).toEqual(["false", "false", "false", "true"]);
+    expect(options.map((option) => option.attributes("aria-checked"))).toEqual(["false", "false", "false", "true"]);
     expect(wrapper.get(".quick-form").text()).toContain("请求链接");
     expect(wrapper.findAll(".quick-form input")[1].attributes("placeholder")).toBe("输入请求链接");
 
@@ -1281,7 +1282,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.get(".quick-app-preset-select").setValue("wechat://");
     await wrapper.get("form").trigger("submit.prevent");
 
@@ -1297,7 +1298,7 @@ describe("QuickButtons", () => {
   it("syncs the title with the shortcut name while creating an app action", async () => {
     const wrapper = mountQuickButtons();
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.get(".quick-app-preset-select").setValue("shortcuts://run-shortcut?name=");
     const inputs = wrapper.findAll(".quick-form input");
     await inputs[1].setValue("shortcuts://run-shortcut?name=打开购物列表");
@@ -1314,7 +1315,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click"); // 接口调用
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click"); // 接口调用
     await wrapper.get(".quick-api-template-getJson").trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("获取用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
@@ -1337,7 +1338,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click"); // 接口调用
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click"); // 接口调用
     await wrapper.get(".quick-api-template-postJson").trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("创建用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
@@ -1358,7 +1359,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[2].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[2].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("我的应用");
     await wrapper.findAll(".quick-form input")[1].setValue("myapp://open");
     await wrapper.get("form").trigger("submit.prevent");
@@ -1376,7 +1377,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[3].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[3].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("创建用户");
     await wrapper.findAll(".quick-form input")[1].setValue("https://api.example.test/users");
     await wrapper.get(".quick-api-method-select").setValue("POST");
@@ -1409,7 +1410,7 @@ describe("QuickButtons", () => {
     const wrapper = mountQuickButtons();
 
     await openDialog(wrapper);
-    await wrapper.findAll(".checkbox-stub")[1].trigger("click");
+    await wrapper.findAll(".quick-type-segment")[1].trigger("click");
     await wrapper.findAll(".quick-form input")[0].setValue("片段");
     await wrapper.get("textarea").setValue("第一行\n第二行");
     await wrapper.get("form").trigger("submit.prevent");
@@ -1486,9 +1487,10 @@ describe("QuickButtons", () => {
     areaWrapper.unmount();
   });
 
-  it("opens the list dialog and creates a list with a default color", async () => {
+  it("opens the list dialog from the header menu and creates a list with a default color", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "general", title: "常用" }] });
-    await wrapper.get(".quick-add-button").trigger("click");
+    await wrapper.get(".quick-menu-button").trigger("click");
+    await wrapper.get('.dropdown-option[data-key="create-list"]').trigger("click");
     expect(wrapper.get(".quick-list-dialog").text()).toContain("新建分组");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
     await wrapper.get(".quick-list-dialog input").setValue("常用");
@@ -1808,7 +1810,7 @@ describe("QuickButtons", () => {
   it("顶部菜单不提供粘贴，列表菜单保留普通和智能粘贴", async () => {
     const wrapper = mountQuickButtons({ polish: vi.fn(), tags: [{ id: "work", title: "工作" }] });
     expect(wrapper.find(".header-actions .desk-paste-button").exists()).toBe(false);
-    expect(wrapper.get(".quick-add-button").attributes("aria-label")).toBe("新建分组");
+    expect(wrapper.find(".quick-add-button").exists()).toBe(false);
     await wrapper.get(".quick-menu-button").trigger("click");
     expect(wrapper.find('.dropdown-option[data-key="paste"]').exists()).toBe(false);
     expect(wrapper.find('.dropdown-option[data-key="smart-paste"]').exists()).toBe(false);

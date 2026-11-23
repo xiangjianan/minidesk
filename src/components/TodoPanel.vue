@@ -28,7 +28,7 @@ import {
   ArrowLeftRight as SwapHorizontalOutline,
   Timer as TimerOutline,
   Trash2 as TrashOutline,
-  EllipsisVertical,
+  Ellipsis,
   Smartphone,
 } from "lucide-vue-next";
 import { NDatePicker, NIcon, NModal, NButton } from "naive-ui";
@@ -2192,10 +2192,8 @@ onUnmounted(() => focusRegionAnimation?.cancel());
     <div class="panel-header desk-zone-heading">
       <h2 id="todo-title"><NIcon :component="CheckboxOutline" /><span>{{ uiText.desk.reminders }}</span></h2>
       <div class="header-actions">
-        <button type="button" class="icon-button" data-testid="todo-area-add" :aria-label="uiText.todo.newList" :title="uiText.todo.newList"
-          @click.stop="openCreateListDialog($event.currentTarget as HTMLElement)"><NIcon :component="AddOutline" /></button>
         <button type="button" class="icon-button" data-testid="todo-area-menu" :aria-label="uiText.todo.menu" :title="uiText.todo.menu"
-          @click.stop="openPanelMenu($event, true)"><NIcon :component="EllipsisVertical" /></button>
+          @click.stop="openPanelMenu($event, true)"><NIcon :component="Ellipsis" /></button>
       </div>
     </div>
     <div class="todo-content-scroll" :class="{ 'is-multi-column': columnCount > 1 }">
@@ -2388,18 +2386,21 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           <div class="todo-heading-actions">
             <span class="todo-count">{{ periodStats[list.id] }}</span>
             <button type="button" class="icon-button" :aria-label="uiText.desk.addReminder" :title="uiText.common.create"
+              @mousedown.prevent
               @click.stop="handleHeadingAddClick(list)"><NIcon :component="AddOutline" /></button>
             <button type="button" class="icon-button desk-paste-button"
               :aria-label="uiText.common.paste" :title="uiText.common.paste"
+              @mousedown.prevent
               @click.stop="openSectionActions($event, list.id); handleMenuSelect('paste')"><NIcon :component="ClipboardOutline" /></button>
             <button
               type="button"
               class="todo-section-menu-button icon-button"
               :aria-label="uiText.todo.menu"
               :title="uiText.todo.menu"
+              @mousedown.prevent
               @click="openSectionActions($event, list.id)"
             >
-              <NIcon :component="EllipsisVertical" />
+              <NIcon :component="Ellipsis" />
             </button>
           </div>
         </div>
@@ -2555,6 +2556,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             @click.stop="handleHeadingAddClick(list)"
           >
             <NIcon :component="AddOutline" />
+            <span class="todo-add-row-label">{{ uiText.desk.addReminder }}</span>
           </button>
           </div>
         </div>
@@ -2573,6 +2575,36 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           :style="notifyPickerStyle"
           :aria-label="uiText.todo.setNotify"
         >
+          <div class="notify-panel-presets">
+            <div class="notify-panel-preset-group">
+              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.relativeLabel }}</span>
+              <button
+                v-for="(preset, index) in relativeNotifyPresets"
+                :key="preset.key"
+                type="button"
+                class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
+                @click="confirmNotifyPicker(preset.at)"
+                @contextmenu.stop.prevent="editPreset('relative', index)"
+              >
+                {{ durationLabel(normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index]) }}
+              </button>
+            </div>
+            <div class="notify-panel-preset-group">
+              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.timeLabel }}</span>
+              <button
+                v-for="(preset, index) in timeNotifyPresets"
+                :key="preset.key"
+                type="button"
+                class="notify-panel-preset"
+                :title="uiText.todo.notifyPresets.hint"
+                @click="applyNotifyTimePreset(index)"
+                @contextmenu.stop.prevent="editPreset('time', index)"
+              >
+                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
+              </button>
+            </div>
+          </div>
           <NDatePicker
             class="notify-date-picker"
             type="date"
@@ -2617,36 +2649,6 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   {{ formatNotifyTimeUnit(minute.value) }}
                 </div>
               </div>
-            </div>
-          </div>
-          <div class="notify-panel-presets">
-            <div class="notify-panel-preset-group">
-              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.relativeLabel }}</span>
-              <button
-                v-for="(preset, index) in relativeNotifyPresets"
-                :key="preset.key"
-                type="button"
-                class="notify-panel-preset"
-                :title="uiText.todo.notifyPresets.hint"
-                @click="confirmNotifyPicker(preset.at)"
-                @contextmenu.stop.prevent="editPreset('relative', index)"
-              >
-                {{ durationLabel(normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index]) }}
-              </button>
-            </div>
-            <div class="notify-panel-preset-group">
-              <span class="notify-panel-preset-label">{{ uiText.todo.notifyPresets.timeLabel }}</span>
-              <button
-                v-for="(preset, index) in timeNotifyPresets"
-                :key="preset.key"
-                type="button"
-                class="notify-panel-preset"
-                :title="uiText.todo.notifyPresets.hint"
-                @click="applyNotifyTimePreset(index)"
-                @contextmenu.stop.prevent="editPreset('time', index)"
-              >
-                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
-              </button>
             </div>
           </div>
           <div class="notify-panel-actions">

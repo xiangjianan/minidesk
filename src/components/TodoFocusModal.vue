@@ -510,7 +510,7 @@ function handleModalShow(value: boolean): void {
               </div>
               <ImagePreviewToolbar :language="language" :can-navigate-previous="canNavigatePrevious"
             :can-navigate-next="canNavigateNext"
-            @navigate="navigateFromToolbar" @zoom="adjustZoom" @edit="enterEditor"
+            @navigate="navigateFromToolbar" @zoom="adjustZoom" @copy="previewImage && emit('copyImage', previewImage.id)" @edit="enterEditor"
             @delete="previewImage && emit('deleteImage', previewImage.id)" @close="clearPreview" />
             </template>
           </div>

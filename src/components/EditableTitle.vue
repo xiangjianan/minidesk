@@ -4,7 +4,7 @@ import { computed, h, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type { Component, VNode } from "vue";
 import { NIcon } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
-import { CreateOutline } from "@vicons/ionicons5";
+import { Pencil as CreateOutline } from "lucide-vue-next";
 import { createExclusiveContextMenu } from "../utils/contextMenu";
 import { renderIcon } from "../utils/dropdownIcons";
 import { setStickySelection } from "../utils/caret";

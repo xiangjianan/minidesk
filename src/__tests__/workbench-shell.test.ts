@@ -166,8 +166,7 @@ describe("WorkbenchShell", () => {
     expect(wrapper.find(".workbench-rail").exists()).toBe(false);
     expect(wrapper.get('[data-testid="workbench-command-bar"]').text()).toContain("MiniDesk");
     expect(wrapper.find(".workbench-slogan").exists()).toBe(false);
-    expect(wrapper.get('[data-testid="workbench-command-bar"]').text()).not.toContain("搜索或执行命令");
-    expect(wrapper.get('[data-testid="workbench-command-bar"]').text()).not.toContain("⌘K");
+    expect(wrapper.get('[data-testid="command-palette-trigger"]').text()).toContain("⌘K");
     expect(wrapper.get('[data-testid="workbench-save-status"]').text()).toBe("已保存");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
     expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");
@@ -253,11 +252,11 @@ describe("WorkbenchShell", () => {
       props: defaultProps,
     });
 
-    expect(wrapper.find('button[aria-label="搜索或执行命令"]').exists()).toBe(false);
     expect(wrapper.find('button[aria-label="设置"]').exists()).toBe(false);
     expect(wrapper.find(".workbench-rail").exists()).toBe(false);
-    // The collapse control stays in the right-side actions even without slotted settings.
-    expect(wrapper.findAll(".workbench-command-actions button")).toHaveLength(1);
+    // Search trigger and header collapse control stay in the right-side actions even without slotted settings.
+    expect(wrapper.findAll(".workbench-command-actions button")).toHaveLength(2);
+    expect(wrapper.find('[data-testid="command-palette-trigger"]').exists()).toBe(true);
     expect(wrapper.find('[data-testid="zone-visibility-trigger"]').exists()).toBe(false);
     expect(wrapper.get('[data-testid="workbench-header-hide"]').attributes("aria-label")).toBe("收起顶部栏");
     expect(wrapper.find('[data-testid="workbench-theme"]').exists()).toBe(false);
@@ -388,12 +387,12 @@ describe("WorkbenchShell", () => {
       .map((value) => Number.parseFloat(value));
 
     // 从网格边缘到分隔线中心，以及分隔线中心之间，计算各区域跨度。
-    expect(columns).toEqual([137, 310, 310, 401]);
+    expect(columns).toEqual([173, 298, 298, 389]);
     const spans = [columns[0] + 7, columns[1] + 14, columns[2] + 14, columns[3] + 7];
-    expect(spans[0] / 1200).toBeCloseTo(0.12, 2);
-    expect(spans[1] / 1200).toBeCloseTo(0.27, 2);
-    expect(spans[2] / 1200).toBeCloseTo(0.27, 2);
-    expect(spans[3] / 1200).toBeCloseTo(0.34, 2);
+    expect(spans[0] / 1200).toBeCloseTo(0.15, 2);
+    expect(spans[1] / 1200).toBeCloseTo(0.26, 2);
+    expect(spans[2] / 1200).toBeCloseTo(0.26, 2);
+    expect(spans[3] / 1200).toBeCloseTo(0.33, 2);
 
     wrapper.unmount();
   });
@@ -414,9 +413,9 @@ describe("WorkbenchShell", () => {
       await nextTick();
       const tracks = readColumnTracks(wrapper).map(Number.parseFloat);
       const spans = [tracks[0] + 7, tracks[1] + 14, tracks[2] + 14, tracks[3] + 7];
-      expect(Math.abs(spans[0] - width * 0.12)).toBeLessThanOrEqual(1);
+      expect(Math.abs(spans[0] - width * 0.15)).toBeLessThanOrEqual(1);
       expect(Math.abs(spans[1] - spans[2])).toBeLessThanOrEqual(1);
-      expect(Math.abs(spans[3] - width * 0.34)).toBeLessThanOrEqual(2);
+      expect(Math.abs(spans[3] - width * 0.33)).toBeLessThanOrEqual(2);
     }
     wrapper.unmount();
   });
@@ -549,7 +548,7 @@ describe("WorkbenchShell", () => {
     await nextTick();
     await nextTick();
 
-    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 137px 310px 310px 401px");
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 173px 298px 298px 389px");
     expect(wrapper.get(".workbench-zone-tasks").classes()).not.toContain("workbench-zone-collapsed");
 
     const pointerDown = new MouseEvent("pointerdown", { bubbles: true, cancelable: true });
@@ -560,10 +559,16 @@ describe("WorkbenchShell", () => {
     await nextTick();
 
     // Shrinking below the minimum collapses the task zone into a title rail.
-    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 137px 310px 50px 661px");
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 173px 292px 44px 649px");
     expect(wrapper.get(".workbench-zone-tasks").classes()).toContain("workbench-zone-collapsed");
     expect(wrapper.get(".workbench-zone-tasks .workbench-zone-rail").text()).toBe("提醒事项");
     expect(wrapper.findAll(".workbench-zone-notes .workbench-zone-rail")).toHaveLength(1);
+
+    // Double-clicking a divider restores default balanced widths.
+    await wrapper.findAll(".workbench-resizer")[2].trigger("dblclick");
+    await nextTick();
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 173px 298px 298px 389px");
+    expect(wrapper.get(".workbench-zone-tasks").classes()).not.toContain("workbench-zone-collapsed");
 
     wrapper.unmount();
   });
@@ -656,7 +661,7 @@ describe("WorkbenchShell", () => {
     await nextTick();
 
     expect(wrapper.get(".workbench-zone-tasks").classes()).not.toContain("workbench-zone-collapsed");
-    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("310px");
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("298px");
     expect(localStorage.getItem(WORKBENCH_WIDTH_STORAGE_KEY)).not.toBeNull();
 
     wrapper.unmount();
@@ -729,7 +734,7 @@ describe("WorkbenchShell", () => {
     };
     const wrapper = mount(WorkbenchShell, { attachTo: document.body, props: { ...defaultProps, workspaceId: "default" } });
     await nextTick(); await nextTick();
-    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 137px 310px 310px 401px");
+    expect(wrapper.get(".workbench-grid").attributes("style")).toContain("grid-template-columns: 173px 298px 298px 389px");
     wrapper.unmount();
   });
 

@@ -63,7 +63,7 @@ type VNodeLike = { type: unknown; props?: { class?: string; "aria-label"?: strin
 // The version option's label is a render function returning a root span whose
 // children hold the version text and (when updating) the badge vnode.
 function findVersionBadge(wrapper: ReturnType<typeof mount>) {
-  const dropdown = wrapper.findAllComponents(dropdownStub)[1];
+  const dropdown = wrapper.findAllComponents(dropdownStub)[2];
   const options = dropdown.props("options") as Array<{ key: string; label?: () => VNodeLike }>;
   const versionOption = options.find((option) => option.key === "version");
   const nodes = (versionOption?.label?.()?.children ?? []) as VNodeLike[];
@@ -98,7 +98,7 @@ describe("SettingsMenu", () => {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none", orphanCount: 2, language },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    const dropdown = wrapper.findAllComponents(dropdownStub)[1];
+    const dropdown = wrapper.findAllComponents(dropdownStub)[2];
     type Option = { key: string; label: string | (() => VNodeLike); children?: Option[] };
     const getOptions = () => dropdown.props("options") as Option[];
     const data = () => getOptions().find(option => option.key === "data")!;
@@ -120,7 +120,7 @@ describe("SettingsMenu", () => {
       props: { appVersion: "1.1.0", updateAvailable: false, companionGifTheme: "none" },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    const settings = wrapper.findAllComponents(dropdownStub)[1];
+    const settings = wrapper.findAllComponents(dropdownStub)[2];
     settings.vm.$emit("update:show", true);
     await wrapper.vm.$nextTick();
     await wrapper.find('[data-key="toggle-ai"]').trigger("click");
@@ -137,7 +137,7 @@ describe("SettingsMenu", () => {
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
     const iconClass = () => {
-      const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => { children?: { default?: () => { props?: { class?: string; "aria-label"?: string } } } } }>;
+      const options = wrapper.findAllComponents(dropdownStub)[2].props("options") as Array<{ key: string; icon?: () => { children?: { default?: () => { props?: { class?: string; "aria-label"?: string } } } } }>;
       return options.find(option => option.key === "version")?.icon?.().children?.default?.().props?.class;
     };
     expect(iconClass()).not.toContain("settings-update-spinning");
@@ -154,7 +154,7 @@ describe("SettingsMenu", () => {
         zoneVisibility: { assets: true, notes: true, tasks: false, workspace: true } },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    const [zones, settings] = wrapper.findAllComponents(dropdownStub);
+    const [zones, appearance, settings] = wrapper.findAllComponents(dropdownStub);
     expect((settings.props("options") as Array<{ key: string }>).slice(0, 4).map(option => option.key))
       .toEqual(["data", "language", "gif-theme", "preferences-divider"]);
     expect((settings.props("options") as Array<{key: string}>).map(option => option.key))
@@ -179,13 +179,17 @@ describe("SettingsMenu", () => {
     expect(zoneOptions.find(option => option.key === "zone-hint")?.render?.().children).toBe(
       language === "zh" ? "隐藏后可在顶栏恢复" : "Restore hidden areas from the top bar",
     );
-    await wrapper.get('[data-testid="appearance-controls"]').trigger("click");
+    appearance.vm.$emit("update:show", true);
+    await wrapper.vm.$nextTick();
     expect(zones.props("show")).toBe(false);
+    appearance.vm.$emit("select", "theme:dark");
+    await wrapper.vm.$nextTick();
     expect(wrapper.emitted("theme")).toEqual([["dark"]]);
-    expect(wrapper.findAllComponents(dropdownStub)).toHaveLength(2);
+    expect(wrapper.findAllComponents(dropdownStub)).toHaveLength(3);
     settings.vm.$emit("update:show", true);
     await wrapper.vm.$nextTick();
     expect(zones.props("show")).toBe(false);
+    expect(appearance.props("show")).toBe(false);
     wrapper.unmount();
   });
 
@@ -204,10 +208,13 @@ describe("SettingsMenu", () => {
       } },
     });
     const button = wrapper.get('[data-testid="appearance-controls"]');
+    const appearance = wrapper.findAllComponents(dropdownStub)[1];
     expect(wrapper.findAll('.appearance-button')).toHaveLength(1);
     expect(button.attributes("data-theme-mode")).toBe("dark");
+    const optionKeys = (appearance.props("options") as Array<{ key: string }>).map((option) => option.key);
+    expect(optionKeys).toEqual(["theme:light", "theme:dark", "theme:auto"]);
     for (const mode of ["auto", "light", "dark"] as const) {
-      await button.trigger("click");
+      appearance.vm.$emit("select", `theme:${mode}`);
       await wrapper.setProps({ theme: mode });
       expect(button.attributes("data-theme-mode")).toBe(mode);
       expect(wrapper.find('[data-testid="appearance-system-icon"]').exists()).toBe(mode === "auto");
@@ -239,19 +246,15 @@ describe("SettingsMenu", () => {
     });
 
     expect(wrapper.find('[data-key="data"]').text()).toBe("数据");
-    const dataOption = (wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; children?: Array<{ key: string; render?: () => { children?: string } }> }>).find((option) => option.key === "data");
+    const dataOption = (wrapper.findAllComponents(dropdownStub)[2].props("options") as Array<{ key: string; children?: Array<{ key: string; render?: () => { children?: string } }> }>).find((option) => option.key === "data");
     expect(dataOption?.children?.find((child) => child.key === "data-storage-hint")?.render?.().children).toContain("数据保存在当前浏览器");
-    expect(wrapper.findAll('[data-key="create-workspace"]')).toHaveLength(1);
+    expect(wrapper.findAll('[data-key="create-workspace"]')).toHaveLength(0);
     expect(wrapper.findAll('[data-key="import"]')).toHaveLength(1);
     expect(wrapper.findAll('[data-key="export-workspace"]')).toHaveLength(1);
     expect(wrapper.find('[data-key="clear-data"]').text()).toBe("清空当前空间");
-    expect(wrapper.find('[data-key="create-workspace"]').classes()).toContain("dropdown-child-option");
     expect(wrapper.find('[data-key="import"]').classes()).toContain("dropdown-child-option");
     expect(wrapper.find('[data-key="export-workspace"]').classes()).toContain("dropdown-child-option");
     expect(wrapper.find('[data-key="clear-data"]').classes()).toContain("dropdown-child-option");
-
-    await wrapper.find('[data-key="create-workspace"]').trigger("click");
-    expect(wrapper.emitted("createWorkspace")).toHaveLength(1);
 
     await wrapper.find('[data-key="clear-data"]').trigger("click");
 
@@ -264,7 +267,6 @@ describe("SettingsMenu", () => {
     expect(source).toContain("ServerOutline");
     expect(source).toContain("TrashOutline");
     expect(source).toMatch(/key:\s*"data"[\s\S]*?icon:\s*renderIcon\(ServerOutline\)/);
-    expect(source).toMatch(/key:\s*"create-workspace"[\s\S]*?icon:\s*renderIcon\(AddOutline\)/);
     expect(source).toMatch(/key:\s*"import"[\s\S]*?icon:\s*renderIcon\(CloudUploadOutline\)/);
     expect(source).toMatch(/key:\s*"export-workspace"[\s\S]*?icon:\s*renderIcon\(CloudDownloadOutline\)/);
     expect(source).toMatch(/key:\s*"clear-data"[\s\S]*?icon:\s*renderIcon\(TrashOutline,\s*true\)/);
@@ -339,7 +341,7 @@ describe("SettingsMenu", () => {
       props: { appVersion: "1.1.29", updateAvailable: false, companionGifTheme: "none" },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    const settings = wrapper.findAllComponents(dropdownStub)[1];
+    const settings = wrapper.findAllComponents(dropdownStub)[2];
     settings.vm.$emit("update:show", true);
     await wrapper.vm.$nextTick();
     settings.vm.$emit("select", key);
@@ -357,7 +359,7 @@ describe("SettingsMenu", () => {
       props: { appVersion: "1.1.29", updateAvailable: false, companionGifTheme: "none", language },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
-    const options = wrapper.findAllComponents(dropdownStub)[1].props("options") as Array<{ key: string; icon?: () => unknown; label?: () => VNodeLike }>;
+    const options = wrapper.findAllComponents(dropdownStub)[2].props("options") as Array<{ key: string; icon?: () => unknown; label?: () => VNodeLike }>;
     const option = options.find((item) => item.key === "version");
     expect(option?.icon).toBeTypeOf("function");
     const nodes = option?.label?.()?.children as VNodeLike[];
@@ -555,7 +557,7 @@ describe("SettingsMenu", () => {
     expect(wrapper.find('[data-key="gif-theme:custom"]').text()).toBe("自定义");
     expect(wrapper.find('[data-key="gif-theme:none"]').text()).toBe("不显示 GIF");
     expect(wrapper.find('[data-key="gif-theme:none"]').classes()).toContain("is-selected");
-    const gifOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "gif-theme").children;
+    const gifOptions = (wrapper.findAllComponents(dropdownStub)[2].props("options") as any[]).find((option) => option.key === "gif-theme").children;
     expect(gifOptions.every((option: any) => typeof option.icon === "function")).toBe(true);
     expect(gifOptions.find((option: any) => option.key === "gif-theme:none").label().children[1]?.props.class).toBe("settings-zone-check");
     expect(gifOptions.find((option: any) => option.key === "gif-theme:cat").label().children[1]).toBeNull();
@@ -741,7 +743,7 @@ describe("SettingsMenu", () => {
 
     expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:zh"]').classes()).toContain("is-selected");
-    const languageOptions = (wrapper.findAllComponents(dropdownStub)[1].props("options") as any[]).find((option) => option.key === "language").children;
+    const languageOptions = (wrapper.findAllComponents(dropdownStub)[2].props("options") as any[]).find((option) => option.key === "language").children;
     expect(languageOptions[0].icon).toBeTypeOf("function");
     expect(languageOptions[1].icon).toBeUndefined();
     expect(wrapper.find('[data-key="language:en"]').text()).toBe("English");

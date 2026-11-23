@@ -2,7 +2,16 @@
 import ContextMenu from "./ContextMenu.vue";
 import { computed, h, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import type { Component, VNode } from "vue";
-import { SwapHorizontalOutline, ArrowDownOutline, ArrowUpOutline, ChevronDownOutline, CloseOutline, CreateOutline, HelpCircleOutline, TrashOutline } from "@vicons/ionicons5";
+import {
+  ArrowRightLeft as SwapHorizontalOutline,
+  ArrowDown as ArrowDownOutline,
+  ArrowUp as ArrowUpOutline,
+  ChevronDown as ChevronDownOutline,
+  X as CloseOutline,
+  Pencil as CreateOutline,
+  CircleHelp as HelpCircleOutline,
+  Trash2 as TrashOutline,
+} from "lucide-vue-next";
 import { NModal } from "naive-ui";
 import type { DropdownOption } from "naive-ui";
 import { getImageItemContextMenuItems } from "../state/imageContextMenu";
@@ -485,7 +494,7 @@ function isPreviewShortcutKey(event: KeyboardEvent): boolean {
           </div>
           <ImagePreviewToolbar :language="language" :can-navigate-previous="canNavigatePrevious"
             :can-navigate-next="canNavigateNext" :can-edit="canEdit"
-            @navigate="navigateFromToolbar" @zoom="adjustZoom" @edit="openEditor"
+            @navigate="navigateFromToolbar" @zoom="adjustZoom" @copy="active && emit('copy', active.id)" @edit="openEditor"
             @delete="deleteActive" @close="requestClose" />
         </template>
       </main>

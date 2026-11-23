@@ -117,11 +117,12 @@ const defaultTodoLists = [
 ];
 
 describe("TodoPanel", () => {
-  it("offers list creation in both the header menu and add button", async () => {
+  it("offers list creation in the header menu without a redundant header add button", async () => {
     const wrapper = mount(TodoPanel, {
       props: { todoLists: defaultTodoLists, todos: { morning: [], noon: [], evening: [] }, titles: DEFAULT_TITLES },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
+    expect(wrapper.find('[data-testid="todo-area-add"]').exists()).toBe(false);
     const trigger = wrapper.get('[data-testid="todo-area-menu"]');
     expect(trigger.attributes("aria-label")).toBe("提醒事项菜单");
     await trigger.trigger("click");
@@ -135,18 +136,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("clearCompleted")).toBeUndefined();
     await trigger.trigger("click");
     expect(wrapper.emitted("createList")).toBeUndefined();
-    expect(wrapper.find('[data-key="create-list"]').exists()).toBe(true);
-    await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
-    await flushPromises();
-    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
-    wrapper.unmount();
-  });
-
-  it("opens list creation directly from the area add button", async () => {
-    const wrapper = mount(TodoPanel, {
-      props: { todoLists: defaultTodoLists, todos: { morning: [], noon: [], evening: [] }, titles: DEFAULT_TITLES },
-    });
-    await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
+    await wrapper.get('[data-key="create-list"]').trigger("click");
     await flushPromises();
     expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
     wrapper.unmount();
@@ -1206,7 +1196,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("create")?.[0]).toEqual(["morning"]);
   });
 
-  it("offers a full-row create target in empty and populated lists", async () => {
+  it("offers a left-aligned add-reminder row in both populated and empty lists", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todos: { morning: [{ id: "a", text: "Existing", done: false }], noon: [], evening: [] },
@@ -1214,10 +1204,11 @@ describe("TodoPanel", () => {
       },
       global: { stubs: { NDropdown: dropdownStub, NTooltip: tooltipStub } },
     });
+    expect(wrapper.find('[data-testid="todo-edge-add"]').exists()).toBe(false);
     for (const empty of [false, true]) {
       if (empty) await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
       const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
-      expect(button.text()).toBe("");
+      expect(button.text()).toBe("添加提醒");
       expect(button.attributes("aria-label")).toBe("新增提醒事项");
       expect(button.attributes("type")).toBe("button");
       await button.trigger("click");

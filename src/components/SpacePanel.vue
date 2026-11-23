@@ -15,7 +15,7 @@ import {
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,
   CircleHelp as HelpCircleOutline,
-  EllipsisVertical,
+  Ellipsis,
   Smartphone,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
@@ -395,13 +395,13 @@ onUnmounted(() => disposeSort?.());
     <div class="panel-header desk-zone-heading" @contextmenu.stop.prevent="openHeaderMenu($event)">
       <h2><NIcon :component="DocumentTextOutline" /><span>{{ uiText.desk.notes }}</span></h2>
       <div class="header-actions" @contextmenu.stop>
-        <button v-if="activeSpace" class="desk-ai-action desk-paste-button" type="button"
+        <button v-if="activeSpace" class="icon-button desk-paste-button" type="button"
           :aria-label="uiText.common.paste" :title="uiText.common.paste" @mousedown.prevent
           @click.stop="textPanelRef?.appendPaste()">
-          <NIcon :component="ClipboardOutline" /><span>{{ uiText.common.paste }}</span>
+          <NIcon :component="ClipboardOutline" />
         </button>
         <button class="icon-button" type="button" data-testid="notebook-menu" :aria-label="uiText.space.menu" :title="uiText.space.menu" @click.stop="openHeaderMenu">
-          <NIcon :component="EllipsisVertical" />
+          <NIcon :component="Ellipsis" />
         </button>
       </div>
     </div>

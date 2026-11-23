@@ -414,8 +414,7 @@ describe("App shell", () => {
     expect(wrapper.find('[aria-label="应用导航"]').exists()).toBe(false);
     expect(wrapper.find(".workbench-rail").exists()).toBe(false);
     expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).toContain("MiniDesk");
-    expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("搜索或执行命令");
-    expect(wrapper.find('[data-testid="workbench-command-bar"]').text()).not.toContain("⌘K");
+    expect(wrapper.get('[data-testid="command-palette-trigger"]').text()).toContain("⌘K");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
     expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");
     expect(wrapper.get(".workbench-zone-tasks").attributes("aria-label")).toBe("提醒事项");
@@ -1108,7 +1107,7 @@ describe("App shell", () => {
       expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(1);
       expect((wrapper.get('[data-testid="todo-input-morning"]').element as HTMLInputElement).value).toBe("已输入的提醒");
       expect(document.activeElement).not.toBe(input.element);
-      await wrapper.get('.todo-section[data-list-id="morning"] .todo-add-row').trigger("click");
+      await wrapper.get('.todo-section[data-list-id="morning"] [aria-label="添加提醒"]').trigger("click");
       await wrapper.vm.$nextTick();
       expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(2);
     } finally { wrapper.unmount(); }

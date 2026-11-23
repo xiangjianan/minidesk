@@ -49,7 +49,7 @@ defineExpose({ open });
         <button v-for="swatch in QUICK_COLORS" :key="swatch" type="button" class="quick-color-swatch" :class="{ selected: color === swatch }" :style="{ '--quick-list-color': swatch }" :aria-label="swatch" :aria-pressed="color === swatch" @click="color = swatch" />
         <label class="quick-color-custom"><span class="quick-color-custom-preview" :style="{ '--quick-list-color': customColor }"><input v-model="customColor" type="color" :aria-label="text.quick.customColor" @input="color = ($event.target as HTMLInputElement).value" /></span><span class="quick-color-custom-label">{{ text.quick.customColor }}</span></label>
       </fieldset>
-      <div class="dialog-actions"><NButton @click="show = false">{{ text.common.cancel }}</NButton><NButton class="quick-dialog-submit" attr-type="submit" :disabled="!canSubmit">{{ text.common.save }}</NButton></div>
+      <div class="dialog-actions"><NButton @click="show = false">{{ text.common.cancel }}</NButton><NButton class="quick-dialog-submit" type="primary" attr-type="submit" :disabled="!canSubmit">{{ text.common.save }}</NButton></div>
     </form>
   </NModal>
 </template>

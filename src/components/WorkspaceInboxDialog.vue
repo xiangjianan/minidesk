@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { NButton, NIcon, NModal, NSelect } from "naive-ui";
-import { CheckmarkOutline, CloseCircleOutline } from "@vicons/ionicons5";
+import { Check as CheckmarkOutline, XCircle as CloseCircleOutline } from "lucide-vue-next";
 import QRCode from "qrcode";
 import StyledConfirm from "./StyledConfirm.vue";
 import { useStyledConfirm } from "../sync/useStyledConfirm";

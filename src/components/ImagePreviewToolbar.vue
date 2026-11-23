@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { NIcon } from "naive-ui";
-import { ChevronDownOutline, ChevronUpOutline, CloseOutline, CreateOutline, TrashOutline } from "@vicons/ionicons5";
-import { CircleHelp, ZoomIn, ZoomOut } from "lucide-vue-next";
+import { ChevronDown, ChevronUp, CircleHelp, Copy, Pencil, Trash2, X, ZoomIn, ZoomOut } from "lucide-vue-next";
 import { getUiText } from "../state/i18n";
 import { ZOOM_STEP } from "../composables/useImageTransform";
 import type { AppLanguage } from "../types";
@@ -13,7 +12,7 @@ const props = withDefaults(defineProps<{
   canNavigateNext: boolean;
   canEdit?: boolean;
 }>(), { language: "zh", canEdit: true });
-const emit = defineEmits<{ navigate: [direction: number]; zoom: [delta: number]; edit: []; delete: [event: MouseEvent]; close: [] }>();
+const emit = defineEmits<{ navigate: [direction: number]; zoom: [delta: number]; copy: []; edit: []; delete: [event: MouseEvent]; close: [] }>();
 const uiText = computed(() => getUiText(props.language));
 const helpOpen = ref(false);
 const helpButton = ref<HTMLButtonElement | null>(null);
@@ -41,32 +40,37 @@ onUnmounted(() => document.removeEventListener("click", closeHelpOnOutsideClick,
       @keydown.space.stop.prevent="emit('close')"
     >
       <NIcon size="18">
-        <CloseOutline />
+        <X />
       </NIcon>
     </button>
     <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
-    <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-in" :aria-label="uiText.preview.zoomIn" @click.stop.prevent="emit('zoom', ZOOM_STEP)">
+    <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-in" :aria-label="uiText.preview.zoomIn" :title="uiText.preview.zoomIn" @click.stop.prevent="emit('zoom', ZOOM_STEP)">
       <NIcon size="18">
         <ZoomIn />
       </NIcon>
     </button>
-    <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-out" :aria-label="uiText.preview.zoomOut" @click.stop.prevent="emit('zoom', -ZOOM_STEP)">
+    <button type="button" class="preview-toolbar-button preview-zoom-button is-zoom-out" :aria-label="uiText.preview.zoomOut" :title="uiText.preview.zoomOut" @click.stop.prevent="emit('zoom', -ZOOM_STEP)">
       <NIcon size="18">
         <ZoomOut />
       </NIcon>
     </button>
     <div class="preview-toolbar-divider" role="separator" aria-orientation="horizontal"></div>
-    <button v-if="canEdit" type="button" class="preview-toolbar-button is-edit" :aria-label="uiText.common.edit" @click.stop.prevent="emit('edit')">
+    <button type="button" class="preview-toolbar-button is-copy" data-testid="preview-copy" :aria-label="uiText.preview.copy" :title="uiText.preview.copy" @click.stop.prevent="emit('copy')">
       <NIcon size="18">
-        <CreateOutline />
+        <Copy />
       </NIcon>
     </button>
-    <button type="button" class="preview-toolbar-button is-delete" :aria-label="uiText.common.delete" @click.stop.prevent="emit('delete', $event)">
+    <button v-if="canEdit" type="button" class="preview-toolbar-button is-edit" :aria-label="uiText.common.edit" :title="uiText.common.edit" @click.stop.prevent="emit('edit')">
       <NIcon size="18">
-        <TrashOutline />
+        <Pencil />
       </NIcon>
     </button>
-    <button ref="helpButton" type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
+    <button type="button" class="preview-toolbar-button is-delete" :aria-label="uiText.common.delete" :title="uiText.common.delete" @click.stop.prevent="emit('delete', $event)">
+      <NIcon size="18">
+        <Trash2 />
+      </NIcon>
+    </button>
+    <button ref="helpButton" type="button" class="preview-toolbar-button" data-testid="preview-help" :aria-label="uiText.preview.shortcuts" :title="uiText.preview.shortcuts" :aria-expanded="helpOpen" @click.stop="helpOpen = !helpOpen" @keydown.esc.stop="helpOpen = false">
       <NIcon size="18"><CircleHelp /></NIcon>
     </button>
     <div v-if="helpOpen" ref="helpPanel" class="preview-shortcut-help" data-testid="preview-shortcut-help" role="status">
@@ -91,7 +95,7 @@ onUnmounted(() => document.removeEventListener("click", closeHelpOnOutsideClick,
       @keydown.space.stop.prevent="emit('close')"
     >
       <NIcon size="20">
-        <ChevronUpOutline />
+        <ChevronUp />
       </NIcon>
     </button>
     <button
@@ -105,7 +109,7 @@ onUnmounted(() => document.removeEventListener("click", closeHelpOnOutsideClick,
       @keydown.space.stop.prevent="emit('close')"
     >
       <NIcon size="20">
-        <ChevronDownOutline />
+        <ChevronDown />
       </NIcon>
     </button>
     </div>

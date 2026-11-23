@@ -31,23 +31,23 @@
 
 html[data-theme="dark"] .workbench-shell,
 html[data-theme="dark"] .focus-now-modal {
-  --desk-surface: #202329;
-  --card: #2a2e36;
-  --desk-row-hover: #303c46;
-  --desk-tab-hover: #3b4955;
-  --desk-tab-active-hover: #303c46;
-  --desk-group-surface: #252931;
+  --desk-surface: #1b1e24;
+  --card: #272b34;
+  --desk-row-hover: #2f3a46;
+  --desk-tab-hover: #354350;
+  --desk-tab-active-hover: #2e3945;
+  --desk-group-surface: #22262f;
   --desk-group-content: var(--card);
   --desk-selected-text: #b1cde2;
-  --text: #f1f1f1;
-  --muted: #a0aeb9;
+  --text: #f1f2f5;
+  --muted: #9aa7b4;
   --foreground: #fafafa;
-  --secondary: #35414b;
+  --secondary: #323c47;
   --desk-accent-amber: #fbbf24;
   --desk-accent-emerald: #34d399;
-  /* Dark cards use their surface color for separation, without a pale outline. */
-  --desk-card-shadow: none;
-  --desk-content-shadow: 0 1px 2px rgba(0, 0, 0, 0.08), 0 3px 8px rgba(0, 0, 0, 0.07);
+  /* Subtle top-edge specular hairline + quiet elevation for clear dark depth. */
+  --desk-card-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 0 0 1px rgba(255, 255, 255, 0.065), 0 4px 14px rgba(0, 0, 0, 0.22);
+  --desk-content-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.055), 0 0 0 1px rgba(255, 255, 255, 0.065), 0 4px 14px rgba(0, 0, 0, 0.22);
   --line-subtle: rgba(235, 235, 245, 0.09);
 }
 
@@ -387,7 +387,7 @@ html[data-theme="dark"] .workbench-shell,
 }
 
 html[data-theme="dark"] .workbench-shell .space-text-panel {
-  background: #282c33;
+  background: #242831;
 }
 
 /* Use the same quiet elevation on all three dark content surfaces. */
@@ -618,10 +618,11 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 .workbench-zone-assets .panel-header h1 { gap: 6px; }
 .workbench-zone-assets .header-actions { gap: 0; }
 .workbench-zone-assets .image-panel .header-actions .icon-button {
-  width: 34px;
-  min-width: 34px;
-  height: 34px;
-  min-height: 34px;
+  flex: 0 0 30px;
+  width: 30px;
+  min-width: 30px;
+  height: 30px;
+  min-height: 30px;
   padding: 0;
 }
 .workbench-zone-assets .image-panel .header-actions .count { padding-inline: 2px; }
@@ -630,8 +631,8 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   .workbench-zone-assets .panel-header { flex-wrap: wrap; }
 }
 
-/* The add row owns all spacing below the final reminder, so its icon stays centered. */
-.workbench-shell .todo-list { padding-bottom: 0; }
+/* The add row owns bottom spacing below the final reminder. */
+.workbench-shell .todo-list { padding: 8px 8px 0; }
 .workbench-shell .todo-list .todo-item:last-child { margin-bottom: 0; }
 .workbench-shell .todo-empty-list { padding: 0; }
 .workbench-shell .todo-list.is-sort-preview-empty { padding: 0; }
@@ -640,14 +641,15 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 .workbench-shell .todo-add-row {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: calc(100% - 16px);
   min-height: 36px;
-  margin: 6px 8px;
-  padding: 4px;
+  margin: 4px 8px 8px;
+  padding: 6px 10px;
   border-radius: 8px;
   background: transparent;
   font: inherit;
+  text-align: start;
   cursor: pointer;
   transition: background-color 180ms ease, color 180ms ease;
 }
@@ -699,7 +701,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   pointer-events: auto;
 }
 .workbench-shell .workbench-title-group { max-width: calc(50% - 48px); }
-.workbench-shell .workbench-title-group .save-status { margin-inline-start: -12px; }
+.workbench-shell .workbench-title-group .save-status { margin-inline-start: 2px; }
 .workbench-shell .workbench-command-actions { margin-inline-start: auto; }
 /* Only the button footprint should trigger reveal, not the surrounding header. */
 .workbench-shell .workbench-header-reveal-zone {
@@ -1010,8 +1012,15 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 }
 
 .workbench-shell .todo-add-row {
-  border: 1px dashed color-mix(in srgb, var(--line-control) 80%, transparent);
-  color: var(--desk-zone-accent);
+  border: 1px solid transparent;
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.workbench-shell .todo-add-row-label {
+  font-weight: 500;
 }
 
 .workbench-shell .space-tab.is-active {
@@ -1056,12 +1065,12 @@ html[data-theme="dark"] .workbench-shell {
   --desk-zone-accent: #a1bad7;
 }
 
-/* Shared compact rhythm for tag and reminder heading actions. */
-.workbench-shell :is(.quick-block, .todo-panel) > .panel-header > .header-actions {
+/* Shared compact rhythm for all four zone header actions and group heading actions. */
+.workbench-shell :is(.quick-block, .todo-panel, .space-panel) > .panel-header > .header-actions {
   padding-inline-end: 8px;
   align-items: center;
 }
-.workbench-shell :is(.quick-block, .todo-panel) > .panel-header > .header-actions > .icon-button,
+.workbench-shell :is(.image-panel, .quick-block, .todo-panel, .space-panel) > .panel-header > .header-actions > .icon-button,
 .workbench-shell .quick-tag-heading > :is(.desk-paste-button, .quick-tag-add-button, .quick-tag-menu-button),
 .workbench-shell .todo-heading-actions > .icon-button {
   flex: 0 0 30px;
@@ -1215,4 +1224,613 @@ html[data-theme="dark"] .quick-color-custom-preview {
 @supports (font: -apple-system-body) {
   .workbench-shell .text-editor-textarea, .workbench-shell .text-mirror,
   .focus-now-modal .text-editor-textarea, .focus-now-modal .text-mirror { line-height: 1.2; }
+}
+
+/* ============================================================
+   P0 + P1 Polish: Do less, do it well × Mainstream Desktop Craft
+   ============================================================ */
+
+/* 1. Progressive disclosure on group headers: count sits flush-right at rest,
+   action icons smoothly reveal on hover or keyboard focus (never stuck after pointer clicks). */
+@media (hover: hover) {
+  .workbench-shell .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .todo-heading-actions > .icon-button {
+    flex: 0 0 0px;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    transition:
+      flex-basis 160ms var(--motion-ease),
+      width 160ms var(--motion-ease),
+      opacity 130ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .icon-button,
+  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .icon-button {
+    flex: 0 0 30px;
+    width: 30px;
+    min-width: 30px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .workbench-shell .quick-tag-heading > .quick-tag-count,
+  .workbench-shell .todo-heading-actions > .todo-count {
+    margin-inline-end: 2px;
+    transition: margin-inline-end 160ms var(--motion-ease);
+  }
+
+  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > .quick-tag-count,
+  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > .quick-tag-count,
+  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .todo-count,
+  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .todo-count {
+    margin-inline-end: 4px;
+  }
+}
+
+/* 2. Image card hover micro-actions & actionable empty hint. */
+:is(.workbench-shell, .focus-now-images) .image-card {
+  position: relative;
+}
+
+.image-card-actions {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--material-elevated) 62%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  transform: translateY(-2px);
+  pointer-events: none;
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+html[data-theme="dark"] .image-card-actions {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: color-mix(in srgb, var(--material-elevated) 66%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+}
+
+.image-card:hover .image-card-actions,
+.image-card:has(.image-card-action-btn:focus-visible:not([data-pointer-focus])) .image-card-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (hover: none) {
+  .image-card-actions {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+}
+
+button.image-card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+button.image-card-action-btn:hover,
+button.image-card-action-btn:focus-visible {
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  color: var(--text);
+}
+
+button.image-card-action-btn.is-delete {
+  color: var(--danger);
+}
+
+button.image-card-action-btn.is-delete:hover,
+button.image-card-action-btn.is-delete:focus-visible {
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+  color: var(--danger);
+}
+
+button.image-empty-hint {
+  border: 1px dashed transparent;
+  border-radius: 10px;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  padding: 16px 12px;
+  transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+
+button.image-empty-hint:hover,
+button.image-empty-hint:focus-visible {
+  background: var(--desk-row-hover);
+  border-color: color-mix(in srgb, var(--primary) 26%, var(--line-subtle));
+  color: var(--primary);
+}
+
+/* 3. Quick action dialog: Apple HIG Segmented Control & unified right-aligned actions. */
+.quick-type-segmented {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border-radius: 10px;
+  background: var(--muted-surface);
+  border: 1px solid var(--line-subtle);
+}
+
+button.quick-type-segment {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
+}
+
+button.quick-type-segment:hover {
+  color: var(--text);
+}
+
+button.quick-type-segment.is-active {
+  background: var(--card);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.10), inset 0 0 0 1px var(--line-subtle);
+}
+
+html[data-theme="dark"] button.quick-type-segment.is-active {
+  background: var(--card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+button.quick-type-segment.is-active .n-icon {
+  color: var(--primary);
+}
+
+/* Unified right-aligned modal dialog actions across the entire app. */
+.dialog-actions,
+.workspace-inbox-footer,
+.support-footer,
+.n-dialog__action.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.dialog-actions > .n-button,
+.workspace-inbox-footer > .n-button,
+.support-footer > .n-button,
+.n-dialog__action.dialog-actions > .n-button {
+  flex: 0 0 auto;
+  min-width: 78px;
+}
+
+.workspace-inbox-footer > [data-testid="inbox-clear"] {
+  margin-inline-end: auto;
+}
+
+/* 4. Calm inline add-button row for quick action groups (matches reminder add row). */
+.workbench-shell .quick-tag-clip:has(> .quick-buttons:empty) > .quick-buttons {
+  padding: 0;
+}
+
+.workbench-shell .quick-tag-clip:has(> .quick-add-row) > .quick-buttons:not(:empty) {
+  padding-bottom: 6px;
+}
+
+.workbench-shell button.quick-add-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: calc(100% - 16px);
+  min-height: 36px;
+  margin: 6px 8px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.workbench-shell button.quick-add-row:hover,
+.workbench-shell button.quick-add-row:focus-visible {
+  background: var(--desk-row-hover);
+  color: var(--primary);
+}
+
+.workbench-shell button.quick-add-row .n-icon {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
+.workbench-shell .quick-add-row-label {
+  font-weight: 500;
+}
+
+/* 5. Top-first quick presets & unified modal-style footer in the reminder time picker. */
+.notify-floating-date-picker > .notify-panel-presets {
+  border-top: 0;
+  border-bottom: 1px solid var(--line-subtle);
+  padding: 10px 12px 12px;
+}
+
+.notify-floating-date-picker {
+  padding-top: 0;
+}
+
+.notify-floating-date-picker > .notify-panel-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action {
+  flex: 0 0 auto;
+  min-width: 72px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--button);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, opacity 150ms ease;
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action:hover:not(:disabled) {
+  background: var(--button-hover);
+  border-color: color-mix(in srgb, var(--primary) 32%, var(--border));
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action.is-danger {
+  margin-inline-end: auto;
+  min-width: 0;
+  padding: 0 10px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--danger);
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action.is-danger:hover:not(:disabled) {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  color: var(--danger);
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action.is-save {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action.is-save:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary) 88%, #000000 12%);
+  color: var(--primary-foreground);
+}
+
+html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > button.notify-panel-action.is-save:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--primary) 88%, #ffffff 12%);
+}
+
+/* 6. Top bar Cmd+K search trigger pill. */
+.workbench-shell button.workbench-search-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  min-height: 28px;
+  padding: 0 8px;
+  margin-inline-end: 6px;
+  border: 1px solid var(--line-subtle);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--secondary) 64%, transparent);
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.workbench-shell button.workbench-search-trigger:hover,
+.workbench-shell button.workbench-search-trigger:focus-visible {
+  background: var(--secondary);
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--line-subtle));
+  color: var(--text);
+}
+
+.workbench-search-kbd {
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+/* 7. Global Command Palette (Raycast / Linear / Spotlight feel). */
+.command-palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 10500;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: min(14vh, 110px) 16px 24px;
+  background: rgba(15, 23, 42, 0.28);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+html[data-theme="dark"] .command-palette-backdrop {
+  background: rgba(0, 0, 0, 0.48);
+}
+
+.command-palette-dialog {
+  width: min(540px, 100%);
+  max-height: min(68vh, 520px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--material-elevated);
+  -webkit-backdrop-filter: blur(24px) saturate(1.35);
+  backdrop-filter: blur(24px) saturate(1.35);
+  box-shadow: var(--shadow-float);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .command-palette-dialog {
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), var(--shadow-float);
+}
+
+.command-palette-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  min-height: 52px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line-subtle);
+}
+
+.command-palette-search-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.command-palette-dialog input.command-palette-input,
+.command-palette-dialog input.command-palette-input:hover,
+.command-palette-dialog input.command-palette-input:focus,
+.command-palette-dialog input.command-palette-input:focus-visible {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 28px;
+  line-height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.command-palette-input::placeholder {
+  color: var(--muted);
+}
+
+.command-palette-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 5px;
+  border: 1px solid var(--line-subtle);
+  background: var(--muted-surface);
+  color: var(--muted);
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.command-palette-results {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.command-palette-empty {
+  margin: 0;
+  padding: 28px 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.command-palette-group + .command-palette-group {
+  margin-top: 8px;
+}
+
+.command-palette-group-title {
+  margin: 0;
+  padding: 4px 10px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+
+button.command-palette-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  min-height: 38px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 120ms ease;
+}
+
+button.command-palette-item.is-active {
+  background: var(--accent);
+  color: var(--text);
+}
+
+button.command-palette-item.is-done .command-palette-item-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.command-palette-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+button.command-palette-item.is-active .command-palette-item-icon {
+  color: var(--primary);
+}
+
+.command-palette-item-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.command-palette-item-title {
+  font-size: 13px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-palette-item-subtitle {
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.command-palette-item-check {
+  color: var(--primary);
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.command-palette-footer {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--line-subtle);
+  background: color-mix(in srgb, var(--muted-surface) 45%, transparent);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.command-palette-footer kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 17px;
+  padding: 0 4px;
+  margin-inline-end: 3px;
+  border-radius: 4px;
+  border: 1px solid var(--line-subtle);
+  background: var(--card);
+  color: var(--muted);
+  font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 10px;
+}
+
+.command-palette-enter-active,
+.command-palette-leave-active {
+  transition: opacity 150ms ease;
+}
+
+.command-palette-enter-active .command-palette-dialog,
+.command-palette-leave-active .command-palette-dialog {
+  transition: transform 170ms var(--motion-ease), opacity 150ms ease;
+}
+
+.command-palette-enter-from,
+.command-palette-leave-to {
+  opacity: 0;
+}
+
+.command-palette-enter-from .command-palette-dialog,
+.command-palette-leave-to .command-palette-dialog {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .command-palette-enter-active,
+  .command-palette-leave-active,
+  .command-palette-enter-active .command-palette-dialog,
+  .command-palette-leave-active .command-palette-dialog,
+  .image-card-actions {
+    transition: none;
+  }
 }
