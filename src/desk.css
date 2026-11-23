@@ -1250,7 +1250,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
 
   .workbench-shell .quick-tag-group:hover > .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
-  .workbench-shell .todo-heading:hover .todo-heading-actions > .icon-button,
+  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .icon-button,
   .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .icon-button {
     flex: 0 0 30px;
     width: 30px;
@@ -1267,7 +1267,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
 
   .workbench-shell .quick-tag-group:hover > .quick-tag-heading > .quick-tag-count,
   .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > .quick-tag-count,
-  .workbench-shell .todo-heading:hover .todo-heading-actions > .todo-count,
+  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .todo-count,
   .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .todo-count {
     margin-inline-end: 4px;
   }
@@ -1287,12 +1287,10 @@ html[data-theme="dark"] .quick-color-custom-preview {
   align-items: center;
   gap: 2px;
   padding: 3px;
-  border: 1px solid color-mix(in srgb, var(--border) 60%, rgba(255, 255, 255, 0.34));
+  border: 1px solid var(--border);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--material-elevated) 46%, transparent);
-  -webkit-backdrop-filter: blur(12px) saturate(1.5);
-  backdrop-filter: blur(12px) saturate(1.5);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  background: color-mix(in srgb, var(--material-elevated) 62%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
   opacity: 0;
   transform: translateY(-2px);
   pointer-events: none;
@@ -1301,8 +1299,8 @@ html[data-theme="dark"] .quick-color-custom-preview {
 
 html[data-theme="dark"] .image-card-actions {
   border-color: rgba(255, 255, 255, 0.14);
-  background: color-mix(in srgb, var(--material-elevated) 52%, transparent);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  background: color-mix(in srgb, var(--material-elevated) 66%, transparent);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
 }
 
 .image-card:hover .image-card-actions,
