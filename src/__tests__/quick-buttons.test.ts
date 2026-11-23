@@ -146,26 +146,21 @@ function readSource(path: string): string {
 }
 
 describe("QuickButtons", () => {
-  it("guides the last empty list even when earlier lists have actions", async () => {
+  it("offers an inline add-button row in every quick action group", async () => {
     const wrapper = mountQuickButtons({
       tags: [{ id: "first", title: "常用" }, { id: "last", title: "工作" }],
       buttons: [{ id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" }],
     });
     try {
-      expect(wrapper.find('[data-tag-id="first"] .quick-empty-hint').exists()).toBe(false);
-      expect(wrapper.get('[data-tag-id="last"] .quick-empty-hint').text()).toContain("添加快捷按钮");
-      await wrapper.setProps({ buttons: [
-        { id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" },
-        { id: "two", title: "文本", value: "内容", type: "text", hidden: false, tagId: "last" },
-      ] });
-      expect(wrapper.find(".quick-empty-hint").exists()).toBe(false);
+      expect(wrapper.get('[data-tag-id="first"] .quick-add-row').text()).toContain("添加快捷按钮");
+      expect(wrapper.get('[data-tag-id="last"] .quick-add-row').text()).toContain("添加快捷按钮");
     } finally { wrapper.unmount(); }
   });
 
-  it("opens the empty list's action dialog from its hint", async () => {
+  it("opens the group's action dialog from its inline add row", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "work", title: "工作" }] });
     try {
-      await wrapper.get('[data-tag-id="work"] .quick-empty-hint').trigger("click");
+      await wrapper.get('[data-tag-id="work"] .quick-add-row').trigger("click");
       await wrapper.findAll(".quick-form input")[0].setValue("动作");
       await wrapper.findAll(".quick-form input")[1].setValue("https://example.com");
       await wrapper.get("form").trigger("submit");
@@ -655,7 +650,8 @@ describe("QuickButtons", () => {
       tags: [{ id: "tag-a", title: "甲" }, { id: "tag-b", title: "乙" }],
     });
 
-    await wrapper.get(".quick-add-button").trigger("click");
+    await wrapper.get(".quick-menu-button").trigger("click");
+    await wrapper.get('.dropdown-option[data-key="create-list"]').trigger("click");
     await wrapper.vm.$nextTick();
 
     const rowInputs = wrapper.findAll(".quick-tag-manager-row .quick-tag-name-input");
@@ -1486,9 +1482,10 @@ describe("QuickButtons", () => {
     areaWrapper.unmount();
   });
 
-  it("opens the list dialog and creates a list with a default color", async () => {
+  it("opens the list dialog from the header menu and creates a list with a default color", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "general", title: "常用" }] });
-    await wrapper.get(".quick-add-button").trigger("click");
+    await wrapper.get(".quick-menu-button").trigger("click");
+    await wrapper.get('.dropdown-option[data-key="create-list"]').trigger("click");
     expect(wrapper.get(".quick-list-dialog").text()).toContain("新建分组");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
     await wrapper.get(".quick-list-dialog input").setValue("常用");
@@ -1808,7 +1805,7 @@ describe("QuickButtons", () => {
   it("顶部菜单不提供粘贴，列表菜单保留普通和智能粘贴", async () => {
     const wrapper = mountQuickButtons({ polish: vi.fn(), tags: [{ id: "work", title: "工作" }] });
     expect(wrapper.find(".header-actions .desk-paste-button").exists()).toBe(false);
-    expect(wrapper.get(".quick-add-button").attributes("aria-label")).toBe("新建分组");
+    expect(wrapper.find(".quick-add-button").exists()).toBe(false);
     await wrapper.get(".quick-menu-button").trigger("click");
     expect(wrapper.find('.dropdown-option[data-key="paste"]').exists()).toBe(false);
     expect(wrapper.find('.dropdown-option[data-key="smart-paste"]').exists()).toBe(false);

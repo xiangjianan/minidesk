@@ -117,11 +117,12 @@ const defaultTodoLists = [
 ];
 
 describe("TodoPanel", () => {
-  it("offers list creation in both the header menu and add button", async () => {
+  it("offers list creation in the header menu without a redundant header add button", async () => {
     const wrapper = mount(TodoPanel, {
       props: { todoLists: defaultTodoLists, todos: { morning: [], noon: [], evening: [] }, titles: DEFAULT_TITLES },
       global: { stubs: { Dropdown: dropdownStub, NDropdown: dropdownStub } },
     });
+    expect(wrapper.find('[data-testid="todo-area-add"]').exists()).toBe(false);
     const trigger = wrapper.get('[data-testid="todo-area-menu"]');
     expect(trigger.attributes("aria-label")).toBe("提醒事项菜单");
     await trigger.trigger("click");
@@ -135,18 +136,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("clearCompleted")).toBeUndefined();
     await trigger.trigger("click");
     expect(wrapper.emitted("createList")).toBeUndefined();
-    expect(wrapper.find('[data-key="create-list"]').exists()).toBe(true);
-    await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
-    await flushPromises();
-    expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
-    wrapper.unmount();
-  });
-
-  it("opens list creation directly from the area add button", async () => {
-    const wrapper = mount(TodoPanel, {
-      props: { todoLists: defaultTodoLists, todos: { morning: [], noon: [], evening: [] }, titles: DEFAULT_TITLES },
-    });
-    await wrapper.get('[data-testid="todo-area-add"]').trigger("click");
+    await wrapper.get('[data-key="create-list"]').trigger("click");
     await flushPromises();
     expect(getLatestListCreateDialogElement()?.getAttribute("aria-label")).toBe("新建分组");
     wrapper.unmount();
@@ -3005,8 +2995,7 @@ describe("TodoPanel", () => {
     expect(rowChildren[1]).toContain("todo-checkbox");
     expect(rowChildren[2]).toContain("todo-input");
     expect(rowChildren[3]).toContain("todo-deadline-slot");
-    expect(rowChildren[4]).toContain("todo-focus-trigger");
-    expect(rowChildren[5]).toContain("todo-star-button");
+    expect(rowChildren[4]).toContain("todo-star-button");
     expect(wrapper.get(".todo-item .todo-checkbox").attributes("tabindex")).toBe("-1");
     expect(wrapper.get(".todo-item .todo-input").attributes("tabindex")).toBe("-1");
     wrapper.unmount();
@@ -3039,8 +3028,7 @@ describe("TodoPanel", () => {
     expect(rowChildren[0]).toContain("todo-checkbox");
     expect(rowChildren[1]).toContain("today-focus-input");
     expect(rowChildren[2]).toContain("todo-deadline-slot");
-    expect(rowChildren[3]).toContain("todo-focus-trigger");
-    expect(rowChildren[4]).toContain("todo-star-button");
+    expect(rowChildren[3]).toContain("todo-star-button");
     expect(wrapper.get(".today-focus-item .todo-checkbox").attributes("tabindex")).toBe("-1");
     expect(wrapper.get(".today-focus-item .today-focus-input").attributes("tabindex")).toBe("-1");
     wrapper.unmount();

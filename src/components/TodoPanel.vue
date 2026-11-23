@@ -28,7 +28,7 @@ import {
   ArrowLeftRight as SwapHorizontalOutline,
   Timer as TimerOutline,
   Trash2 as TrashOutline,
-  EllipsisVertical,
+  Ellipsis,
   Smartphone,
 } from "lucide-vue-next";
 import { NDatePicker, NIcon, NModal, NButton } from "naive-ui";
@@ -2192,10 +2192,8 @@ onUnmounted(() => focusRegionAnimation?.cancel());
     <div class="panel-header desk-zone-heading">
       <h2 id="todo-title"><NIcon :component="CheckboxOutline" /><span>{{ uiText.desk.reminders }}</span></h2>
       <div class="header-actions">
-        <button type="button" class="icon-button" data-testid="todo-area-add" :aria-label="uiText.todo.newList" :title="uiText.todo.newList"
-          @click.stop="openCreateListDialog($event.currentTarget as HTMLElement)"><NIcon :component="AddOutline" /></button>
         <button type="button" class="icon-button" data-testid="todo-area-menu" :aria-label="uiText.todo.menu" :title="uiText.todo.menu"
-          @click.stop="openPanelMenu($event, true)"><NIcon :component="EllipsisVertical" /></button>
+          @click.stop="openPanelMenu($event, true)"><NIcon :component="Ellipsis" /></button>
       </div>
     </div>
     <div class="todo-content-scroll" :class="{ 'is-multi-column': columnCount > 1 }">
@@ -2294,17 +2292,6 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               @click.stop="emit('focusNow', item.period, item.todo.id)"
             >
               ⏱ {{ formatFocusDuration(item.todo.focusElapsedMs ?? 0) }}
-            </button>
-            <button
-              v-else-if="!item.todo.done"
-              class="todo-focus-trigger"
-              type="button"
-              :data-testid="`todo-focus-trigger-${item.todo.id}`"
-              :aria-label="uiText.todo.focusNow"
-              :title="uiText.todo.focusNow"
-              @click.stop="emit('focusNow', item.period, item.todo.id)"
-            >
-              <NIcon :component="TimerOutline" />
             </button>
             <button
               class="todo-star-button is-starred"
@@ -2413,7 +2400,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
               @mousedown.prevent
               @click="openSectionActions($event, list.id)"
             >
-              <NIcon :component="EllipsisVertical" />
+              <NIcon :component="Ellipsis" />
             </button>
           </div>
         </div>
@@ -2535,17 +2522,6 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                   @click.stop="emit('focusNow', list.id, entry.todo.id)"
                 >
                   ⏱ {{ formatFocusDuration(entry.todo.focusElapsedMs ?? 0) }}
-                </button>
-                <button
-                  v-else-if="!entry.todo.done"
-                  class="todo-focus-trigger"
-                  type="button"
-                  :data-testid="`todo-focus-trigger-${entry.todo.id}`"
-                  :aria-label="uiText.todo.focusNow"
-                  :title="uiText.todo.focusNow"
-                  @click.stop="emit('focusNow', list.id, entry.todo.id)"
-                >
-                  <NIcon :component="TimerOutline" />
                 </button>
                 <button
                   class="todo-star-button"

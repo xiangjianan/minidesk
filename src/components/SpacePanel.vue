@@ -15,7 +15,7 @@ import {
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,
   CircleHelp as HelpCircleOutline,
-  EllipsisVertical,
+  Ellipsis,
   Smartphone,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
@@ -401,7 +401,7 @@ onUnmounted(() => disposeSort?.());
           <NIcon :component="ClipboardOutline" />
         </button>
         <button class="icon-button" type="button" data-testid="notebook-menu" :aria-label="uiText.space.menu" :title="uiText.space.menu" @click.stop="openHeaderMenu">
-          <NIcon :component="EllipsisVertical" />
+          <NIcon :component="Ellipsis" />
         </button>
       </div>
     </div>

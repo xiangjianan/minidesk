@@ -38,13 +38,14 @@ describe("visible workbench actions", () => {
     expect(wrapper.emitted("create")).toEqual([["noon"]]);
   });
 
-  it("opens list creation from the header", async () => {
+  it("keeps the quick actions header minimal and offers an inline add-button row inside the group", async () => {
     const wrapper = mount(QuickButtons, { props: {
       title: "Actions", buttons: [], showHidden: false, language: "en",
     }});
     wrappers.push(wrapper);
-    await wrapper.get(".quick-add-button").trigger("click");
-    expect(wrapper.findAllComponents(NModal).find(modal => modal.props("show"))?.props("title")).toBe("New group");
+    expect(wrapper.find(".quick-add-button").exists()).toBe(false);
+    await wrapper.get(".quick-add-row").trigger("click");
+    expect(wrapper.findAllComponents(NModal).find(modal => modal.props("show"))?.props("title")).toBe("New quick button");
     expect(wrapper.emitted("save")).toBeUndefined();
   });
 

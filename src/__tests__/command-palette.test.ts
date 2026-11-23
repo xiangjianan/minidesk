@@ -3,8 +3,6 @@ import { mount } from "@vue/test-utils";
 import { afterEach, describe, expect, it } from "vitest";
 import CommandPalette from "../components/CommandPalette.vue";
 import TextPanel from "../components/TextPanel.vue";
-import TodoPanel from "../components/TodoPanel.vue";
-import { DEFAULT_TITLES } from "../state/defaults";
 import { createWorkspaceData } from "../state/workspaces";
 import type { WorkspaceData } from "../types";
 
@@ -208,26 +206,5 @@ describe("P0 interaction ergonomics", () => {
     expect(updates).toBeTruthy();
     const lastLines = updates!.at(-1)![0] as Array<{ text: string; marks?: Array<{ type: string; start: number; end: number }> }>;
     expect(lastLines[0].marks).toEqual([{ type: "bold", start: 0, end: 2 }]);
-  });
-
-  it("exposes a direct hover focus button on active reminders that emits focusNow", async () => {
-    const wrapper = mount(TodoPanel, {
-      props: {
-        titles: DEFAULT_TITLES,
-        todoLists: [{ id: "today", title: "今天", collapsed: false, compact: true }],
-        todos: {
-          today: [
-            { id: "todo-open", text: "写设计稿", done: false },
-            { id: "todo-done", text: "已完成项", done: true },
-          ],
-        },
-      },
-    });
-    wrappers.push(wrapper);
-
-    const trigger = wrapper.get('[data-testid="todo-focus-trigger-todo-open"]');
-    expect(wrapper.find('[data-testid="todo-focus-trigger-todo-done"]').exists()).toBe(false);
-    await trigger.trigger("click");
-    expect(wrapper.emitted("focusNow")).toEqual([["today", "todo-open"]]);
   });
 });

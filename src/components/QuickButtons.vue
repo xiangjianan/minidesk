@@ -26,7 +26,7 @@ import {
   Maximize2 as ResizeOutline,
   ArrowLeftRight as SwapHorizontalOutline,
   Trash2 as TrashOutline,
-  EllipsisVertical,
+  Ellipsis,
 } from "lucide-vue-next";
 import type { DropdownOption } from "naive-ui";
 import type { AppLanguage, GuideKey, QuickApiBodyType, QuickApiHeader, QuickApiMethod, QuickButton, QuickButtonType, QuickTag, WorkspaceMoveTarget } from "../types";
@@ -905,11 +905,6 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
         <span>{{ getIconHeadingText(title, 'quick') }}</span>
       </h2>
       <div class="header-actions">
-        <button type="button" class="quick-add-button icon-button"
-          :aria-label="uiText.quick.newList" :title="uiText.quick.newList"
-          @click.stop="listCreateDialog?.open($event.currentTarget as HTMLElement)">
-          <NIcon :component="AddOutline" />
-        </button>
         <button
           type="button"
           class="quick-menu-button icon-button"
@@ -917,7 +912,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
           :title="uiText.quick.menu"
           @click="openHeaderMenu"
         >
-          <NIcon :component="EllipsisVertical" />
+          <NIcon :component="Ellipsis" />
         </button>
       </div>
     </div>
@@ -1020,7 +1015,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               @click.stop="isRealTagGroup(group.id) ? openTagMenu($event, group.id, true) : openHeaderMenu($event)"
               @dblclick.stop
             >
-              <NIcon :component="EllipsisVertical" />
+              <NIcon :component="Ellipsis" />
             </button>
           </div>
           <div
@@ -1070,7 +1065,17 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
                 </span>
               </button>
             </MemoTransitionGroup>
-            <button v-if="!globalSearchNormalized && group.title && group.id === groupedButtons.at(-1)?.id && group.buttons.length === 0 && !buttons.some(button => (button.tagId ?? QUICK_BUTTON_OTHER_GROUP_ID) === group.id)" type="button" class="workbench-empty-hint quick-empty-hint" @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)">{{ uiText.quick.emptyHint }}</button>
+            <button
+              v-if="!globalSearchNormalized && group.title"
+              type="button"
+              class="quick-add-row"
+              :aria-label="uiText.quick.addInTag"
+              :title="uiText.common.create"
+              @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)"
+            >
+              <NIcon :component="AddOutline" />
+              <span class="quick-add-row-label">{{ uiText.quick.addInTag }}</span>
+            </button>
             </div>
           </div>
         </section>
