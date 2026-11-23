@@ -1104,11 +1104,27 @@ html[data-theme="dark"] .workbench-shell {
 .workbench-shell .todo-section {
   position: relative;
   /* Preserve top rounded corner masking for sticky headings while letting the
-     bottom edge-straddling + circle button float cleanly below the card edge. */
-  clip-path: inset(0 -6px -18px -6px round var(--desk-card-radius) var(--desk-card-radius) 0 0);
+     bottom edge-straddling + pill and hover bridge sit cleanly below the card edge. */
+  clip-path: inset(0 -8px -20px -8px round var(--desk-card-radius) var(--desk-card-radius) 0 0);
 }
 
-/* Edge-straddling circular + button on populated reminder cards (Notion/Craft style). */
+/* Invisible bottom hover bridge active while the card is hovered so sweeping
+   down toward the centered + pill never loses hover prematurely. */
+.workbench-shell .todo-section:has(> button.todo-edge-add)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -14px;
+  height: 14px;
+  pointer-events: none;
+}
+
+.workbench-shell .todo-section:has(> button.todo-edge-add):hover::after {
+  pointer-events: auto;
+}
+
+/* Edge-straddling pill + button on populated reminder cards (Notion/Craft style). */
 .workbench-shell button.todo-edge-add {
   position: absolute;
   left: 50%;
@@ -1117,20 +1133,20 @@ html[data-theme="dark"] .workbench-shell {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
+  width: 68px;
   height: 24px;
-  min-width: 24px;
+  min-width: 68px;
   min-height: 24px;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 50%;
+  border-radius: 999px;
   background: var(--card);
   color: var(--muted);
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.10);
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: translate(-50%, 3px) scale(0.88);
+  transform: translate(-50%, 3px) scale(0.94);
   transition:
     opacity 150ms ease,
     transform 170ms var(--motion-ease),
@@ -1140,9 +1156,18 @@ html[data-theme="dark"] .workbench-shell {
     box-shadow 140ms ease;
 }
 
+/* Generous invisible click/hover cushion around the pill. */
+.workbench-shell button.todo-edge-add::before {
+  content: "";
+  position: absolute;
+  inset: -6px -14px;
+  border-radius: 999px;
+}
+
 html[data-theme="dark"] .workbench-shell button.todo-edge-add {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: #303540;
+  border-color: rgba(255, 255, 255, 0.16);
+  background: #323846;
+  color: #cfd8e3;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.36);
 }
 
@@ -1154,10 +1179,17 @@ html[data-theme="dark"] .workbench-shell button.todo-edge-add {
 }
 
 .workbench-shell button.todo-edge-add:hover {
-  border-color: color-mix(in srgb, var(--primary) 45%, var(--border));
+  border-color: var(--primary);
   background: var(--primary);
   color: var(--primary-foreground);
   box-shadow: 0 3px 12px color-mix(in srgb, var(--primary) 32%, transparent);
+}
+
+html[data-theme="dark"] .workbench-shell button.todo-edge-add:hover {
+  border-color: var(--primary);
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--primary) 36%, transparent);
 }
 
 @media (hover: none) {
