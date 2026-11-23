@@ -204,9 +204,11 @@ const options = computed(() => [
     })),
   },
   { type: "divider", key: "preferences-divider" },
-  { label: text.value.settings.aiFeatures, key: "toggle-ai", disabled: props.offline, icon: renderIcon(props.aiEnabled ? CheckmarkOutline : Ban), props: { role: "menuitemcheckbox", "aria-checked": props.aiEnabled } },
-  { label: text.value.app.inboxPair, key: "pair-inbox", disabled: props.offline, icon: renderIcon(PhonePortraitOutline) },
-  { type: "divider", key: "help-divider" },
+  ...(!props.offline ? [
+    { label: text.value.settings.aiFeatures, key: "toggle-ai", icon: renderIcon(props.aiEnabled ? CheckmarkOutline : Ban), props: { role: "menuitemcheckbox", "aria-checked": props.aiEnabled } },
+    { label: text.value.app.inboxPair, key: "pair-inbox", icon: renderIcon(PhonePortraitOutline) },
+    { type: "divider" as const, key: "help-divider" },
+  ] : []),
   { label: text.value.settings.shortcutHelp, key: "shortcut-help", icon: renderIcon(KeyOutline) },
   { label: text.value.settings.suggest, key: "suggest", icon: renderIcon(SuggestionIcon) },
   ...(SUPPORT_AUTHOR_ENABLED
