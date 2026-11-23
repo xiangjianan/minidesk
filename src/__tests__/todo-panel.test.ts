@@ -1196,7 +1196,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("create")?.[0]).toEqual(["morning"]);
   });
 
-  it("shows the add row only in empty lists and creates from blank list space when populated", async () => {
+  it("offers a left-aligned add-reminder row in both populated and empty lists", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todos: { morning: [{ id: "a", text: "Existing", done: false }], noon: [], evening: [] },
@@ -1204,18 +1204,16 @@ describe("TodoPanel", () => {
       },
       global: { stubs: { NDropdown: dropdownStub, NTooltip: tooltipStub } },
     });
-    expect(wrapper.find('.todo-section[data-list-id="morning"] .todo-add-row').exists()).toBe(false);
-    await wrapper.get('.todo-section[data-list-id="morning"] [data-testid="todo-edge-add"]').trigger("click");
-    await wrapper.get('.todo-section[data-list-id="morning"] .todo-list-shell').trigger("click");
-
-    await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
-    expect(wrapper.find('.todo-section[data-list-id="morning"] [data-testid="todo-edge-add"]').exists()).toBe(false);
-    const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
-    expect(button.text()).toBe("添加提醒");
-    expect(button.attributes("aria-label")).toBe("新增提醒事项");
-    expect(button.attributes("type")).toBe("button");
-    await button.trigger("click");
-    expect(wrapper.emitted("create")).toEqual([["morning"], ["morning"], ["morning"]]);
+    expect(wrapper.find('[data-testid="todo-edge-add"]').exists()).toBe(false);
+    for (const empty of [false, true]) {
+      if (empty) await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
+      const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
+      expect(button.text()).toBe("添加提醒");
+      expect(button.attributes("aria-label")).toBe("新增提醒事项");
+      expect(button.attributes("type")).toBe("button");
+      await button.trigger("click");
+    }
+    expect(wrapper.emitted("create")).toEqual([["morning"], ["morning"]]);
     wrapper.unmount();
   });
 
