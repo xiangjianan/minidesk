@@ -1196,7 +1196,7 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("create")?.[0]).toEqual(["morning"]);
   });
 
-  it("offers a full-row create target in empty and populated lists", async () => {
+  it("shows the add row only in empty lists and creates from blank list space when populated", async () => {
     const wrapper = mount(TodoPanel, {
       props: {
         todos: { morning: [{ id: "a", text: "Existing", done: false }], noon: [], evening: [] },
@@ -1204,14 +1204,15 @@ describe("TodoPanel", () => {
       },
       global: { stubs: { NDropdown: dropdownStub, NTooltip: tooltipStub } },
     });
-    for (const empty of [false, true]) {
-      if (empty) await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
-      const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
-      expect(button.text()).toBe("添加提醒");
-      expect(button.attributes("aria-label")).toBe("新增提醒事项");
-      expect(button.attributes("type")).toBe("button");
-      await button.trigger("click");
-    }
+    expect(wrapper.find('.todo-section[data-list-id="morning"] .todo-add-row').exists()).toBe(false);
+    await wrapper.get('.todo-section[data-list-id="morning"] .todo-list-shell').trigger("click");
+
+    await wrapper.setProps({ todos: { morning: [], noon: [], evening: [] } });
+    const button = wrapper.get(`.todo-section[data-list-id="morning"] .todo-add-row`);
+    expect(button.text()).toBe("添加提醒");
+    expect(button.attributes("aria-label")).toBe("新增提醒事项");
+    expect(button.attributes("type")).toBe("button");
+    await button.trigger("click");
     expect(wrapper.emitted("create")).toEqual([["morning"], ["morning"]]);
     wrapper.unmount();
   });

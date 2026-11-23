@@ -1107,7 +1107,7 @@ describe("App shell", () => {
       expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(1);
       expect((wrapper.get('[data-testid="todo-input-morning"]').element as HTMLInputElement).value).toBe("已输入的提醒");
       expect(document.activeElement).not.toBe(input.element);
-      await wrapper.get('.todo-section[data-list-id="morning"] .todo-add-row').trigger("click");
+      await wrapper.get('.todo-section[data-list-id="morning"] [aria-label="添加提醒"]').trigger("click");
       await wrapper.vm.$nextTick();
       expect(wrapper.findAll('[data-testid="todo-input-morning"]')).toHaveLength(2);
     } finally { wrapper.unmount(); }

@@ -631,12 +631,15 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   .workbench-zone-assets .panel-header { flex-wrap: wrap; }
 }
 
-/* The add row owns all spacing below the final reminder, so its icon stays centered. */
-.workbench-shell .todo-list { padding-bottom: 0; }
+/* Populated lists omit the bottom add button and leave a compact, symmetric
+   clickable bottom inset so clicking below the last item adds a reminder. */
+.workbench-shell .todo-list-shell { cursor: pointer; }
+.workbench-shell .todo-list { padding: 8px 8px 16px; }
+.workbench-shell .todo-list .todo-item { cursor: default; }
 .workbench-shell .todo-list .todo-item:last-child { margin-bottom: 0; }
 .workbench-shell .todo-empty-list { padding: 0; }
 .workbench-shell .todo-list.is-sort-preview-empty { padding: 0; }
-.workbench-shell .todo-list.is-sort-preview-filled { padding: 8px 8px 0; }
+.workbench-shell .todo-list.is-sort-preview-filled { padding: 8px 8px 16px; }
 .workbench-shell .todo-empty-hint { display: none; }
 .workbench-shell .todo-add-row {
   display: flex;

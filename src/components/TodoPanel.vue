@@ -2549,6 +2549,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
             </template>
           </TodoRowsTransition>
           <button
+            v-if="listEntries[list.id].length === 0"
             type="button"
             class="todo-add-row"
             :aria-label="uiText.todo.addItem"
