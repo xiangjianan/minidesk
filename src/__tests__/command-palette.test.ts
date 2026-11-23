@@ -137,6 +137,52 @@ describe("CommandPalette", () => {
     await nextTick();
     expect(wrapper.emitted("close")).toHaveLength(1);
   });
+
+  it("ignores Enter while IME composition is active or just committed (Chinese pinyin)", async () => {
+    const workspaces = buildWorkspaces();
+    const wrapper = mount(CommandPalette, {
+      attachTo: document.body,
+      props: {
+        show: true,
+        language: "zh",
+        theme: "light",
+        workspaces,
+        activeWorkspaceId: "ws-main",
+        zoneVisibility: { assets: true, notes: true, tasks: true, workspace: true },
+        quickButtons: [
+          { id: "qb-1", title: "邮箱", value: "https://mail.example.com", type: "link", tagId: "tag-1", hidden: false },
+        ],
+        quickTags: [{ id: "tag-1", title: "常用", collapsed: false, column: 0 }],
+        todoLists: [],
+        todos: {},
+        spaces: [],
+      },
+    });
+    wrappers.push(wrapper);
+    await nextTick();
+
+    const input = document.querySelector<HTMLInputElement>('[data-testid="command-palette-input"]')!;
+    // 1. Mid-composition Enter (Chrome/Firefox).
+    input.dispatchEvent(new Event("compositionstart", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await nextTick();
+    expect(wrapper.emitted("runQuickButton")).toBeUndefined();
+    expect(wrapper.emitted("close")).toBeUndefined();
+
+    // 2. Safari same-tick Enter immediately after compositionend.
+    input.dispatchEvent(new Event("compositionend", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await nextTick();
+    expect(wrapper.emitted("runQuickButton")).toBeUndefined();
+    expect(wrapper.emitted("close")).toBeUndefined();
+
+    // 3. Explicit isComposing flag on KeyboardEvent.
+    const composingEnter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true });
+    Object.defineProperty(composingEnter, "isComposing", { value: true });
+    input.dispatchEvent(composingEnter);
+    await nextTick();
+    expect(wrapper.emitted("runQuickButton")).toBeUndefined();
+  });
 });
 
 describe("P0 interaction ergonomics", () => {

@@ -819,6 +819,7 @@ function handleImageDragWheel(event: WheelEvent): void {
             :data-testid="`image-card-copy-${image.id}`"
             :aria-label="uiText.images.copyImage"
             :title="uiText.images.copyImage"
+            @mousedown.prevent
             @click.stop="emit('copy', image.id)"
             @keydown.stop
           >
@@ -830,6 +831,7 @@ function handleImageDragWheel(event: WheelEvent): void {
             :data-testid="`image-card-delete-${image.id}`"
             :aria-label="uiText.images.deleteImage"
             :title="uiText.images.deleteImage"
+            @mousedown.prevent
             @click.stop="emit('delete', image.id, ($event.currentTarget as HTMLElement))"
             @keydown.stop
           >

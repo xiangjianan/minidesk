@@ -992,6 +992,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="quick-tag-add-button"
               :aria-label="uiText.quick.addInTag"
               :title="uiText.common.create"
+              @mousedown.prevent
               @click.stop="openAdd($event.currentTarget as HTMLElement, isRealTagGroup(group.id) ? group.title : '', group.id)"
               @dblclick.stop
             >
@@ -1003,6 +1004,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="icon-button desk-paste-button"
               :aria-label="uiText.common.paste"
               :title="uiText.common.paste"
+              @mousedown.prevent
               @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '')"
               @dblclick.stop
             >
@@ -1014,6 +1016,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               class="quick-tag-menu-button icon-button"
               :aria-label="uiText.quick.menu"
               :title="uiText.quick.menu"
+              @mousedown.prevent
               @click.stop="isRealTagGroup(group.id) ? openTagMenu($event, group.id, true) : openHeaderMenu($event)"
               @dblclick.stop
             >

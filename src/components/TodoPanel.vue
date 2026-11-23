@@ -2399,15 +2399,18 @@ onUnmounted(() => focusRegionAnimation?.cancel());
           <div class="todo-heading-actions">
             <span class="todo-count">{{ periodStats[list.id] }}</span>
             <button type="button" class="icon-button" :aria-label="uiText.desk.addReminder" :title="uiText.common.create"
+              @mousedown.prevent
               @click.stop="handleHeadingAddClick(list)"><NIcon :component="AddOutline" /></button>
             <button type="button" class="icon-button desk-paste-button"
               :aria-label="uiText.common.paste" :title="uiText.common.paste"
+              @mousedown.prevent
               @click.stop="openSectionActions($event, list.id); handleMenuSelect('paste')"><NIcon :component="ClipboardOutline" /></button>
             <button
               type="button"
               class="todo-section-menu-button icon-button"
               :aria-label="uiText.todo.menu"
               :title="uiText.todo.menu"
+              @mousedown.prevent
               @click="openSectionActions($event, list.id)"
             >
               <NIcon :component="EllipsisVertical" />

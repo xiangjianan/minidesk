@@ -1228,19 +1228,47 @@ html[data-theme="dark"] .quick-color-custom-preview {
    P0 + P1 Polish: Do less, do it well × Mainstream Desktop Craft
    ============================================================ */
 
-/* 1. Progressive disclosure on group headers: calm at rest, reveal on hover/focus. */
+/* 1. Progressive disclosure on group headers: count sits flush-right at rest,
+   action icons smoothly reveal on hover or keyboard focus (never stuck after pointer clicks). */
 @media (hover: hover) {
   .workbench-shell .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .todo-heading-actions > .icon-button {
+    flex: 0 0 0px;
+    width: 0;
+    min-width: 0;
+    overflow: hidden;
     opacity: 0;
-    transition: opacity 150ms ease, background-color 180ms ease, color 180ms ease;
+    pointer-events: none;
+    transition:
+      flex-basis 160ms var(--motion-ease),
+      width 160ms var(--motion-ease),
+      opacity 130ms ease,
+      background-color 180ms ease,
+      color 180ms ease;
   }
 
   .workbench-shell .quick-tag-heading:hover > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
-  .workbench-shell .quick-tag-heading:focus-within > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .todo-heading:hover .todo-heading-actions > .icon-button,
-  .workbench-shell .todo-heading:focus-within .todo-heading-actions > .icon-button {
+  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .icon-button {
+    flex: 0 0 30px;
+    width: 30px;
+    min-width: 30px;
     opacity: 1;
+    pointer-events: auto;
+  }
+
+  .workbench-shell .quick-tag-heading > .quick-tag-count,
+  .workbench-shell .todo-heading-actions > .todo-count {
+    margin-inline-end: 2px;
+    transition: margin-inline-end 160ms var(--motion-ease);
+  }
+
+  .workbench-shell .quick-tag-heading:hover > .quick-tag-count,
+  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > .quick-tag-count,
+  .workbench-shell .todo-heading:hover .todo-heading-actions > .todo-count,
+  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .todo-count {
+    margin-inline-end: 4px;
   }
 }
 
@@ -1270,7 +1298,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
 }
 
 .image-card:hover .image-card-actions,
-.image-card:focus-within .image-card-actions {
+.image-card:has(.image-card-action-btn:focus-visible:not([data-pointer-focus])) .image-card-actions {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -1379,14 +1407,27 @@ button.quick-type-segment.is-active .n-icon {
   color: var(--primary);
 }
 
-.quick-dialog .dialog-actions {
+/* Unified right-aligned modal dialog actions across the entire app. */
+.dialog-actions,
+.workspace-inbox-footer,
+.support-footer,
+.n-dialog__action.dialog-actions {
+  display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: 8px;
 }
 
-.quick-dialog .dialog-actions .quick-dialog-action {
+.dialog-actions > .n-button,
+.workspace-inbox-footer > .n-button,
+.support-footer > .n-button,
+.n-dialog__action.dialog-actions > .n-button {
   flex: 0 0 auto;
   min-width: 78px;
+}
+
+.workspace-inbox-footer > [data-testid="inbox-clear"] {
+  margin-inline-end: auto;
 }
 
 /* 4. Reminder row hover Focus trigger ("Do it now"), aligned with alarm & star tracks. */
@@ -1412,9 +1453,7 @@ button.quick-type-segment.is-active .n-icon {
 
 .todo-item:hover .todo-focus-trigger,
 .today-focus-item:hover .todo-focus-trigger,
-.todo-item:focus-within .todo-focus-trigger,
-.today-focus-item:focus-within .todo-focus-trigger,
-.todo-focus-trigger:focus-visible {
+.todo-focus-trigger:focus-visible:not([data-pointer-focus]) {
   opacity: 1;
 }
 
@@ -1550,8 +1589,9 @@ html[data-theme="dark"] .command-palette-dialog {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 0 14px;
-  height: 48px;
+  padding: 12px 16px;
+  min-height: 52px;
+  box-sizing: border-box;
   flex-shrink: 0;
   border-bottom: 1px solid var(--line-subtle);
 }
@@ -1561,15 +1601,23 @@ html[data-theme="dark"] .command-palette-dialog {
   flex-shrink: 0;
 }
 
-.command-palette-input {
+.command-palette-dialog input.command-palette-input,
+.command-palette-dialog input.command-palette-input:hover,
+.command-palette-dialog input.command-palette-input:focus,
+.command-palette-dialog input.command-palette-input:focus-visible {
   flex: 1 1 auto;
   min-width: 0;
-  height: 100%;
-  border: 0;
-  background: transparent;
+  height: 28px;
+  line-height: 28px;
+  padding: 0;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
   color: var(--text);
   font-size: 14px;
-  outline: none;
 }
 
 .command-palette-input::placeholder {

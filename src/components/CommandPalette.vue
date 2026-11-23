@@ -20,6 +20,7 @@ import {
   Sun,
 } from "lucide-vue-next";
 import { ImagesAreaIcon, NotesAreaIcon, QuickAreaIcon, RemindersAreaIcon } from "../utils/areaIcons";
+import { isImeComposing } from "../utils/ime";
 import HighlightText from "./HighlightText.vue";
 import { getUiText } from "../state/i18n";
 import { getWorkspaceBoardTitle } from "../state/workspaces";
@@ -82,8 +83,25 @@ const emit = defineEmits<{
 const uiText = computed(() => getUiText(props.language));
 const query = ref("");
 const activeIndex = ref(0);
+const composing = ref(false);
+let compositionEndedAt = 0;
 const inputRef = ref<HTMLInputElement | null>(null);
 const listRef = ref<HTMLElement | null>(null);
+
+function handleCompositionStart(): void {
+  composing.value = true;
+}
+
+function handleCompositionEnd(): void {
+  composing.value = false;
+  compositionEndedAt = Date.now();
+}
+
+function isComposingKeydown(event: KeyboardEvent): boolean {
+  if (composing.value || isImeComposing(event)) return true;
+  // Safari dispatches `compositionend` immediately before the confirming Enter `keydown`.
+  return event.key === "Enter" && Date.now() - compositionEndedAt < 80;
+}
 
 const normalizedQuery = computed(() => query.value.trim().toLowerCase());
 
@@ -354,6 +372,7 @@ function executeItem(item: PaletteItem | undefined): void {
 }
 
 function handleInputKeydown(event: KeyboardEvent): void {
+  if (isComposingKeydown(event)) return;
   const total = flatOrderedItems.value.length;
   if (event.key === "Escape") {
     event.preventDefault();
@@ -384,7 +403,7 @@ function handleInputKeydown(event: KeyboardEvent): void {
 }
 
 function handleBackdropKeydown(event: KeyboardEvent): void {
-  if (props.show && event.key === "Escape") {
+  if (props.show && event.key === "Escape" && !composing.value && !isImeComposing(event)) {
     event.preventDefault();
     event.stopPropagation();
     emit("close");
@@ -423,6 +442,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleBackdropKeydow
               :aria-label="uiText.commandPalette.placeholder"
               autocomplete="off"
               spellcheck="false"
+              @compositionstart="handleCompositionStart"
+              @compositionend="handleCompositionEnd"
               @keydown="handleInputKeydown"
             />
             <kbd class="command-palette-kbd">Esc</kbd>
