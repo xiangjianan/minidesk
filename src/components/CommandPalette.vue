@@ -13,11 +13,11 @@ import {
   KeyRound,
   Layers,
   Link,
-  Monitor,
   Moon,
   Plus,
   Search,
   Sun,
+  Contrast,
 } from "lucide-vue-next";
 import { ImagesAreaIcon, NotesAreaIcon, QuickAreaIcon, RemindersAreaIcon } from "../utils/areaIcons";
 import { isImeComposing } from "../utils/ime";
@@ -246,7 +246,7 @@ const allItems = computed<PaletteItem[]>(() => {
       id: "cmd:theme-auto",
       group: "commands",
       title: cp.commands.themeAuto,
-      icon: Monitor,
+      icon: Contrast,
       checked: props.theme === "auto",
       keywords: "theme system auto 跟随系统 外观 主题",
       run: () => emit("setTheme", "auto"),

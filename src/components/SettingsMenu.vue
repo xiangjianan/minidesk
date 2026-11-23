@@ -10,7 +10,6 @@ import {
   Images as ImagesOutline,
   Info as InformationCircleOutline,
   KeyRound as KeyOutline,
-  Monitor,
   Smartphone as PhonePortraitOutline,
   Database as ServerOutline,
   Settings as SettingsOutline,
@@ -99,7 +98,11 @@ const customGifLightPreview = computed(() => customGifLightPreviewSrc.value ?? p
 const customGifDarkPreview = computed(() => customGifDarkPreviewSrc.value ?? props.customCompanionGif.dark);
 const preferenceOpen = ref<"zones" | "appearance" | null>(null);
 let keepPreferenceOpen = false;
-const appearanceIcons: Record<ThemeMode, Component> = { light: Sun, dark: Moon, auto: Monitor };
+const SystemThemeIcon: Component = () => h("svg", { width: 16, height: 16, viewBox: "0 0 24 24", "aria-hidden": "true" }, [
+  h("circle", { cx: 12, cy: 12, r: 8, fill: "none", stroke: "currentColor", "stroke-width": 1.5 }),
+  h("path", { d: "M12 4 A8 8 0 0 1 12 20 Z", fill: "currentColor" }),
+]);
+const appearanceIcons: Record<ThemeMode, Component> = { light: Sun, dark: Moon, auto: SystemThemeIcon };
 const appearanceOptions = computed(() => (["light", "dark", "auto"] as const).map((mode) => ({
   label: selectionLabel(text.value.settings[mode], props.theme === mode),
   key: `theme:${mode}`,
