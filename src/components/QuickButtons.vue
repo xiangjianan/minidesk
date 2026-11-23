@@ -1066,7 +1066,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               </button>
             </MemoTransitionGroup>
             <button
-              v-if="!globalSearchNormalized && group.title"
+              v-if="!globalSearchNormalized && group.title && group.buttons.length === 0"
               type="button"
               class="quick-add-row"
               :aria-label="uiText.quick.addInTag"

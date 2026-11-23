@@ -1248,7 +1248,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
       color 180ms ease;
   }
 
-  .workbench-shell .quick-tag-heading:hover > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .todo-heading:hover .todo-heading-actions > .icon-button,
   .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .icon-button {
@@ -1265,7 +1265,7 @@ html[data-theme="dark"] .quick-color-custom-preview {
     transition: margin-inline-end 160ms var(--motion-ease);
   }
 
-  .workbench-shell .quick-tag-heading:hover > .quick-tag-count,
+  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > .quick-tag-count,
   .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > .quick-tag-count,
   .workbench-shell .todo-heading:hover .todo-heading-actions > .todo-count,
   .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .todo-count {
@@ -1287,16 +1287,22 @@ html[data-theme="dark"] .quick-color-custom-preview {
   align-items: center;
   gap: 2px;
   padding: 3px;
-  border: 1px solid var(--border);
+  border: 1px solid color-mix(in srgb, var(--border) 60%, rgba(255, 255, 255, 0.34));
   border-radius: 999px;
-  background: color-mix(in srgb, var(--material-elevated) 84%, transparent);
-  -webkit-backdrop-filter: blur(18px) saturate(1.3);
-  backdrop-filter: blur(18px) saturate(1.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  background: color-mix(in srgb, var(--material-elevated) 46%, transparent);
+  -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  backdrop-filter: blur(12px) saturate(1.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.24);
   opacity: 0;
   transform: translateY(-2px);
   pointer-events: none;
   transition: opacity 150ms ease, transform 150ms ease;
+}
+
+html[data-theme="dark"] .image-card-actions {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: color-mix(in srgb, var(--material-elevated) 52%, transparent);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 .image-card:hover .image-card-actions,

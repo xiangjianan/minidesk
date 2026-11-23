@@ -146,14 +146,19 @@ function readSource(path: string): string {
 }
 
 describe("QuickButtons", () => {
-  it("offers an inline add-button row in every quick action group", async () => {
+  it("shows the inline add-button row only in empty groups to keep populated groups compact", async () => {
     const wrapper = mountQuickButtons({
       tags: [{ id: "first", title: "常用" }, { id: "last", title: "工作" }],
       buttons: [{ id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" }],
     });
     try {
-      expect(wrapper.get('[data-tag-id="first"] .quick-add-row').text()).toContain("添加快捷按钮");
+      expect(wrapper.find('[data-tag-id="first"] .quick-add-row').exists()).toBe(false);
       expect(wrapper.get('[data-tag-id="last"] .quick-add-row').text()).toContain("添加快捷按钮");
+      await wrapper.setProps({ buttons: [
+        { id: "one", title: "链接", value: "https://example.com", type: "link", hidden: false, tagId: "first" },
+        { id: "two", title: "文本", value: "内容", type: "text", hidden: false, tagId: "last" },
+      ] });
+      expect(wrapper.find(".quick-add-row").exists()).toBe(false);
     } finally { wrapper.unmount(); }
   });
 
