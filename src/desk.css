@@ -1898,7 +1898,7 @@ html[data-theme="dark"] .focus-now-modal {
     0 1px 3px rgba(0, 0, 0, 0.24);
 }
 
-/* Soft Gemini-inspired ambient aurora behind the frosted glass layers. */
+/* Soft Gemini-inspired ambient aurora behind the translucent glass layers. */
 .workbench-shell {
   background:
     radial-gradient(64% 58% at 10% 6%, rgba(164, 206, 255, 0.44) 0%, transparent 62%),
@@ -1906,7 +1906,6 @@ html[data-theme="dark"] .focus-now-modal {
     radial-gradient(52% 48% at 24% 96%, rgba(164, 232, 224, 0.28) 0%, transparent 58%),
     radial-gradient(48% 44% at 86% 92%, rgba(235, 206, 248, 0.22) 0%, transparent 56%),
     #eef3fb;
-  background-attachment: fixed;
 }
 
 html[data-theme="dark"] .workbench-shell {
@@ -1916,7 +1915,6 @@ html[data-theme="dark"] .workbench-shell {
     radial-gradient(48% 46% at 22% 94%, rgba(56, 189, 248, 0.07) 0%, transparent 58%),
     radial-gradient(44% 42% at 84% 90%, rgba(217, 101, 112, 0.06) 0%, transparent 56%),
     #131314;
-  background-attachment: fixed;
 }
 
 .workbench-main,
@@ -1926,44 +1924,38 @@ html[data-theme="dark"] .workbench-shell {
 
 /* Tier 1: Frosted glass top command bar. */
 .workbench-command-bar {
-  background: rgba(255, 255, 255, 0.58);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  backdrop-filter: blur(24px) saturate(1.5);
+  background: rgba(255, 255, 255, 0.62);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
   border-bottom: 1px solid rgba(255, 255, 255, 0.72);
   box-shadow: 0 1px 0 rgba(38, 61, 102, 0.06), 0 4px 16px rgba(38, 61, 102, 0.03);
 }
 
 html[data-theme="dark"] .workbench-command-bar {
-  background: rgba(20, 21, 26, 0.72);
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  backdrop-filter: blur(24px) saturate(1.4);
+  background: rgba(20, 21, 26, 0.74);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+  backdrop-filter: blur(20px) saturate(1.35);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.22);
 }
 
-/* Tier 2: Frosted glass workbench columns. */
+/* Tier 2: Translucent glass workbench columns (no backdrop-filter over already-soft
+   gradients, avoiding nested WebKit GPU readbacks during column resize). */
 .workbench-zone {
-  background: rgba(255, 255, 255, 0.34);
-  -webkit-backdrop-filter: blur(18px) saturate(1.35);
-  backdrop-filter: blur(18px) saturate(1.35);
+  background: rgba(255, 255, 255, 0.36);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-inline-end: 1px solid rgba(255, 255, 255, 0.62);
 }
 
 html[data-theme="dark"] .workbench-zone {
-  background: rgba(24, 26, 32, 0.42);
-  -webkit-backdrop-filter: blur(18px) saturate(1.3);
-  backdrop-filter: blur(18px) saturate(1.3);
+  background: rgba(24, 26, 32, 0.44);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-inline-end: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 /* Tier 3: Luminous frosted cards for groups, notebooks, quick actions, and images. */
-.workbench-shell .todo-section,
-.workbench-shell .quick-tag-group,
-.workbench-shell .space-text-panel {
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
-}
-
 .workbench-shell .space-text-panel {
   background: rgba(255, 255, 255, 0.78);
 }
@@ -1979,15 +1971,13 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 
 .workbench-shell .todo-heading::before,
 .workbench-shell .quick-tag-heading::before {
-  background: rgba(243, 248, 255, 0.78);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  background: rgba(243, 248, 255, 0.92);
   border-bottom: 1px solid rgba(38, 61, 102, 0.05);
 }
 
 html[data-theme="dark"] .workbench-shell .todo-heading::before,
 html[data-theme="dark"] .workbench-shell .quick-tag-heading::before {
-  background: rgba(38, 40, 50, 0.76);
+  background: rgba(36, 38, 48, 0.92);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
@@ -2021,13 +2011,11 @@ html[data-theme="dark"] .workbench-shell button.quick-button:hover {
 }
 
 .workbench-shell .space-tabs-scrollbar {
-  background: rgba(242, 247, 255, 0.72);
-  -webkit-backdrop-filter: blur(16px) saturate(1.4);
-  backdrop-filter: blur(16px) saturate(1.4);
+  background: rgba(242, 247, 255, 0.86);
 }
 
 html[data-theme="dark"] .workbench-shell .space-tabs-scrollbar {
-  background: rgba(38, 40, 50, 0.68);
+  background: rgba(36, 38, 48, 0.86);
 }
 
 .workbench-shell .space-tab.is-active {
@@ -2073,13 +2061,11 @@ html[data-theme="dark"] .selection-toolbar {
 
 /* Unified frosted glass modals across all dialogs (confirm, quick button, groups, focus, shortcuts, settings, inbox). */
 .n-modal-mask {
-  background-color: rgba(22, 34, 62, 0.22) !important;
-  -webkit-backdrop-filter: blur(4px);
-  backdrop-filter: blur(4px);
+  background-color: rgba(22, 34, 62, 0.24) !important;
 }
 
 html[data-theme="dark"] .n-modal-mask {
-  background-color: rgba(8, 10, 14, 0.56) !important;
+  background-color: rgba(8, 10, 14, 0.58) !important;
 }
 
 .n-modal.n-card,
