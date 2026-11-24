@@ -145,7 +145,7 @@ describe("ImagePanel", () => {
 
     await list.trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴图片", "Tips"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴图片", "选择本地图片", "Tips"]);
 
     await wrapper.findAll(".dropdown-option")[0].trigger("click");
 
@@ -156,7 +156,7 @@ describe("ImagePanel", () => {
 
     await list.trigger("contextmenu");
 
-    await wrapper.findAll(".dropdown-option")[1].trigger("click");
+    await wrapper.findAll(".dropdown-option")[2].trigger("click");
 
     expect(wrapper.emitted("guide")?.[0]).toEqual(["images", expect.any(HTMLElement), true]);
     wrapper.unmount();
@@ -558,7 +558,7 @@ describe("ImagePanel", () => {
     wrapper.unmount();
   });
 
-  it("places count, local upload, and paste on the header row and supports hover card actions", async () => {
+  it("places count and paste on the header row, tucks local upload into context menu, and supports hover card actions", async () => {
     const wrapper = mountImagePanel([
       { id: "a", src: "data:image/png;base64,a", createdAt: 1 },
       { id: "b", src: "data:image/png;base64,b", createdAt: 2 },
@@ -566,10 +566,14 @@ describe("ImagePanel", () => {
     const actions = wrapper.get(".image-panel .header-actions");
     const children = actions.element.children;
 
+    expect(wrapper.find(".image-upload-button").exists()).toBe(false);
     expect(children[0]).toBe(wrapper.get(".count").element);
-    expect(children[1]).toBe(wrapper.get(".image-upload-button").element);
-    expect(children[2]).toBe(wrapper.get(".image-paste-button").element);
+    expect(children[1]).toBe(wrapper.get(".image-paste-button").element);
     expect(wrapper.get(".count").text()).toBe("2");
+
+    await wrapper.get(".image-list-scrollbar").trigger("contextmenu");
+    const uploadOption = wrapper.findAll(".dropdown-option").find((option) => option.text() === "选择本地图片");
+    expect(uploadOption?.exists()).toBe(true);
 
     await wrapper.get('[data-testid="image-card-copy-a"]').trigger("click");
     expect(wrapper.emitted("copy")).toEqual([["a"]]);
@@ -858,7 +862,7 @@ describe("ImagePanel", () => {
 
     await wrapper.get(".image-list-scrollbar").trigger("contextmenu");
 
-    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴图片"]);
+    expect(wrapper.findAll(".dropdown-option").map((option) => option.text())).toEqual(["粘贴图片", "选择本地图片"]);
     wrapper.unmount();
   });
 

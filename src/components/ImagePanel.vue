@@ -165,6 +165,7 @@ function getImageMenuIcon(key: ImageContextMenuKey): Component {
   if (key === "pin-top") return ArrowUpOutline;
   if (key === "pin-bottom") return ArrowDownOutline;
   if (key === "paste") return ClipboardOutline;
+  if (key === "upload") return ImagePlus;
   return HelpCircleOutline;
 }
 
@@ -298,6 +299,10 @@ function handleMenuSelect(key: string): void {
   if (key === "paste") {
     if (id && anchor) emit("paste", { placement: "after", targetId: id, anchor });
     else emit("paste", { placement: "append", anchor });
+  }
+  if (key === "upload") {
+    openLocalFilePicker();
+    return;
   }
   if (key === "guide" && anchor) emit("guide", "images", anchor, true);
   if (!id) return;
@@ -739,16 +744,6 @@ function handleImageDragWheel(event: WheelEvent): void {
       </h1>
       <div class="header-actions">
         <span class="count">{{ images.length }}</span>
-        <button
-          class="image-upload-button icon-button"
-          data-testid="image-upload-button"
-          type="button"
-          :aria-label="uiText.images.uploadImage"
-          :title="uiText.images.uploadImage"
-          @click.stop="openLocalFilePicker"
-        >
-          <NIcon :component="ImagePlus" />
-        </button>
         <button
           ref="pasteButtonRef"
           class="image-paste-button icon-button"

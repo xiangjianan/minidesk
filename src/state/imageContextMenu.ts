@@ -7,6 +7,7 @@ export type ImageContextMenuKey =
   | "close-preview"
   | "copy"
   | "paste"
+  | "upload"
   | "edit"
   | "delete"
   | "pin-top"
@@ -38,6 +39,7 @@ export function getImageItemContextMenuItems(
 export function getBlankImageContextMenuItems(uiText: UiText): ImageContextMenuItem[] {
   return [
     { label: uiText.images.pasteImage, key: "paste" },
+    { label: uiText.images.uploadImage, key: "upload" },
     { label: uiText.common.tips, key: "tips" },
   ];
 }
