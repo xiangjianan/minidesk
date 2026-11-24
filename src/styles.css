@@ -8,35 +8,35 @@
   --card: #ffffff;
   --popover: #ffffff;
   --popover-foreground: #111827;
-  --primary: #3f6887;
+  --primary: #4285f4;
   --primary-foreground: #ffffff;
-  --secondary: #ececee;
+  --secondary: #eef2f8;
   --secondary-foreground: #18181b;
-  --muted-surface: #f2f2f4;
+  --muted-surface: #f1f4f9;
   --muted-foreground: #71717a;
-  --accent: #e4edf3;
-  --accent-foreground: #355b78;
-  --destructive: #b42318;
-  --border: rgba(60, 60, 67, 0.14);
-  --ring: #3f6887;
-  --bg: #fcfcfe;
+  --accent: rgba(66, 133, 244, 0.12);
+  --accent-foreground: #1a56c4;
+  --destructive: #d93025;
+  --border: rgba(38, 61, 102, 0.12);
+  --ring: #4285f4;
+  --bg: #eef3fb;
   --panel: #ffffff;
   --text: #1d1d1f;
   --muted: #6e6e73;
-  --line-main: rgba(60, 60, 67, 0.18);
-  --line-section: rgba(60, 60, 67, 0.14);
-  --line-subtle: rgba(60, 60, 67, 0.09);
-  --line-control: rgba(60, 60, 67, 0.22);
-  --line-focus: #3f6887;
+  --line-main: rgba(38, 61, 102, 0.16);
+  --line-section: rgba(38, 61, 102, 0.12);
+  --line-subtle: rgba(38, 61, 102, 0.08);
+  --line-control: rgba(38, 61, 102, 0.2);
+  --line-focus: #4285f4;
   --input: #ffffff;
   --button: #ffffff;
   --button-hover: color-mix(in srgb, #ffffff 88%, var(--primary) 12%);
-  --danger: #b42318;
+  --danger: #d93025;
   --radius: 12px;
   --radius-control: 10px;
-  --material-surface: rgba(246, 246, 248, 0.88);
-  --material-elevated: rgba(255, 255, 255, 0.9);
-  --material-pressed: rgba(63, 104, 135, 0.12);
+  --material-surface: rgba(246, 249, 255, 0.82);
+  --material-elevated: rgba(255, 255, 255, 0.84);
+  --material-pressed: rgba(66, 133, 244, 0.14);
   --shadow-soft: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 32px rgba(15, 23, 42, 0.07);
   --shadow-control: 0 1px 1px rgba(15, 23, 42, 0.04), 0 0 0 1px color-mix(in srgb, var(--border) 78%, transparent);
   --focus-ring: 0 0 0 3px color-mix(in srgb, var(--ring) 24%, transparent);
@@ -51,10 +51,10 @@
   --shadow-companion: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.10);
   --shadow-float: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 20px rgba(15, 23, 42, 0.08), 0 24px 48px rgba(15, 23, 42, 0.06);
   /* 手机端首页（OpenDesign 原型）补充 token：实心动作蓝（加深保证白字对比）、小号蓝字、成功/实心危险与大圆角卡。 */
-  --action: #3f6887;
-  --link: #355b78;
+  --action: #4285f4;
+  --link: #2b6de0;
   --ok: #1e7f36;
-  --danger-fill: #b42318;
+  --danger-fill: #d93025;
   --radius-card: 18px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -71,49 +71,49 @@
 }
 
 html[data-theme="dark"] {
-  --background: #262628;
-  --foreground: #fafafa;
-  --card: #2c2c2e;
-  --popover: #2c2c2e;
-  --popover-foreground: #fafafa;
-  --primary: #9cbcd5;
-  --primary-foreground: #20272d;
-  --secondary: #3a3a3c;
-  --secondary-foreground: #fafafa;
-  --muted-surface: #3a3a3c;
-  --muted-foreground: #a8a8ad;
-  --accent: rgba(156, 188, 213, 0.18);
-  --accent-foreground: #fafafa;
-  --destructive: #ff8b7f;
-  --border: rgba(235, 235, 245, 0.13);
-  --ring: #9cbcd5;
-  --bg: #262628;
-  --panel: #2c2c2e;
-  --text: #f1f1f1;
-  --muted: #a8a8ad;
-  --line-main: rgba(235, 235, 245, 0.18);
-  --line-section: rgba(235, 235, 245, 0.14);
-  --line-subtle: rgba(235, 235, 245, 0.09);
-  --line-control: rgba(235, 235, 245, 0.2);
-  --line-focus: #9cbcd5;
-  --input: #1c1c1e;
-  --button: color-mix(in srgb, var(--card) 92%, #ffffff 8%);
-  --button-hover: color-mix(in srgb, var(--card) 82%, var(--primary) 18%);
-  --danger: #ff8b7f;
-  --material-surface: rgba(44, 44, 46, 0.90);
-  --material-elevated: rgba(44, 44, 46, 0.92);
-  --material-pressed: rgba(156, 188, 213, 0.2);
-  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.18), 0 16px 36px rgba(0, 0, 0, 0.24);
-  --shadow-control: 0 1px 1px rgba(0, 0, 0, 0.18), 0 0 0 1px color-mix(in srgb, var(--border) 88%, transparent);
-  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--ring) 34%, transparent);
-  --shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.2), 0 14px 30px rgba(0, 0, 0, 0.32);
-  --shadow-quick-hover: 0 1px 2px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.24);
-  --shadow-companion: 0 1px 2px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.32);
-  --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 24px rgba(0, 0, 0, 0.36), 0 28px 56px rgba(0, 0, 0, 0.28);
-  --action: #3f6887;
-  --link: #9cbcd5;
-  --ok: #30d158;
-  --danger-fill: #b42318;
+  --background: #131314;
+  --foreground: #f1f3f4;
+  --card: #1e1f24;
+  --popover: #22242c;
+  --popover-foreground: #f1f3f4;
+  --primary: #8ab4f8;
+  --primary-foreground: #131314;
+  --secondary: #282a32;
+  --secondary-foreground: #f1f3f4;
+  --muted-surface: #282a32;
+  --muted-foreground: #9aa0a6;
+  --accent: rgba(138, 180, 248, 0.16);
+  --accent-foreground: #f1f3f4;
+  --destructive: #f28b82;
+  --border: rgba(255, 255, 255, 0.11);
+  --ring: #8ab4f8;
+  --bg: #131314;
+  --panel: #1e1f24;
+  --text: #e3e3e3;
+  --muted: #9aa0a6;
+  --line-main: rgba(255, 255, 255, 0.16);
+  --line-section: rgba(255, 255, 255, 0.12);
+  --line-subtle: rgba(255, 255, 255, 0.085);
+  --line-control: rgba(255, 255, 255, 0.18);
+  --line-focus: #8ab4f8;
+  --input: #17181d;
+  --button: color-mix(in srgb, var(--card) 90%, #ffffff 10%);
+  --button-hover: rgba(138, 180, 248, 0.14);
+  --danger: #f28b82;
+  --material-surface: rgba(26, 28, 35, 0.84);
+  --material-elevated: rgba(30, 32, 40, 0.86);
+  --material-pressed: rgba(138, 180, 248, 0.2);
+  --shadow-soft: 0 1px 2px rgba(0, 0, 0, 0.22), 0 16px 36px rgba(0, 0, 0, 0.28);
+  --shadow-control: 0 1px 1px rgba(0, 0, 0, 0.2), 0 0 0 1px color-mix(in srgb, var(--border) 88%, transparent);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--ring) 32%, transparent);
+  --shadow-lift: 0 1px 2px rgba(0, 0, 0, 0.24), 0 14px 30px rgba(0, 0, 0, 0.36);
+  --shadow-quick-hover: 0 1px 2px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.26);
+  --shadow-companion: 0 1px 2px rgba(0, 0, 0, 0.32), 0 4px 12px rgba(0, 0, 0, 0.36);
+  --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.32), 0 10px 24px rgba(0, 0, 0, 0.4), 0 28px 56px rgba(0, 0, 0, 0.32);
+  --action: #4285f4;
+  --link: #8ab4f8;
+  --ok: #34d399;
+  --danger-fill: #d93025;
   --mark-highlight-amber: rgba(255, 193, 7, 0.30);
   --mark-highlight-rose: rgba(244, 67, 54, 0.26);
   --mark-highlight-green: rgba(76, 175, 80, 0.24);
@@ -7982,26 +7982,26 @@ button.focus-now-divider {
 /* Dialog actions share one geometry and the current theme's colors. */
 :root {
   --dialog-radius: 10px;
-  --dialog-neutral: #f8fafc;
-  --dialog-neutral-hover: #edf3f8;
-  --dialog-border: #dfe8ef;
-  --dialog-primary: #3976d2;
-  --dialog-primary-hover: #3068bd;
-  --dialog-primary-text: #fff;
-  --dialog-danger-bg: #fff1f0;
-  --dialog-danger-hover: #ffe4e1;
-  --dialog-danger-border: #e7b5ae;
+  --dialog-neutral: rgba(255, 255, 255, 0.78);
+  --dialog-neutral-hover: rgba(66, 133, 244, 0.09);
+  --dialog-border: rgba(38, 61, 102, 0.13);
+  --dialog-primary: #4285f4;
+  --dialog-primary-hover: #3367d6;
+  --dialog-primary-text: #ffffff;
+  --dialog-danger-bg: rgba(217, 48, 37, 0.08);
+  --dialog-danger-hover: rgba(217, 48, 37, 0.15);
+  --dialog-danger-border: rgba(217, 48, 37, 0.28);
 }
 html[data-theme="dark"] {
-  --dialog-neutral: #373c43;
-  --dialog-neutral-hover: #444b54;
-  --dialog-border: #535c65;
-  --dialog-primary: #9cbcd5;
-  --dialog-primary-hover: #b7d1e5;
-  --dialog-primary-text: #20272d;
-  --dialog-danger-bg: #49302f;
-  --dialog-danger-hover: #5a3937;
-  --dialog-danger-border: #a86661;
+  --dialog-neutral: rgba(255, 255, 255, 0.06);
+  --dialog-neutral-hover: rgba(138, 180, 248, 0.13);
+  --dialog-border: rgba(255, 255, 255, 0.13);
+  --dialog-primary: #8ab4f8;
+  --dialog-primary-hover: #a8c7fa;
+  --dialog-primary-text: #131314;
+  --dialog-danger-bg: rgba(242, 139, 130, 0.12);
+  --dialog-danger-hover: rgba(242, 139, 130, 0.2);
+  --dialog-danger-border: rgba(242, 139, 130, 0.34);
 }
 .n-checkbox {
   --n-box-shadow-focus: none !important;
@@ -8128,12 +8128,12 @@ html[data-theme="dark"] {
 
 /* Text selection shares the dialog accent while keeping each theme legible. */
 :root {
-  --selection-bg: #3976d2;
+  --selection-bg: #4285f4;
   --selection-text: #fff;
 }
 html[data-theme="dark"] {
-  --selection-bg: #9cbcd5;
-  --selection-text: #111;
+  --selection-bg: #8ab4f8;
+  --selection-text: #131314;
 }
 :is(.todo-input, .today-focus-input)::selection {
   color: var(--selection-text);

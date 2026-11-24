@@ -569,22 +569,29 @@ const systemDark = ref(false);
 /** 解析后的实际渲染主题：auto 时跟随 systemDark。 */
 const effectiveTheme = computed<ResolvedTheme>(() => resolveTheme(state.theme, systemDark.value));
 const naiveTheme = computed(() => (effectiveTheme.value === "dark" ? darkTheme : null));
-const naiveThemeOverrides = computed(() => ({
-  Button: effectiveTheme.value === "dark" ? {
-    textColorPrimary: "#20272d",
-    textColorHoverPrimary: "#20272d",
-    textColorPressedPrimary: "#20272d",
-    textColorFocusPrimary: "#20272d",
-  } : {},
-  common: {
-    primaryColor: effectiveTheme.value === "dark" ? "#9cbcd5" : "#3f6887",
-    primaryColorHover: effectiveTheme.value === "dark" ? "#b7d1e5" : "#335a77",
-    primaryColorPressed: effectiveTheme.value === "dark" ? "#83a8c5" : "#294a63",
-    primaryColorSuppl: effectiveTheme.value === "dark" ? "#9cbcd5" : "#3f6887",
-    borderRadius: "8px",
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif',
-  },
-}));
+const naiveThemeOverrides = computed(() => {
+  const dark = effectiveTheme.value === "dark";
+  return {
+    Button: dark ? {
+      textColorPrimary: "#131314",
+      textColorHoverPrimary: "#131314",
+      textColorPressedPrimary: "#131314",
+      textColorFocusPrimary: "#131314",
+    } : {},
+    common: {
+      primaryColor: dark ? "#8ab4f8" : "#4285f4",
+      primaryColorHover: dark ? "#a8c7fa" : "#3367d6",
+      primaryColorPressed: dark ? "#669df6" : "#2a56c6",
+      primaryColorSuppl: dark ? "#8ab4f8" : "#4285f4",
+      infoColor: dark ? "#8ab4f8" : "#4285f4",
+      errorColor: dark ? "#f28b82" : "#d93025",
+      errorColorHover: dark ? "#f6aea9" : "#c5221f",
+      errorColorPressed: dark ? "#ee675c" : "#a50e0e",
+      borderRadius: "10px",
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", sans-serif',
+    },
+  };
+});
 const naiveLocale = computed(() => (state.language === "en" ? enUS : zhCN));
 const naiveDateLocale = computed(() => (state.language === "en" ? dateEnUS : dateZhCN));
 const uiText = computed(() => getUiText(state.language));
