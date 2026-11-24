@@ -132,19 +132,139 @@ let observedGridWidth = 0;
 // 隐藏态必须在首帧渲染前就位：若先按 false 渲染、再在 onMounted 里隐藏，
 // header 的 200ms 离场过渡会把导航栏画在屏幕上（刷新闪现）。
 // readStoredHeaderHidden 是函数声明，提升后可在此直接调用。
+const HEADER_PEEK_POPUP_SELECTOR = "[data-header-peek-popup], .header-peek-popup";
+const headerRef = ref<HTMLElement | null>(null);
 const headerHidden = ref(readStoredHeaderHidden());
 const headerPeek = ref(false);
 let headerPeekTimer: number | undefined;
+let headerPeekClickCheckTimer: number | undefined;
+let headerPopupHovered = false;
+let peekListenersAttached = false;
+
+function hasBlockingHeaderModal(): boolean {
+  return Boolean(document.querySelector(".gif-theme-custom-modal"));
+}
+
+function isHeaderPeekTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof Element)) return false;
+  if (headerRef.value?.contains(target)) return true;
+  if (target.closest(HEADER_PEEK_POPUP_SELECTOR)) return true;
+  return false;
+}
+
+function clearHeaderPeekTimer(): void {
+  window.clearTimeout(headerPeekTimer);
+  headerPeekTimer = undefined;
+}
+
+function clearHeaderPeekClickCheck(): void {
+  window.clearTimeout(headerPeekClickCheckTimer);
+  headerPeekClickCheckTimer = undefined;
+}
+
 function startHeaderPeek(): void {
-  window.clearTimeout(headerPeekTimer);
+  clearHeaderPeekTimer();
+  clearHeaderPeekClickCheck();
   if (!headerHidden.value || headerPeek.value) return;
-  headerPeekTimer = window.setTimeout(() => { headerPeek.value = true; }, 200);
+  headerPeekTimer = window.setTimeout(() => {
+    headerPeekTimer = undefined;
+    headerPeek.value = true;
+  }, 200);
 }
-function stopHeaderPeek(): void {
-  window.clearTimeout(headerPeekTimer);
+
+function scheduleHideHeaderPeek(reset = true): void {
   if (!headerHidden.value) return;
-  headerPeekTimer = window.setTimeout(() => { headerPeek.value = false; }, 500);
+  if (!headerPeek.value) {
+    clearHeaderPeekTimer();
+    return;
+  }
+  if (headerPopupHovered || hasBlockingHeaderModal()) {
+    clearHeaderPeekTimer();
+    return;
+  }
+  if (!reset && headerPeekTimer !== undefined) return;
+  clearHeaderPeekTimer();
+  headerPeekTimer = window.setTimeout(() => {
+    headerPeekTimer = undefined;
+    if (headerPopupHovered || hasBlockingHeaderModal()) return;
+    headerPeek.value = false;
+  }, 500);
 }
+
+function stopHeaderPeek(event?: MouseEvent): void {
+  if (event && isHeaderPeekTarget(event.relatedTarget)) {
+    clearHeaderPeekTimer();
+    return;
+  }
+  scheduleHideHeaderPeek(true);
+}
+
+function handleHeaderPopupEnter(): void {
+  headerPopupHovered = true;
+  clearHeaderPeekTimer();
+  clearHeaderPeekClickCheck();
+}
+
+function handleHeaderPopupLeave(event?: MouseEvent): void {
+  headerPopupHovered = false;
+  if (event && isHeaderPeekTarget(event.relatedTarget)) {
+    clearHeaderPeekTimer();
+    return;
+  }
+  scheduleHideHeaderPeek(true);
+}
+
+function handlePeekDocumentHover(event: Event): void {
+  if (!headerHidden.value || !headerPeek.value) return;
+  if (isHeaderPeekTarget(event.target)) {
+    clearHeaderPeekTimer();
+    clearHeaderPeekClickCheck();
+    return;
+  }
+  scheduleHideHeaderPeek(false);
+}
+
+function handlePeekDocumentClick(event: MouseEvent): void {
+  if (!headerHidden.value || !headerPeek.value || event.detail === 0) return;
+  clearHeaderPeekClickCheck();
+  const { clientX, clientY } = event;
+  headerPeekClickCheckTimer = window.setTimeout(() => {
+    headerPeekClickCheckTimer = undefined;
+    if (!headerHidden.value || !headerPeek.value) return;
+    if (typeof document.elementFromPoint !== "function") return;
+    const underPointer = document.elementFromPoint(clientX, clientY);
+    if (isHeaderPeekTarget(underPointer)) {
+      clearHeaderPeekTimer();
+    } else {
+      scheduleHideHeaderPeek(false);
+    }
+  }, 50);
+}
+
+function handlePeekDocumentMouseLeave(): void {
+  headerPopupHovered = false;
+  scheduleHideHeaderPeek(true);
+}
+
+function setPeekListeners(active: boolean): void {
+  if (active === peekListenersAttached) return;
+  peekListenersAttached = active;
+  if (active) {
+    document.addEventListener("mouseover", handlePeekDocumentHover, true);
+    document.addEventListener("pointermove", handlePeekDocumentHover, true);
+    document.addEventListener("click", handlePeekDocumentClick, true);
+    document.documentElement.addEventListener("mouseleave", handlePeekDocumentMouseLeave);
+  } else {
+    headerPopupHovered = false;
+    clearHeaderPeekClickCheck();
+    document.removeEventListener("mouseover", handlePeekDocumentHover, true);
+    document.removeEventListener("pointermove", handlePeekDocumentHover, true);
+    document.removeEventListener("click", handlePeekDocumentClick, true);
+    document.documentElement.removeEventListener("mouseleave", handlePeekDocumentMouseLeave);
+  }
+}
+
+watch(() => headerHidden.value && headerPeek.value, (active) => setPeekListeners(active));
 const showEmptyWorkbench = computed(() => props.crowded && headerHidden.value && !Object.values(props.zoneVisibility).some(Boolean));
 const columnWidths = ref<number[]>([]);
 let usingDefaultWidths: boolean | undefined;
@@ -674,7 +794,9 @@ function resetColumnWidths(): void {
 }
 
 function setHeaderHidden(hidden: boolean): void {
-  window.clearTimeout(headerPeekTimer);
+  clearHeaderPeekTimer();
+  clearHeaderPeekClickCheck();
+  headerPopupHovered = false;
   headerPeek.value = false;
   headerHidden.value = hidden;
   persistHeaderHidden(hidden);
@@ -797,7 +919,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  window.clearTimeout(headerPeekTimer);
+  setPeekListeners(false);
+  clearHeaderPeekTimer();
   exclusiveHeaderMenu.unmount();
   stopVisibilityAnimation();
   disposeScrollActivity?.();
@@ -813,10 +936,11 @@ onUnmounted(() => {
 <template>
   <main class="workbench-shell">
     <ContextMenu v-if="headerMenu" :x="headerMenu.x" :y="headerMenu.y" :options="headerMenuOptions"
-      @select="selectHeaderMenu" @clickoutside="exclusiveHeaderMenu.handleClickOutside" />
+      @select="selectHeaderMenu" @clickoutside="exclusiveHeaderMenu.handleClickOutside"
+      @mouseenter="handleHeaderPopupEnter" @mouseleave="handleHeaderPopupLeave" />
     <section class="workbench-main" :class="{ 'is-header-hidden': headerHidden }">
       <Transition name="workbench-header" :duration="200">
-        <header v-if="!headerHidden || headerPeek" class="workbench-command-bar" :class="{ 'is-peeking': headerHidden }" data-testid="workbench-command-bar" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" @contextmenu="openHeaderContextMenu">
+        <header v-if="!headerHidden || headerPeek" ref="headerRef" class="workbench-command-bar" :class="{ 'is-peeking': headerHidden }" data-testid="workbench-command-bar" @mouseenter="startHeaderPeek" @mouseleave="stopHeaderPeek" @contextmenu="openHeaderContextMenu">
           <div class="workbench-title-group">
             <slot name="workspace-trigger">
               <span class="workbench-title-fallback">{{ title }}</span>

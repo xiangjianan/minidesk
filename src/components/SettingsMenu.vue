@@ -83,7 +83,8 @@ const SUPPORT_AUTHOR_ENABLED = false;
 const menuOpen = ref(false);
 const menuAim = createMenuAim();
 const { nodeProps: settingsNodeProps } = menuAimProps(menuAim);
-const settingsMenuProps = () => ({ class: "menu-aim-menu settings-preferences-menu" });
+const settingsMenuProps = () => ({ class: "menu-aim-menu settings-preferences-menu", "data-header-peek-popup": "" });
+const headerPopupMenuProps = () => ({ "data-header-peek-popup": "" });
 watch(menuOpen, (open) => { if (open) menuAim.start(); else menuAim.stop(); }, { flush: "sync" });
 // NDropdown requests closure after every selection, even when its show is controlled.
 let keepOpenAfterPreferenceSelect = false;
@@ -387,7 +388,7 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
 <template>
   <div class="settings-toolbar">
     <NDropdown trigger="click" placement="bottom-end" :show="preferenceOpen === 'zones'"
-      :z-index="CONTEXT_MENU_Z_INDEX" :options="zoneOptions"
+      :z-index="CONTEXT_MENU_Z_INDEX" :options="zoneOptions" :menu-props="headerPopupMenuProps"
       @select="handlePreferenceSelect" @update:show="(show) => handlePreferenceShow('zones', show)">
       <button type="button" class="icon-button" data-testid="zone-visibility-trigger"
         :aria-label="text.zoneVisibility.title" :title="text.zoneVisibility.title"
@@ -396,7 +397,7 @@ function getCompanionGifThemeLabel(theme: CompanionGifTheme): string {
       </button>
     </NDropdown>
     <NDropdown trigger="click" placement="bottom-end" :show="preferenceOpen === 'appearance'"
-      :z-index="CONTEXT_MENU_Z_INDEX" :options="appearanceOptions"
+      :z-index="CONTEXT_MENU_Z_INDEX" :options="appearanceOptions" :menu-props="headerPopupMenuProps"
       @select="handlePreferenceSelect" @update:show="(show) => handlePreferenceShow('appearance', show)">
       <button type="button" class="icon-button appearance-button" data-testid="appearance-controls"
         :data-theme-mode="theme" :aria-label="`${text.settings.appearance}: ${text.settings[theme]}`"

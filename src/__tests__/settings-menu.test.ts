@@ -6,7 +6,7 @@ import { resolve } from "node:path";
 import SettingsMenu from "../components/SettingsMenu.vue";
 
 const dropdownStub = defineComponent({
-  props: ["options", "show"],
+  props: ["options", "show", "menuProps"],
   emits: ["select", "update:show"],
   methods: {
     isChecked(option: { props?: { "aria-checked"?: boolean } }) {
@@ -785,5 +785,19 @@ describe("SettingsMenu", () => {
 
     expect(wrapper.find('[data-key="language"]').text()).toBe("语言 / Language");
     expect(wrapper.find('[data-key="language:en"]').classes()).toContain("is-selected");
+  });
+
+  it("tags all header dropdown menus so a peeking hidden header stays open while hovering them", () => {
+    const wrapper = mount(SettingsMenu, {
+      props: { appVersion: "1.1.61", updateAvailable: false, companionGifTheme: "none" },
+      global: { stubs: { NDropdown: dropdownStub, NBadge: { template: "<span><slot /></span>" }, NIcon: { template: "<span />" } } },
+    });
+    const dropdowns = wrapper.findAllComponents(dropdownStub);
+    expect(dropdowns).toHaveLength(3);
+    for (const dropdown of dropdowns) {
+      const menuProps = dropdown.props("menuProps") as (() => Record<string, unknown>) | undefined;
+      expect(typeof menuProps).toBe("function");
+      expect(menuProps!()).toHaveProperty("data-header-peek-popup");
+    }
   });
 });

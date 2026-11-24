@@ -89,6 +89,55 @@ describe("WorkbenchShell", () => {
     wrapper.unmount();
   });
 
+  it("keeps the peeking header open while the pointer is on a teleported header menu or submenu, and hides after leaving completely", async () => {
+    vi.useFakeTimers();
+    localStorage.setItem(WORKBENCH_HEADER_STORAGE_KEY, "true");
+    const popupMenu = document.createElement("div");
+    popupMenu.setAttribute("data-header-peek-popup", "");
+    const menuItem = document.createElement("button");
+    popupMenu.appendChild(menuItem);
+    const submenu = document.createElement("div");
+    submenu.setAttribute("data-header-peek-popup", "");
+    const submenuItem = document.createElement("button");
+    submenu.appendChild(submenuItem);
+    const outsideEl = document.createElement("div");
+    document.body.append(popupMenu, submenu, outsideEl);
+
+    const wrapper = mount(WorkbenchShell, { props: defaultProps });
+    try {
+      await wrapper.get('[data-testid="header-peek-zone"]').trigger("mouseenter");
+      await vi.advanceTimersByTimeAsync(200);
+      expect(wrapper.get('[data-testid="workbench-command-bar"]').classes()).toContain("is-peeking");
+
+      // Pointer leaves header across the tiny gap, then enters the teleported dropdown menu.
+      await wrapper.get('[data-testid="workbench-command-bar"]').trigger("mouseleave", { relatedTarget: outsideEl });
+      await vi.advanceTimersByTimeAsync(100);
+      menuItem.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(true);
+
+      // Pointer crosses to a nested submenu: header still stays visible.
+      outsideEl.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(100);
+      submenuItem.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(true);
+
+      // Pointer leaves both header and menus onto the board: repeated moves outside must not keep it stuck.
+      outsideEl.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(300);
+      outsideEl.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+      await vi.advanceTimersByTimeAsync(200);
+      expect(wrapper.find('[data-testid="workbench-command-bar"]').exists()).toBe(false);
+    } finally {
+      wrapper.unmount();
+      popupMenu.remove();
+      submenu.remove();
+      outsideEl.remove();
+      vi.useRealTimers();
+    }
+  });
+
   it("opens Tips on blank header space while leaving controls alone", async () => {
     const wrapper = mount(WorkbenchShell, {
       props: defaultProps,

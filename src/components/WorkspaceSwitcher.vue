@@ -223,7 +223,7 @@ onUnmounted(() => disposeSort?.());
       </button>
     </template>
 
-    <div class="workspace-switcher" role="listbox" :aria-label="text.app.workspaces">
+    <div class="workspace-switcher" data-header-peek-popup role="listbox" :aria-label="text.app.workspaces">
       <div class="workspace-switcher-header">
         <span class="workspace-switcher-header-tile" aria-hidden="true">
           <img class="workspace-switcher-header-logo" :src="logoSrc" alt="" width="24" height="24" />
@@ -264,6 +264,7 @@ onUnmounted(() => disposeSort?.());
               placement="right-start"
               :show="menuOpenId === workspace.id"
               :z-index="CONTEXT_MENU_Z_INDEX"
+              class="header-peek-popup"
             >
               <template #trigger>
                 <button
@@ -277,7 +278,7 @@ onUnmounted(() => disposeSort?.());
                   <NIcon :component="EllipsisHorizontalOutline" size="14" />
                 </button>
               </template>
-              <div class="workspace-switcher-menu" role="menu" :aria-label="text.app.workspaceMenuActions">
+              <div class="workspace-switcher-menu" data-header-peek-popup role="menu" :aria-label="text.app.workspaceMenuActions">
                 <template v-for="option in workspaceMenuOptions" :key="String(option.key)">
                   <div v-if="option.type === 'divider'" class="workspace-switcher-menu-divider" role="separator" />
                   <button
