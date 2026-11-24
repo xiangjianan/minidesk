@@ -286,4 +286,27 @@ describe("default theme feedback", () => {
       expect(confirmModal?.props("title")).toBe("删除");
     } finally { wrapper.unmount(); }
   });
+
+  it("shows copy-success feedback when explicitly copying an image without a GIF theme", async () => {
+    const workspace = defaultWorkspace();
+    workspace.images = [{ id: "image-1", src: "data:image/png;base64,AA==", createdAt: 1 }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: "none", workspaces: [workspace] }));
+    const write = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { write } });
+    class ClipboardItemStub {
+      constructor(public items: Record<string, Blob | Promise<Blob>>) {}
+    }
+    vi.stubGlobal("ClipboardItem", ClipboardItemStub);
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(ImagePanel).vm.$emit("copy", "image-1");
+      await flushPromises();
+      expect(write).toHaveBeenCalledOnce();
+      expect(document.querySelector('[data-testid="default-message"]')?.textContent).toBeTruthy();
+    } finally {
+      wrapper.unmount();
+      vi.unstubAllGlobals();
+    }
+  });
 });

@@ -2253,7 +2253,7 @@ async function addImageFiles(
   if (destination || targetId) {
     publishPasteFeedback(added.at(-1)!.id);
   } else {
-    await copyImage(added.at(-1)!.id, anchor);
+    await copyImage(added.at(-1)!.id, anchor, false);
   }
   if (shouldBlockBoardEffects()) return;
   if (ignoredCount > 0) showBubble("imageDropIgnored", anchor, { explicit: true, hideCompanionAfter: true });
@@ -2439,11 +2439,11 @@ function showPreviewTips(anchor?: HTMLElement): void {
   showBubbleText(uiText.value.preview.help, anchor ?? document.querySelector<HTMLElement>(".image-preview") ?? undefined, { explicit: true, hideCompanionAfter: true }, 5200);
 }
 
-async function copyImage(id: string, anchor?: HTMLElement): Promise<void> {
+async function copyImage(id: string, anchor?: HTMLElement, explicit = true): Promise<void> {
   if (shouldBlockBoardEffects()) return;
   const image = activeWorkspace.value.images.find((item) => item.id === id);
   if (!image?.src) return;
-  await writeImageToClipboard(image.src, anchor);
+  await writeImageToClipboard(image.src, anchor, explicit);
 }
 
 /** 专注贴图复制：与 board 复制共用剪贴板写入体，只在列表里查图不同。 */
@@ -2451,11 +2451,11 @@ async function copyFocusImage(id: string, anchor?: HTMLElement): Promise<void> {
   if (shouldBlockBoardEffects()) return;
   const image = focusTodo.value?.focusImages?.find((item) => item.id === id);
   if (!image?.src) return;
-  await writeImageToClipboard(image.src, anchor);
+  await writeImageToClipboard(image.src, anchor, true);
 }
 
 /** 剪贴板写入体（PNG 化 + data-url 直转 / fetch 降级）：board 贴图与专注贴图两路共用。 */
-async function writeImageToClipboard(src: string, anchor?: HTMLElement): Promise<void> {
+async function writeImageToClipboard(src: string, anchor?: HTMLElement, explicit = true): Promise<void> {
   const clipboard = navigator.clipboard as Clipboard & {
     write?: (items: ClipboardItem[]) => Promise<void>;
   };
@@ -2469,7 +2469,7 @@ async function writeImageToClipboard(src: string, anchor?: HTMLElement): Promise
       const payload = dataUrlBlob.type === "image/png" ? dataUrlBlob : imageSourceToPngBlob(src);
       await clipboard.write([new window.ClipboardItem({ "image/png": payload })]);
       if (shouldBlockBoardEffects()) return;
-      showBubble("imageCopied", anchor, { hideCompanionAfter: true });
+      showBubble("imageCopied", anchor, { explicit, hideCompanionAfter: true });
       return;
     }
     const response = await fetch(src);
@@ -2481,7 +2481,7 @@ async function writeImageToClipboard(src: string, anchor?: HTMLElement): Promise
     const payload = type === "image/png" ? typedBlob : imageSourceToPngBlob(src);
     await clipboard.write([new window.ClipboardItem({ "image/png": payload })]);
     if (shouldBlockBoardEffects()) return;
-    showBubble("imageCopied", anchor, { hideCompanionAfter: true });
+    showBubble("imageCopied", anchor, { explicit, hideCompanionAfter: true });
   } catch {
     if (shouldBlockBoardEffects()) return;
     showBubble("imageCopyFailed", anchor, { explicit: true, hideCompanionAfter: true });
