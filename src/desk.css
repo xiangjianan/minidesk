@@ -496,9 +496,27 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 
 }
 
-/* Add a track every ~200px; buttons never stretch beyond the single-track range. */
+/* Add a track every ~206px using definite container-query column counts instead of
+   `repeat(auto-fill, minmax(min(100%, 196px), 1fr))`: WebKit miscomputes the outer
+   `grid-template-rows: 1fr` height as 1-column tall when an inner `auto-fill` grid
+   contains a percentage inside `minmax()`. */
 .workbench-shell .quick-buttons {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 196px), 1fr));
+  grid-template-columns: minmax(0, 1fr);
+}
+@container (min-width: 470px) {
+  .workbench-shell .quick-buttons { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@container (min-width: 676px) {
+  .workbench-shell .quick-buttons { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container (min-width: 882px) {
+  .workbench-shell .quick-buttons { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@container (min-width: 1088px) {
+  .workbench-shell .quick-buttons { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@container (min-width: 1294px) {
+  .workbench-shell .quick-buttons { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 .workbench-shell button.quick-button { max-width: 400px; }
 
