@@ -1659,13 +1659,13 @@ html[data-theme="dark"] .command-palette-dialog {
   color: var(--muted);
 }
 
-.command-palette-kbd {
+button.command-palette-kbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 22px;
-  height: 20px;
-  padding: 0 5px;
+  min-width: 28px;
+  height: 22px;
+  padding: 0 6px;
   border-radius: 5px;
   border: 1px solid var(--line-subtle);
   background: var(--muted-surface);
@@ -1673,6 +1673,15 @@ html[data-theme="dark"] .command-palette-dialog {
   font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-size: 11px;
   line-height: 1;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease;
+}
+
+button.command-palette-kbd:hover,
+button.command-palette-kbd:focus-visible {
+  background: var(--button-hover);
+  border-color: color-mix(in srgb, var(--text) 16%, transparent);
+  color: var(--text);
 }
 
 .command-palette-results {

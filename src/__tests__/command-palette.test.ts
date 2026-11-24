@@ -134,6 +134,12 @@ describe("CommandPalette", () => {
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     await nextTick();
     expect(wrapper.emitted("close")).toHaveLength(1);
+
+    const escButton = document.querySelector<HTMLButtonElement>('[data-testid="command-palette-close"]')!;
+    expect(escButton).not.toBeNull();
+    escButton.click();
+    await nextTick();
+    expect(wrapper.emitted("close")).toHaveLength(2);
   });
 
   it("ignores Enter while IME composition is active or just committed (Chinese pinyin)", async () => {

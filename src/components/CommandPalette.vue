@@ -446,7 +446,16 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleBackdropKeydow
               @compositionend="handleCompositionEnd"
               @keydown="handleInputKeydown"
             />
-            <kbd class="command-palette-kbd">Esc</kbd>
+            <button
+              type="button"
+              class="command-palette-kbd"
+              data-testid="command-palette-close"
+              :aria-label="uiText.common.close"
+              :title="`${uiText.common.close} (Esc)`"
+              @click="emit('close')"
+            >
+              Esc
+            </button>
           </div>
 
           <div ref="listRef" class="command-palette-results" role="listbox" :aria-label="uiText.commandPalette.title">
