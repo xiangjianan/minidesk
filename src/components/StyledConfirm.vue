@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 import { NButton, NModal } from "naive-ui";
 
-const props = withDefaults(defineProps<{ show: boolean; title: string; message: string; cancelText: string; confirmText: string; autoFocus?: boolean; confirmDisabled?: boolean; danger?: boolean; hint?: string; secondaryText?: string }>(), { autoFocus: true });
+const props = withDefaults(defineProps<{ show: boolean; title: string; message: string; cancelText: string; confirmText: string; autoFocus?: boolean; confirmDisabled?: boolean; danger?: boolean; hint?: string; secondaryText?: string }>(), { autoFocus: false });
 const emit = defineEmits<{ resolve: [accepted: boolean]; secondary: [] }>();
 
 // Retain the last visible copy while NModal plays its leave transition so clearing

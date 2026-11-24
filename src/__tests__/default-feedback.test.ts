@@ -6,6 +6,7 @@ import TodoPanel from "../components/TodoPanel.vue";
 import ImagePanel from "../components/ImagePanel.vue";
 import QuickButtons from "../components/QuickButtons.vue";
 import SettingsMenu from "../components/SettingsMenu.vue";
+import StyledConfirm from "../components/StyledConfirm.vue";
 import CompanionBubble from "../components/CompanionBubble.vue";
 import { defaultState, defaultWorkspace, STORAGE_KEY } from "../state/defaults";
 import { withoutKaomoji, KAOMOJI_BY_MOOD } from "../state/messages";
@@ -271,8 +272,12 @@ describe("default theme feedback", () => {
       wrapper.getComponent(TodoPanel).vm.$emit("deleteList", "work", wrapper.get(".todo-panel").element);
       await wrapper.vm.$nextTick();
 
-      const confirmModal = wrapper.findAllComponents(NModal).find((modal) => modal.props("title") === "删除");
+      const styledConfirm = wrapper.findAllComponents(StyledConfirm).find((item) => item.props("show"));
+      expect(styledConfirm?.props("autoFocus")).toBe(false);
+      const confirmModal = styledConfirm?.getComponent(NModal);
       expect(confirmModal?.props("show")).toBe(true);
+      expect(confirmModal?.props("title")).toBe("删除");
+      expect(confirmModal?.attributes("auto-focus")).toBe("false");
 
       await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
       await wrapper.vm.$nextTick();
