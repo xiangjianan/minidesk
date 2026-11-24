@@ -1230,47 +1230,31 @@ html[data-theme="dark"] .quick-color-custom-preview {
    P0 + P1 Polish: Do less, do it well × Mainstream Desktop Craft
    ============================================================ */
 
-/* 1. Progressive disclosure on group headers: count sits flush-right at rest,
-   action icons smoothly reveal on hover or keyboard focus (never stuck after pointer clicks). */
+/* 1. Progressive disclosure on group headers: count and action icons stay hidden
+   at rest and fade in quickly in place on hover or keyboard focus (zero layout shift). */
 @media (hover: hover) {
+  .workbench-shell .quick-tag-heading > .quick-tag-count,
+  .workbench-shell .todo-heading-actions > .todo-count {
+    opacity: 0;
+    transition: opacity 85ms ease;
+  }
+
   .workbench-shell .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .todo-heading-actions > .icon-button {
-    flex: 0 0 0px;
-    width: 0;
-    min-width: 0;
-    overflow: hidden;
     opacity: 0;
     pointer-events: none;
     transition:
-      flex-basis 160ms var(--motion-ease),
-      width 160ms var(--motion-ease),
-      opacity 130ms ease,
+      opacity 85ms ease,
       background-color 180ms ease,
       color 180ms ease;
   }
 
-  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
-  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
-  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .icon-button,
-  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .icon-button {
-    flex: 0 0 30px;
-    width: 30px;
-    min-width: 30px;
+  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > :is(.quick-tag-count, .quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > :is(.quick-tag-count, .quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > :is(.todo-count, .icon-button),
+  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > :is(.todo-count, .icon-button) {
     opacity: 1;
     pointer-events: auto;
-  }
-
-  .workbench-shell .quick-tag-heading > .quick-tag-count,
-  .workbench-shell .todo-heading-actions > .todo-count {
-    margin-inline-end: 2px;
-    transition: margin-inline-end 160ms var(--motion-ease);
-  }
-
-  .workbench-shell .quick-tag-group:hover > .quick-tag-heading > .quick-tag-count,
-  .workbench-shell .quick-tag-heading:has(> button:focus-visible:not([data-pointer-focus])) > .quick-tag-count,
-  .workbench-shell .todo-section:hover > .todo-heading .todo-heading-actions > .todo-count,
-  .workbench-shell .todo-heading:has(.todo-heading-actions > .icon-button:focus-visible:not([data-pointer-focus])) .todo-heading-actions > .todo-count {
-    margin-inline-end: 4px;
   }
 }
 
@@ -1830,7 +1814,9 @@ button.command-palette-item.is-active .command-palette-item-icon {
   .command-palette-leave-active,
   .command-palette-enter-active .command-palette-dialog,
   .command-palette-leave-active .command-palette-dialog,
-  .image-card-actions {
+  .image-card-actions,
+  .workbench-shell .quick-tag-heading > :is(.quick-tag-count, .quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
+  .workbench-shell .todo-heading-actions > :is(.todo-count, .icon-button) {
     transition: none;
   }
 }

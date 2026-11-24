@@ -49,20 +49,54 @@ export interface NotifyPreset {
   at: number;
 }
 
+export type NotifyPresetDay = "today" | "tomorrow";
+
+export interface ParsedNotifyPresetTime {
+  day: NotifyPresetDay;
+  hour: number;
+  minute: number;
+  time: string;
+}
+
+const NOTIFY_PRESET_TIME_RE = /^(?:(today|tomorrow):)?([01]\d|2[0-3]):([0-5]\d)$/;
+
 /**
  * Quick deadline presets for the notify picker, in two groups: relative
  * durations and time-of-day slots. Durations add to `now` (seconds cleared).
- * Time-of-day slots land on the next occurrence: today's slot while it is
- * still ahead, otherwise the same hour tomorrow. Picked presets commit
- * immediately; the user can still shift the date via the picker.
+ * Time-of-day slots target today by default, or tomorrow when tagged with
+ * `tomorrow:HH:mm`, and commit immediately on click.
  */
 export const DEFAULT_NOTIFY_PRESET_TIMES = ["09:00", "12:00", "15:00", "18:00", "21:00"];
 
+export function parseNotifyPresetTime(raw: string): ParsedNotifyPresetTime | null {
+  const match = NOTIFY_PRESET_TIME_RE.exec(raw);
+  if (!match) return null;
+  const day: NotifyPresetDay = match[1] === "tomorrow" ? "tomorrow" : "today";
+  const time = `${match[2]}:${match[3]}`;
+  return {
+    day,
+    hour: Number(match[2]),
+    minute: Number(match[3]),
+    time,
+  };
+}
+
+export function formatNotifyPresetTimeValue(day: NotifyPresetDay, time: string): string {
+  return day === "tomorrow" ? `tomorrow:${time}` : time;
+}
+
 export function normalizeNotifyPresetTimes(value: unknown): string[] {
-  if (!Array.isArray(value) || value.length !== 5 || !value.every((time) => typeof time === "string" && /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(time))) {
+  if (!Array.isArray(value) || value.length !== 5) {
     return [...DEFAULT_NOTIFY_PRESET_TIMES];
   }
-  return [...value];
+  const normalized: string[] = [];
+  for (const time of value) {
+    if (typeof time !== "string") return [...DEFAULT_NOTIFY_PRESET_TIMES];
+    const parsed = parseNotifyPresetTime(time);
+    if (!parsed) return [...DEFAULT_NOTIFY_PRESET_TIMES];
+    normalized.push(formatNotifyPresetTimeValue(parsed.day, parsed.time));
+  }
+  return normalized;
 }
 
 export const DEFAULT_NOTIFY_PRESET_MINUTES = [15, 30, 60, 120, 240];
@@ -74,24 +108,23 @@ export function normalizeNotifyPresetMinutes(value: unknown): number[] {
 
 export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOTIFY_PRESET_TIMES, minutes: number[] = DEFAULT_NOTIFY_PRESET_MINUTES): NotifyPreset[] {
   const durations = normalizeNotifyPresetMinutes(minutes);
-  const slots = normalizeNotifyPresetTimes(times).map((time) => time.split(":").map(Number));
+  const slots = normalizeNotifyPresetTimes(times).map((time) => parseNotifyPresetTime(time)!);
   const inMinutes = (minutes: number): number => {
     const next = new Date(now.getTime() + minutes * 60 * 1000);
     next.setSeconds(0, 0);
     return next.getTime();
   };
 
-  const todayAt = (hour: number, minute: number): number =>
-    new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute, 0, 0).getTime();
-
-  // Today's slot while it is still ahead; a slot that has already arrived
-  // (>= now, so exactly-at-the-hour counts as passed) rolls to tomorrow.
-  const nextAt = (hour: number, minute: number): number => {
-    const today = todayAt(hour, minute);
-    return today > now.getTime()
-      ? today
-      : new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, hour, minute, 0, 0).getTime();
-  };
+  const slotAt = (slot: ParsedNotifyPresetTime): number =>
+    new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate() + (slot.day === "tomorrow" ? 1 : 0),
+      slot.hour,
+      slot.minute,
+      0,
+      0,
+    ).getTime();
 
   return [
     { key: "in15m", group: "relative", at: inMinutes(durations[0]) },
@@ -99,11 +132,11 @@ export function getNotifyPresets(now = new Date(), times: string[] = DEFAULT_NOT
     { key: "in1h", group: "relative", at: inMinutes(durations[2]) },
     { key: "in2h", group: "relative", at: inMinutes(durations[3]) },
     { key: "in4h", group: "relative", at: inMinutes(durations[4]) },
-    { key: "at9", group: "time", at: nextAt(slots[0][0], slots[0][1]) },
-    { key: "at12", group: "time", at: nextAt(slots[1][0], slots[1][1]) },
-    { key: "at15", group: "time", at: nextAt(slots[2][0], slots[2][1]) },
-    { key: "at18", group: "time", at: nextAt(slots[3][0], slots[3][1]) },
-    { key: "at21", group: "time", at: nextAt(slots[4][0], slots[4][1]) },
+    { key: "at9", group: "time", at: slotAt(slots[0]) },
+    { key: "at12", group: "time", at: slotAt(slots[1]) },
+    { key: "at15", group: "time", at: slotAt(slots[2]) },
+    { key: "at18", group: "time", at: slotAt(slots[3]) },
+    { key: "at21", group: "time", at: slotAt(slots[4]) },
   ];
 }
 

@@ -41,7 +41,7 @@ import { createExclusiveContextMenu } from "../utils/contextMenu";
 import type { PolishKind, PolishResult, PolishStyle } from "../sync/polishClient";
 import { quickSmartPasteMessages, runQuickSmartPaste } from "../utils/smartPaste";
 import type { SmartPastePhase } from "../utils/smartPaste";
-import { readClipboardText } from "../utils/clipboard";
+import { probeClipboardForTextPaste } from "../utils/clipboard";
 import { renderIcon, CopyActionIcon as CopyOutline, PasteActionIcon as ClipboardOutline } from "../utils/dropdownIcons";
 import { createDragAutoScroll, findDragScrollContainer } from "../utils/dragScroll";
 import HighlightText from "./HighlightText.vue";
@@ -566,7 +566,7 @@ function handleMenuSelect(key: string): void {
     return;
   }
   if (key === "paste") {
-    void pasteQuick(tagTitle);
+    void pasteQuick(tagTitle, anchor);
     return;
   }
   if (key === "smart-paste") {
@@ -686,9 +686,14 @@ function buildQuickDropPayload(rawText: string, groupId?: string): { title: stri
   return { ...classifyQuickText(rawText), tagTitle };
 }
 
-async function pasteQuick(tagTitle?: string): Promise<void> {
-  const text = await readClipboardText();
-  const trimmed = text?.trim();
+async function pasteQuick(tagTitle?: string, anchor?: HTMLElement): Promise<void> {
+  const probe = await probeClipboardForTextPaste();
+  if (probe.kind !== "text") {
+    const message = probe.kind === "image" ? uiText.value.app.pasteImageClipboard : uiText.value.app.pasteEmptyClipboard;
+    emit("polishMessage", "fallback", message, anchor ?? panelRef.value ?? undefined);
+    return;
+  }
+  const trimmed = probe.text.trim();
   if (!trimmed) return;
   emit("save", { ...classifyQuickText(trimmed), tagTitle }, true);
 }
@@ -1000,7 +1005,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
               :aria-label="uiText.common.paste"
               :title="uiText.common.paste"
               @mousedown.prevent
-              @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '')"
+              @click.stop="pasteQuick(isRealTagGroup(group.id) ? group.title : '', $event.currentTarget as HTMLElement)"
               @dblclick.stop
             >
               <NIcon :component="ClipboardOutline" />

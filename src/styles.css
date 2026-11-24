@@ -8242,7 +8242,12 @@ button.preview-toolbar-button:focus-visible:not(:disabled),
 
 .notify-preset-time-editor, .notify-preset-duration-editor { margin-top: 16px; }
 .notify-preset-time-editor { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.notify-preset-time-field { display: grid; gap: 6px; text-align: center; }
+.notify-preset-day-field, .notify-preset-time-field { display: grid; gap: 6px; text-align: center; }
+.notify-preset-day-options { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-width: 82px; height: 160px; }
+.notify-preset-day-option { min-width: 76px; height: 40px; padding: 0 12px; border: 1px solid var(--line-subtle); border-radius: var(--radius); background: var(--button); color: var(--text); font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease; }
+.notify-preset-day-option:hover { background: var(--button-hover); }
+.notify-preset-day-option.is-active { background: var(--button-hover); border-color: color-mix(in srgb, var(--primary) 38%, transparent); color: var(--primary); font-weight: 600; }
+.notify-preset-day-option:focus-visible:where(:not([data-pointer-focus])) { outline: 2px solid var(--primary); outline-offset: 2px; }
 .notify-preset-time-field .notify-time-column { width: 76px; height: 160px; }
 .notify-preset-time-field .notify-time-option { height: 32px; font-size: 18px; }
 .notify-preset-time-separator { padding-top: 22px; font-size: 22px; }

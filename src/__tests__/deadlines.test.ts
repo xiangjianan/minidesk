@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatNotifyPresetTimeValue,
   getDefaultNotifyDateTimeValue,
   getNotifyDisplay,
   getLocalDateInputValue,
   getNotifyPresets,
+  normalizeNotifyPresetTimes,
+  parseNotifyPresetTime,
   withDefaultNotifyTime,
 } from "../state/deadlines";
 
@@ -120,8 +123,7 @@ describe("notification time helpers", () => {
     expect(getNotifyDisplay(-1)).toBeNull();
   });
 
-  it("builds quick presets in relative and time-of-day groups", () => {
-    // 2024-01-15 10:30 — 09:00 has passed, 12:00/15:00/18:00/21:00 still upcoming today.
+  it("builds quick presets in relative and time-of-day groups defaulting to today", () => {
     const now = new Date(2024, 0, 15, 10, 30, 0, 0);
     const presets = getNotifyPresets(now);
 
@@ -141,35 +143,42 @@ describe("notification time helpers", () => {
     expect(presets[3].at).toBe(new Date(2024, 0, 15, 12, 30, 0, 0).getTime()); // +2h → 12:30
     expect(presets[4].at).toBe(new Date(2024, 0, 15, 14, 30, 0, 0).getTime()); // +4h → 14:30
 
-    // Time-of-day slots land on the next occurrence: today's slot while it is
-    // still ahead (12:00/15:00/18:00/21:00), otherwise the same hour tomorrow
-    // (09:00 has already passed at 10:30).
-    expect(presets[5].at).toBe(new Date(2024, 0, 16, 9, 0, 0, 0).getTime()); // tomorrow 09:00
-    expect(presets[6].at).toBe(new Date(2024, 0, 15, 12, 0, 0, 0).getTime()); // 12:00 today
-    expect(presets[7].at).toBe(new Date(2024, 0, 15, 15, 0, 0, 0).getTime()); // 15:00 today
-    expect(presets[8].at).toBe(new Date(2024, 0, 15, 18, 0, 0, 0).getTime()); // 18:00 today
-    expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime()); // 21:00 today
+    // Time-of-day slots default to today even if the hour has already passed.
+    expect(presets[5].at).toBe(new Date(2024, 0, 15, 9, 0, 0, 0).getTime());
+    expect(presets[6].at).toBe(new Date(2024, 0, 15, 12, 0, 0, 0).getTime());
+    expect(presets[7].at).toBe(new Date(2024, 0, 15, 15, 0, 0, 0).getTime());
+    expect(presets[8].at).toBe(new Date(2024, 0, 15, 18, 0, 0, 0).getTime());
+    expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime());
   });
 
-  it("rolls time-of-day presets that already passed today to tomorrow", () => {
-    // 20:00 — 09:00/12:00/15:00/18:00 have all passed today; 21:00 is still ahead.
+  it("supports explicit today and tomorrow time-of-day presets", () => {
     const now = new Date(2024, 0, 15, 20, 0, 0, 0);
-    const presets = getNotifyPresets(now);
+    const presets = getNotifyPresets(now, ["tomorrow:09:00", "12:00", "today:15:30", "tomorrow:18:15", "21:00"]);
 
     expect(presets[5].at).toBe(new Date(2024, 0, 16, 9, 0, 0, 0).getTime()); // tomorrow 09:00
-    expect(presets[6].at).toBe(new Date(2024, 0, 16, 12, 0, 0, 0).getTime()); // tomorrow 12:00
-    expect(presets[7].at).toBe(new Date(2024, 0, 16, 15, 0, 0, 0).getTime()); // tomorrow 15:00
-    expect(presets[8].at).toBe(new Date(2024, 0, 16, 18, 0, 0, 0).getTime()); // tomorrow 18:00
-    expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime()); // 21:00 today
+    expect(presets[6].at).toBe(new Date(2024, 0, 15, 12, 0, 0, 0).getTime()); // today 12:00
+    expect(presets[7].at).toBe(new Date(2024, 0, 15, 15, 30, 0, 0).getTime()); // today 15:30
+    expect(presets[8].at).toBe(new Date(2024, 0, 16, 18, 15, 0, 0).getTime()); // tomorrow 18:15
+    expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime()); // today 21:00
   });
 
-  it("rolls a time-of-day preset to tomorrow when now is exactly at the hour", () => {
-    // 18:00 sharp — the 18:00 slot has arrived, so it moves to tomorrow.
-    const presets = getNotifyPresets(new Date(2024, 0, 15, 18, 0, 0, 0));
-
-    expect(presets[8].at).toBe(new Date(2024, 0, 16, 18, 0, 0, 0).getTime()); // tomorrow 18:00
-    expect(presets[9].at).toBe(new Date(2024, 0, 15, 21, 0, 0, 0).getTime()); // 21:00 today
+  it("normalizes and formats today/tomorrow preset times with legacy compatibility", () => {
+    expect(parseNotifyPresetTime("09:00")).toEqual({ day: "today", hour: 9, minute: 0, time: "09:00" });
+    expect(parseNotifyPresetTime("today:09:00")).toEqual({ day: "today", hour: 9, minute: 0, time: "09:00" });
+    expect(parseNotifyPresetTime("tomorrow:08:45")).toEqual({ day: "tomorrow", hour: 8, minute: 45, time: "08:45" });
+    expect(parseNotifyPresetTime("invalid")).toBeNull();
+    expect(formatNotifyPresetTimeValue("today", "09:00")).toBe("09:00");
+    expect(formatNotifyPresetTimeValue("tomorrow", "09:00")).toBe("tomorrow:09:00");
+    expect(normalizeNotifyPresetTimes(["today:07:30", "tomorrow:09:00", "12:00", "18:00", "21:00"])).toEqual([
+      "07:30",
+      "tomorrow:09:00",
+      "12:00",
+      "18:00",
+      "21:00",
+    ]);
+    expect(normalizeNotifyPresetTimes(["invalid"])).toEqual(["09:00", "12:00", "15:00", "18:00", "21:00"]);
   });
+
   it("uses custom relative durations", () => {
     const now = new Date(2024, 0, 15, 10, 0);
     const presets = getNotifyPresets(now, undefined, [5, 25, 45, 90, 180]);
@@ -178,10 +187,10 @@ describe("notification time helpers", () => {
     expect(getNotifyPresets(now, undefined, [0])[0].at).toBe(new Date(2024, 0, 15, 10, 15).getTime());
   });
 
-  it("uses custom minute-level times and rolls past slots to tomorrow", () => {
-    const presets = getNotifyPresets(new Date(2024, 0, 15, 23, 30), ["23:45", "23:30", "00:15", "08:20", "12:00"]);
+  it("uses custom minute-level times and falls back to defaults on invalid input", () => {
+    const presets = getNotifyPresets(new Date(2024, 0, 15, 23, 30), ["23:45", "23:30", "tomorrow:00:15", "08:20", "12:00"]);
     expect(presets[5].at).toBe(new Date(2024, 0, 15, 23, 45).getTime());
-    expect(presets[6].at).toBe(new Date(2024, 0, 16, 23, 30).getTime());
+    expect(presets[6].at).toBe(new Date(2024, 0, 15, 23, 30).getTime());
     expect(presets[7].at).toBe(new Date(2024, 0, 16, 0, 15).getTime());
     expect(getNotifyPresets(new Date(2024, 0, 15, 8), ["invalid"])[5].at).toBe(new Date(2024, 0, 15, 9).getTime());
   });

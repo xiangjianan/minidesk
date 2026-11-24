@@ -210,4 +210,50 @@ describe("default theme feedback", () => {
       feedback.clearTimers();
     } finally { vi.useRealTimers(); }
   });
+
+  it("shows feedback for empty image paste, header status click, and errors while keeping reminder completion quiet", async () => {
+    const workspace = defaultWorkspace();
+    workspace.todoLists = [{ id: "work", title: "工作", collapsed: false, compact: false, column: 0 }];
+    workspace.todos = { work: [{ id: "todo-1", text: "买牛奶", done: false }] };
+    workspace.quickButtons = [{ id: "api", title: "接口", value: "https://example.com", type: "api", hidden: false }];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: "none", workspaces: [workspace] }));
+    Object.defineProperty(navigator, "clipboard", {
+      configurable: true,
+      value: { read: vi.fn().mockResolvedValue([]), readText: vi.fn().mockResolvedValue("") },
+    });
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+
+      // Checking off a reminder stays quiet in default no-GIF mode.
+      wrapper.getComponent(TodoPanel).vm.$emit("complete", "work", "todo-1", true);
+      await flushPromises();
+      expect(document.querySelectorAll('[data-testid="default-message"]')).toHaveLength(0);
+
+      // Pasting an image with an empty clipboard shows a message.
+      wrapper.getComponent(ImagePanel).vm.$emit("paste", { placement: "append" });
+      await flushPromises();
+      expect(document.querySelectorAll('[data-testid="default-message"]')).toHaveLength(1);
+
+      // Clicking the header green status dot shows a message.
+      await wrapper.get('[data-testid="save-status"]').trigger("click");
+      await flushPromises();
+      expect(document.querySelectorAll('[data-testid="default-message"]')).toHaveLength(2);
+
+      // Failed API call shows an error message.
+      await wrapper.get(".quick-button").trigger("click");
+      await flushPromises();
+      expect([...document.querySelectorAll('[data-testid="default-message"]')].some((el) => el.textContent?.includes("接口调用失败"))).toBe(true);
+
+      // Unsuccessful action (deleting the only reminder group) shows a message.
+      const beforeErrorCount = document.querySelectorAll('[data-testid="default-message"]').length;
+      wrapper.getComponent(TodoPanel).vm.$emit("deleteList", "work");
+      await flushPromises();
+      expect(document.querySelectorAll('[data-testid="default-message"]').length).toBe(beforeErrorCount + 1);
+    } finally {
+      wrapper.unmount();
+      vi.unstubAllGlobals();
+    }
+  });
 });

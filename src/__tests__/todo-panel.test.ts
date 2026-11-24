@@ -2363,6 +2363,10 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("notifyPresetMinutesChange")?.[1]).toEqual([[120, 30, 60, 120, 240]]);
     buttons[5].dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
     await nextTick();
+    const dayButtons = document.querySelectorAll<HTMLButtonElement>(".notify-preset-day-options button");
+    expect(Array.from(dayButtons).map((button) => button.textContent?.trim())).toEqual(["今天", "明天"]);
+    expect(dayButtons[0].getAttribute("aria-pressed")).toBe("true");
+    expect(dayButtons[1].getAttribute("aria-pressed")).toBe("false");
     const timeColumns = document.querySelectorAll<HTMLElement>(".notify-preset-time-editor .notify-time-column");
     expect(timeColumns[0].querySelectorAll(".notify-time-option")).toHaveLength(24 * 5);
     expect(timeColumns[1].querySelectorAll(".notify-time-option")).toHaveLength(60 * 5);
@@ -2376,32 +2380,44 @@ describe("TodoPanel", () => {
     expect(wrapper.emitted("notifyPresetTimesChange")?.[0]).toEqual([["07:30", "12:00", "15:00", "18:00", "21:00"]]);
     const editorModal = wrapper.findAllComponents(NModal).find((modal) => modal.props("title") === "编辑预设时段");
     expect(editorModal?.props("show")).toBe(false);
+    buttons[5].dispatchEvent(new MouseEvent("contextmenu", { bubbles: true, cancelable: true }));
+    await nextTick();
+    const tomorrowButton = Array.from(document.querySelectorAll<HTMLButtonElement>(".notify-preset-day-options button")).find((button) => button.textContent?.trim() === "明天")!;
+    tomorrowButton.click();
+    await nextTick();
+    expect(tomorrowButton.getAttribute("aria-pressed")).toBe("true");
+    (Array.from(document.querySelectorAll(".notify-preset-settings-actions button")).find((button) => button.textContent?.trim() === "保存") as HTMLButtonElement).click();
+    await nextTick();
+    expect(wrapper.emitted("notifyPresetTimesChange")?.[1]).toEqual([["tomorrow:09:00", "12:00", "15:00", "18:00", "21:00"]]);
     wrapper.unmount();
   });
 
-  it("applies time presets to the selected date and keeps the picker open", async () => {
+  it("commits time presets immediately using today by default and tomorrow when configured", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date(2026, 4, 25, 22, 30));
     const wrapper = mount(TodoPanel, {
-      props: { todos: { morning: [{ id: "a", text: "Test", done: false }], noon: [], evening: [] }, titles: DEFAULT_TITLES },
+      props: {
+        todos: { morning: [{ id: "a", text: "Test", done: false }], noon: [], evening: [] },
+        titles: DEFAULT_TITLES,
+        notifyPresetTimes: ["09:00", "tomorrow:12:00", "15:00", "18:00", "21:00"],
+      },
       global: { stubs: { NDatePicker: datePickerStub, NTooltip: tooltipStub } },
     });
     await wrapper.get(".todo-notify-button").trigger("click");
-    const picker = wrapper.getComponent({ name: "NDatePicker" });
-    await picker.vm.$emit("update:value", new Date(2026, 4, 28).getTime());
-    await nextTick();
     const buttons = document.body.querySelectorAll<HTMLButtonElement>(".notify-panel-preset");
+    expect(buttons[5].textContent?.trim()).toBe("09:00");
+    expect(buttons[6].textContent?.trim()).toBe("明 12:00");
     buttons[5].click();
     await nextTick();
-    expect(picker.props("value")).toBe(new Date(2026, 4, 28, 9).getTime());
-    expect(wrapper.emitted("notify")).toBeUndefined();
-    expect(document.body.querySelector(".notify-floating-date-picker")).toBeTruthy();
-    buttons[6].click();
+    expect(document.body.querySelector(".notify-floating-date-picker")).toBeFalsy();
+    expect(wrapper.emitted("notify")?.[0]).toEqual(["morning", "a", new Date(2026, 4, 25, 9, 0).getTime(), expect.any(HTMLElement)]);
+
+    await wrapper.get(".todo-notify-button").trigger("click");
+    const reopenedButtons = document.body.querySelectorAll<HTMLButtonElement>(".notify-panel-preset");
+    reopenedButtons[6].click();
     await nextTick();
-    expect(picker.props("value")).toBe(new Date(2026, 4, 28, 12).getTime());
-    expect(wrapper.emitted("notify")).toBeUndefined();
-    clickTeleportedNotifyAction("保存");
-    expect(wrapper.emitted("notify")?.[0]).toEqual(["morning", "a", new Date(2026, 4, 28, 12).getTime(), expect.any(HTMLElement)]);
+    expect(document.body.querySelector(".notify-floating-date-picker")).toBeFalsy();
+    expect(wrapper.emitted("notify")?.[1]).toEqual(["morning", "a", new Date(2026, 4, 26, 12, 0).getTime(), expect.any(HTMLElement)]);
     wrapper.unmount();
     vi.useRealTimers();
   });

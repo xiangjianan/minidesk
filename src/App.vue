@@ -1039,7 +1039,7 @@ function showDeleteUndo(message: string, anchor: HTMLElement | undefined, restor
 
 function deleteSpace(id: string): void {
   if (activeWorkspace.value.spaces.length <= 1) {
-    showBubbleText(uiText.value.app.keepOneSpace);
+    showBubbleText(uiText.value.app.keepOneSpace, undefined, { explicit: true });
     return;
   }
   const anchor = getSpacePanelAnchor();
@@ -1103,7 +1103,7 @@ function moveQuickTagAcrossWorkspaces(tagId: string, workspaceId: string): void 
 
 function moveTodoListAcrossWorkspaces(listId: TodoListId, workspaceId: string): void {
   if (displayTodoLists.value.length <= 1) {
-    showBubbleText(uiText.value.app.keepOneTodoList);
+    showBubbleText(uiText.value.app.keepOneTodoList, undefined, { explicit: true });
     return;
   }
   applyWorkspaceMove(workspaceMover.moveTodoListToWorkspace(state.workspaces, state.activeWorkspaceId, listId, workspaceId, state.language));
@@ -1116,7 +1116,7 @@ function moveTodoAcrossWorkspaces(period: TodoPeriod, todoId: string, workspaceI
 
 function moveSpaceAcrossWorkspaces(spaceId: string, workspaceId: string): void {
   if (activeWorkspace.value.spaces.length <= 1) {
-    showBubbleText(uiText.value.app.keepOneSpace);
+    showBubbleText(uiText.value.app.keepOneSpace, undefined, { explicit: true });
     return;
   }
   const next = workspaceMover.moveSpaceToWorkspace(state.workspaces, state.activeWorkspaceId, spaceId, workspaceId);
@@ -1299,7 +1299,7 @@ async function confirmWorkspaceExport(): Promise<void> {
         for (let i = 0; i < list.length; i++) list[i] = hydrated[index++];
       }
     } catch {
-      showBubble("imageReadFailed", exportAnchor.value, { hideCompanionAfter: true });
+      showBubble("imageReadFailed", exportAnchor.value, { explicit: true, hideCompanionAfter: true });
       return;
     } finally {
       workspaceExporting.value = false;
@@ -1337,7 +1337,7 @@ async function exportAllData(anchor?: HTMLElement): Promise<void> {
     }
     downloadExportFile(JSON.stringify(backup, null, 2), `mini-desk-backup-${exportTimestamp(new Date())}.json`);
     showBubble("dataExported", anchor, { hideCompanionAfter: true });
-  } catch { showBubble("imageReadFailed", anchor, { hideCompanionAfter: true }); }
+  } catch { showBubble("imageReadFailed", anchor, { explicit: true, hideCompanionAfter: true }); }
   finally { workspaceExporting.value = false; }
 }
 
@@ -1369,9 +1369,9 @@ async function revokeInbox(oldCode: string): Promise<void> {
   if (offlineBuild) return;
   try {
     const ok = await revokeInboxKey(await inboxKeyHash(oldCode));
-    if (!ok && appMounted) showBubbleText(uiText.value.app.inboxRevokeFailed, undefined, { hideCompanionAfter: true });
+    if (!ok && appMounted) showBubbleText(uiText.value.app.inboxRevokeFailed, undefined, { explicit: true, hideCompanionAfter: true });
   } catch {
-    if (appMounted) showBubbleText(uiText.value.app.inboxRevokeFailed, undefined, { hideCompanionAfter: true });
+    if (appMounted) showBubbleText(uiText.value.app.inboxRevokeFailed, undefined, { explicit: true, hideCompanionAfter: true });
   }
 }
 
@@ -1430,16 +1430,20 @@ async function polishClipboard(kind: PolishKind, text: string, style?: PolishSty
 
 /** 面板上浮的智能粘贴气泡：working 长驻等结果替换，done/fallback 常规停留。 */
 function handlePolishStatus(phase: SmartPastePhase, message: string, anchor?: HTMLElement): void {
-  if (phase === "cancelled") {
+  const clearWorkingDefault = (): void => {
     for (const item of defaultMessages.value.filter((item) => item.text === uiText.value.app.polishWorking)) dismissDefaultMessage(item.id);
+  };
+  if (phase === "cancelled") {
+    clearWorkingDefault();
     if (bubbleMessage.value === uiText.value.app.polishWorking) hideBubbleMessage({ fadeCompanion: true });
     return;
   }
   if (phase === "working") {
-    showBubbleText(message, anchor, {}, POLISH_WORKING_BUBBLE_MS);
+    showBubbleText(message, anchor, { explicit: true }, POLISH_WORKING_BUBBLE_MS);
     return;
   }
-  showBubbleText(message, anchor, { hideCompanionAfter: true }, POLISH_RESULT_BUBBLE_MS);
+  clearWorkingDefault();
+  showBubbleText(message, anchor, { explicit: true, hideCompanionAfter: true }, POLISH_RESULT_BUBBLE_MS);
 }
 
 // 手机速记拉取（单向收件箱）：各自动触发点（启动/聚焦/定时/切空间/Ctrl+S）与两面板手动同步按钮
@@ -1501,8 +1505,8 @@ async function pullInboxes(): Promise<InboxSyncOutcome> {
 async function requestManualInboxSync(): Promise<void> {
   const outcome = await pullInboxes();
   if (!appMounted) return;
-  if (outcome === "uptodate") showBubbleText(uiText.value.app.inboxUpToDate, undefined, { hideCompanionAfter: true });
-  else if (outcome === "failed") showBubbleText(uiText.value.app.inboxSyncFailed, undefined, { hideCompanionAfter: true });
+  if (outcome === "uptodate") showBubbleText(uiText.value.app.inboxUpToDate, undefined, { explicit: true, hideCompanionAfter: true });
+  else if (outcome === "failed") showBubbleText(uiText.value.app.inboxSyncFailed, undefined, { explicit: true, hideCompanionAfter: true });
 }
 
 function startInboxPolling(): void {
@@ -1536,7 +1540,7 @@ watch([() => state.activeWorkspaceId, hasInboxConfigured], ([, configured]) => {
 
 function deleteWorkspace(id: string, anchor?: HTMLElement): void {
   if (state.workspaces.length <= 1) {
-    showBubbleText(uiText.value.app.keepOneWorkspace, anchor);
+    showBubbleText(uiText.value.app.keepOneWorkspace, anchor, { explicit: true });
     return;
   }
   requestConfirmation(
@@ -1950,7 +1954,7 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
   if (!clipboard?.read) {
     if (pasteImageWithBrowserCommand(request)) return;
     deferImagePasteToKeyboard(request);
-    showBubble("clipboardPasteUnsupported", undefined, { hideCompanionAfter: true });
+    showBubble("clipboardPasteUnsupported", undefined, { explicit: true, hideCompanionAfter: true });
     return;
   }
   let items: ClipboardItem[];
@@ -1960,7 +1964,7 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
     if (shouldBlockBoardEffects()) return;
     if (pasteImageWithBrowserCommand(request)) return;
     deferImagePasteToKeyboard(request);
-    showBubble("clipboardPermissionDenied", undefined, { hideCompanionAfter: true });
+    showBubble("clipboardPermissionDenied", undefined, { explicit: true, hideCompanionAfter: true });
     return;
   }
   if (shouldBlockBoardEffects()) return;
@@ -1976,7 +1980,7 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
     } catch {
       if (shouldBlockBoardEffects()) return;
       deferImagePasteToKeyboard(request);
-      showBubble("imageReadFailed", undefined, { hideCompanionAfter: true });
+      showBubble("imageReadFailed", undefined, { explicit: true, hideCompanionAfter: true });
       return;
     }
     if (shouldBlockBoardEffects()) return;
@@ -1990,7 +1994,7 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
   // 类型都看不到（Chromium 平台限制，网页无法绕过）。把菜单意图挂到下一
   // 次真实 Ctrl+V 并用专用文案说清「按一下即贴入」，而非报错措辞。
   deferImagePasteToKeyboard(request);
-  showBubble("clipboardImageUseKeyboard", undefined, { hideCompanionAfter: true });
+  showBubble("clipboardImageUseKeyboard", undefined, { explicit: true, hideCompanionAfter: true });
 }
 
 /** clipboard.read() 读不到图片（DIB/文件格式只在 paste 事件面上可见）或
@@ -2027,7 +2031,7 @@ function showPayloadSaveError(error: unknown, anchor?: HTMLElement): void {
   if (error && typeof error === "object" && "name" in error && error.name === "QuotaExceededError") {
     showBubbleText(uiText.value.app.imageQuotaFailed, anchor, { force: true, hideCompanionAfter: true }, 8000);
   } else {
-    showBubble("imageStoreFailed", anchor, { hideCompanionAfter: true });
+    showBubble("imageStoreFailed", anchor, { explicit: true, hideCompanionAfter: true });
   }
 }
 
@@ -2054,7 +2058,7 @@ async function addPastedImageFile(file: File, request: ImagePasteRequest, destin
     src = await fileToDataUrl(file);
   } catch {
     if (shouldBlockBoardEffects()) return undefined;
-    showBubble("imageReadFailed", undefined, { hideCompanionAfter: true });
+    showBubble("imageReadFailed", undefined, { explicit: true, hideCompanionAfter: true });
     return undefined;
   }
   if (shouldBlockBoardEffects()) return undefined;
@@ -2167,7 +2171,7 @@ async function addImageFile(
     src = await fileToDataUrl(file);
   } catch {
     if (shouldBlockBoardEffects()) return undefined;
-    showBubble("imageReadFailed", undefined, { hideCompanionAfter: true });
+    showBubble("imageReadFailed", undefined, { explicit: true, hideCompanionAfter: true });
     return undefined;
   }
   if (shouldBlockBoardEffects()) return undefined;
@@ -2227,7 +2231,7 @@ async function addImageFiles(
   const imageFiles = files.filter((file) => file.type.startsWith("image/"));
   const ignoredCount = files.length - imageFiles.length;
   if (imageFiles.length === 0) {
-    showBubble("imageDropEmpty", anchor, { hideCompanionAfter: true });
+    showBubble("imageDropEmpty", anchor, { explicit: true, hideCompanionAfter: true });
     return;
   }
 
@@ -2252,7 +2256,7 @@ async function addImageFiles(
     await copyImage(added.at(-1)!.id, anchor);
   }
   if (shouldBlockBoardEffects()) return;
-  if (ignoredCount > 0) showBubble("imageDropIgnored", anchor, { hideCompanionAfter: true });
+  if (ignoredCount > 0) showBubble("imageDropIgnored", anchor, { explicit: true, hideCompanionAfter: true });
 }
 
 function handleBoardDrop(event: DragEvent): void {
@@ -2432,7 +2436,7 @@ async function saveEditedImage(payload: { id: string; src: string; displayWidth:
 }
 
 function showPreviewTips(anchor?: HTMLElement): void {
-  showBubbleText(uiText.value.preview.help, anchor ?? document.querySelector<HTMLElement>(".image-preview") ?? undefined, { hideCompanionAfter: true }, 5200);
+  showBubbleText(uiText.value.preview.help, anchor ?? document.querySelector<HTMLElement>(".image-preview") ?? undefined, { explicit: true, hideCompanionAfter: true }, 5200);
 }
 
 async function copyImage(id: string, anchor?: HTMLElement): Promise<void> {
@@ -2456,7 +2460,7 @@ async function writeImageToClipboard(src: string, anchor?: HTMLElement): Promise
     write?: (items: ClipboardItem[]) => Promise<void>;
   };
   if (!clipboard?.write || !("ClipboardItem" in window)) {
-    showBubble("imageCopyFailed", anchor, { hideCompanionAfter: true });
+    showBubble("imageCopyFailed", anchor, { explicit: true, hideCompanionAfter: true });
     return;
   }
   try {
@@ -2480,7 +2484,7 @@ async function writeImageToClipboard(src: string, anchor?: HTMLElement): Promise
     showBubble("imageCopied", anchor, { hideCompanionAfter: true });
   } catch {
     if (shouldBlockBoardEffects()) return;
-    showBubble("imageCopyFailed", anchor, { hideCompanionAfter: true });
+    showBubble("imageCopyFailed", anchor, { explicit: true, hideCompanionAfter: true });
   }
 }
 
@@ -2626,7 +2630,7 @@ function deleteQuickTag(id: string, anchor?: HTMLElement): void {
 
 function deleteQuickTagWithButtons(id: string, anchor?: HTMLElement): void {
   if (activeWorkspace.value.quickTags.length <= 1) {
-    showBubbleText(uiText.value.quick.keepOneList, anchor);
+    showBubbleText(uiText.value.quick.keepOneList, anchor, { explicit: true });
     return;
   }
   const tag = activeWorkspace.value.quickTags.find((item) => item.id === id);
@@ -2761,7 +2765,7 @@ function getQuickAppInvalidSchemeMessage(): string {
 function openQuickApp(button: QuickButton, anchor?: HTMLElement): void {
   const scheme = button.value.trim();
   if (!isQuickAppScheme(scheme)) {
-    showBubbleText(getQuickAppInvalidSchemeMessage(), anchor, { hideCompanionAfter: true }, 3000);
+    showBubbleText(getQuickAppInvalidSchemeMessage(), anchor, { explicit: true, hideCompanionAfter: true }, 3000);
     return;
   }
   const trigger = document.createElement("a");
@@ -3105,7 +3109,7 @@ function createTodoList(anchor?: HTMLElement, title?: string): void {
   const trimmedTitle = limitTitle(title ?? "");
   if (!trimmedTitle) return;
   if (findTodoListByTitle(activeWorkspace.value.todoLists, trimmedTitle, state.language)) {
-    showBubbleText(uiText.value.todo.duplicateList, anchor);
+    showBubbleText(uiText.value.todo.duplicateList, anchor, { explicit: true });
     return;
   }
   const id = createId();
@@ -3122,7 +3126,7 @@ function updateTodoListTitle(listId: TodoListId, title: string): void {
   if (!list) return;
   const nextTitle = getStoredTodoListTitle(listId, limitTitle(title)) || uiText.value.app.unnamedList;
   if (findTodoListByTitle(activeWorkspace.value.todoLists, getDisplayTodoListTitle({ ...list, title: nextTitle }, state.language), state.language, listId)) {
-    showBubbleText(uiText.value.todo.duplicateList);
+    showBubbleText(uiText.value.todo.duplicateList, undefined, { explicit: true });
     return;
   }
   list.title = nextTitle;
@@ -3146,7 +3150,7 @@ function toggleTodoListCompact(listId: TodoListId, compact: boolean): void {
 
 function deleteTodoList(listId: TodoListId, anchor?: HTMLElement): void {
   if (activeWorkspace.value.todoLists.length <= 1) {
-    showBubbleText(uiText.value.app.keepOneTodoList, anchor);
+    showBubbleText(uiText.value.app.keepOneTodoList, anchor, { explicit: true });
     return;
   }
   const list = activeWorkspace.value.todoLists.find((item) => item.id === listId);
@@ -3446,7 +3450,7 @@ function clearDone(period?: TodoPeriod, anchor?: HTMLElement): void {
     ? activeWorkspace.value.todoLists.map((list) => list.id)
     : [period].filter(isConfiguredTodoListId);
   if (!listIds.some((listId) => getTodos(listId).some((todo) => todo.done))) {
-    showBubble("noCompletedTodos", anchor);
+    showBubble("noCompletedTodos", anchor, { explicit: true });
     return;
   }
   requestConfirmation(
@@ -3553,7 +3557,7 @@ async function updateCustomCompanionGif(files: { light?: File; dark?: File }, an
   const light = await readGifFile(files.light);
   const dark = await readGifFile(files.dark);
   if (!light && !dark) {
-    showBubbleText(uiText.value.app.chooseGif, anchor);
+    showBubbleText(uiText.value.app.chooseGif, anchor, { explicit: true });
     return;
   }
   const nextCustomGif = {
@@ -3651,7 +3655,7 @@ function confirmClearData(): void {
         const currentIndex = state.workspaces.findIndex((item) => item.id === workspaceId);
         if (currentIndex < 0 || JSON.stringify(state.workspaces[currentIndex]) !== clearedState) {
           cleanup();
-          showBubbleText(uiText.value.settings.clearUndoUnavailable, anchor, { hideCompanionAfter: true });
+          showBubbleText(uiText.value.settings.clearUndoUnavailable, anchor, { explicit: true, hideCompanionAfter: true });
           return;
         }
         payloadIds.forEach((id) => pendingClearPayloadIds.delete(id));
@@ -3721,13 +3725,13 @@ async function importData(event: Event): Promise<void> {
   try {
     parsed = JSON.parse(text);
   } catch {
-    showBubble("importJsonInvalid", importFeedbackAnchor.value, { hideCompanionAfter: true });
+    showBubble("importJsonInvalid", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true });
     importFeedbackAnchor.value = undefined;
     input.value = "";
     return;
   }
   if (!isImportPayload(parsed)) {
-    showBubble("importDataInvalid", importFeedbackAnchor.value, { hideCompanionAfter: true });
+    showBubble("importDataInvalid", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true });
     importFeedbackAnchor.value = undefined;
     input.value = "";
     return;
@@ -3742,7 +3746,7 @@ async function importData(event: Event): Promise<void> {
       const raw = (parsed as { workspace?: unknown }).workspace;
       importedWorkspace = normalizeWorkspaceData(raw, state.language);
     } catch {
-      showBubble("importDataInvalid", importFeedbackAnchor.value, { hideCompanionAfter: true });
+      showBubble("importDataInvalid", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true });
       importFeedbackAnchor.value = undefined;
       input.value = "";
       return;
@@ -3752,7 +3756,7 @@ async function importData(event: Event): Promise<void> {
       refreshTodoNotifications();
       showBubble("dataImported", importFeedbackAnchor.value, { hideCompanionAfter: true });
       if (importedHasInbox && includeInboxNotice) {
-        showBubbleText(uiText.value.app.inboxImportNotice, importFeedbackAnchor.value, { hideCompanionAfter: true }, 5000);
+        showBubbleText(uiText.value.app.inboxImportNotice, importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true }, 5000);
       }
       importFeedbackAnchor.value = undefined;
       input.value = "";
@@ -3826,12 +3830,12 @@ async function importData(event: Event): Promise<void> {
 
   if (Array.isArray((parsed as Record<string, unknown>).workspaces) && (parsed as { workspaces: unknown[] }).workspaces.length > 0) {
     try { fullImport.value = normalizeImportedState(parsed); }
-    catch { showBubble("importDataInvalid", importFeedbackAnchor.value, { hideCompanionAfter: true }); }
+    catch { showBubble("importDataInvalid", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true }); }
     input.value = "";
     return;
   }
 
-  showBubble("importSingleWorkspaceOnly", importFeedbackAnchor.value, { hideCompanionAfter: true });
+  showBubble("importSingleWorkspaceOnly", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true });
   importFeedbackAnchor.value = undefined;
   input.value = "";
 }
@@ -3856,7 +3860,7 @@ async function restoreFullImport(): Promise<void> {
     persistNow("all", { force: true });
     refreshTodoNotifications();
     showBubble("dataImported", importFeedbackAnchor.value, { hideCompanionAfter: true });
-  } catch { showBubble("imageReadFailed", importFeedbackAnchor.value, { hideCompanionAfter: true }); }
+  } catch { showBubble("imageReadFailed", importFeedbackAnchor.value, { explicit: true, hideCompanionAfter: true }); }
   importFeedbackAnchor.value = undefined;
 }
 
@@ -4035,7 +4039,7 @@ function showSaveBubbleSoon(): void {
 
 function showSaveStatusTip(anchor?: HTMLElement): void {
   if (workspaceDensityStatus.value === "saved") {
-    showBubble("workspaceDensityGood", anchor);
+    showBubble("workspaceDensityGood", anchor, { explicit: true });
     return;
   }
   if (workspaceDensityStatus.value === "dirty") {
@@ -4045,22 +4049,24 @@ function showSaveStatusTip(anchor?: HTMLElement): void {
     showBubbleText(
       formatDensitySummaryMessage(getMessage("workspaceDensityAllOver", Math.random, state.language), summary),
       anchor,
+      { explicit: true },
     );
     return;
   }
   const area = randomDensityArea(overLimitDensityAreas.value);
   if (!area) {
-    showBubble("workspaceDensityGood", anchor);
+    showBubble("workspaceDensityGood", anchor, { explicit: true });
     return;
   }
   const groupingTipKey = densityGroupingTipKeys[area.type];
   if (groupingTipKey && Math.random() < WORKSPACE_DENSITY_GROUP_TIP_CHANCE) {
-    showBubbleText(getMessage(groupingTipKey, Math.random, state.language), anchor);
+    showBubbleText(getMessage(groupingTipKey, Math.random, state.language), anchor, { explicit: true });
     return;
   }
   showBubbleText(
     formatDensityMessage(getMessage("workspaceDensityAreaOver", Math.random, state.language), area),
     anchor,
+    { explicit: true },
   );
 }
 
@@ -4182,7 +4188,7 @@ function handleCompanionGifClick(): void {
 }
 
 function showToast(messageKey: MessageKey): void {
-  showBubble(messageKey, undefined, { hideCompanionAfter: true });
+  showBubble(messageKey, undefined, { explicit: true, hideCompanionAfter: true });
 }
 
 function isImportPayload(payload: unknown): payload is Record<string, unknown> {
@@ -4697,8 +4703,8 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @delete-list="deleteTodoList"
           @column-count-change="onTodoColumnCountChange"
           @max-columns-change="updateTodoMaxColumns"
-          @notify-preset-times-change="(times) => { state.notifyPresetTimes = times; }"
-          @notify-preset-minutes-change="(minutes) => { state.notifyPresetMinutes = minutes; }"
+          @notify-preset-times-change="(times) => { state.notifyPresetTimes = times; persistNow(); }"
+          @notify-preset-minutes-change="(minutes) => { state.notifyPresetMinutes = minutes; persistNow(); }"
           @assign-list-column="assignTodoListSections"
           @create="createTodo"
           @create-from-text="createTodosFromText"

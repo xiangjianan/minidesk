@@ -37,14 +37,17 @@ import { DEFAULT_TODO_LISTS, GUIDE_MENU_OPTION } from "../state/defaults";
 import { LEGACY_TODO_TITLE_IDS } from "../state/storage";
 import { getDisplayTodoListTitle, getIconHeadingText, getUiText } from "../state/i18n";
 import {
+  formatNotifyPresetTimeValue,
   getDefaultNotifyDateTimeValue,
   getNotifyDisplay,
   getNotifyPresets,
   normalizeNotifyPresetTimes,
   normalizeNotifyPresetMinutes,
+  parseNotifyPresetTime,
   isValidNotifyAt,
   withDefaultNotifyTime,
   type NotifyDisplay,
+  type NotifyPresetDay,
 } from "../state/deadlines";
 import { createDragAutoScroll, findDragScrollContainer } from "../utils/dragScroll";
 import type {
@@ -180,6 +183,7 @@ const notifyPickerDrafts = ref<Record<string, number>>({});
 const presetEditor = ref<{ group: "relative" | "time"; index: number } | null>(null);
 const presetEditorOpen = ref(false);
 const presetTimeEditorRef = ref<HTMLElement | null>(null);
+const presetDay = ref<NotifyPresetDay>("today");
 const presetTimeDraft = ref("");
 const presetDurationUnit = ref<"minutes" | "hours">("minutes");
 const presetDurationValue = ref<number | null>(null);
@@ -210,7 +214,10 @@ const presetMinute = computed({
 });
 function editPreset(group: "relative" | "time", index: number): void {
   presetEditor.value = { group, index };
-  presetTimeDraft.value = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index];
+  const parsedTime = parseNotifyPresetTime(normalizeNotifyPresetTimes(props.notifyPresetTimes)[index])
+    ?? { day: "today" as const, hour: 9, minute: 0, time: "09:00" };
+  presetDay.value = parsedTime.day;
+  presetTimeDraft.value = parsedTime.time;
   const minutes = normalizeNotifyPresetMinutes(props.notifyPresetMinutes)[index];
   presetDurationUnit.value = minutes % 60 === 0 ? "hours" : "minutes";
   presetDurationValue.value = presetDurationUnit.value === "hours" ? minutes / 60 : minutes;
@@ -233,7 +240,7 @@ function savePreset(): void {
   if (editor.group === "time") {
     if (!/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(presetTimeDraft.value)) return;
     const times = normalizeNotifyPresetTimes(props.notifyPresetTimes);
-    times[editor.index] = presetTimeDraft.value;
+    times[editor.index] = formatNotifyPresetTimeValue(presetDay.value, presetTimeDraft.value);
     emit("notifyPresetTimesChange", times);
   } else {
     const value = presetDurationMinutes.value;
@@ -243,6 +250,12 @@ function savePreset(): void {
     emit("notifyPresetMinutesChange", minutes);
   }
   presetEditorOpen.value = false;
+}
+function formatTimePresetLabel(index: number): string {
+  const raw = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index];
+  const parsed = parseNotifyPresetTime(raw);
+  if (!parsed) return raw;
+  return parsed.day === "tomorrow" ? `${uiText.value.todo.notifyPresets.tomorrowShort} ${parsed.time}` : parsed.time;
 }
 function durationLabel(minutes: number): string {
   const en = props.language === "en";
@@ -1496,13 +1509,19 @@ function updateNotifyPickerTime(unit: "hour" | "minute", value: number): void {
 function applyNotifyTimePreset(index: number): void {
   const picker = notifyPicker.value;
   if (!picker) return;
-  const [hour, minute] = normalizeNotifyPresetTimes(props.notifyPresetTimes)[index].split(":").map(Number);
-  const current = new Date(getNotifyPickerValue());
-  current.setHours(hour, minute, 0, 0);
-  const next = current.getTime();
-  const key = todoKey(picker.period, picker.id);
-  notifyPickerDrafts.value = { ...notifyPickerDrafts.value, [key]: next };
-  void nextTick(() => window.requestAnimationFrame(() => scrollNotifyTimePickerActiveItems(true)));
+  const parsed = parseNotifyPresetTime(normalizeNotifyPresetTimes(props.notifyPresetTimes)[index]);
+  if (!parsed) return;
+  const now = new Date();
+  const target = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() + (parsed.day === "tomorrow" ? 1 : 0),
+    parsed.hour,
+    parsed.minute,
+    0,
+    0,
+  );
+  confirmNotifyPicker(target.getTime());
 }
 
 function confirmNotifyPicker(value: number | null): void {
@@ -2601,7 +2620,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
                 @click="applyNotifyTimePreset(index)"
                 @contextmenu.stop.prevent="editPreset('time', index)"
               >
-                {{ normalizeNotifyPresetTimes(props.notifyPresetTimes)[index] }}
+                {{ formatTimePresetLabel(index) }}
               </button>
             </div>
           </div>
@@ -2670,6 +2689,25 @@ onUnmounted(() => focusRegionAnimation?.cancel());
     <NModal :show="presetEditorOpen" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditorOpen = false; }">
       <p>{{ uiText.todo.notifyPresets.hint }}</p>
       <div v-if="presetEditor?.group === 'time'" ref="presetTimeEditorRef" class="notify-preset-time-editor">
+        <div class="notify-preset-day-field">
+          <span>{{ uiText.todo.notifyPresets.day }}</span>
+          <div class="notify-preset-day-options" role="group" :aria-label="uiText.todo.notifyPresets.day">
+            <button
+              type="button"
+              class="notify-preset-day-option"
+              :class="{ 'is-active': presetDay === 'today' }"
+              :aria-pressed="presetDay === 'today'"
+              @click="presetDay = 'today'"
+            >{{ uiText.todo.notifyPresets.today }}</button>
+            <button
+              type="button"
+              class="notify-preset-day-option"
+              :class="{ 'is-active': presetDay === 'tomorrow' }"
+              :aria-pressed="presetDay === 'tomorrow'"
+              @click="presetDay = 'tomorrow'"
+            >{{ uiText.todo.notifyPresets.tomorrow }}</button>
+          </div>
+        </div>
         <div class="notify-preset-time-field">
           <span>{{ uiText.todo.notifyPresets.hours }}</span>
           <div class="notify-time-column" role="listbox" tabindex="0" :aria-label="uiText.todo.notifyPresets.hours" @keydown="handlePresetTimeKeydown($event, 'hour')" @scroll="handleNotifyTimeColumnScroll($event, NOTIFY_HOURS.length)">
