@@ -1542,13 +1542,13 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
-  min-height: 28px;
-  padding: 0 8px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0 9px;
   margin-inline-end: 6px;
-  border: 1px solid var(--line-subtle);
+  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--secondary) 64%, transparent);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
   color: var(--muted);
   font-size: 12px;
   cursor: pointer;
@@ -1557,9 +1557,20 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
 
 .workbench-shell button.workbench-search-trigger:hover,
 .workbench-shell button.workbench-search-trigger:focus-visible {
-  background: var(--secondary);
-  border-color: color-mix(in srgb, var(--primary) 30%, var(--line-subtle));
+  background: var(--button-hover);
+  border-color: color-mix(in srgb, var(--text) 14%, transparent);
   color: var(--text);
+}
+
+html[data-theme="dark"] .workbench-shell button.workbench-search-trigger {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+html[data-theme="dark"] .workbench-shell button.workbench-search-trigger:hover,
+html[data-theme="dark"] .workbench-shell button.workbench-search-trigger:focus-visible {
+  background: var(--button-hover);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .workbench-search-kbd {
@@ -1567,7 +1578,8 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
   font-size: 11px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: var(--muted);
+  color: inherit;
+  opacity: 0.85;
 }
 
 /* 7. Global Command Palette (Raycast / Linear / Spotlight feel). */
