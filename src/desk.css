@@ -309,6 +309,9 @@ html[data-theme="dark"] .workbench-shell,
   background: transparent;
   overflow: hidden;
 }
+.workbench-shell .quick-tag-content {
+  grid-template-columns: minmax(0, 1fr);
+}
 .workbench-shell .todo-list { padding: 8px; }
 .workbench-shell .todo-section.is-collapsed > .todo-heading,
 .workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading {

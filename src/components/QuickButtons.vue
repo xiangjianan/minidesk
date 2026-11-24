@@ -181,10 +181,47 @@ const groupedButtons = computed(() => {
 // Quick actions always use one column, including legacy pinned tag layouts.
 const panelRef = ref<HTMLElement | null>(null);
 let disposePointerSort: (() => void) | undefined;
+let panelWidthObserver: ResizeObserver | undefined;
+let panelResizeFrame: number | undefined;
+let observedPanelWidth = -1;
+
+/** Safari/WebKit caches a stale `grid-template-rows: 1fr` track height when a nested
+ *  `repeat(auto-fill, ...)` button grid reflows from 1 column to 2 columns on width
+ *  changes (e.g. initial column layout after refresh). Batch-resetting the track
+ *  synchronously in one reflow forces WebKit to recompute the exact height. */
+function resyncExpandedGroupGridHeights(): void {
+  const panel = panelRef.value;
+  if (!panel) return;
+  const contents = Array.from(panel.querySelectorAll<HTMLElement>(".quick-tag-content:not(.is-collapsed)"));
+  if (contents.length === 0) return;
+  for (const el of contents) el.style.gridTemplateRows = "auto";
+  void panel.offsetHeight;
+  for (const el of contents) el.style.gridTemplateRows = "";
+}
+
 onMounted(() => {
-  if (panelRef.value) disposePointerSort = installPointerSort(panelRef.value, ".quick-button, .quick-tag-heading", dragScroll.pauseForWheel);
+  const panel = panelRef.value;
+  if (!panel) return;
+  disposePointerSort = installPointerSort(panel, ".quick-button, .quick-tag-heading", dragScroll.pauseForWheel);
+  if (typeof ResizeObserver !== "undefined") {
+    panelWidthObserver = new ResizeObserver((entries) => {
+      const width = entries[0]?.contentRect.width ?? 0;
+      if (width <= 0 || Math.abs(width - observedPanelWidth) < 0.5) return;
+      observedPanelWidth = width;
+      if (panelResizeFrame !== undefined) return;
+      panelResizeFrame = window.requestAnimationFrame(() => {
+        panelResizeFrame = undefined;
+        resyncExpandedGroupGridHeights();
+      });
+    });
+    panelWidthObserver.observe(panel);
+  }
 });
-onUnmounted(() => disposePointerSort?.());
+onUnmounted(() => {
+  disposePointerSort?.();
+  panelWidthObserver?.disconnect();
+  if (panelResizeFrame !== undefined) window.cancelAnimationFrame(panelResizeFrame);
+});
 
 const columnCount = 1;
 // Group visible groups into explicit column buckets by their pinned `column`.
