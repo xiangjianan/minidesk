@@ -1537,7 +1537,7 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
   background: color-mix(in srgb, var(--primary) 88%, #ffffff 12%);
 }
 
-/* 6. Top bar Cmd+K search trigger pill. */
+/* 6. Top bar Ctrl/Cmd+K search trigger pill (hollow outline matching header background). */
 .workbench-shell button.workbench-search-trigger {
   display: inline-flex;
   align-items: center;
@@ -1546,9 +1546,9 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
   min-height: 30px;
   padding: 0 9px;
   margin-inline-end: 6px;
-  border: 1px solid color-mix(in srgb, var(--text) 9%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--text) 4%, transparent);
+  background: transparent;
   color: var(--muted);
   font-size: 12px;
   cursor: pointer;
@@ -1558,19 +1558,19 @@ html[data-theme="dark"] .notify-floating-date-picker > .notify-panel-actions > b
 .workbench-shell button.workbench-search-trigger:hover,
 .workbench-shell button.workbench-search-trigger:focus-visible {
   background: var(--button-hover);
-  border-color: color-mix(in srgb, var(--text) 14%, transparent);
+  border-color: color-mix(in srgb, var(--text) 18%, transparent);
   color: var(--text);
 }
 
 html[data-theme="dark"] .workbench-shell button.workbench-search-trigger {
-  border-color: rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: transparent;
 }
 
 html[data-theme="dark"] .workbench-shell button.workbench-search-trigger:hover,
 html[data-theme="dark"] .workbench-shell button.workbench-search-trigger:focus-visible {
   background: var(--button-hover);
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .workbench-search-kbd {

@@ -215,7 +215,7 @@ describe("WorkbenchShell", () => {
     expect(wrapper.find(".workbench-rail").exists()).toBe(false);
     expect(wrapper.get('[data-testid="workbench-command-bar"]').text()).toContain("MiniDesk");
     expect(wrapper.find(".workbench-slogan").exists()).toBe(false);
-    expect(wrapper.get('[data-testid="command-palette-trigger"]').text()).toContain("⌘K");
+    expect(wrapper.get('[data-testid="command-palette-trigger"]').text()).toContain("Ctrl/⌘ K");
     expect(wrapper.get('[data-testid="workbench-save-status"]').text()).toBe("已保存");
     expect(wrapper.get(".workbench-zone-assets").attributes("aria-label")).toBe("贴图");
     expect(wrapper.get(".workbench-zone-notes").attributes("aria-label")).toBe("快捷按钮");

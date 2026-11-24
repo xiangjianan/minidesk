@@ -960,7 +960,7 @@ onUnmounted(() => {
               @click="emit('openCommandPalette')"
             >
               <NIcon :component="SearchOutline" :size="14" />
-              <kbd class="workbench-search-kbd">⌘K</kbd>
+              <kbd class="workbench-search-kbd">Ctrl/⌘ K</kbd>
             </button>
             <button
               type="button"
