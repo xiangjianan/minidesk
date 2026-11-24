@@ -256,4 +256,29 @@ describe("default theme feedback", () => {
       vi.unstubAllGlobals();
     }
   });
+
+  it("retains the delete dialog title and copy while closing on cancel", async () => {
+    const workspace = defaultWorkspace();
+    workspace.todoLists = [
+      { id: "work", title: "工作", collapsed: false, compact: false, column: 0 },
+      { id: "home", title: "生活", collapsed: false, compact: false, column: 0 },
+    ];
+    workspace.todos = { work: [], home: [] };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...defaultState(), companionGifTheme: "none", workspaces: [workspace] }));
+    const wrapper = mountApp();
+    try {
+      await flushPromises();
+      wrapper.getComponent(TodoPanel).vm.$emit("deleteList", "work", wrapper.get(".todo-panel").element);
+      await wrapper.vm.$nextTick();
+
+      const confirmModal = wrapper.findAllComponents(NModal).find((modal) => modal.props("title") === "删除");
+      expect(confirmModal?.props("show")).toBe(true);
+
+      await wrapper.get('[data-testid="styled-confirm-cancel"]').trigger("click");
+      await wrapper.vm.$nextTick();
+
+      expect(confirmModal?.props("show")).toBe(false);
+      expect(confirmModal?.props("title")).toBe("删除");
+    } finally { wrapper.unmount(); }
+  });
 });
