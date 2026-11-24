@@ -1841,3 +1841,260 @@ button.command-palette-item.is-active .command-palette-item-icon {
     transition: none;
   }
 }
+
+/* ============================================================
+   Frosted Glass × Gemini Ambient Gradient Theme (Light & Dark)
+   ============================================================ */
+
+.workbench-shell,
+.focus-now-modal {
+  --desk-card-radius: 14px;
+  --desk-surface: #eef3fb;
+  --desk-group-content: rgba(255, 255, 255, 0.74);
+  --desk-group-surface: rgba(242, 247, 255, 0.72);
+  --desk-row-hover: rgba(66, 133, 244, 0.085);
+  --desk-tab-hover: rgba(255, 255, 255, 0.56);
+  --desk-tab-active-hover: rgba(255, 255, 255, 0.92);
+  --desk-zone-accent: #4c82d8;
+  --desk-selected-text: #2a5ea8;
+  --primary: #4285f4;
+  --desk-edge: rgba(255, 255, 255, 0.62);
+  --desk-card-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 0 0 1px rgba(255, 255, 255, 0.68),
+    0 6px 20px rgba(31, 52, 92, 0.055);
+  --desk-control-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 1px 3px rgba(31, 52, 92, 0.05);
+}
+
+html[data-theme="dark"] .workbench-shell,
+html[data-theme="dark"] .focus-now-modal {
+  --desk-surface: #131314;
+  --card: #1e1f24;
+  --text: #e3e3e3;
+  --foreground: #f1f3f4;
+  --muted: #9aa0a6;
+  --primary: #8ab4f8;
+  --desk-zone-accent: #8ab4f8;
+  --desk-selected-text: #a8c7fa;
+  --desk-group-content: rgba(30, 31, 38, 0.72);
+  --desk-group-surface: rgba(38, 40, 50, 0.68);
+  --desk-row-hover: rgba(138, 180, 248, 0.11);
+  --desk-tab-hover: rgba(255, 255, 255, 0.06);
+  --desk-tab-active-hover: rgba(255, 255, 255, 0.12);
+  --desk-edge: rgba(255, 255, 255, 0.08);
+  --line-subtle: rgba(255, 255, 255, 0.09);
+  --desk-card-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    0 0 0 1px rgba(255, 255, 255, 0.075),
+    0 8px 26px rgba(0, 0, 0, 0.34);
+  --desk-content-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.075),
+    0 0 0 1px rgba(255, 255, 255, 0.075),
+    0 8px 26px rgba(0, 0, 0, 0.34);
+  --desk-control-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 3px rgba(0, 0, 0, 0.24);
+}
+
+/* Soft Gemini-inspired ambient aurora behind the frosted glass layers. */
+.workbench-shell {
+  background:
+    radial-gradient(64% 58% at 10% 6%, rgba(164, 206, 255, 0.44) 0%, transparent 62%),
+    radial-gradient(56% 52% at 92% 8%, rgba(202, 184, 255, 0.36) 0%, transparent 60%),
+    radial-gradient(52% 48% at 24% 96%, rgba(164, 232, 224, 0.28) 0%, transparent 58%),
+    radial-gradient(48% 44% at 86% 92%, rgba(235, 206, 248, 0.22) 0%, transparent 56%),
+    #eef3fb;
+  background-attachment: fixed;
+}
+
+html[data-theme="dark"] .workbench-shell {
+  background:
+    radial-gradient(60% 54% at 12% 8%, rgba(66, 133, 244, 0.14) 0%, transparent 62%),
+    radial-gradient(54% 48% at 88% 10%, rgba(155, 114, 203, 0.13) 0%, transparent 60%),
+    radial-gradient(48% 46% at 22% 94%, rgba(56, 189, 248, 0.07) 0%, transparent 58%),
+    radial-gradient(44% 42% at 84% 90%, rgba(217, 101, 112, 0.06) 0%, transparent 56%),
+    #131314;
+  background-attachment: fixed;
+}
+
+.workbench-main,
+.workbench-grid {
+  background: transparent;
+}
+
+/* Tier 1: Frosted glass top command bar. */
+.workbench-command-bar {
+  background: rgba(255, 255, 255, 0.58);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  backdrop-filter: blur(24px) saturate(1.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 1px 0 rgba(38, 61, 102, 0.06), 0 4px 16px rgba(38, 61, 102, 0.03);
+}
+
+html[data-theme="dark"] .workbench-command-bar {
+  background: rgba(20, 21, 26, 0.72);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35), 0 6px 20px rgba(0, 0, 0, 0.22);
+}
+
+/* Tier 2: Frosted glass workbench columns. */
+.workbench-zone {
+  background: rgba(255, 255, 255, 0.34);
+  -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
+  border-inline-end: 1px solid rgba(255, 255, 255, 0.62);
+}
+
+html[data-theme="dark"] .workbench-zone {
+  background: rgba(24, 26, 32, 0.42);
+  -webkit-backdrop-filter: blur(18px) saturate(1.3);
+  backdrop-filter: blur(18px) saturate(1.3);
+  border-inline-end: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Tier 3: Luminous frosted cards for groups, notebooks, quick actions, and images. */
+.workbench-shell .todo-section,
+.workbench-shell .quick-tag-group,
+.workbench-shell .space-text-panel {
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+
+.workbench-shell .space-text-panel {
+  background: rgba(255, 255, 255, 0.78);
+}
+
+html[data-theme="dark"] .workbench-shell .space-text-panel {
+  background: rgba(30, 31, 38, 0.76);
+}
+
+.workbench-shell .todo-heading,
+.workbench-shell .quick-tag-heading {
+  background-color: transparent;
+}
+
+.workbench-shell .todo-heading::before,
+.workbench-shell .quick-tag-heading::before {
+  background: rgba(243, 248, 255, 0.78);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+  border-bottom: 1px solid rgba(38, 61, 102, 0.05);
+}
+
+html[data-theme="dark"] .workbench-shell .todo-heading::before,
+html[data-theme="dark"] .workbench-shell .quick-tag-heading::before {
+  background: rgba(38, 40, 50, 0.76);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.workbench-shell .todo-section.is-collapsed > .todo-heading::before,
+.workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
+  border-bottom-color: transparent;
+}
+
+.workbench-shell button.quick-button {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.85);
+}
+
+.workbench-shell button.quick-button:hover {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(66, 133, 244, 0.28);
+}
+
+html[data-theme="dark"] .workbench-shell button.quick-button {
+  background: rgba(40, 42, 52, 0.76);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .workbench-shell button.quick-button:hover {
+  background: rgba(54, 62, 80, 0.88);
+  border-color: rgba(138, 180, 248, 0.28);
+}
+
+.workbench-shell .space-tabs-scrollbar {
+  background: rgba(242, 247, 255, 0.72);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
+}
+
+html[data-theme="dark"] .workbench-shell .space-tabs-scrollbar {
+  background: rgba(38, 40, 50, 0.68);
+}
+
+.workbench-shell .space-tab.is-active {
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 1px 4px rgba(31, 52, 92, 0.06);
+}
+
+html[data-theme="dark"] .workbench-shell .space-tab.is-active {
+  background: rgba(48, 51, 62, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 4px rgba(0, 0, 0, 0.24);
+}
+
+:is(.workbench-shell, .focus-now-images) .image-card {
+  background: rgba(255, 255, 255, 0.76);
+}
+
+html[data-theme="dark"] :is(.workbench-shell, .focus-now-images) .image-card {
+  background: rgba(30, 31, 38, 0.78);
+}
+
+/* Tier 4: Frosted glass overlays (dropdowns, popovers, command palette, notify picker). */
+.n-dropdown-menu,
+.n-popover,
+.command-palette-dialog,
+.notify-floating-date-picker {
+  background: rgba(255, 255, 255, 0.8) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.55);
+  backdrop-filter: blur(26px) saturate(1.55);
+  border-color: rgba(255, 255, 255, 0.82);
+}
+
+html[data-theme="dark"] .n-dropdown-menu,
+html[data-theme="dark"] .n-popover,
+html[data-theme="dark"] .command-palette-dialog,
+html[data-theme="dark"] .notify-floating-date-picker {
+  background: rgba(28, 30, 38, 0.84) !important;
+  -webkit-backdrop-filter: blur(26px) saturate(1.4);
+  backdrop-filter: blur(26px) saturate(1.4);
+  border-color: rgba(255, 255, 255, 0.11);
+}
+
+/* Accessibility fallback: restore clean opaque surfaces when reduced transparency is requested. */
+@media (prefers-reduced-transparency: reduce) {
+  .workbench-command-bar,
+  .workbench-zone,
+  .workbench-shell .todo-section,
+  .workbench-shell .quick-tag-group,
+  .workbench-shell .space-text-panel,
+  .workbench-shell .todo-heading::before,
+  .workbench-shell .quick-tag-heading::before,
+  .workbench-shell .space-tabs-scrollbar,
+  .n-dropdown-menu,
+  .n-popover,
+  .command-palette-dialog,
+  .notify-floating-date-picker {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .workbench-command-bar,
+  .workbench-zone {
+    background: var(--desk-surface);
+  }
+
+  .workbench-shell .todo-section,
+  .workbench-shell .quick-tag-group,
+  .workbench-shell .space-text-panel,
+  .n-dropdown-menu,
+  .n-popover,
+  .command-palette-dialog,
+  .notify-floating-date-picker {
+    background: var(--card) !important;
+  }
+}
