@@ -566,9 +566,9 @@ describe("workbench style contract", () => {
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
     expectSelectorBody(styles, ".selection-toolbar", "background: var(--material-elevated)");
     expect(ruleBodies(styles, ".selection-toolbar").join("\n")).not.toContain("backdrop-filter");
-    expectSelectorBody(desk, ".selection-toolbar", "background: var(--material-elevated)");
+    expectSelectorBody(desk, ".selection-toolbar", "background: rgba(255, 255, 255, 0.90)");
     expectSelectorBody(desk, ".selection-toolbar", "backdrop-filter: none");
-    expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "background: var(--material-elevated)");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "background: rgba(30, 32, 40, 0.92)");
     expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("blur(");
   });
 });

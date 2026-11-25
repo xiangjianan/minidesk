@@ -2105,7 +2105,7 @@ html[data-theme="dark"] .notify-floating-date-picker {
 
 /* Selection toolbar uses plain alpha translucency (no backdrop blur) so underlying text silhouettes stay subtly visible. */
 .selection-toolbar {
-  background: var(--material-elevated);
+  background: rgba(255, 255, 255, 0.90);
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
   border-color: rgba(110, 130, 158, 0.22);
@@ -2113,7 +2113,7 @@ html[data-theme="dark"] .notify-floating-date-picker {
 }
 
 html[data-theme="dark"] .selection-toolbar {
-  background: var(--material-elevated);
+  background: rgba(30, 32, 40, 0.92);
   border-color: rgba(255, 255, 255, 0.14);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.34);
 }
