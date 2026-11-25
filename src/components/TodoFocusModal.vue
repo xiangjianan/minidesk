@@ -49,6 +49,7 @@ const emit = defineEmits<{
   dropImageFiles: [files: File[], targetId?: string];
   copyImage: [id: string];
   deleteImage: [id: string, anchor?: HTMLElement];
+  requestDeleteImage: [id: string, anchor?: HTMLElement];
   reorderImages: [dragId: string, targetId: string];
   moveImageToBottom: [id: string];
   saveImage: [payload: FocusImageSavePayload];
@@ -421,6 +422,7 @@ function handleModalShow(value: boolean): void {
             @close-preview="clearPreview"
             @copy="(id: string) => emit('copyImage', id)"
             @delete="(id: string, anchor?: HTMLElement) => emit('deleteImage', id, anchor)"
+            @request-delete="(id: string, anchor?: HTMLElement) => emit('requestDeleteImage', id, anchor)"
             @reorder="(dragId: string, targetId: string) => emit('reorderImages', dragId, targetId)"
             @move-to-bottom="(id: string) => emit('moveImageToBottom', id)"
             @paste="(request: ImagePasteRequest) => emit('pasteImage', request)"

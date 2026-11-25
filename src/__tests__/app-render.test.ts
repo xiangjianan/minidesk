@@ -4057,6 +4057,33 @@ describe("App shell", () => {
     }
   });
 
+  it("confirms the image card delete button before deleting, and supports cancel", async () => {
+    vi.useFakeTimers();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ images: [{ id: "img-confirm", src: "data:image/png;base64,YQ==", createdAt: 1 }] }));
+    const wrapper = mountApp();
+    try {
+      const panel = wrapper.getComponent(ImagePanel);
+      const request = async () => {
+        panel.vm.$emit("requestDelete", "img-confirm", panel.element as HTMLElement);
+        await wrapper.vm.$nextTick();
+        await vi.advanceTimersByTimeAsync(200);
+        await wrapper.vm.$nextTick();
+      };
+      await request();
+      expect(panel.props("images")).toHaveLength(1);
+      expect(wrapper.find('[data-testid="companion-yes"]').exists()).toBe(true);
+      await wrapper.get('[data-testid="companion-no"]').trigger("click");
+      expect(panel.props("images")).toHaveLength(1);
+      await request();
+      await wrapper.get('[data-testid="companion-yes"]').trigger("click");
+      await wrapper.vm.$nextTick();
+      expect(panel.props("images")).toHaveLength(0);
+    } finally {
+      wrapper.unmount();
+      vi.useRealTimers();
+    }
+  });
+
   it("confirms image deletion and restores it with undo", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);

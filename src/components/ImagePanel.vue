@@ -57,6 +57,7 @@ const emit = defineEmits<{
   copy: [id: string];
   edit: [id: string];
   delete: [id: string, anchor?: HTMLElement];
+  requestDelete: [id: string, anchor?: HTMLElement];
   reorder: [dragId: string, targetId: string];
   moveToBottom: [id: string];
   moveToWorkspace: [id: string, workspaceId: string];
@@ -827,7 +828,7 @@ function handleImageDragWheel(event: WheelEvent): void {
             :aria-label="uiText.images.deleteImage"
             :title="uiText.images.deleteImage"
             @mousedown.prevent
-            @click.stop="emit('delete', image.id, ($event.currentTarget as HTMLElement))"
+            @click.stop="emit('requestDelete', image.id, ($event.currentTarget as HTMLElement))"
             @keydown.stop
           >
             <NIcon :component="TrashOutline" :size="13" />

@@ -2288,6 +2288,21 @@ function moveImageToBottom(id: string): void {
   persistNow();
 }
 
+function requestImageCardDeletion(id: string, anchor?: HTMLElement, focus = false): void {
+  const workspaceId = activeWorkspace.value.id;
+  const session = focus ? focusSession.value : null;
+  if (focus && !session) return;
+  requestConfirmation("confirmDeleteImage", anchor, () => {
+    if (activeWorkspace.value.id !== workspaceId) return;
+    if (focus) {
+      if (!focusSession.value || focusSession.value.id !== session?.id || focusSession.value.period !== session.period) return;
+      deleteFocusImage(id, anchor);
+    } else {
+      deleteImage(id, anchor);
+    }
+  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, highlightTarget: null });
+}
+
 function deleteImage(id: string, anchor?: HTMLElement): void {
   const feedbackAnchor = getImageUndoAnchor(anchor);
   const index = activeWorkspace.value.images.findIndex((image) => image.id === id);
@@ -4611,6 +4626,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @copy="copyImage"
           @edit="openImageEditor"
           @delete="deleteImage"
+          @request-delete="requestImageCardDeletion"
           @reorder="reorderImages"
           @move-to-bottom="moveImageToBottom"
           @move-to-workspace="moveImageAcrossWorkspaces"
@@ -4819,6 +4835,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @drop-image-files="(files, targetId) => focusSession && addImageFiles(files, undefined, targetId, { period: focusSession.period, id: focusSession.id })"
       @copy-image="copyFocusImage"
       @delete-image="deleteFocusImage"
+      @request-delete-image="(id, anchor) => requestImageCardDeletion(id, anchor, true)"
       @save-image="saveFocusImage"
       @reorder-images="(dragId, targetId) => focusSession && replaceFocusImages({ period: focusSession.period, id: focusSession.id }, (list) => { moveItem(list, dragId, targetId); return list; })"
       @move-image-to-bottom="(id) => focusSession && replaceFocusImages({ period: focusSession.period, id: focusSession.id }, (list) => { const i = list.findIndex((item) => item.id === id); if (i >= 0 && i < list.length - 1) list.push(...list.splice(i, 1)); return list; })"

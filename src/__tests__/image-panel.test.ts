@@ -580,7 +580,8 @@ describe("ImagePanel", () => {
     expect(wrapper.emitted("preview")).toBeUndefined();
 
     await wrapper.get('[data-testid="image-card-delete-b"]').trigger("click");
-    expect(wrapper.emitted("delete")?.[0]?.[0]).toBe("b");
+    expect(wrapper.emitted("requestDelete")?.[0]?.[0]).toBe("b");
+    expect(wrapper.emitted("delete")).toBeUndefined();
     expect(wrapper.emitted("preview")).toBeUndefined();
     wrapper.unmount();
   });
