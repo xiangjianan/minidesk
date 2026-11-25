@@ -570,5 +570,7 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".selection-toolbar", "backdrop-filter: none");
     expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "background: rgba(30, 32, 40, 0.92)");
     expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("blur(");
+    expectSelectorBody(desk, ".image-card-actions", "background: rgba(255, 255, 255, 0.90)");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .image-card-actions', "background: rgba(30, 32, 40, 0.92)");
   });
 });
