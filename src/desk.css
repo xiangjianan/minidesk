@@ -2151,16 +2151,16 @@ html[data-theme="dark"] .selection-toolbar {
 /* GIF message bubbles need stronger opacity than image actions for readable text. */
 .companion-popover-shell.n-popover.is-gif-theme:not(.is-confirm-danger),
 .companion-popover-shell.n-popover.is-gif-theme:not(.is-confirm-danger) .companion-popover-arrow {
-  background: rgba(255, 255, 255, 0.90) !important;
+  background: rgba(255, 255, 255, 0.78) !important;
   border-color: rgba(110, 130, 158, 0.22) !important;
 }
 .companion-popover-shell.n-popover.is-gif-theme:not(.is-confirm-danger) {
-  -webkit-backdrop-filter: blur(26px) saturate(1.4);
-  backdrop-filter: blur(26px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
 }
 html[data-theme="dark"] .companion-popover-shell.n-popover.is-gif-theme:not(.is-confirm-danger),
 html[data-theme="dark"] .companion-popover-shell.n-popover.is-gif-theme:not(.is-confirm-danger) .companion-popover-arrow {
-  background: rgba(28, 30, 38, 0.92) !important;
+  background: rgba(28, 30, 38, 0.82) !important;
   border-color: rgba(255, 255, 255, 0.13) !important;
 }
 @media (prefers-reduced-transparency: reduce) {
