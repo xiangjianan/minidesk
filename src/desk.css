@@ -2009,9 +2009,9 @@ html[data-theme="dark"] :is(.workbench-shell, .focus-now-images) .image-card::af
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* Avoid doubling the glass rim with the image card's underlying border. */
+/* Draw the image rim at the outer edge, with no empty border around it. */
 :is(.workbench-shell, .focus-now-images) .image-card:not(.is-active, .is-drop-target) {
-  border-color: transparent;
+  border: 0;
 }
 
 /* The tabs and editor form one notebook; match the reminder heading divider. */
