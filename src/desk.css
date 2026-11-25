@@ -2103,31 +2103,19 @@ html[data-theme="dark"] .notify-floating-date-picker {
   border-color: rgba(255, 255, 255, 0.11);
 }
 
-/* Selection toolbar stays noticeably translucent over notebook text. */
+/* Selection toolbar uses plain alpha translucency (no backdrop blur) so underlying text silhouettes stay subtly visible. */
 .selection-toolbar {
-  background: color-mix(in srgb, var(--material-elevated) 62%, transparent);
-  -webkit-backdrop-filter: blur(8px) saturate(1.45);
-  backdrop-filter: blur(8px) saturate(1.45);
+  background: var(--material-elevated);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   border-color: rgba(110, 130, 158, 0.22);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.72),
-    0 4px 16px rgba(24, 42, 82, 0.10);
+  box-shadow: 0 4px 16px rgba(24, 42, 82, 0.10);
 }
 
 html[data-theme="dark"] .selection-toolbar {
-  background: color-mix(in srgb, var(--material-elevated) 64%, transparent);
-  -webkit-backdrop-filter: blur(8px) saturate(1.4);
-  backdrop-filter: blur(8px) saturate(1.4);
+  background: var(--material-elevated);
   border-color: rgba(255, 255, 255, 0.14);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 6px 20px rgba(0, 0, 0, 0.34);
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .selection-toolbar {
-    background: var(--material-elevated);
-  }
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.34);
 }
 
 /* Keep text legible over busy workbench content, matching the image action material. */

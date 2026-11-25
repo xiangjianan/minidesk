@@ -561,14 +561,14 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".workbench-shell .quick-tag-add-button:focus-visible", "box-shadow: none");
   });
 
-  it("keeps the notebook selection toolbar translucent in light and dark themes", () => {
+  it("keeps the notebook selection toolbar translucent without backdrop blur", () => {
     const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
-    expectSelectorBody(styles, ".selection-toolbar", "color-mix(in srgb, var(--material-elevated)");
-    expectSelectorBody(styles, ".selection-toolbar", "backdrop-filter: blur(8px)");
-    expectSelectorBody(desk, ".selection-toolbar", "color-mix(in srgb, var(--material-elevated) 62%, transparent)");
-    expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "color-mix(in srgb, var(--material-elevated) 64%, transparent)");
-    expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("rgba(255, 255, 255, 0.8)");
-    expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("rgba(255, 255, 255, 0.92)");
+    expectSelectorBody(styles, ".selection-toolbar", "background: var(--material-elevated)");
+    expect(ruleBodies(styles, ".selection-toolbar").join("\n")).not.toContain("backdrop-filter");
+    expectSelectorBody(desk, ".selection-toolbar", "background: var(--material-elevated)");
+    expectSelectorBody(desk, ".selection-toolbar", "backdrop-filter: none");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "background: var(--material-elevated)");
+    expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("blur(");
   });
 });
