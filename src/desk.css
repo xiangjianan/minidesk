@@ -518,7 +518,6 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 @container (min-width: 1294px) {
   .workbench-shell .quick-buttons { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
-.workbench-shell button.quick-button { max-width: 400px; }
 
 /* Compact actions wrap as pills, bounded by both the list and 240px. */
 .workbench-shell .quick-block.is-compact .quick-buttons {
