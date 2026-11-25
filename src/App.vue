@@ -361,6 +361,9 @@ async function showStorageUsage(): Promise<void> {
   storageUsageError.value = false;
   orphanScanError.value = false;
   storageUsageRows.value = [];
+  // Start the orphan scan independently of workspace image hydration.
+  const orphanScan = Promise.resolve().then(() => orphanedImagePayloads(collectSafeRetainedIds()))
+    .then(usage => ({ usage, error: false as const }), () => ({ error: true as const }));
   try {
     const rows = [];
     for (const workspace of state.workspaces) {
@@ -373,15 +376,14 @@ async function showStorageUsage(): Promise<void> {
       rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes, imageBytes });
     }
     storageUsageRows.value = rows;
-    try {
-      const usage = await orphanedImagePayloads(collectSafeRetainedIds());
-      if (sequence === orphanScanSequence) orphanUsage.value = usage;
-    }
-    catch { orphanScanError.value = true; storageUsageError.value = true; }
   } catch {
     storageUsageError.value = true;
-    orphanScanError.value = true;
   } finally {
+    const result = await orphanScan;
+    if (sequence === orphanScanSequence) {
+      if (result.error) { orphanScanError.value = true; storageUsageError.value = true; }
+      else orphanUsage.value = result.usage;
+    }
     storageUsageLoading.value = false;
   }
 }

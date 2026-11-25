@@ -2080,6 +2080,16 @@ html[data-theme="dark"] .selection-toolbar {
   border-color: rgba(255, 255, 255, 0.11);
 }
 
+/* Keep text legible over busy workbench content, matching the image action material. */
+.n-dropdown-menu,
+.selection-toolbar {
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+html[data-theme="dark"] .n-dropdown-menu,
+html[data-theme="dark"] .selection-toolbar {
+  background: rgba(30, 32, 40, 0.94) !important;
+}
+
 /* Unified frosted glass modals across all dialogs (confirm, quick button, groups, focus, shortcuts, settings, inbox). */
 .n-modal-mask {
   background-color: rgba(22, 34, 62, 0.24) !important;

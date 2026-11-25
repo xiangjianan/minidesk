@@ -103,6 +103,30 @@ describe('sorting landing gap', () => {
     gap.restore();
   });
 
+  it.each([
+    ['.todo-item', 'todo-section', 'todo-list'],
+    ['.quick-button', 'quick-tag-group', 'quick-buttons'],
+  ])('animates destination rows and the gap when %s enters another group', (selector, groupClass, listClass) => {
+    const root = document.body.appendChild(document.createElement('div'));
+    root.innerHTML = `<section class="${groupClass}"><div class="${listClass}"><div class="${selector.slice(1)}">A</div></div></section><section class="${groupClass}"><div class="${listClass}"><div class="${selector.slice(1)}">B</div></div></section>`;
+    const [source, target] = Array.from(root.querySelectorAll<HTMLElement>(selector));
+    vi.spyOn(source!, 'getBoundingClientRect').mockReturnValue({ left: 0, right: 100, top: 0, bottom: 40, width: 100, height: 40 } as DOMRect);
+    vi.spyOn(target!, 'getBoundingClientRect').mockImplementation(() => {
+      const top = target!.previousElementSibling?.classList.contains('sort-gap') ? 140 : 100;
+      return { left: 0, right: 100, top, bottom: top + 40, width: 100, height: 40 } as DOMRect;
+    });
+    const animate = vi.fn(() => ({ cancel: vi.fn() }) as unknown as Animation);
+    target!.animate = animate;
+    Object.defineProperty(document, 'elementFromPoint', { configurable: true, value: () => target });
+    const gap = createSortGap(source!, selector);
+    const placeholder = root.querySelector<HTMLElement>('.sort-gap')!;
+    placeholder.animate = vi.fn(() => ({ cancel: vi.fn() }) as unknown as Animation);
+    gap.update(root, 20, 110);
+    expect(animate).toHaveBeenCalledWith([{ transform: 'translate(0px, -40px)' }, { transform: 'translate(0, 0)' }], expect.anything());
+    expect(placeholder.animate).toHaveBeenCalledWith([{ opacity: 0 }, { opacity: 1 }], expect.anything());
+    gap.restore();
+  });
+
   it('accepts blank space beside a single quick button and animates group height changes', () => {
     const root = document.body.appendChild(document.createElement('div'));
     root.innerHTML = '<section class="quick-tag-group"><div class="quick-buttons"><button class="quick-button">A</button></div></section><section class="quick-tag-group"><div class="quick-buttons"><button class="quick-button">B</button></div></section>';

@@ -133,8 +133,10 @@ describe("storage cleanup indicator", () => {
       await flushPromises();
       expect(settings.props("orphanCount")).toBe(0);
 
+      const scansBeforeOpen = scan.mock.calls.length;
       settings.vm.$emit("storageUsage");
       await flushPromises();
+      expect(scan).toHaveBeenCalledTimes(scansBeforeOpen + 1);
       expect(wrapper.text()).toContain("可清理的未引用图片：0 项");
       expect(settings.props("orphanCount")).toBe(0);
     } finally {

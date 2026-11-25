@@ -36,11 +36,36 @@ export function createSortGap(source: HTMLElement, selector: string) {
     const groupSelector = selector === '.quick-button' ? '.quick-tag-group' : selector === '.todo-item' ? '.todo-section' : '';
     const groups = groupSelector ? Array.from(new Set([gap.parentElement?.closest<HTMLElement>(groupSelector), destination.closest<HTMLElement>(groupSelector)].filter((el): el is HTMLElement => Boolean(el)))) : [];
     const heights = groups.map(group => group.getBoundingClientRect().height);
+    const animateRows = selector === '.todo-item' || selector === '.quick-button';
+    const parents = animateRows ? Array.from(new Set([oldParent, destination.closest<HTMLElement>(selector === '.todo-item' ? '.todo-list' : '.quick-buttons') ?? destination].filter((el): el is HTMLElement => el instanceof HTMLElement))) : [];
+    const rows = parents.flatMap(parent => Array.from(parent.children).filter((el): el is HTMLElement => el instanceof HTMLElement && el.matches(selector) && el !== source));
+    const positions = rows.map(el => ({ visual: el.getBoundingClientRect(), layout: layoutBounds(el) }));
+    const wasVisible = gap.style.display !== 'none';
     groups.forEach(group => { heightAnimations.get(group)?.cancel(); heightAnimations.delete(group); });
     move();
+    if (animateRows && oldParent !== gap.parentElement) gap.style.display = '';
     syncTodoPreview(oldParent);
     syncTodoPreview(gap.parentElement);
     const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const destinations = rows.map(el => layoutBounds(el));
+    rows.forEach((el, index) => {
+      const from = positions[index]!;
+      const to = destinations[index]!;
+      if (from.layout.left === to.left && from.layout.top === to.top) return;
+      animations.get(el)?.cancel();
+      animations.delete(el);
+      if (!el.animate || reducedMotion) return;
+      const animation = el.animate([
+        { transform: `translate(${from.visual.left - to.left}px, ${from.visual.top - to.top}px)` },
+        { transform: 'translate(0, 0)' },
+      ], { duration: 180, easing: 'ease-out' });
+      animations.set(el, animation);
+      const finish = () => { if (animations.get(el) === animation) animations.delete(el); };
+      void animation.finished?.then(finish, finish);
+    });
+    if (animateRows && gap.style.display !== 'none' && (!wasVisible || oldParent !== gap.parentElement) && gap.animate && !reducedMotion) {
+      gap.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, easing: 'ease-out' });
+    }
     groups.forEach((group, index) => {
       const height = group.getBoundingClientRect().height;
       if (height === heights[index] || !group.animate || reducedMotion) return;
@@ -138,39 +163,43 @@ export function createSortGap(source: HTMLElement, selector: string) {
     if (anchor === item && before === insertBefore) return;
     anchor = item; container = null; before = insertBefore;
     if (before ? item.previousElementSibling === gap : item.nextElementSibling === gap) return;
-    // Within one list, only the siblings between the old and new gap move.
-    // Measuring every other list (often hundreds of rows) cannot change the
-    // result, and forces expensive off-screen layout on every pointer move.
-    let elements = candidates;
-    if (gap.parentElement === item.parentElement) {
-      const siblings = Array.from(item.parentElement!.children);
-      const start = siblings.indexOf(gap);
-      const end = siblings.indexOf(item);
-      const affected = new Set(siblings.slice(Math.min(start, end), Math.max(start, end) + 1));
-      elements = candidates.filter(element => affected.has(element));
+    if (selector === '.todo-item' || selector === '.quick-button') {
+      moveGap(() => { if (before) item.before(gap); else item.after(gap); }, item);
+    } else {
+      // Within one list, only the siblings between the old and new gap move.
+      // Measuring every other list (often hundreds of rows) cannot change the
+      // result, and forces expensive off-screen layout on every pointer move.
+      let elements = candidates;
+      if (gap.parentElement === item.parentElement) {
+        const siblings = Array.from(item.parentElement!.children);
+        const start = siblings.indexOf(gap);
+        const end = siblings.indexOf(item);
+        const affected = new Set(siblings.slice(Math.min(start, end), Math.max(start, end) + 1));
+        elements = candidates.filter(element => affected.has(element));
+      }
+      const positions = elements.map(el => ({ visual: el.getBoundingClientRect(), layout: layoutBounds(el) }));
+      moveGap(() => { if (before) item.before(gap); else item.after(gap); }, item);
+      // Finish all reads before cancellation/animation writes. Interleaving them
+      // would force style/layout again for each subsequent row.
+      const destinations = elements.map(el => layoutBounds(el));
+      const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      elements.forEach((el, i) => {
+        const to = destinations[i]!;
+        const from = positions[i]!;
+        // Fast pointer movement often changes only the next row's destination.
+        // Leave every other row's in-flight animation (and easing clock) intact.
+        if (from.layout.left === to.left && from.layout.top === to.top) return;
+        animations.get(el)?.cancel();
+        animations.delete(el);
+        if (!el.animate || reducedMotion) return;
+        const animation = el.animate([
+          { transform: `translate(${from.visual.left - to.left}px, ${from.visual.top - to.top}px)` }, { transform: 'translate(0, 0)' },
+        ], { duration: 180, easing: 'ease-out' });
+        animations.set(el, animation);
+        const finish = () => { if (animations.get(el) === animation) animations.delete(el); };
+        void animation.finished?.then(finish, finish);
+      });
     }
-    const positions = elements.map(el => ({ visual: el.getBoundingClientRect(), layout: layoutBounds(el) }));
-    moveGap(() => { if (before) item.before(gap); else item.after(gap); }, item);
-    // Finish all reads before cancellation/animation writes. Interleaving them
-    // would force style/layout again for each subsequent row.
-    const destinations = elements.map(el => layoutBounds(el));
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    elements.forEach((el, i) => {
-      const to = destinations[i]!;
-      const from = positions[i]!;
-      // Fast pointer movement often changes only the next row's destination.
-      // Leave every other row's in-flight animation (and easing clock) intact.
-      if (from.layout.left === to.left && from.layout.top === to.top) return;
-      animations.get(el)?.cancel();
-      animations.delete(el);
-      if (!el.animate || reducedMotion) return;
-      const animation = el.animate([
-        { transform: `translate(${from.visual.left - to.left}px, ${from.visual.top - to.top}px)` }, { transform: 'translate(0, 0)' },
-      ], { duration: 180, easing: 'ease-out' });
-      animations.set(el, animation);
-      const finish = () => { if (animations.get(el) === animation) animations.delete(el); };
-      void animation.finished?.then(finish, finish);
-    });
   }
   function restore() {
     clearCollapsedTarget();
