@@ -5,7 +5,7 @@ import type { InputInst } from 'naive-ui';
 import type { AppLanguage, QuickTag } from '../types';
 import { getUiText } from '../state/i18n';
 import { TITLE_MAX_LENGTH, limitTitle } from '../state/titleLimits';
-import { nextQuickColor, QUICK_COLORS } from '../state/quickColors';
+import { QUICK_COLORS } from '../state/quickColors';
 
 const props = defineProps<{ language: AppLanguage; tags: QuickTag[] }>();
 const emit = defineEmits<{ confirm: [payload: { id?: string; title: string; backgroundColor: string | null }] }>();
@@ -23,7 +23,7 @@ async function open(_anchor?: HTMLElement, tag?: QuickTag) {
   if (_anchor === document.activeElement) _anchor.blur();
   id.value = tag?.id;
   title.value = tag?.title ?? '';
-  color.value = tag ? tag.backgroundColor ?? null : nextQuickColor(props.tags);
+  color.value = tag?.backgroundColor ?? null;
   customColor.value = color.value ?? '#80aed5';
   attempted.value = false;
   show.value = true;

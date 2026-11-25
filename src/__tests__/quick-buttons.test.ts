@@ -1487,18 +1487,19 @@ describe("QuickButtons", () => {
     areaWrapper.unmount();
   });
 
-  it("opens the list dialog from the header menu and creates a list with a default color", async () => {
+  it("opens the list dialog from the header menu and creates a list without a default color", async () => {
     const wrapper = mountQuickButtons({ tags: [{ id: "general", title: "常用" }] });
     await wrapper.get(".quick-menu-button").trigger("click");
     await wrapper.get('.dropdown-option[data-key="create-list"]').trigger("click");
     expect(wrapper.get(".quick-list-dialog").text()).toContain("新建分组");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
+    expect(wrapper.get(".quick-list-dialog .quick-color-none").attributes("aria-pressed")).toBe("true");
     await wrapper.get(".quick-list-dialog input").setValue("常用");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeDefined();
     await wrapper.get(".quick-list-dialog input").setValue("工作");
     expect(wrapper.get(".quick-list-dialog .quick-dialog-submit").attributes("disabled")).toBeUndefined();
     await wrapper.get(".quick-list-dialog form").trigger("submit");
-    expect(wrapper.emitted("saveTag")?.[0]).toEqual([{ id: undefined, title: "工作", backgroundColor: "#3b82f6" }]);
+    expect(wrapper.emitted("saveTag")?.[0]).toEqual([{ id: undefined, title: "工作", backgroundColor: null }]);
     expect(wrapper.find(".quick-form").exists()).toBe(false);
     wrapper.unmount();
   });
