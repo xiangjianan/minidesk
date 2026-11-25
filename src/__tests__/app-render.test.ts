@@ -2543,7 +2543,7 @@ describe("App shell", () => {
     }
   });
 
-  it("highlights the tag heading and all its quick buttons pending tag deletion", async () => {
+  it("keeps quick-button groups unhighlighted while confirming deletion", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -2570,11 +2570,11 @@ describe("App shell", () => {
       await wrapper.get('[data-key="delete-tag"]').trigger("click");
       await wrapper.vm.$nextTick();
 
-      // 被删标签：标题行 + 组内全部按钮一起高亮；另一组完全不受影响。
-      expect(groups[0].get(".quick-tag-heading").attributes("data-confirm-target")).toBeDefined();
+      // Confirmation remains available without tinting the group or its buttons.
+      expect(groups[0].get(".quick-tag-heading").attributes("data-confirm-target")).toBeUndefined();
       const groupAButtons = groups[0].findAll(".quick-button");
       expect(groupAButtons).toHaveLength(2);
-      groupAButtons.forEach((button) => expect(button.attributes("data-confirm-target")).toBeDefined());
+      groupAButtons.forEach((button) => expect(button.attributes("data-confirm-target")).toBeUndefined());
       expect(groups[1].get(".quick-tag-heading").attributes("data-confirm-target")).toBeUndefined();
       groups[1].findAll(".quick-button").forEach((button) => expect(button.attributes("data-confirm-target")).toBeUndefined());
     } finally {
@@ -2583,7 +2583,7 @@ describe("App shell", () => {
     }
   });
 
-  it("highlights the list heading and all its todos pending list deletion", async () => {
+  it("keeps reminder groups unhighlighted while confirming deletion", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -2606,9 +2606,8 @@ describe("App shell", () => {
       await wrapper.get('[data-key="delete-list"]').trigger("click");
       await wrapper.vm.$nextTick();
 
-      // 被删列表：标题行 + 组内全部提醒事项一起高亮；另一列表不受影响。
-      expect(sections[0].get(".todo-heading").attributes("data-confirm-target")).toBeDefined();
-      sections[0].findAll(".todo-item").forEach((row) => expect(row.attributes("data-confirm-target")).toBeDefined());
+      expect(sections[0].get(".todo-heading").attributes("data-confirm-target")).toBeUndefined();
+      sections[0].findAll(".todo-item").forEach((row) => expect(row.attributes("data-confirm-target")).toBeUndefined());
       expect(sections[1].get(".todo-heading").attributes("data-confirm-target")).toBeUndefined();
       sections[1].findAll(".todo-item").forEach((row) => expect(row.attributes("data-confirm-target")).toBeUndefined());
     } finally {
@@ -2617,7 +2616,7 @@ describe("App shell", () => {
     }
   });
 
-  it("highlights the space tab and its lines but not the panel header pending space deletion", async () => {
+  it("highlights the notebook tab without tinting its content pending deletion", async () => {
     vi.useFakeTimers();
     vi.spyOn(Math, "random").mockReturnValue(0);
     localStorage.setItem(
@@ -2637,10 +2636,10 @@ describe("App shell", () => {
       await wrapper.get(".space-panel").findAll(".dropdown-option").find((option) => option.text() === "删除")?.trigger("click");
       await wrapper.vm.$nextTick();
 
-      // 被删空间标签 + 其下文本编辑区高亮；「记事本」标题行保持干净。
+      // The selected tab identifies the target while the editor remains readable.
       expect(wrapper.get('[data-space-tab-id="workspace"]').attributes("data-confirm-target")).toBeDefined();
       const editor = wrapper.get(".space-panel .text-editor-textarea");
-      expect(editor.attributes("data-confirm-target")).toBeDefined();
+      expect(editor.attributes("data-confirm-target")).toBeUndefined();
       expect(wrapper.get(".space-panel .desk-zone-heading").attributes("data-confirm-target")).toBeUndefined();
       // 非活跃标签只高亮标签本身：其文本行不在 DOM，也不误伤当前展示行。
       await vi.advanceTimersByTimeAsync(200); // 确认框 200ms 入场延迟

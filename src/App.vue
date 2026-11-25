@@ -2661,7 +2661,7 @@ function deleteQuickTagWithButtons(id: string, anchor?: HTMLElement): void {
       for (const { item, index } of removedButtons) if (!workspace.quickButtons.some((button) => button.id === item.id)) workspace.quickButtons.splice(Math.min(index, workspace.quickButtons.length), 0, item);
       persistNow();
     });
-  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, highlightTarget: getQuickTagGroupTargets(id, anchor) });
+  }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, highlightTarget: null });
 }
 
 function moveQuickButtonsToTag(fromTagId: string, toTagId: string | undefined): void {
@@ -3170,7 +3170,7 @@ function deleteTodoList(listId: TodoListId, anchor?: HTMLElement): void {
     anchor,
     remove,
     undefined,
-    { confirmText: uiText.value.todo.deleteList, cancelText: uiText.value.common.cancel, danger: true, highlightTarget: getTodoListGroupTargets(listId, anchor) },
+    { confirmText: uiText.value.todo.deleteList, cancelText: uiText.value.common.cancel, danger: true, highlightTarget: null },
   );
 }
 
@@ -4412,25 +4412,9 @@ function getImageUndoAnchor(anchor?: HTMLElement): HTMLElement | undefined {
   return document.querySelector<HTMLElement>(".image-panel") ?? anchor;
 }
 
-/* ---------- 组删除的确认高亮目标：标题行 + 组内子项逐个标记 ----------
- * 红底样式按元素叠加（子项多自带底色，整块容器染色会被盖住），故收集为元素数组；
- * 容器不在 DOM（如折叠/未渲染）时退回单个锚点。 */
-
-/** 属性选择器取值转义：id 均为客户端生成的 base36 串，正常不含特殊字符，这里只
- *  兜底引号/反斜杠（jsdom 无 CSS.escape，不能依赖）。 */
+/** 属性选择器取值转义：兼容可能包含引号或反斜杠的 ID。 */
 function cssAttrValue(value: string): string {
   return value.replace(/["\\]/g, "\\$&");
-}
-
-/** 标签头「删除」：标签标题行 + 组内全部快捷按钮（标签管理器删除不连带按钮，仍单目标）。 */
-function getQuickTagGroupTargets(tagId: string, anchor?: HTMLElement): HTMLElement | HTMLElement[] | undefined {
-  const group = document.querySelector<HTMLElement>(`.quick-tag-group[data-tag-id="${cssAttrValue(tagId)}"]`);
-  if (!group) return anchor;
-  const targets = [
-    group.querySelector<HTMLElement>(".quick-tag-heading"),
-    ...Array.from(group.querySelectorAll<HTMLElement>(".quick-button")),
-  ].filter((element): element is HTMLElement => Boolean(element));
-  return targets.length ? targets : anchor;
 }
 
 /** 清理已完成：只标记正在展示的已完成行，不标记标题或恢复隐藏事项。 */
@@ -4440,27 +4424,10 @@ function getCompletedTodoTargets(listId: TodoListId): HTMLElement[] {
   return Array.from(section?.querySelectorAll<HTMLElement>(".todo-item.is-done") ?? []);
 }
 
-/** 删除列表：列表标题行 + 该列表下全部提醒事项。 */
-function getTodoListGroupTargets(listId: TodoListId, anchor?: HTMLElement): HTMLElement | HTMLElement[] | undefined {
-  const section = document.querySelector<HTMLElement>(`.todo-section[data-list-id="${cssAttrValue(listId)}"]`);
-  if (!section) return anchor;
-  const targets = [
-    section.querySelector<HTMLElement>(".todo-heading"),
-    ...Array.from(section.querySelectorAll<HTMLElement>(".todo-item")),
-  ].filter((element): element is HTMLElement => Boolean(element));
-  return targets.length ? targets : anchor;
-}
-
-/** 删除空间标签：标签本身；删的是当前展示空间时，其下文本编辑区一并染色
- *  （非活跃标签的文本不在 DOM，只染标签，也不误伤当前展示文本）。 */
+/** 删除记事本时只标记标签，不影响正在阅读的正文。 */
 function getSpaceGroupTargets(spaceId: string): HTMLElement[] | undefined {
   const tab = document.querySelector<HTMLElement>(`[data-space-tab-id="${cssAttrValue(spaceId)}"]`);
-  if (!tab) return undefined;
-  const targets: HTMLElement[] = [tab];
-  if (spaceId === activeWorkspace.value.activeSpaceId) {
-    targets.push(...Array.from(document.querySelectorAll<HTMLElement>(".space-panel .text-editor-textarea")));
-  }
-  return targets;
+  return tab ? [tab] : undefined;
 }
 
 function getSpacePanelAnchor(): HTMLElement | undefined {
