@@ -2404,7 +2404,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
 
           <div class="todo-heading-actions">
             <span class="todo-count">{{ periodStats[list.id] }}</span>
-            <button type="button" class="icon-button" :aria-label="uiText.desk.addReminder" :title="uiText.common.create"
+            <button type="button" class="icon-button todo-heading-add-button" :aria-label="uiText.desk.addReminder" :title="uiText.common.create"
               @mousedown.prevent
               @click.stop="handleHeadingAddClick(list)"><NIcon :component="AddOutline" /></button>
             <button type="button" class="icon-button desk-paste-button"

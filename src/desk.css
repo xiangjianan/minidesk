@@ -680,6 +680,9 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   color: var(--primary);
 }
 .workbench-shell .todo-add-row .n-icon { flex-shrink: 0; font-size: 16px; }
+.workbench-shell :is(.todo-add-row, .todo-heading-add-button, .quick-tag-add-button, .quick-add-row):active {
+  transform: none;
+}
 
 /* Floating controls use a material; text-heavy dialogs retain an opaque surface. */
 .n-dropdown-menu,
@@ -2005,6 +2008,12 @@ html[data-theme="dark"] .workbench-shell :where(.todo-section, .quick-tag-group:
 html[data-theme="dark"] :is(.workbench-shell, .focus-now-images) .image-card::after {
   border-color: rgba(210, 222, 245, 0.18);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+/* Keep dark group rims quiet against the surrounding glass. */
+html[data-theme="dark"] .workbench-shell :where(.todo-section, .quick-tag-group:not(.is-empty))::after {
+  border-color: rgba(210, 222, 245, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* The tabs and editor form one notebook; match the reminder heading divider. */
