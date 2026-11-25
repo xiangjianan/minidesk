@@ -2139,13 +2139,11 @@ html[data-theme="dark"] .selection-toolbar {
 
 /* Keep text legible over busy workbench content, matching the image action material. */
 .n-dropdown-menu,
-.n-popover.header-peek-popup,
-.selection-toolbar {
+.n-popover.header-peek-popup {
   background: rgba(255, 255, 255, 0.92) !important;
 }
 html[data-theme="dark"] .n-dropdown-menu,
-html[data-theme="dark"] .n-popover.header-peek-popup,
-html[data-theme="dark"] .selection-toolbar {
+html[data-theme="dark"] .n-popover.header-peek-popup {
   background: rgba(30, 32, 40, 0.94) !important;
 }
 
