@@ -40,17 +40,24 @@ describe("state compatibility", () => {
     expect(legacy.notifyPresetTimes).toEqual(state.notifyPresetTimes);
     expect(legacy.workspaces[0]).not.toHaveProperty("notifyPresetTimes");
   });
-  it("保存各提醒事项独立的专注区域宽度并兼容旧数据", () => {
+  it("兼容包含历史专注字段的提醒事项旧数据并忽略废弃字段", () => {
     const state = defaultState();
-    const workspace = state.workspaces[0];
-    const listId = workspace.todoLists[0].id;
-    workspace.todos[listId] = [
-      { id: "a", text: "A", done: false, focusImageWidth: 35 },
-      { id: "b", text: "B", done: false, focusImageWidth: 70 },
-      { id: "c", text: "C", done: false },
+    const listId = state.workspaces[0].todoLists[0].id;
+    const legacy = JSON.parse(JSON.stringify(getSerializableState(state)));
+    legacy.workspaces[0].todos[listId] = [
+      {
+        id: "a",
+        text: "A",
+        done: false,
+        focusStarted: true,
+        focusElapsedMs: 90_000,
+        focusNotes: [{ text: "旧笔记", indent: 0 }],
+        focusImages: [{ id: "img-1", createdAt: 1 }],
+        focusImageWidth: 35,
+      },
     ];
-    const restored = normalizeImportedState(getSerializableState(state)).workspaces[0].todos[listId];
-    expect(restored.map((todo) => todo.focusImageWidth)).toEqual([35, 70, undefined]);
+    const restored = normalizeImportedState(legacy).workspaces[0].todos[listId];
+    expect(restored).toEqual([{ id: "a", text: "A", done: false, starred: false }]);
   });
 
   it("round-trips optional workspace area proportions", () => {

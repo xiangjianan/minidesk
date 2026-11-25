@@ -49,7 +49,7 @@ export function getSerializableWorkspace(
     }),
     todoLists,
     showCompletedTodos: cloneCompletedVisibility(workspace.showCompletedTodos, todoLists),
-    todos: cloneTodos(workspace.todos, todoLists, options),
+    todos: cloneTodos(workspace.todos, todoLists),
     quickTags: cloneQuickTags(workspace.quickTags),
     quickButtons: workspace.quickButtons.map((button) => {
       if (options.omitQuickButtonClicks !== true) return { ...button };
@@ -131,30 +131,16 @@ function cloneQuickTags(tags: QuickTag[] | undefined): QuickTag[] {
   return (tags ?? []).map((tag) => ({ ...tag }));
 }
 
-function cloneTodos(todos: TodoMap, todoLists: TodoListConfig[], options: SerializableOptions = {}): TodoMap {
+function cloneTodos(todos: TodoMap, todoLists: TodoListConfig[]): TodoMap {
   return Object.fromEntries(
-    todoLists.map((list) => [list.id, (todos[list.id] ?? []).map((todo) => cloneTodo(todo, options))]),
+    todoLists.map((list) => [list.id, (todos[list.id] ?? []).map((todo) => cloneTodo(todo))]),
   ) as TodoMap;
 }
 
-function cloneTodo(todo: TodoItem, options: SerializableOptions = {}): TodoItem {
+function cloneTodo(todo: TodoItem): TodoItem {
   const next: TodoItem = { ...todo };
   delete next.deadlineAt;
   if (!isValidNotifyAt(next.notifyAt)) delete next.notifyAt;
-  if (next.focusNotes) next.focusNotes = cloneLines(next.focusNotes);
-  // 专注贴图与工作区贴图同协议：localStorage 只落元数据，载荷在 IndexedDB。
-  if (next.focusImages) {
-    next.focusImages = next.focusImages.map((image) => {
-      if (options.includeImageData) return { ...image };
-      return {
-        id: image.id,
-        ...(image.payloadId ? { payloadId: image.payloadId } : {}),
-        createdAt: image.createdAt,
-        ...(image.displayWidth ? { displayWidth: image.displayWidth } : {}),
-        ...(image.displayHeight ? { displayHeight: image.displayHeight } : {}),
-      };
-    });
-  }
   return next;
 }
 

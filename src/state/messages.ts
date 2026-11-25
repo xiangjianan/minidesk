@@ -49,7 +49,6 @@ export type MessageKey =
   | "confirmDeleteQuick"
   | "confirmDeleteQuickTag"
   | "confirmDeleteQuickTagWithButtons"
-  | "confirmCancelFocus"
   | "confirmDeleteTodo"
   | "confirmDeleteTodoList"
   | "confirmDeleteSpace"
@@ -809,11 +808,6 @@ export const MESSAGE_CATALOG: Record<MessageKey, MessageEntry> = {
       "已连同按钮删除",
     ],
   },
-  confirmCancelFocus: {
-    mood: "warning",
-    surface: "companion",
-    variants: ["确定取消做这个？", "要取消做这个吗？", "确认取消这次专注？", "结束并清空专注记录？", "要清空这次专注吗？", "确定清除这次专注？", "取消当前专注记录？", "要结束这次专注吗？", "确认清空专注内容？", "这次专注要取消吗？"],
-  },
   confirmDeleteTodo: {
     mood: "warning",
     surface: "companion",
@@ -1070,7 +1064,6 @@ const EN_MESSAGE_VARIANTS = {
   confirmDeleteImage: ["Delete this image?", "Remove this image?", "This image will be removed."],
   confirmDeleteQuick: ["Delete this shortcut?", "Remove this quick entry?", "This shortcut will be removed."],
   confirmDeleteQuickTag: ["Delete this tag? Shortcuts will move to General.", "Remove this tag? Shortcuts will stay in General.", "This tag will be removed while entries are kept."],
-  confirmCancelFocus: ["Cancel this focus? The timer, images, and notes will be cleared."],
   confirmDeleteTodo: ["Delete this reminder?", "Remove this reminder?", "This reminder will be removed."],
   confirmDeleteTodoList: ["Delete this group?", "Reminders in this group will be deleted.", "Remove this reminder group?"],
   confirmDeleteSpace: ["Delete this notebook and its contents?", "Remove this notebook permanently?", "This notebook and its content will be deleted."],

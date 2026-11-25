@@ -63,11 +63,7 @@ export function mergeImportedWorkspace(target: WorkspaceData, source: WorkspaceD
       }
       const destination = workspace.todos[existing.id] ?? (workspace.todos[existing.id] = []);
       for (const todo of source.todos[list.id] ?? []) {
-        const added = importItem(destination, todo, (value) => ({ ...value, id: createId() }));
-        if (added?.focusImages) {
-          added.focusImages = added.focusImages.map((image) => image.src ? { ...image, payloadId: createId() } : image);
-          result.imagesToPersist.push(...added.focusImages);
-        }
+        importItem(destination, todo, (value) => ({ ...value, id: createId() }));
       }
     }
   }

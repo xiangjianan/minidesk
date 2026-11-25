@@ -16,7 +16,6 @@ import MobileInboxCapture from "./components/MobileInboxCapture.vue";
 import QuickButtons from "./components/QuickButtons.vue";
 import SettingsMenu from "./components/SettingsMenu.vue";
 import SpacePanel from "./components/SpacePanel.vue";
-import TodoFocusModal from "./components/TodoFocusModal.vue";
 import TodoPanel from "./components/TodoPanel.vue";
 import { normalizeTodoMaxColumns, resolveTodoColumns } from "./state/columns";
 import WorkbenchShell from "./components/WorkbenchShell.vue";
@@ -51,17 +50,15 @@ import {
   addTodo as addTodoToMap,
   assignTodoListColumn,
   clearCompleted,
-  collectTodoFocusPayloadIds,
   completeTodo,
   moveTodo as moveTodoInMap,
+  removeEmptyTodo,
   removeTodo as removeTodoFromMap,
   removeTodoListData,
   setTodoNotifyAt,
   splitTodo as splitTodoInMap,
   starTodo,
   todoKey,
-  updateTodoFocus,
-  hasTodoFocus,
   updateTodoText,
 } from "./state/todos";
 import { DEFAULT_BOARD_TITLE, defaultWorkspace, STORAGE_KEY, LEGACY_STORAGE_KEY } from "./state/defaults";
@@ -367,13 +364,12 @@ async function showStorageUsage(): Promise<void> {
   try {
     const rows = [];
     for (const workspace of state.workspaces) {
-      const images = [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))].flat();
-      const hydrated = await hydrateStoredImages(images);
+      const hydrated = await hydrateStoredImages(workspace.images);
       if (hydrated.some((image) => !image.src)) storageUsageError.value = true;
       const metadata = JSON.stringify(getSerializableWorkspace(workspace));
       const imageBytes = hydrated.reduce((sum, image) => sum + (image.src ? new Blob([image.src]).size : 0), 0);
       const bytes = new Blob([metadata]).size + imageBytes;
-      rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: images.length, bytes, imageBytes });
+      rows.push({ id: workspace.id, title: getWorkspaceBoardTitle(workspace), count: workspace.images.length, bytes, imageBytes });
     }
     storageUsageRows.value = rows;
   } catch {
@@ -390,7 +386,7 @@ async function showStorageUsage(): Promise<void> {
 function collectSafeRetainedIds(): Set<string> {
   const retained = collectRetainedImagePayloadIds();
   for (const workspace of state.workspaces) {
-    for (const image of [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))].flat()) {
+    for (const image of workspace.images) {
       retained.add(image.id);
     }
   }
@@ -865,7 +861,6 @@ onUnmounted(() => {
   stopInboxPolling();
   stopMobileBreakpoint?.();
   stopSystemThemeListener?.();
-  discardFocusSession();
   clearTimers();
   clearMobileCopyToast();
 });
@@ -873,12 +868,6 @@ onUnmounted(() => {
 // Closing the tab mid-debounce would drop the last second of todo/line edits;
 // flush synchronously before the page goes away.
 function handleBeforeUnload(): void {
-  if (focusSession.value) {
-    mergeFocusElapsed(false);
-    // 同步落盘：页面即将销毁，markDirty 不 bump 文本 generation——不立即写，
-    // 末段增量就随内存一起消失（hasPendingEdits 为 false 时下方冲刷不会跑）。
-    persistNow();
-  }
   if (!hasPendingEdits()) return;
   flushTodoSave();
   flushTextSave();
@@ -1293,20 +1282,15 @@ async function confirmWorkspaceExport(): Promise<void> {
   for (const zone of exportZoneKeys) if (!zones.includes(zone)) {
     for (const key of excludedTitles[zone]) delete serialized.customTitles[key];
   }
-  // Focus images and inactive workspace images may only exist in IndexedDB.
+  // Inactive workspace images may only exist in IndexedDB.
   // Embed every selected payload before generating a portable backup.
-  const imageLists = [serialized.images, ...Object.values(serialized.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))];
-  const images = imageLists.flat();
-  if (images.some((image) => !image.src)) {
+  if (serialized.images.some((image) => !image.src)) {
     workspaceExporting.value = true;
     try {
-      const hydrated = await hydrateStoredImages(images);
+      const hydrated = await hydrateStoredImages(serialized.images);
       if (exportWorkspaceId.value !== workspaceId) return;
       if (hydrated.some((image) => !image.src)) throw new Error("Image payload missing");
-      let index = 0;
-      for (const list of imageLists) {
-        for (let i = 0; i < list.length; i++) list[i] = hydrated[index++];
-      }
+      serialized.images = hydrated;
     } catch {
       showBubble("imageReadFailed", exportAnchor.value, { explicit: true, hideCompanionAfter: true });
       return;
@@ -1332,7 +1316,7 @@ async function exportAllData(anchor?: HTMLElement): Promise<void> {
   workspaceExporting.value = true;
   try {
     const backup = getSerializableState(state, { includeImageData: true, includeCustomGifData: true, omitInbox: true });
-    const lists = backup.workspaces.flatMap((workspace) => [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))]);
+    const lists = backup.workspaces.map((workspace) => workspace.images);
     const images = lists.flat();
     const hydrated = await hydrateStoredImages(images);
     if (hydrated.some((image) => !image.src)) throw new Error("Image payload missing");
@@ -1562,10 +1546,9 @@ function deleteWorkspace(id: string, anchor?: HTMLElement): void {
       const workspaceIndex = state.workspaces.findIndex((workspace) => workspace.id === id);
       const removedWorkspace = JSON.parse(JSON.stringify(doomedWorkspace));
       const doomedInboxCode = doomedWorkspace.inbox?.code;
-      const doomedPayloadIds = new Set([
-        ...(doomedWorkspace?.images ?? []).map((image) => getImagePayloadId(image)),
-        ...Object.values(doomedWorkspace?.todos ?? {}).flatMap((todos) => collectTodoFocusPayloadIds(todos)),
-      ]);
+      const doomedPayloadIds = new Set(
+        (doomedWorkspace?.images ?? []).map((image) => getImagePayloadId(image)),
+      );
       const result = removeWorkspace(state.workspaces, state.activeWorkspaceId, id);
       if (result.workspaces === state.workspaces) return;
       if (result.activeWorkspaceId !== state.activeWorkspaceId) {
@@ -1793,9 +1776,7 @@ function scheduleImagePayloadPrune(): void {
 
 function isImagePayloadRetained(payloadId: string): boolean {
   return pendingClearPayloadIds.has(payloadId) || state.workspaces.some((workspace) =>
-    workspace.images.some((image) => getImagePayloadId(image) === payloadId) ||
-    Object.values(workspace.todos).some((todos) =>
-      todos.some((todo) => (todo.focusImages ?? []).some((image) => getImagePayloadId(image) === payloadId))),
+    workspace.images.some((image) => getImagePayloadId(image) === payloadId),
   );
 }
 
@@ -1824,9 +1805,6 @@ function collectRetainedImagePayloadIds(): Set<string> {
   const retained = new Set<string>();
   for (const workspace of state.workspaces) {
     for (const image of workspace.images) retained.add(getImagePayloadId(image));
-    for (const todos of Object.values(workspace.todos)) {
-      for (const id of collectTodoFocusPayloadIds(todos)) retained.add(id);
-    }
   }
   pendingClearPayloadIds.forEach((id) => retained.add(id));
   // Snapshots carry pre-extracted payload-id sets, so retention checks no longer
@@ -1891,13 +1869,6 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
     const activeExternal = nextState.workspaces.find((w) => w.id === nextState.activeWorkspaceId) ?? nextState.workspaces[0];
     if (activeExternal) {
       activeExternal.images = await hydrateStoredImages(activeExternal.images);
-      const session = focusSession.value;
-      if (session) {
-        const todo = activeExternal.todos[session.period]?.find((item) => item.id === session.id);
-        if (todo?.focusImages?.length) {
-          todo.focusImages = await hydrateStoredImages(todo.focusImages);
-        }
-      }
     }
     // 异步读取图片期间可能已收到更新版本或产生本地输入。
     if (!appMounted || nextState.sync.revision <= state.sync.revision || hasUnsavedLocalChanges()) return;
@@ -1912,23 +1883,11 @@ async function applyExternalStoredState(raw?: string): Promise<void> {
         const nextTodos = incoming.todos[listId];
         const currentTodos = current.todos[listId];
         if (!currentTodos || nextTodos.length !== currentTodos.length) continue;
-        const rowData = (todo: TodoItem) => {
-          const { focusNotes, focusImages, ...visible } = todo;
-          return visible;
-        };
-        if (!nextTodos.every((todo, index) => JSON.stringify(rowData(todo)) === JSON.stringify(rowData(currentTodos[index])))) continue;
-        // Notes and image payloads do not affect reminder rows. Keep their
-        // objects stable so TransitionGroup does not run FLIP for a note edit.
-        nextTodos.forEach((todo, index) => {
-          currentTodos[index].focusNotes = todo.focusNotes;
-          currentTodos[index].focusImages = todo.focusImages;
-        });
+        if (!nextTodos.every((todo, index) => JSON.stringify(todo) === JSON.stringify(currentTodos[index]))) continue;
         incoming.todos[listId] = currentTodos;
       }
     }
     Object.assign(state, nextState);
-    // A cancellation in another window must not leave a timer running here.
-    if (focusSession.value && !hasTodoFocus(focusTodo.value)) discardFocusSession();
     resetTextGenerationBaseline();
     applyTheme();
     lastUndoSnapshot.value = createUndoSnapshot();
@@ -1947,15 +1906,14 @@ async function handlePaste(event: ClipboardEvent): Promise<void> {
   event.preventDefault();
   // Clipboard data may no longer be readable after the first asynchronous save.
   const files = imageItems.map((item) => item.getAsFile()).filter((file): file is File => file !== null);
-  const destination = focusSession.value ? { period: focusSession.value.period, id: focusSession.value.id } : undefined;
-  let nextRequest: ImagePasteRequest = destination ? { placement: "append" } : request;
+  let nextRequest: ImagePasteRequest = request;
   for (const file of files) {
-    const added = await addPastedImageFile(file, nextRequest, destination);
+    const added = await addPastedImageFile(file, nextRequest);
     if (added) nextRequest = { placement: "after", targetId: added.id, anchor: request.anchor ?? document.body };
   }
 }
 
-async function pasteImageFromClipboard(request: ImagePasteRequest, destination?: FocusDestination): Promise<void> {
+async function pasteImageFromClipboard(request: ImagePasteRequest): Promise<void> {
   if (shouldBlockBoardEffects()) return;
   const clipboard = navigator.clipboard as Clipboard & {
     read?: () => Promise<ClipboardItem[]>;
@@ -1993,7 +1951,7 @@ async function pasteImageFromClipboard(request: ImagePasteRequest, destination?:
       return;
     }
     if (shouldBlockBoardEffects()) return;
-    const added = await addPastedImageFile(new File([blob], "clipboard-image", { type }), nextRequest, destination);
+    const added = await addPastedImageFile(new File([blob], "clipboard-image", { type }), nextRequest);
     if (added) nextRequest = { placement: "after", targetId: added.id, anchor: request.anchor ?? document.body };
   }
   if (foundImage) return;
@@ -2033,9 +1991,6 @@ function pasteImageWithBrowserCommand(request: ImagePasteRequest): boolean {
   return pasted;
 }
 
-/** 粘贴单图入口。专注贴图（destination）把逐图落位归一为「插到目标之后」：
- *  replace 在弹窗内没有编辑语义（预览编辑 v1 关闭）降级追加，before/append
- *  同样直接追加；board 路径保留 before/after/replace 的完整落位与冲突校验。 */
 function showPayloadSaveError(error: unknown, anchor?: HTMLElement): void {
   if (error && typeof error === "object" && "name" in error && error.name === "QuotaExceededError") {
     showBubbleText(uiText.value.app.imageQuotaFailed, anchor, { force: true, hideCompanionAfter: true }, 8000);
@@ -2044,16 +1999,7 @@ function showPayloadSaveError(error: unknown, anchor?: HTMLElement): void {
   }
 }
 
-async function addPastedImageFile(file: File, request: ImagePasteRequest, destination?: FocusDestination): Promise<StoredImage | undefined> {
-  if (destination) {
-    return addImageFile(file, {
-      showMessage: true,
-      matchDisplaySizeToDevicePixelRatio: true,
-      insertAfterId: request.placement === "after" ? request.targetId : undefined,
-      onPersisted: (image) => publishPasteFeedback(image.id),
-      destination,
-    });
-  }
+async function addPastedImageFile(file: File, request: ImagePasteRequest): Promise<StoredImage | undefined> {
   if (request.placement === "append") {
     return addImageFile(file, {
       showMessage: true,
@@ -2170,8 +2116,6 @@ async function addImageFile(
     matchDisplaySizeToDevicePixelRatio?: boolean;
     insertAfterId?: string;
     onPersisted?: (image: StoredImage) => void;
-    /** 提供时插入 todo.focusImages 而非空间贴图列表。 */
-    destination?: FocusDestination;
   } = {},
 ): Promise<StoredImage | undefined> {
   if (shouldBlockBoardEffects()) return undefined;
@@ -2209,22 +2153,8 @@ async function addImageFile(
     }
     return undefined;
   }
-  if (options.destination) {
-    // 任务在载荷落库后消失（如撤销/清空数据）：best-effort 清载荷，不落列表。
-    if (!insertFocusImage(image, options.destination, options.insertAfterId)) {
-      try {
-        await deleteStoredImage(image);
-      } catch {
-        // Best-effort cleanup when the focus todo disappears after payload storage.
-      }
-      return undefined;
-    }
-  } else {
-    insertStoredImage(image, options.insertAfterId);
-  }
-  // 专注贴图存盘用全量 scope：images scope 的跨标签合并分支以对方（current）快照
-  // 为底、只回写图片——落盘的 todos 是对方的，本 tab 未落盘的 focus 元数据被丢弃。
-  if (!persistNow(options.destination ? "all" : "images")) return image;
+  insertStoredImage(image, options.insertAfterId);
+  if (!persistNow("images")) return image;
   options.onPersisted?.(image);
   if (options.showMessage ?? true) showBubble("imageAdded", undefined, { hideCompanionAfter: true });
   return image;
@@ -2234,7 +2164,6 @@ async function addImageFiles(
   files: File[],
   anchor?: HTMLElement,
   targetId?: string,
-  destination?: FocusDestination,
 ): Promise<void> {
   if (shouldBlockBoardEffects()) return;
   const imageFiles = files.filter((file) => file.type.startsWith("image/"));
@@ -2249,7 +2178,7 @@ async function addImageFiles(
   // multi-file drop keeps its file order immediately after the target image.
   let insertAfterId = targetId;
   for (const file of imageFiles) {
-    const image = await addImageFile(file, { showMessage: false, insertAfterId, ...(destination ? { destination } : {}) });
+    const image = await addImageFile(file, { showMessage: false, insertAfterId });
     if (shouldBlockBoardEffects()) return;
     if (image) {
       added.push(image);
@@ -2258,8 +2187,7 @@ async function addImageFiles(
   }
   if (added.length === 0) return;
   if (shouldBlockBoardEffects()) return;
-  // 专注弹窗没有「复制收尾」语义：聚焦新增反馈而非复制图片。
-  if (destination || targetId) {
+  if (targetId) {
     publishPasteFeedback(added.at(-1)!.id);
   } else {
     await copyImage(added.at(-1)!.id, anchor, false);
@@ -2288,18 +2216,11 @@ function moveImageToBottom(id: string): void {
   persistNow();
 }
 
-function requestImageCardDeletion(id: string, anchor?: HTMLElement, focus = false): void {
+function requestImageCardDeletion(id: string, anchor?: HTMLElement): void {
   const workspaceId = activeWorkspace.value.id;
-  const session = focus ? focusSession.value : null;
-  if (focus && !session) return;
   requestConfirmation("confirmDeleteImage", anchor, () => {
     if (activeWorkspace.value.id !== workspaceId) return;
-    if (focus) {
-      if (!focusSession.value || focusSession.value.id !== session?.id || focusSession.value.period !== session.period) return;
-      deleteFocusImage(id, anchor);
-    } else {
-      deleteImage(id, anchor);
-    }
+    deleteImage(id, anchor);
   }, undefined, { confirmText: uiText.value.common.delete, cancelText: uiText.value.common.cancel, highlightTarget: null });
 }
 
@@ -2331,30 +2252,6 @@ function deleteImage(id: string, anchor?: HTMLElement): void {
     workspace.images.splice(Math.min(index, workspace.images.length), 0, deletedImage);
     persistNow();
   }, () => scheduleImagePayloadDeletion(getImagePayloadId(deletedImage)), true);
-}
-
-/** 专注贴图删除保留撤销宽限。 */
-function deleteFocusImage(id: string, anchor?: HTMLElement): void {
-  const session = focusSession.value;
-  const todo = focusTodo.value;
-  if (!session || !todo) return;
-  const index = (todo.focusImages ?? []).findIndex((item) => item.id === id);
-  if (index < 0) return;
-  const deleted = JSON.parse(JSON.stringify(todo.focusImages![index]));
-  const workspaceId = activeWorkspace.value.id;
-  const period = session.period;
-  const todoId = session.id;
-  replaceFocusImages({ period, id: todoId }, (list) => list.filter((item) => item.id !== id));
-  showDeleteUndo(getMessage("deleteImage", Math.random, state.language), anchor, () => {
-    const workspace = state.workspaces.find((item) => item.id === workspaceId);
-    const target = workspace?.todos[period]?.find((item) => item.id === todoId);
-    if (!target) return;
-    const images = target.focusImages ?? [];
-    if (images.some((item) => item.id === id)) return;
-    images.splice(Math.min(index, images.length), 0, deleted);
-    target.focusImages = images;
-    persistNow();
-  }, () => scheduleImagePayloadDeletion(getImagePayloadId(deleted)), true);
 }
 
 function openImagePreview(id: string): void {
@@ -2470,15 +2367,7 @@ async function copyImage(id: string, anchor?: HTMLElement, explicit = true): Pro
   await writeImageToClipboard(image.src, anchor, explicit);
 }
 
-/** 专注贴图复制：与 board 复制共用剪贴板写入体，只在列表里查图不同。 */
-async function copyFocusImage(id: string, anchor?: HTMLElement): Promise<void> {
-  if (shouldBlockBoardEffects()) return;
-  const image = focusTodo.value?.focusImages?.find((item) => item.id === id);
-  if (!image?.src) return;
-  await writeImageToClipboard(image.src, anchor, true);
-}
-
-/** 剪贴板写入体（PNG 化 + data-url 直转 / fetch 降级）：board 贴图与专注贴图两路共用。 */
+/** 剪贴板写入体（PNG 化 + data-url 直转 / fetch 降级）。 */
 async function writeImageToClipboard(src: string, anchor?: HTMLElement, explicit = true): Promise<void> {
   const clipboard = navigator.clipboard as Clipboard & {
     write?: (items: ClipboardItem[]) => Promise<void>;
@@ -2801,204 +2690,6 @@ function openQuickApp(button: QuickButton, anchor?: HTMLElement): void {
   showBubbleText(getQuickAppOpeningMessage(button.title || scheme), anchor, { hideCompanionAfter: true }, 2200);
 }
 
-/* ---------- 「现在做这个」专注会话：计时单一事实源在 App（focusSession），
-   弹窗只做展示（baseMs + 段内增量）；关闭 = 暂停并合并增量到 todo.focusElapsedMs。 ---------- */
-
-const FOCUS_CHECKPOINT_MS = 60_000;
-const focusSession = ref<{ period: TodoPeriod; id: string; startedAt: number } | null>(null);
-let focusCheckpointTimer: number | undefined;
-
-const focusTodo = computed(() => {
-  const session = focusSession.value;
-  if (!session) return undefined;
-  return getTodos(session.period).find((todo) => todo.id === session.id);
-});
-
-// 计时基线防闪零：baseMs 绑定 `focusTodo?.focusElapsedMs ?? 0`，任务对象在整树
-// 替换的任何瞬时缺位都会把计时器闪成 0:00。会话存续期间用最近一次读到的累计
-// 兜底（用户报告过关预览时闪零，亚帧采样未能复现——防御性构造修复），仅会话
-// 真正结束（focusSession 清空）才回落 0。
-const lastFocusBaseMs = ref(0);
-watch(() => focusTodo.value?.focusElapsedMs, (ms) => {
-  if (ms !== undefined) lastFocusBaseMs.value = ms;
-});
-// 关键区分：任务对象存在但尚无累计（focusElapsedMs undefined）= 真实的 0，必须从 0
-// 起步——否则上一个任务的 lastFocusBaseMs 会漏进新任务（时间混淆 bug）；只有任务
-// 对象本身瞬时缺位（整树替换）才用最近读到的值兜底防闪零。
-const focusBaseMs = computed(() => {
-  const todo = focusTodo.value;
-  if (todo) return todo.focusElapsedMs ?? 0;
-  return focusSession.value ? lastFocusBaseMs.value : 0;
-});
-
-/** 打开即开始计时：先水合该任务 focusImages（幽灵条目过滤），再建 session。
- *  水合是异步的：期间数据可能被清空/撤销整树重挂，session 建立前复查任务仍在。 */
-async function openFocusNow(period: TodoPeriod, id: string): Promise<void> {
-  // 症状守卫：上一会话的任务已消失（watch 未覆盖到的存量僵尸）时先清再开新会话。
-  if (focusSession.value && !focusTodo.value) discardFocusSession();
-  if (focusSession.value) return;
-  const todo = getTodos(period).find((item) => item.id === id);
-  if (!todo) return;
-  if (todo.focusImages?.length) {
-    const hydrated = (await hydrateStoredImages(todo.focusImages)).filter((image) => Boolean(image.src));
-    if (!getTodos(period).some((item) => item.id === id)) return;
-    // 水合结果总是写回：不只长度变化时——水合出的 src 必须进 state，否则预览空图、
-    // 编辑入口被禁用（保存时 serialize 会把 src 再剥掉，无持久化副作用）。
-    const changed = hydrated.length !== todo.focusImages.length
-      || hydrated.some((image, index) => image.src !== todo.focusImages?.[index]?.src);
-    if (changed) {
-      activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, {
-        focusImages: hydrated,
-      });
-    }
-  }
-  if (!hasTodoFocus(todo)) {
-    activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { focusStarted: true });
-    persistNow("all", { recordCheckpoint: false });
-  }
-  focusSession.value = { period, id, startedAt: Date.now() };
-  window.clearInterval(focusCheckpointTimer);
-  focusCheckpointTimer = window.setInterval(() => mergeFocusElapsed(true), FOCUS_CHECKPOINT_MS);
-}
-
-/** 合并本次段增量（关窗/checkpoint/beforeunload 共用）；persist=true 时静默落盘。 */
-function mergeFocusElapsed(persist: boolean): void {
-  const session = focusSession.value;
-  if (!session) return;
-  const delta = Date.now() - session.startedAt;
-  session.startedAt = Date.now();
-  if (delta <= 0) return;
-  activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, session.period, session.id, {
-    addElapsedMs: delta,
-  });
-  // 计时不入撤销历史（markDirty/persistNow 的 recordCheckpoint）：否则每分钟一条
-  // 快照挤掉真实撤销历史，且 Ctrl+Z 会把计时器回滚到上一个 checkpoint。
-  markDirty({ recordCheckpoint: false });
-  if (persist) persistNow("all", { recordCheckpoint: false });
-}
-
-function closeFocusNow(): void {
-  if (!focusSession.value) return;
-  mergeFocusElapsed(true);
-  discardFocusSession();
-}
-
-/** 丢弃会话与 checkpoint 心跳（不合并增量）：任务已被清空数据等连根移除时用。 */
-function discardFocusSession(): void {
-  window.clearInterval(focusCheckpointTimer);
-  focusCheckpointTimer = undefined;
-  focusSession.value = null;
-}
-
-// 任务消失（undo/清空数据/跨标签同步的整树替换）即丢弃会话：不丢弃的话
-// focusSession 会指着不存在的 todo——幽灵心跳每分钟空转落盘，且 openFocusNow
-// 的防重早退会永远挡住新会话。状态替换均为单次同步赋值，无瞬时 undefined 窗口。
-watch(focusTodo, (todo, was) => {
-  if (todo || !was) return;
-  discardFocusSession();
-});
-
-/** 取消专注会清空计时、笔记和图片；图片载荷遵循现有延迟回收机制。 */
-function cancelTodoFocus(period: TodoPeriod, id: string, anchor?: HTMLElement): void {
-  const workspaceId = activeWorkspace.value.id;
-  if (!getTodos(period).some((todo) => todo.id === id)) return;
-  requestConfirmation("confirmCancelFocus", anchor, () => {
-    if (activeWorkspace.value.id !== workspaceId) return;
-    const todo = getTodos(period).find((item) => item.id === id);
-    if (!todo) return;
-    if (focusSession.value?.period === period && focusSession.value.id === id) discardFocusSession();
-    const payloadIds = collectTodoFocusPayloadIds([todo]);
-    const savedFocus = JSON.parse(JSON.stringify({
-      focusStarted: todo.focusStarted,
-      focusElapsedMs: todo.focusElapsedMs,
-      focusNotes: todo.focusNotes,
-      focusImages: todo.focusImages,
-    })) as Pick<TodoItem, "focusStarted" | "focusElapsedMs" | "focusNotes" | "focusImages">;
-    activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { resetFocus: true });
-    persistNow();
-    const cleanup = () => payloadIds.forEach(scheduleImagePayloadDeletion);
-    showDeleteUndo(uiText.value.todo.focusCancelDone, anchor, () => {
-      const workspace = state.workspaces.find((item) => item.id === workspaceId);
-      const current = workspace?.todos[period]?.find((item) => item.id === id);
-      if (!current || hasTodoFocus(current)) { cleanup(); return; }
-      Object.assign(current, savedFocus);
-      persistNow();
-    }, cleanup);
-  }, undefined, {
-    confirmText: uiText.value.todo.focusCancel,
-    confirmHint: uiText.value.todo.focusCancelHint,
-    cancelText: uiText.value.common.cancel,
-    danger: true,
-    highlightTarget: anchor?.closest<HTMLElement>(".todo-item, .today-focus-item") ?? anchor,
-  });
-}
-
-/** 专注随手记：与空间便签同一文本管线（generation 基线 + 3s 防抖冲刷）。 */
-function updateFocusNotes(period: TodoPeriod, id: string, lines: LineItem[]): void {
-  activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, period, id, { focusNotes: lines });
-  bumpTextGeneration();
-  markDirty();
-  scheduleTextSave();
-}
-
-/* ---------- 专注贴图管线：复用 board 贴图的读剪贴板/落 IndexedDB 链路，
-   只把「插入哪个列表」参数化为 FocusDestination（todo.focusImages）。 ---------- */
-
-type FocusDestination = { period: TodoPeriod; id: string };
-
-function findFocusTodo(destination: FocusDestination): TodoItem | undefined {
-  return getTodos(destination.period).find((item) => item.id === destination.id);
-}
-
-/** 专注预览内编辑保存：新载荷版本落 IndexedDB，元数据原子切换；旧载荷走 5s 撤销
- * 宽限（撤销快照的保留 id 扫描已覆盖 focusImages，宽限内 Ctrl+Z 可回到旧图）。 */
-async function saveFocusImage(payload: { id: string; src: string; displayWidth: number; displayHeight: number }): Promise<void> {
-  const session = focusSession.value;
-  if (!session) return;
-  const target = findFocusTodo(session)?.focusImages?.find((image) => image.id === payload.id);
-  if (!target) return;
-  const expectedPayloadId = getImagePayloadId(target);
-  const replacement: StoredImage = {
-    ...target,
-    payloadId: createId(),
-    src: payload.src,
-    displayWidth: payload.displayWidth,
-    displayHeight: payload.displayHeight,
-  };
-  try {
-    await storeImagePayload(replacement);
-  } catch (error) {
-    if (shouldBlockBoardEffects()) return;
-    showPayloadSaveError(error);
-    return;
-  }
-  replaceFocusImages(session, (list) => list.map((image) =>
-    image.id === payload.id && getImagePayloadId(image) === expectedPayloadId ? replacement : image));
-  scheduleImagePayloadDeletion(expectedPayloadId);
-}
-
-function insertFocusImage(image: StoredImage, destination: FocusDestination, afterId?: string): boolean {
-  const todo = findFocusTodo(destination);
-  if (!todo) return false;
-  const list = [...(todo.focusImages ?? [])];
-  const index = afterId ? list.findIndex((item) => item.id === afterId) : -1;
-  if (index >= 0) list.splice(index + 1, 0, image);
-  else list.push(image);
-  activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, destination.period, destination.id, {
-    focusImages: list,
-  });
-  return true;
-}
-
-function replaceFocusImages(destination: FocusDestination, mutate: (list: StoredImage[]) => StoredImage[]): void {
-  const todo = findFocusTodo(destination);
-  if (!todo) return;
-  activeWorkspace.value.todos = updateTodoFocus(activeWorkspace.value.todos, destination.period, destination.id, {
-    focusImages: mutate([...(todo.focusImages ?? [])]),
-  });
-  persistNow();
-}
-
 async function handleQuickButton(id: string, anchor?: HTMLElement): Promise<void> {
   const button = activeWorkspace.value.quickButtons.find((item) => item.id === id);
   if (!button) return;
@@ -3192,12 +2883,10 @@ function deleteTodoList(listId: TodoListId, anchor?: HTMLElement): void {
 function removeTodoList(listId: TodoListId, anchor?: HTMLElement): void {
   const index = activeWorkspace.value.todoLists.findIndex((list) => list.id === listId);
   if (index < 0 || activeWorkspace.value.todoLists.length <= 1) return;
-  // 列删除连坐：整列 todo 的 focusImages 载荷随列表一起进宽限删除队列。
   const workspaceId = activeWorkspace.value.id;
   const removedList = JSON.parse(JSON.stringify(activeWorkspace.value.todoLists[index]));
   const removedTodos = JSON.parse(JSON.stringify(getTodos(listId)));
   const completedVisible = activeWorkspace.value.showCompletedTodos[listId];
-  const doomedFocusIds = collectTodoFocusPayloadIds(getTodos(listId) ?? []);
   activeWorkspace.value.todoLists.splice(index, 1);
   const inbox = activeWorkspace.value.inbox;
   const fallbackList = activeWorkspace.value.todoLists[0];
@@ -3221,7 +2910,7 @@ function removeTodoList(listId: TodoListId, anchor?: HTMLElement): void {
     if (completedVisible !== undefined) workspace.showCompletedTodos[listId] = completedVisible;
     persistNow();
     scheduleNextTodoNotification();
-  }, () => doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId)));
+  });
 }
 
 function updateTodoMaxColumns(count: number): void {
@@ -3284,11 +2973,11 @@ function createTodo(period: TodoPeriod, afterId?: string): void {
       if (blankTodo.period === period) {
         const input = getTodoInput(blankTodo.period, blankTodo.id);
         input?.blur();
-        removeEmptyTodoWithFocusCleanup(blankTodo.period, blankTodo.id);
+        activeWorkspace.value.todos = removeEmptyTodo(activeWorkspace.value.todos, blankTodo.period, blankTodo.id);
         persistNow();
         return;
       }
-      removeEmptyTodoWithFocusCleanup(blankTodo.period, blankTodo.id);
+      activeWorkspace.value.todos = removeEmptyTodo(activeWorkspace.value.todos, blankTodo.period, blankTodo.id);
     }
   }
   const id = createId();
@@ -3442,7 +3131,6 @@ function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): bo
   if (index < 0) return false;
   const workspaceId = activeWorkspace.value.id;
   const deletedTodo = JSON.parse(JSON.stringify(getTodos(period)[index])) as TodoItem;
-  const doomedFocusIds = collectTodoFocusPayloadIds([deletedTodo]);
   activeWorkspace.value.todos = removeTodoFromMap(activeWorkspace.value.todos, period, id);
   persistNow();
   showBubble("deleteTodo", anchor, {
@@ -3460,7 +3148,6 @@ function deleteTodoNow(period: TodoPeriod, id: string, anchor?: HTMLElement): bo
       persistNow();
       scheduleNextTodoNotification();
     },
-    onDismiss: () => doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId)),
   });
   return true;
 }
@@ -3489,7 +3176,6 @@ function clearDone(period?: TodoPeriod, anchor?: HTMLElement): void {
           ? [{ index, todo: JSON.parse(JSON.stringify(todo)) as TodoItem }]
           : []),
       }));
-      const doomedFocusIds = collectTodoFocusPayloadIds(removed.flatMap((list) => list.items.map((item) => item.todo)));
       for (const listId of currentListIds) {
         activeWorkspace.value.todos = clearCompleted(activeWorkspace.value.todos, listId);
       }
@@ -3507,7 +3193,7 @@ function clearDone(period?: TodoPeriod, anchor?: HTMLElement): void {
         }
         persistNow();
         scheduleNextTodoNotification();
-      }, () => doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId)));
+      });
     },
     undefined,
     {
@@ -3537,21 +3223,11 @@ function blurEmptyTodo(period: TodoPeriod, id: string): void {
         emptyTodoRemovalTimers.delete(key);
         return;
       }
-      removeEmptyTodoWithFocusCleanup(period, id);
+      activeWorkspace.value.todos = removeEmptyTodo(activeWorkspace.value.todos, period, id);
       emptyTodoRemovalTimers.delete(key);
       persistNow();
     }, 260),
   );
-}
-
-/** 空白提醒移除的连坐清理：仅在仍是空白 todo 时按 id 删除，focusImages 载荷与显式
- *  删除同口径走 5 秒宽限（撤销可保住）。不负责 persist——各调用路径删除后统一 persistNow。 */
-function removeEmptyTodoWithFocusCleanup(period: TodoPeriod, id: string): void {
-  const todo = getTodos(period).find((item) => item.id === id);
-  if (!todo || todo.text.trim()) return;
-  const doomedFocusIds = collectTodoFocusPayloadIds([todo]);
-  activeWorkspace.value.todos = removeTodoFromMap(activeWorkspace.value.todos, period, id);
-  doomedFocusIds.forEach((payloadId) => scheduleImagePayloadDeletion(payloadId));
 }
 
 function moveTodo(dragged: DraggedTodo, destinationPeriod: TodoPeriod, targetId?: string): void {
@@ -3645,10 +3321,9 @@ function confirmClearData(): void {
       const index = state.workspaces.findIndex((workspace) => workspace.id === workspaceId);
       if (index < 0) return;
       const workspace = state.workspaces[index];
-      const payloadIds = new Set([
-        ...workspace.images.map((image) => getImagePayloadId(image)),
-        ...Object.values(workspace.todos).flatMap((todos) => collectTodoFocusPayloadIds(todos)),
-      ]);
+      const payloadIds = new Set(
+        workspace.images.map((image) => getImagePayloadId(image)),
+      );
       const inboxCode = workspace.inbox?.code;
       const savedWorkspace = JSON.parse(JSON.stringify(workspace)) as WorkspaceData;
       const savedWidths = readWorkbenchWidthRatios(workspaceId);
@@ -3658,7 +3333,6 @@ function confirmClearData(): void {
       emptyTodoRemovalTimers.forEach((timer) => window.clearTimeout(timer));
       emptyTodoRemovalTimers.clear();
       clearImagePreview();
-      discardFocusSession();
       pendingEditSpaceId.value = null;
       pendingEditTodoListId.value = null;
       resetUndoHistory();
@@ -3710,21 +3384,13 @@ function requestImport(anchor?: HTMLElement): void {
   importInput.value?.click();
 }
 
-/** 收集空间里仍带内联载荷的贴图（board images + todo.focusImages）：导入与启动的
- *  一次性迁移都要先把 src 写进 IndexedDB——否则下次序列化剥掉 src 后只剩无法水合、
- *  且会被静默删除的幽灵元数据。 */
+/** 收集空间里仍带内联载荷的贴图：导入与启动的一次性迁移都要先把 src 写进 IndexedDB——
+ *  否则下次序列化剥掉 src 后只剩无法水合、且会被静默删除的幽灵元数据。 */
 function collectInlineImagePayloads(workspaces: WorkspaceData[]): (StoredImage & { src: string })[] {
   const inline: (StoredImage & { src: string })[] = [];
   for (const workspace of workspaces) {
     for (const image of workspace.images) {
       if (image.src) inline.push(image as StoredImage & { src: string });
-    }
-    for (const todos of Object.values(workspace.todos)) {
-      for (const todo of todos) {
-        for (const image of todo.focusImages ?? []) {
-          if (image.src) inline.push(image as StoredImage & { src: string });
-        }
-      }
     }
   }
   return inline;
@@ -3869,7 +3535,7 @@ async function restoreFullImport(): Promise<void> {
   fullImport.value = null;
   if (!backup || shouldBlockBoardEffects()) return;
   try {
-    const images = backup.workspaces.flatMap((workspace) => [workspace.images, ...Object.values(workspace.todos).flatMap((todos) => todos.map((todo) => todo.focusImages ?? []))]).flat();
+    const images = backup.workspaces.flatMap((workspace) => workspace.images);
     if (images.some((image) => !image.src) || (backup.customCompanionGifStored.light && !backup.customCompanionGif.light) || (backup.customCompanionGifStored.dark && !backup.customCompanionGif.dark)) throw new Error("Backup payload missing");
     for (const image of images) image.payloadId = createId();
     await persistWorkspaceImages(backup.workspaces);
@@ -4710,8 +4376,6 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
           @clear-all-completed="(anchor) => clearDone(undefined, anchor)"
           @toggle-completed-visibility="toggleCompletedVisibility"
           @blur-empty="blurEmptyTodo"
-          @focus-now="openFocusNow"
-          @cancel-focus="cancelTodoFocus"
           @blur="handleCompanionBlur"
           @move="moveTodo"
           @move-list-to-workspace="moveTodoListAcrossWorkspaces"
@@ -4813,32 +4477,6 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @move-to-workspace="moveImageAcrossWorkspaces"
       @tips="showPreviewTips"
       @save-edit="saveEditedImage"
-    />
-
-    <!-- 「现在做这个」专注弹窗：常驻挂载只切 show（计时段随 show 重置）；
-         计时单一事实源在 App 的 focusSession，弹窗只展示 baseMs + 段内增量。 -->
-    <TodoFocusModal
-      :show="Boolean(focusSession && focusTodo)"
-      :title="focusTodo?.text ?? ''"
-      :base-ms="focusBaseMs"
-      :notes="focusTodo?.focusNotes ?? []"
-      :images="focusTodo?.focusImages ?? []"
-      :initial-image-width="focusTodo?.focusImageWidth"
-      :language="state.language"
-      :polish="aiEnabled ? polishClipboard : undefined"
-      @close="closeFocusNow"
-      @notes-update="(lines) => focusSession && updateFocusNotes(focusSession.period, focusSession.id, lines)"
-      @notes-blur="handleEditorBlur"
-      @polish-message="handlePolishStatus"
-      @image-width-update="(width) => { if (focusSession) { activeWorkspace.todos = updateTodoFocus(activeWorkspace.todos, focusSession.period, focusSession.id, { focusImageWidth: width }); markDirty({ recordCheckpoint: false }); persistNow('all', { recordCheckpoint: false }); } }"
-      @paste-image="(request) => focusSession && pasteImageFromClipboard(request, { period: focusSession.period, id: focusSession.id })"
-      @drop-image-files="(files, targetId) => focusSession && addImageFiles(files, undefined, targetId, { period: focusSession.period, id: focusSession.id })"
-      @copy-image="copyFocusImage"
-      @delete-image="deleteFocusImage"
-      @request-delete-image="(id, anchor) => requestImageCardDeletion(id, anchor, true)"
-      @save-image="saveFocusImage"
-      @reorder-images="(dragId, targetId) => focusSession && replaceFocusImages({ period: focusSession.period, id: focusSession.id }, (list) => { moveItem(list, dragId, targetId); return list; })"
-      @move-image-to-bottom="(id) => focusSession && replaceFocusImages({ period: focusSession.period, id: focusSession.id }, (list) => { const i = list.findIndex((item) => item.id === id); if (i >= 0 && i < list.length - 1) list.push(...list.splice(i, 1)); return list; })"
     />
 
     <!-- 伴宠气泡（GIF + 消息）：常挂载，桌面端随编辑/保存触发；移动端速记发送成功时
@@ -4961,7 +4599,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
     <NModal :show="clearWorkspaceId !== null" preset="card" class="workspace-dialog-modal clear-workspace-modal" :title="uiText.settings.clearData" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) clearWorkspaceId = null; }">
       <template v-if="clearWorkspace">
         <p>{{ uiText.settings.clearDataHint }}</p>
-        <p>{{ uiText.settings.clearCounts.replace('{todos}', String(Object.values(clearWorkspace.todos).reduce((total, items) => total + items.length, 0))).replace('{images}', String(clearWorkspace.images.length + Object.values(clearWorkspace.todos).reduce((total, items) => total + items.reduce((sum, item) => sum + (item.focusImages?.length ?? 0), 0), 0))).replace('{notes}', String(clearWorkspace.spaces.length)) }}</p>
+        <p>{{ uiText.settings.clearCounts.replace('{todos}', String(Object.values(clearWorkspace.todos).reduce((total, items) => total + items.length, 0))).replace('{images}', String(clearWorkspace.images.length)).replace('{notes}', String(clearWorkspace.spaces.length)) }}</p>
         <button type="button" class="clear-backup-link" @click="() => { const id = clearWorkspaceId; clearWorkspaceId = null; if (id) exportWorkspaceById(id, clearWorkspaceAnchor); }">{{ uiText.settings.backupFirst }}</button>
       </template>
         <div class="dialog-actions">

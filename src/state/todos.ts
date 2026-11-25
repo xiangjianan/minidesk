@@ -1,7 +1,6 @@
-import type { LineItem, StoredImage, TodoCompletedVisibility, TodoItem, TodoListConfig, TodoListId, TodoMap, TodoPeriod } from "../types";
+import type { TodoCompletedVisibility, TodoItem, TodoListConfig, TodoListId, TodoMap, TodoPeriod } from "../types";
 import { isValidNotifyAt } from "./deadlines";
 import { assignColumn, distributeColumns } from "./columns";
-import { getImagePayloadId } from "./images";
 
 /** 可见提醒条数超过该阈值时，点击/聚焦列表会弹瘦身提示（App.vue 与 TodoPanel 共用）。 */
 export const TODO_DENSITY_THRESHOLD = 7;
@@ -125,8 +124,6 @@ export function clearCompleted(todos: TodoMap, period: TodoPeriod): TodoMap {
   return next;
 }
 
-/** 空白校验后按 id 删除单个 todo（纯函数）。生产路径已由 App.vue 的
- *  removeEmptyTodoWithFocusCleanup（含 focusImages 载荷连坐）取代，保留供纯函数测试。 */
 export function removeEmptyTodo(todos: TodoMap, period: TodoPeriod, id: string): TodoMap {
   const todo = todos[period]?.find((item) => item.id === id);
   if (!todo || todo.text.trim()) return todos;
@@ -213,77 +210,6 @@ export function cloneTodoMap(todos: TodoMap): TodoMap {
   return Object.fromEntries(
     Object.entries(todos).map(([period, list]) => [period, list.map((todo) => ({ ...todo }))]),
   ) as TodoMap;
-}
-
-/** focusNotes/focusImages 数组按引用收归状态所有，调用方不得复用或原地修改。 */
-export function hasTodoFocus(todo: TodoItem | undefined): boolean {
-  return Boolean(todo && (todo.focusStarted || (todo.focusElapsedMs ?? 0) > 0 || todo.focusNotes?.length || todo.focusImages?.length));
-}
-
-export interface TodoFocusPatch {
-  focusStarted?: boolean;
-  resetFocus?: boolean;
-  /** 增量合并进 focusElapsedMs（毫秒）。 */
-  addElapsedMs?: number;
-  /** 整体替换；空数组删除字段。 */
-  focusNotes?: LineItem[];
-  focusImages?: StoredImage[];
-  focusImageWidth?: number;
-}
-
-/** 「现在做这个」状态迁移：时长增量合并、笔记/图片整体替换，字段按需存在。 */
-export function updateTodoFocus(
-  todos: TodoMap,
-  period: TodoPeriod,
-  id: string,
-  patch: TodoFocusPatch,
-): TodoMap {
-  const next = cloneTodoMap(todos);
-  const todo = next[period]?.find((item) => item.id === id);
-  if (!todo) return todos;
-  if (patch.resetFocus) {
-    delete todo.focusStarted;
-    delete todo.focusElapsedMs;
-    delete todo.focusNotes;
-    delete todo.focusImages;
-  }
-  if (patch.focusStarted !== undefined) {
-    if (patch.focusStarted) todo.focusStarted = true;
-    else delete todo.focusStarted;
-  }
-  if (patch.addElapsedMs !== undefined) {
-    const merged = Math.max(0, Math.round((todo.focusElapsedMs ?? 0) + patch.addElapsedMs));
-    if (merged > 0) todo.focusElapsedMs = merged;
-    else delete todo.focusElapsedMs;
-  }
-  if (patch.focusNotes !== undefined) {
-    if (patch.focusNotes.length) todo.focusNotes = patch.focusNotes;
-    else delete todo.focusNotes;
-  }
-  if (patch.focusImages !== undefined) {
-    if (patch.focusImages.length) todo.focusImages = patch.focusImages;
-    else delete todo.focusImages;
-  }
-  if (patch.focusImageWidth !== undefined && Number.isFinite(patch.focusImageWidth)) {
-    todo.focusImageWidth = Math.max(0, Math.min(100, patch.focusImageWidth));
-  }
-  return next;
-}
-
-/** 收集一批 todo 的 focusImages 载荷 id：删除连坐与保留扫描共用。 */
-export function collectTodoFocusPayloadIds(todos: TodoItem[]): string[] {
-  return todos.flatMap((todo) => (todo.focusImages ?? []).map((image) => getImagePayloadId(image)));
-}
-
-/** 累计专注时长的展示：h:mm；实时计时可附加秒，行内徽标仍按分钟展示。 */
-export function formatFocusDuration(ms: number, includeSeconds = false): string {
-  const totalMinutes = Math.floor(Math.max(0, ms) / 60_000);
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  const duration = `${hours}:${String(minutes).padStart(2, "0")}`;
-  if (!includeSeconds) return duration;
-  const seconds = Math.floor(Math.max(0, ms) / 1000) % 60;
-  return `${duration}:${String(seconds).padStart(2, "0")}`;
 }
 
 function ensureTodoList(todos: TodoMap, period: TodoPeriod): TodoItem[] {
