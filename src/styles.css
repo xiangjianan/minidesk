@@ -8383,7 +8383,7 @@ html[data-theme="dark"] .default-message button.default-message-action:focus-vis
 .about-heading .about-name { color: var(--text); font-size: 16px; }
 .about-heading span:not(.about-name) { color: var(--muted); font-size: 11px; }
 .about-content p { margin: 0; color: var(--text); }
-.about-content a { color: var(--link); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
+.about-content a { color: var(--text); width: fit-content; display: inline-flex; align-items: center; gap: 7px; }
 .about-github-icon { width: 16px; height: 16px; flex: none; }
 
 /* A soft, rising arc marks the drop area without a visible frame. */
