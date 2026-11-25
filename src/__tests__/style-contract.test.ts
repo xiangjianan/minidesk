@@ -560,4 +560,15 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".workbench-shell .quick-tag-add-button:focus-visible", "outline: none");
     expectSelectorBody(desk, ".workbench-shell .quick-tag-add-button:focus-visible", "box-shadow: none");
   });
+
+  it("keeps the notebook selection toolbar translucent in light and dark themes", () => {
+    const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expectSelectorBody(styles, ".selection-toolbar", "color-mix(in srgb, var(--material-elevated)");
+    expectSelectorBody(styles, ".selection-toolbar", "backdrop-filter: blur(8px)");
+    expectSelectorBody(desk, ".selection-toolbar", "color-mix(in srgb, var(--material-elevated) 62%, transparent)");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .selection-toolbar', "color-mix(in srgb, var(--material-elevated) 64%, transparent)");
+    expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("rgba(255, 255, 255, 0.8)");
+    expect(ruleBodies(desk, ".selection-toolbar").join("\n")).not.toContain("rgba(255, 255, 255, 0.92)");
+  });
 });
