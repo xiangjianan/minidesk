@@ -1121,7 +1121,8 @@ html[data-theme="dark"] .workbench-shell {
   background-color: var(--desk-surface);
 }
 .workbench-shell .todo-section,
-.workbench-shell .quick-tag-group {
+.workbench-shell .quick-tag-group,
+.workbench-shell .today-focus-section {
   clip-path: inset(0 round var(--desk-card-radius));
 }
 .workbench-shell :is(.quick-tag-count, .todo-count) {
@@ -1988,11 +1989,11 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
 }
 
 /* A fine inner glass rim keeps each surface distinct against the background. */
-.workbench-shell :where(.todo-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar),
+.workbench-shell :where(.todo-section, .today-focus-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar),
 :is(.workbench-shell, .focus-now-images) .image-card {
   position: relative;
 }
-.workbench-shell :where(.todo-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar)::after,
+.workbench-shell :where(.todo-section, .today-focus-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar)::after,
 :is(.workbench-shell, .focus-now-images) .image-card::after {
   content: "";
   position: absolute;
@@ -2003,7 +2004,7 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
   pointer-events: none;
 }
-html[data-theme="dark"] .workbench-shell :where(.todo-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar)::after,
+html[data-theme="dark"] .workbench-shell :where(.todo-section, .today-focus-section, .quick-tag-group:not(.is-empty), .space-text-panel, .space-tabs-scrollbar)::after,
 html[data-theme="dark"] :is(.workbench-shell, .focus-now-images) .image-card::after {
   border-color: rgba(210, 222, 245, 0.10);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
