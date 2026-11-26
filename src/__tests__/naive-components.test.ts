@@ -231,8 +231,9 @@ describe("Naive UI component usage", () => {
     expect(preview).not.toContain("preview-sidebar");
     expect(styles).not.toContain(".preview-thumb");
     expect(styles).not.toContain(".preview-sidebar");
-    expect(styles).toMatch(/\.image-panel \.image-card\.is-active\s*\{[^}]*border-color: var\(--line-focus\)/s);
-    expect(styles).toMatch(/\.image-panel \.image-card\.is-active\s*\{[^}]*box-shadow: none/s);
+    expect(ruleBodies(styles, ".image-panel .image-card.is-active").join("\n")).toContain("border-color: var(--line-focus)");
+    expect(ruleBodies(styles, ".image-panel .image-card.is-menu-selected").join("\n")).toContain("border-color: var(--line-focus)");
+    expect(ruleBodies(styles, ".image-panel .image-card.is-active").join("\n")).toContain("box-shadow: none");
   });
 
   it("marks text quick buttons with a copy icon and keeps compact actions in menus", () => {
@@ -758,10 +759,7 @@ describe("Naive UI component usage", () => {
 
   it("highlights the context-selected reminder row with a blue overlay that yields to confirm targets", () => {
     const styles = read("src/styles.css");
-    const selectedRule =
-      styles.match(
-        /\.today-focus-item\.is-menu-selected:not\(\[data-confirm-target\]\),[\s\S]*?\.todo-item\.is-menu-selected:not\(\[data-confirm-target\]\)\s*\{(?<body>[^}]*)\}/
-      )?.groups?.body ?? "";
+    const selectedRule = ruleBodies(styles, ".todo-item.is-menu-selected:not([data-confirm-target])").join("\n");
     const selectedBeforeRule =
       styles.match(
         /\.today-focus-item\.is-menu-selected::before,[\s\S]*?\.todo-item\.is-menu-selected::before\s*\{(?<body>[^}]*)\}/

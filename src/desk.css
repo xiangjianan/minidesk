@@ -411,8 +411,11 @@ html[data-theme="dark"] .workbench-shell .space-text-panel {
   box-shadow: none;
   padding-inline: 12px;
 }
-.workbench-shell .space-tab.is-active {
+.workbench-shell .space-tab.is-active,
+.workbench-shell button.space-tab.is-menu-selected {
   border-radius: 8px;
+}
+.workbench-shell .space-tab.is-active {
   font-weight: 600;
   background: var(--card);
 }
@@ -1961,15 +1964,8 @@ html[data-theme="dark"] .workbench-shell .image-card::after {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-/* The context menu keeps its image target outlined after the pointer leaves. */
-.workbench-shell .image-card.is-menu-selected::after,
-html[data-theme="dark"] .workbench-shell .image-card.is-menu-selected::after {
-  border: 2px solid var(--primary);
-  box-shadow: none;
-}
-
 /* Draw the image rim at the outer edge, with no empty border around it. */
-.workbench-shell .image-card:not(.is-active, .is-drop-target) {
+.workbench-shell .image-card:not(.is-active, .is-menu-selected, .is-drop-target) {
   border: 0;
 }
 

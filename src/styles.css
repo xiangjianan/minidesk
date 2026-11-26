@@ -5684,7 +5684,8 @@ button.space-add-button,
   border-radius: calc(var(--radius) + 2px);
 }
 
-.image-panel .image-card.is-active {
+.image-panel .image-card.is-active,
+.image-panel .image-card.is-menu-selected {
   background: color-mix(in srgb, var(--primary) 8%, var(--card));
   border-color: var(--line-focus);
   box-shadow: none;

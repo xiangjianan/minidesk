@@ -561,6 +561,12 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".workbench-shell .quick-tag-add-button:focus-visible", "box-shadow: none");
   });
 
+  it("keeps context-selected notebook tabs rounded and image borders consistent", () => {
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expectSelectorBody(desk, ".workbench-shell button.space-tab.is-menu-selected", "border-radius: 8px");
+    expect(desk).toContain(".image-card:not(.is-active, .is-menu-selected, .is-drop-target)");
+  });
+
   it("matches the dark workspace switcher background to the settings menu", () => {
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
     const background = "background: rgba(30, 32, 40, 0.94) !important";
