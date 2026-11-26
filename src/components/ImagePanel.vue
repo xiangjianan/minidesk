@@ -821,6 +821,7 @@ function handleImageDragWheel(event: WheelEvent): void {
           >
             <NIcon :component="CopyOutline" :size="13" />
           </button>
+          <span class="image-card-action-separator" aria-hidden="true"></span>
           <button
             type="button"
             class="image-card-action-btn is-delete"
