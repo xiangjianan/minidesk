@@ -1579,6 +1579,25 @@ describe("QuickButtons", () => {
     wrapper.unmount();
   });
 
+  it("highlights the right-clicked button until its menu closes", async () => {
+    const wrapper = mountQuickButtons({
+      buttons: [
+        { id: "first", title: "First", value: "a", type: "link", hidden: false },
+        { id: "second", title: "Second", value: "b", type: "link", hidden: false },
+      ],
+    });
+    const buttons = wrapper.findAll(".quick-button");
+    await buttons[0].trigger("contextmenu");
+    expect(buttons[0].classes()).toContain("is-menu-selected");
+    expect(buttons[1].classes()).not.toContain("is-menu-selected");
+    await buttons[1].trigger("contextmenu");
+    expect(buttons[0].classes()).not.toContain("is-menu-selected");
+    expect(buttons[1].classes()).toContain("is-menu-selected");
+    await wrapper.get('[data-key="copy-link"]').trigger("click");
+    expect(buttons[1].classes()).not.toContain("is-menu-selected");
+    wrapper.unmount();
+  });
+
   it("offers copy-link in the context menu for link quick buttons and emits copyLink", async () => {
     const wrapper = mountQuickButtons({
       buttons: [{ id: "quick-1", title: "链接", value: "https://example.com", type: "link", hidden: false }],

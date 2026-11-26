@@ -1064,7 +1064,7 @@ function handleQuickGroupDrop(event: DragEvent, groupId: string): void {
                 v-for="button in group.buttons"
                 :key="button.id"
                 class="quick-button"
-                :class="{ 'is-hidden': button.hidden, 'is-copy': button.type === 'text', 'is-api': button.type === 'api', 'is-app': button.type === 'app', 'is-dragging': draggingId === button.id }"
+                :class="{ 'is-hidden': button.hidden, 'is-copy': button.type === 'text', 'is-api': button.type === 'api', 'is-app': button.type === 'app', 'is-dragging': draggingId === button.id, 'is-menu-selected': menu?.id === button.id }"
                 :data-id="button.id"
                 :title="button.title"
                 type="button"
