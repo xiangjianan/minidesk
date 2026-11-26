@@ -819,20 +819,7 @@ function handleImageDragWheel(event: WheelEvent): void {
             @click.stop="emit('copy', image.id)"
             @keydown.stop
           >
-            <NIcon :component="CopyOutline" :size="13" />
-          </button>
-          <span class="image-card-action-separator" aria-hidden="true"></span>
-          <button
-            type="button"
-            class="image-card-action-btn is-delete"
-            :data-testid="`image-card-delete-${image.id}`"
-            :aria-label="uiText.images.deleteImage"
-            :title="uiText.images.deleteImage"
-            @mousedown.prevent
-            @click.stop="emit('requestDelete', image.id, ($event.currentTarget as HTMLElement))"
-            @keydown.stop
-          >
-            <NIcon :component="TrashOutline" :size="13" />
+            <NIcon :component="CopyOutline" :size="12" />
           </button>
         </div>
         <img

@@ -578,11 +578,7 @@ describe("ImagePanel", () => {
     await wrapper.get('[data-testid="image-card-copy-a"]').trigger("click");
     expect(wrapper.emitted("copy")).toEqual([["a"]]);
     expect(wrapper.emitted("preview")).toBeUndefined();
-
-    await wrapper.get('[data-testid="image-card-delete-b"]').trigger("click");
-    expect(wrapper.emitted("requestDelete")?.[0]?.[0]).toBe("b");
-    expect(wrapper.emitted("delete")).toBeUndefined();
-    expect(wrapper.emitted("preview")).toBeUndefined();
+    expect(wrapper.find('[data-testid="image-card-delete-b"]').exists()).toBe(false);
     wrapper.unmount();
   });
 
