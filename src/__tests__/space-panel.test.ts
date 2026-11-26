@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import SpacePanel from "../components/SpacePanel.vue";
+import ContextMenu from "../components/ContextMenu.vue";
 import TextPanel from "../components/TextPanel.vue";
 import type { WorkspaceMoveTarget, WorkspaceSpace } from "../types";
 import { menuDropdownStub } from "./helpers/menu-dropdown-stub";
@@ -54,6 +55,19 @@ function ruleBodies(styles: string, selector: string): string[] {
 }
 
 describe("SpacePanel", () => {
+  it("marks the right-clicked notebook tab and clears it on outside click", async () => {
+    const wrapper = mountSpacePanel([{ id: "a", title: "A", lines: [] }, { id: "b", title: "B", lines: [] }]);
+    const tabs = wrapper.findAll(".space-tab");
+    await tabs[1].trigger("contextmenu");
+    expect(tabs[1].classes()).toContain("is-menu-selected");
+    expect(tabs[0].classes()).not.toContain("is-menu-selected");
+    wrapper.findComponent(ContextMenu).vm.$emit("clickoutside", new MouseEvent("click"));
+    await wrapper.vm.$nextTick();
+    expect(tabs[1].classes()).not.toContain("is-menu-selected");
+    expect(wrapper.findComponent(ContextMenu).exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it("toggles the notebook menu on repeated clicks", async () => {
     const wrapper = mountSpacePanel([{ id: "note", title: "笔记", lines: [] }]);
     const button = wrapper.get('[data-testid="notebook-menu"]');

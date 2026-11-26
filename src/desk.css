@@ -1961,6 +1961,13 @@ html[data-theme="dark"] .workbench-shell .image-card::after {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* The context menu keeps its image target outlined after the pointer leaves. */
+.workbench-shell .image-card.is-menu-selected::after,
+html[data-theme="dark"] .workbench-shell .image-card.is-menu-selected::after {
+  border: 2px solid var(--primary);
+  box-shadow: none;
+}
+
 /* Draw the image rim at the outer edge, with no empty border around it. */
 .workbench-shell .image-card:not(.is-active, .is-drop-target) {
   border: 0;

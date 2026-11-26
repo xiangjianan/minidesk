@@ -420,7 +420,7 @@ onUnmounted(() => disposeSort?.());
               v-if="editingSpaceId !== space.id"
               :key="space.id"
               class="space-tab"
-              :class="{ 'is-active': space.id === activeSpaceId, 'is-dragging': draggedSpaceId === space.id, 'is-sort-drop-target': dragHoverTabId === space.id }"
+              :class="{ 'is-active': space.id === activeSpaceId, 'is-menu-selected': Boolean(menu && !menu.anchor && menu.spaceId === space.id), 'is-dragging': draggedSpaceId === space.id, 'is-sort-drop-target': dragHoverTabId === space.id }"
               type="button"
               role="tab"
               draggable="true"

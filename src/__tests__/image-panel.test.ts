@@ -4,6 +4,7 @@ import { resolve } from "path";
 import { defineComponent, h, nextTick } from "vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ImagePanel from "../components/ImagePanel.vue";
+import ContextMenu from "../components/ContextMenu.vue";
 import type { StoredImage } from "../types";
 import { menuDropdownStub } from "./helpers/menu-dropdown-stub";
 
@@ -84,6 +85,22 @@ function createImageDataTransfer(): {
 }
 
 describe("ImagePanel", () => {
+  it("marks the image targeted by the menu and clears it on outside click", async () => {
+    const wrapper = mountImagePanel([
+      { id: "a", src: "data:image/png;base64,a", createdAt: 1 },
+      { id: "b", src: "data:image/png;base64,b", createdAt: 2 },
+    ]);
+    const cards = wrapper.findAll(".image-card");
+    await cards[0].trigger("contextmenu");
+    expect(cards[0].classes()).toContain("is-menu-selected");
+    expect(cards[1].classes()).not.toContain("is-menu-selected");
+    wrapper.findComponent(ContextMenu).vm.$emit("clickoutside", new MouseEvent("click"));
+    await nextTick();
+    expect(cards[0].classes()).not.toContain("is-menu-selected");
+    expect(wrapper.findComponent(ContextMenu).exists()).toBe(false);
+    wrapper.unmount();
+  });
+
   it("offers deletion after a missing payload times out and recovers if it loads", async () => {
     vi.useFakeTimers();
     const wrapper = mountImagePanel([{ id: "missing", createdAt: 1 }]);

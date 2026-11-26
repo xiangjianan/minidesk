@@ -2738,7 +2738,8 @@ button.todo-star-button {
 
 .today-focus-item.is-menu-selected:not([data-confirm-target]),
 .todo-item.is-menu-selected:not([data-confirm-target]),
-.quick-button.is-menu-selected:not([data-confirm-target]) {
+.quick-button.is-menu-selected:not([data-confirm-target]),
+.space-tab.is-menu-selected:not([data-confirm-target]) {
   background-image: linear-gradient(
     color-mix(in srgb, var(--primary) 14%, transparent),
     color-mix(in srgb, var(--primary) 14%, transparent)

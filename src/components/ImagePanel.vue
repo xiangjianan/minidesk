@@ -784,6 +784,7 @@ function handleImageDragWheel(event: WheelEvent): void {
         :class="{
           'is-dragging': draggingId === image.id,
           'is-active': image.id === activePreviewId,
+          'is-menu-selected': menu?.id === image.id,
           'is-paste-highlighted': image.id === pasteHighlightedId,
           'is-drop-target': image.id === externalDropTargetId,
           'is-missing': missingImageIds.has(image.id),
