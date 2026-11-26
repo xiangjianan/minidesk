@@ -101,8 +101,8 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
   titleUpdate: [id: string, value: string];
-  createList: [anchor?: HTMLElement, title?: string];
-  updateListTitle: [listId: TodoListId, title: string];
+  createList: [anchor?: HTMLElement, title?: string, backgroundColor?: string | null];
+  updateListTitle: [listId: TodoListId, title: string, backgroundColor?: string | null];
   toggleListCollapsed: [listId: TodoListId, collapsed: boolean];
   toggleListCompact: [listId: TodoListId, compact: boolean];
   deleteList: [listId: TodoListId, anchor?: HTMLElement];
@@ -1311,7 +1311,7 @@ function openCreateListDialog(anchor?: HTMLElement): void {
   void listCreateDialogRef.value?.open(anchor);
 }
 
-function handleListTitleUpdate(listId: TodoListId, value: string): void {
+function handleListTitleUpdate(listId: TodoListId, value: string, backgroundColor?: string | null): void {
   setListTitleEditing(listId, false);
   if (!props.todoLists) {
     const legacyTitleId = LEGACY_TODO_TITLE_IDS[listId];
@@ -1320,7 +1320,8 @@ function handleListTitleUpdate(listId: TodoListId, value: string): void {
       return;
     }
   }
-  emit("updateListTitle", listId, value);
+  if (backgroundColor !== undefined) emit("updateListTitle", listId, value, backgroundColor);
+  else emit("updateListTitle", listId, value);
 }
 
 function setListTitleEditing(listId: TodoListId, editing: boolean): void {
@@ -2327,6 +2328,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
         :ref="(element) => setTodoSectionRef(list.id, element as Element | null)"
         class="todo-section"
         :class="{ 'is-initial-layout': initialLayoutPending, 'is-focused': focusedListId === list.id, 'is-collapsed': list.collapsed, 'is-compact': true, 'is-list-dragging': draggedListId === list.id, 'drag-hover': dragHoverListId === list.id }"
+        :style="list.backgroundColor ? { '--todo-list-color': list.backgroundColor } : undefined"
         :data-list-id="list.id"
         :data-period="list.id"
         @click="handleSectionGuideClick"
@@ -2648,7 +2650,7 @@ onUnmounted(() => focusRegionAnimation?.cancel());
       ref="listCreateDialogRef"
       :lists="effectiveTodoLists"
       :language="language"
-      @confirm="(anchor, title, id) => id ? handleListTitleUpdate(id, title) : emit('createList', anchor, title)"
+      @confirm="(anchor, title, id, backgroundColor) => id ? handleListTitleUpdate(id, title, backgroundColor) : (backgroundColor ? emit('createList', anchor, title, backgroundColor) : emit('createList', anchor, title))"
     />
 
     <NModal :show="presetEditorOpen" preset="card" class="quick-dialog" :title="presetEditor?.group === 'time' ? uiText.todo.notifyPresets.editTime : uiText.todo.notifyPresets.editDuration" style="width: min(360px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) presetEditorOpen = false; }">

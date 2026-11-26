@@ -597,5 +597,35 @@ describe("workbench style contract", () => {
       'html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"] > .quick-tag-heading::before',
       "background: color-mix(in srgb, var(--quick-list-color) 13%, rgba(36, 38, 48, 0.92))",
     );
+    expectSelectorBody(
+      desk,
+      '.workbench-shell .todo-section[style*="--todo-list-color"]',
+      "background: color-mix(in srgb, var(--todo-list-color) 5%, rgba(255, 255, 255, 0.78))",
+    );
+    expectSelectorBody(
+      desk,
+      '.workbench-shell .todo-section[style*="--todo-list-color"] > .todo-heading::before',
+      "background: color-mix(in srgb, var(--todo-list-color) 10%, rgba(255, 255, 255, 0.90))",
+    );
+    expectSelectorBody(
+      desk,
+      '.workbench-shell .todo-section[style*="--todo-list-color"] .todo-item:hover',
+      "background-color: color-mix(in srgb, var(--todo-list-color) 10%, transparent)",
+    );
+    expectSelectorBody(
+      desk,
+      'html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"]',
+      "background: color-mix(in srgb, var(--todo-list-color) 7%, rgba(30, 31, 38, 0.76))",
+    );
+    expectSelectorBody(
+      desk,
+      'html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"] > .todo-heading::before',
+      "background: color-mix(in srgb, var(--todo-list-color) 13%, rgba(36, 38, 48, 0.92))",
+    );
+    expectSelectorBody(
+      desk,
+      'html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"] .todo-item:hover',
+      "background-color: color-mix(in srgb, var(--todo-list-color) 14%, transparent)",
+    );
   });
 });

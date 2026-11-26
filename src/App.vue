@@ -2820,7 +2820,7 @@ function getQuickApiStatusMessage(status: number, responseBody?: string): string
     : `ℹ️ ${status} 已收到响应，这个状态码比较少见 (・∀・)${bodyLine}`;
 }
 
-function createTodoList(anchor?: HTMLElement, title?: string): void {
+function createTodoList(anchor?: HTMLElement, title?: string, backgroundColor?: string | null): void {
   const trimmedTitle = limitTitle(title ?? "");
   if (!trimmedTitle) return;
   if (findTodoListByTitle(activeWorkspace.value.todoLists, trimmedTitle, state.language)) {
@@ -2828,7 +2828,14 @@ function createTodoList(anchor?: HTMLElement, title?: string): void {
     return;
   }
   const id = createId();
-  activeWorkspace.value.todoLists.push({ id, title: trimmedTitle, collapsed: false, compact: false, column: 0 });
+  activeWorkspace.value.todoLists.push({
+    id,
+    title: trimmedTitle,
+    collapsed: false,
+    compact: false,
+    column: 0,
+    ...(backgroundColor ? { backgroundColor } : {}),
+  });
   activeWorkspace.value.todos[id] = [];
   activeWorkspace.value.showCompletedTodos[id] = false;
   pendingEditTodoListId.value = null;
@@ -2836,7 +2843,7 @@ function createTodoList(anchor?: HTMLElement, title?: string): void {
   showBubbleText(uiText.value.app.todoListAdded, anchor);
 }
 
-function updateTodoListTitle(listId: TodoListId, title: string): void {
+function updateTodoListTitle(listId: TodoListId, title: string, backgroundColor?: string | null): void {
   const list = activeWorkspace.value.todoLists.find((item) => item.id === listId);
   if (!list) return;
   const nextTitle = getStoredTodoListTitle(listId, limitTitle(title)) || uiText.value.app.unnamedList;
@@ -2845,6 +2852,10 @@ function updateTodoListTitle(listId: TodoListId, title: string): void {
     return;
   }
   list.title = nextTitle;
+  if (backgroundColor !== undefined) {
+    if (backgroundColor) list.backgroundColor = backgroundColor;
+    else delete list.backgroundColor;
+  }
   if (pendingEditTodoListId.value === listId) pendingEditTodoListId.value = null;
   persistNow();
 }

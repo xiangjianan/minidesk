@@ -849,7 +849,7 @@ describe("TodoPanel", () => {
     await nextTick();
     dialog!.querySelector("form")!.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
     await nextTick();
-    expect(wrapper.emitted("updateListTitle")?.at(-1)).toEqual(["morning", "新的名称"]);
+    expect(wrapper.emitted("updateListTitle")?.at(-1)).toEqual(["morning", "新的名称", null]);
     wrapper.unmount();
   });
 

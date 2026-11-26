@@ -131,6 +131,7 @@ export interface TodoListConfig {
    * can omit it (treated as column 0).
    */
   column?: number;
+  backgroundColor?: string;
 }
 
 export type TodoMap = Record<TodoListId, TodoItem[]>;

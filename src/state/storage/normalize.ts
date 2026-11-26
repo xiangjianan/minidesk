@@ -230,6 +230,7 @@ function normalizeTodoListConfig(item: unknown): TodoListConfig | null {
   const title = typeof record.title === "string" && record.title.trim()
     ? record.title.trim()
     : getUiText("zh").app.unnamedList;
+  const backgroundColor = normalizeQuickColor(record.backgroundColor);
   return {
     id: record.id.trim(),
     title,
@@ -237,6 +238,7 @@ function normalizeTodoListConfig(item: unknown): TodoListConfig | null {
     compact: Boolean(record.compact),
     // Numeric guard (not Boolean): column 0 is valid and falsy.
     column: typeof record.column === "number" && Number.isFinite(record.column) ? Math.max(0, Math.floor(record.column)) : 0,
+    ...(backgroundColor ? { backgroundColor } : {}),
   };
 }
 

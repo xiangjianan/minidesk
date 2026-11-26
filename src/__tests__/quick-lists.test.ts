@@ -18,10 +18,21 @@ describe("quick action lists", () => {
   });
 
   it("preserves valid list colors while ignoring legacy and invalid values", () => {
-    const workspace = normalizeWorkspaceData({ quickTags: [{ id: "a", title: "A", backgroundColor: "#80AED5" }, { id: "b", title: "B", color: "red", backgroundColor: "url(x)" }], quickButtons: [] });
+    const workspace = normalizeWorkspaceData({
+      quickTags: [{ id: "a", title: "A", backgroundColor: "#80AED5" }, { id: "b", title: "B", color: "red", backgroundColor: "url(x)" }],
+      quickButtons: [],
+      todoLists: [
+        { id: "t1", title: "T1", collapsed: false, compact: false, backgroundColor: "#22C55E" },
+        { id: "t2", title: "T2", collapsed: false, compact: false, backgroundColor: "javascript:alert(1)" },
+      ],
+    });
     expect(workspace.quickTags[0].backgroundColor).toBe("#80aed5");
     expect(workspace.quickTags[1].backgroundColor).toBeUndefined();
-    expect(normalizeWorkspaceData(getSerializableWorkspace(workspace)).quickTags).toEqual(workspace.quickTags);
+    expect(workspace.todoLists[0].backgroundColor).toBe("#22c55e");
+    expect(workspace.todoLists[1].backgroundColor).toBeUndefined();
+    const restored = normalizeWorkspaceData(getSerializableWorkspace(workspace));
+    expect(restored.quickTags).toEqual(workspace.quickTags);
+    expect(restored.todoLists).toEqual(workspace.todoLists);
     expect(nextQuickColor([{ id: "a", title: "A", backgroundColor: "#3b82f6" }])).toBe("#22c55e");
   });
 

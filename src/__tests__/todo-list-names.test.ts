@@ -97,6 +97,33 @@ describe("reminder group names", () => {
     expect(wrapper.get(".todo-list-create-confirm").attributes("disabled")).toBeUndefined();
     await wrapper.get("form").trigger("submit");
     expect(wrapper.emitted("confirm")?.[0]?.[1]).toBe("Personal");
+    expect(wrapper.emitted("confirm")?.[0]?.[3]).toBeNull();
+    wrapper.unmount();
+  });
+
+  it("supports choosing and clearing group colors when creating or editing a reminder list", async () => {
+    const wrapper = mount(TodoListCreateDialog, {
+      props: { language: "zh", lists: [{ ...list("work", "工作"), backgroundColor: "#3b82f6" }] },
+      global: { stubs: {
+        Modal: { props: ["show"], template: '<section v-if="show"><slot /></section>' },
+        NModal: { props: ["show"], template: '<section v-if="show"><slot /></section>' },
+        Input: { methods: { focus() {} }, props: ["value"], emits: ["update:value"], template: '<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />' },
+        NInput: { methods: { focus() {} }, props: ["value"], emits: ["update:value"], template: '<input :value="value" @input="$emit(\'update:value\', $event.target.value)" />' },
+        Button: { template: '<button><slot /></button>' },
+        NButton: { template: '<button><slot /></button>' },
+      } },
+    });
+    await wrapper.vm.open(undefined, { ...list("work", "工作"), backgroundColor: "#3b82f6" });
+    expect(wrapper.get('.quick-color-swatch[aria-label="#3b82f6"]').classes()).toContain("selected");
+    await wrapper.get(".quick-color-none").trigger("click");
+    await wrapper.get("form").trigger("submit");
+    expect(wrapper.emitted("confirm")?.[0]).toEqual([undefined, "工作", "work", null]);
+
+    await wrapper.vm.open();
+    await wrapper.get('input:not([type="color"])').setValue("个人");
+    await wrapper.get('.quick-color-swatch[aria-label="#22c55e"]').trigger("click");
+    await wrapper.get("form").trigger("submit");
+    expect(wrapper.emitted("confirm")?.[1]).toEqual([undefined, "个人", undefined, "#22c55e"]);
     wrapper.unmount();
   });
 });
