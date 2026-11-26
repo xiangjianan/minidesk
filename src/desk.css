@@ -1124,7 +1124,32 @@ html[data-theme="dark"] .workbench-shell {
   }
 }
 
-/* List colors remain subtle in both themes and preserve the current text contrast. */
+/* List colors tint the whole group in a gentle tonal hierarchy (card < heading < button)
+   while keeping text contrast and frosted-glass depth in both themes. */
+.workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty) {
+  background: color-mix(in srgb, var(--quick-list-color) 5%, rgba(255, 255, 255, 0.78));
+}
+.workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::after {
+  border-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(110, 130, 158, 0.14));
+}
+.workbench-shell .quick-tag-group[style*="--quick-list-color"] > .quick-tag-heading::before {
+  background: color-mix(in srgb, var(--quick-list-color) 10%, rgba(255, 255, 255, 0.90));
+  border-bottom-color: color-mix(in srgb, var(--quick-list-color) 18%, rgba(38, 61, 102, 0.05));
+}
+html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty) {
+  background: color-mix(in srgb, var(--quick-list-color) 7%, rgba(30, 31, 38, 0.76));
+}
+html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::after {
+  border-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(210, 222, 245, 0.10));
+}
+html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"] > .quick-tag-heading::before {
+  background: color-mix(in srgb, var(--quick-list-color) 13%, rgba(36, 38, 48, 0.92));
+  border-bottom-color: color-mix(in srgb, var(--quick-list-color) 18%, rgba(255, 255, 255, 0.06));
+}
+.workbench-shell .quick-tag-group[style*="--quick-list-color"]:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before,
+html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
+  border-bottom-color: transparent;
+}
 .workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button {
   background: color-mix(in srgb, var(--quick-list-color) 18%, var(--card));
   border-color: color-mix(in srgb, var(--quick-list-color) 32%, var(--line-subtle));

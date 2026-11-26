@@ -574,4 +574,28 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".image-card-actions", "backdrop-filter: blur(12px) saturate(1.4)");
     expectSelectorBody(desk, 'html[data-theme="dark"] .image-card-actions', "background: rgba(30, 32, 40, 0.68)");
   });
+
+  it("tints quick-tag group surface, glass rim, and heading in harmony with its list color", () => {
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expectSelectorBody(
+      desk,
+      '.workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)',
+      "background: color-mix(in srgb, var(--quick-list-color) 5%, rgba(255, 255, 255, 0.78))",
+    );
+    expectSelectorBody(
+      desk,
+      '.workbench-shell .quick-tag-group[style*="--quick-list-color"] > .quick-tag-heading::before',
+      "background: color-mix(in srgb, var(--quick-list-color) 10%, rgba(255, 255, 255, 0.90))",
+    );
+    expectSelectorBody(
+      desk,
+      'html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)',
+      "background: color-mix(in srgb, var(--quick-list-color) 7%, rgba(30, 31, 38, 0.76))",
+    );
+    expectSelectorBody(
+      desk,
+      'html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"] > .quick-tag-heading::before',
+      "background: color-mix(in srgb, var(--quick-list-color) 13%, rgba(36, 38, 48, 0.92))",
+    );
+  });
 });
