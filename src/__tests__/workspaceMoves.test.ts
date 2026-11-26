@@ -15,75 +15,22 @@ function workspace(id: string, overrides: Partial<WorkspaceData> = {}): Workspac
 }
 
 describe("moveQuickButtonToWorkspace", () => {
-  const tag = { id: "tag-1", title: "常用" };
-  const button = { id: "btn-1", title: "搜索", value: "https://example.com", type: "link" as const, tagId: "tag-1", hidden: false, clicks: 5 };
-  const source = workspace("ws-a", { quickTags: [tag], quickButtons: [button] });
-  const target = workspace("ws-b");
-
-  it("移动按钮并把使用计数随按钮带过去", () => {
-    const next = moveQuickButtonToWorkspace([source, target], "ws-a", "btn-1", "ws-b");
-    const from = next.find((w) => w.id === "ws-a")!;
-    const to = next.find((w) => w.id === "ws-b")!;
-    expect(from.quickButtons).toHaveLength(0);
-    expect(to.quickButtons).toHaveLength(1);
-    expect(to.quickTags).toHaveLength(1);
-    expect(to.quickTags[0]).toMatchObject({ title: "常用" });
-    expect(to.quickTags[0]).not.toHaveProperty("clicks");
-    expect(to.quickButtons[0].clicks).toBe(5);
-    expect(to.quickButtons[0].tagId).toBe(to.quickTags[0].id);
-  });
-
-  it("目标已有同名标签则直接挂到现有标签", () => {
-    const existing = { id: "tag-9", title: "常用" };
-    const next = moveQuickButtonToWorkspace([source, workspace("ws-b", { quickTags: [existing] })], "ws-a", "btn-1", "ws-b");
-    const to = next.find((w) => w.id === "ws-b")!;
-    expect(to.quickTags).toHaveLength(1);
-    expect(to.quickButtons[0].tagId).toBe("tag-9");
-  });
-
-  it("悬空 tagId 视为无标签，直接迁移", () => {
-    const orphan = { ...button, id: "btn-2", tagId: "missing" };
-    const next = moveQuickButtonToWorkspace([workspace("ws-a", { quickTags: [tag], quickButtons: [orphan] }), target], "ws-a", "btn-2", "ws-b");
-    const to = next.find((w) => w.id === "ws-b")!;
-    expect(to.quickTags).toHaveLength(1);
-    expect(to.quickButtons[0].tagId).toBe(to.quickTags[0].id);
-  });
-
-  it("未知 id 或同空间时返回原数组引用", () => {
-    const workspaces = [source, target];
-    expect(moveQuickButtonToWorkspace(workspaces, "ws-a", "nope", "ws-b")).toBe(workspaces);
-    expect(moveQuickButtonToWorkspace(workspaces, "ws-a", "btn-1", "ws-a")).toBe(workspaces);
-  });
-
-  it("不修改输入数据", () => {
-    moveQuickButtonToWorkspace([source, target], "ws-a", "btn-1", "ws-b");
+  it("moves to the selected group, preserves fields and resolves duplicate ids", () => {
+    const button = { id: "button", title: "Search", value: "url", type: "link" as const, tagId: "source", hidden: true, clicks: 5 };
+    const source = workspace("a", { quickTags: [{ id: "source", title: "Source" }], quickButtons: [button] });
+    const target = workspace("b", { quickTags: [{ id: "first", title: "First" }, { id: "chosen", title: "Chosen" }], quickButtons: [button] });
+    const result = moveQuickButtonToWorkspace([source, target], "a", "button", "b", "chosen");
+    expect(result[0].quickButtons).toHaveLength(0);
+    expect(result[1].quickButtons[1]).toMatchObject({ title: "Search", tagId: "chosen", hidden: true, clicks: 5 });
+    expect(result[1].quickButtons[1].id).not.toBe("button");
     expect(source.quickButtons).toHaveLength(1);
-    expect(target.quickButtons).toHaveLength(0);
-    expect(target.quickTags).toHaveLength(1);
+    expect(result[1].quickTags).toEqual(target.quickTags);
   });
 
-  it("目标已有同 id 按钮时重新生成 id", () => {
-    const clash = { id: "btn-1", title: "同名", value: "v", type: "text" as const, hidden: false };
-    const next = moveQuickButtonToWorkspace([source, workspace("ws-b", { quickButtons: [clash] })], "ws-a", "btn-1", "ws-b");
-    const to = next.find((w) => w.id === "ws-b")!;
-    expect(to.quickButtons).toHaveLength(2);
-    const ids = to.quickButtons.map((b) => b.id);
-    expect(new Set(ids).size).toBe(2);
-    expect(to.quickButtons[1].title).toBe("搜索");
-    expect(to.quickButtons[1].tagId).toBe(to.quickTags[0].id);
-  });
-
-  it("移动的按钮保留 hidden 等字段", () => {
-    const hiddenButton = { ...button, id: "btn-h", hidden: true };
-    const next = moveQuickButtonToWorkspace([workspace("ws-a", { quickTags: [tag], quickButtons: [hiddenButton] }), target], "ws-a", "btn-h", "ws-b");
-    const to = next.find((w) => w.id === "ws-b")!;
-    expect(to.quickButtons[0].hidden).toBe(true);
-  });
-
-  it("未知工作空间返回原数组", () => {
-    const workspaces = [source, target];
-    expect(moveQuickButtonToWorkspace(workspaces, "missing", "btn-1", "ws-b")).toBe(workspaces);
-    expect(moveQuickButtonToWorkspace(workspaces, "ws-a", "btn-1", "missing")).toBe(workspaces);
+  it("does nothing for a missing group or button, or the same workspace", () => {
+    const workspaces = [workspace("a"), workspace("b")];
+    expect(moveQuickButtonToWorkspace(workspaces, "a", "missing", "b", "missing")).toBe(workspaces);
+    expect(moveQuickButtonToWorkspace(workspaces, "a", "missing", "a", "missing")).toBe(workspaces);
   });
 });
 

@@ -248,4 +248,5 @@ export interface WorkspaceMoveTarget {
   title: string;
   /** 提醒事项条目移动时需要的第二级列表选择；其他场景不使用。 */
   lists: { id: string; title: string }[];
+  quickGroups?: { id: string; title: string }[];
 }

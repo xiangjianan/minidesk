@@ -84,7 +84,7 @@ const emit = defineEmits<{
   deleteTagWithButtons: [tagId: string, anchor?: HTMLElement];
   guide: [key: GuideKey, anchor: HTMLElement, immediate?: boolean];
   declutter: [anchor: HTMLElement];
-  moveButtonToWorkspace: [buttonId: string, workspaceId: string];
+  moveButtonToWorkspace: [buttonId: string, workspaceId: string, tagId: string];
   moveTagToWorkspace: [tagId: string, workspaceId: string];
   columnCountChange: [count: number];
   assignTagColumn: [draggedId: string, targetColumn: number, anchorId: string | null, insertBefore: boolean];
@@ -271,6 +271,14 @@ const canSubmit = computed(() => {
 const moveMenuChildren = computed<DropdownOption[]>(() =>
   props.moveTargets.map((target) => ({ label: target.title, key: `move-ws:${target.id}` })),
 );
+const moveButtonMenuChildren = computed<DropdownOption[]>(() =>
+  props.moveTargets.map((target) => ({
+    label: target.title,
+    key: `move-button-ws:${target.id}`,
+    disabled: !target.quickGroups?.length,
+    children: (target.quickGroups ?? []).map((group) => ({ label: group.title, key: `move-button:${target.id}:${group.id}` })),
+  })),
+);
 const areaMenuOptions = computed<DropdownOption[]>(() => [
   { label: uiText.value.quick.newList, key: "create-list", icon: renderIcon(AddOutline) },
   { label: uiText.value.common.create, key: "add", icon: renderIcon(AddOutline) },
@@ -321,7 +329,7 @@ const menuOptions = computed<DropdownOption[]>(() => {
           label: uiText.value.common.moveToWorkspace,
           key: "move-button",
           icon: renderIcon(SwapHorizontalOutline),
-          children: moveMenuChildren.value,
+          children: moveButtonMenuChildren.value,
         }]
       : []),
     { label: uiText.value.common.delete, key: "delete", icon: renderIcon(TrashOutline, true) },
@@ -535,10 +543,17 @@ function handleMenuSelect(key: string): void {
   if (!menu.value) return;
   const { id, anchor, tagTitle, tagId } = menu.value;
   closeMenu();
+  if (key.startsWith("move-button:")) {
+    for (const target of props.moveTargets) {
+      for (const group of target.quickGroups ?? []) {
+        if (key === `move-button:${target.id}:${group.id}` && id) emit("moveButtonToWorkspace", id, target.id, group.id);
+      }
+    }
+    return;
+  }
   if (key.startsWith("move-ws:")) {
     const workspaceId = key.slice("move-ws:".length);
-    if (id) emit("moveButtonToWorkspace", id, workspaceId);
-    else if (tagId) emit("moveTagToWorkspace", tagId, workspaceId);
+    if (tagId && !id) emit("moveTagToWorkspace", tagId, workspaceId);
     return;
   }
   if (key === "edit-tag" && tagId) {

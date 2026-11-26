@@ -2019,11 +2019,12 @@ describe("QuickButtons 跨空间移动", () => {
     const wrapper = mountQuickButtons({
       buttons: [{ id: "btn-1", title: "搜索", value: "https://example.com", type: "link", hidden: false }],
       tags: [],
-      moveTargets: [{ id: "ws-b", title: "B 空间", lists: [] }],
+      moveTargets: [{ id: "ws-b", title: "B 空间", lists: [], quickGroups: [{ id: "group-b", title: "目标分组" }] }],
     });
     await wrapper.get(".quick-button").trigger("contextmenu");
-    await wrapper.get('[data-key="move-ws:ws-b"]').trigger("click");
-    expect(wrapper.emitted("moveButtonToWorkspace")?.[0]).toEqual(["btn-1", "ws-b"]);
+    expect(wrapper.get('[data-key="move-button-ws:ws-b"]').text()).toContain("B 空间");
+    await wrapper.get('[data-key="move-button:ws-b:group-b"]').trigger("click");
+    expect(wrapper.emitted("moveButtonToWorkspace")?.[0]).toEqual(["btn-1", "ws-b", "group-b"]);
     wrapper.unmount();
   });
 

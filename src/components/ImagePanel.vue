@@ -802,26 +802,6 @@ function handleImageDragWheel(event: WheelEvent): void {
         @pointerdown="handleImagePointerDown($event, image)"
       >
         <span class="image-index">{{ index + 1 }}</span>
-        <div
-          v-if="image.src && !missingImageIds.has(image.id)"
-          class="image-card-actions"
-          @pointerdown.stop
-          @click.stop
-          @dblclick.stop
-        >
-          <button
-            type="button"
-            class="image-card-action-btn"
-            :data-testid="`image-card-copy-${image.id}`"
-            :aria-label="uiText.images.copyImage"
-            :title="uiText.images.copyImage"
-            @mousedown.prevent
-            @click.stop="emit('copy', image.id)"
-            @keydown.stop
-          >
-            <NIcon :component="CopyOutline" :size="12" />
-          </button>
-        </div>
         <img
           v-if="image.src && !missingImageIds.has(image.id)"
           :src="image.src"

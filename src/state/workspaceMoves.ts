@@ -36,46 +36,25 @@ function uniqueIdAmong(taken: Iterable<string>, desired: string): string {
   return [...taken].includes(desired) ? createId() : desired;
 }
 
-/**
- * 移动单个快捷按钮。标签仍存在时保留分组：使用目标的同名标签，没有则在
- * 目标新建同名标签；悬空 tagId 视为无标签（落入目标的「其他」分组）。
- * 目标已有同 id 时重新生成 id，避免跨空间 id 碰撞。
- */
+/** 移动单个快捷按钮到目标空间的指定分组。 */
 export function moveQuickButtonToWorkspace(
   workspaces: WorkspaceData[],
   fromWorkspaceId: string,
   buttonId: string,
   toWorkspaceId: string,
-  language: AppLanguage = "zh",
+  toTagId: string,
 ): WorkspaceData[] {
   return transferWorkspaceItem(workspaces, fromWorkspaceId, toWorkspaceId, (from, to) => {
     const button = from.quickButtons.find((item) => item.id === buttonId);
-    if (!button) return null;
-
-    let quickTags = to.quickTags;
-    let tagId: string | undefined;
-    const sourceTag = button.tagId ? from.quickTags.find((tag) => tag.id === button.tagId) : undefined;
-    if (sourceTag) {
-      const existing = to.quickTags.find((tag) => tag.title === sourceTag.title);
-      if (existing) {
-        tagId = existing.id;
-      } else {
-        const created: QuickTag = { id: createId(), title: sourceTag.title, ...(sourceTag.backgroundColor ? { backgroundColor: sourceTag.backgroundColor } : {}) };
-        quickTags = [...to.quickTags, created];
-        tagId = created.id;
-      }
-    }
-
+    if (!button || !to.quickTags.some((tag) => tag.id === toTagId)) return null;
     const moved: QuickButton = {
       ...button,
       id: uniqueIdAmong(to.quickButtons.map((item) => item.id), button.id),
+      tagId: toTagId,
     };
-    if (tagId) moved.tagId = tagId;
-    else delete moved.tagId;
-
     return {
       from: { ...from, quickButtons: from.quickButtons.filter((item) => item.id !== buttonId) },
-      to: { ...to, ...normalizeQuickLists(quickTags, [...to.quickButtons, moved], language) },
+      to: { ...to, quickButtons: [...to.quickButtons, moved] },
     };
   });
 }

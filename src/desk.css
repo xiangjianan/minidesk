@@ -1314,67 +1314,6 @@ html[data-theme="dark"] .quick-color-custom-preview {
   position: relative;
 }
 
-.image-card-actions {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  z-index: 3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.68);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(110, 130, 158, 0.14);
-  -webkit-backdrop-filter: blur(12px) saturate(1.4);
-  backdrop-filter: blur(12px) saturate(1.4);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-}
-
-html[data-theme="dark"] .image-card-actions {
-  background: rgba(30, 32, 40, 0.68);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.10);
-}
-
-.image-card:hover .image-card-actions,
-.image-card:has(.image-card-action-btn:focus-visible:not([data-pointer-focus])) .image-card-actions {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-@media (hover: none) {
-  .image-card-actions {
-    opacity: 1;
-    pointer-events: auto;
-  }
-}
-
-button.image-card-action-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  transition: background-color 140ms ease, color 140ms ease;
-}
-
-button.image-card-action-btn:hover,
-button.image-card-action-btn:focus-visible {
-  background: color-mix(in srgb, var(--text) 9%, transparent);
-  color: var(--text);
-}
-
 button.image-empty-hint {
   border: 1px dashed transparent;
   border-radius: 10px;
@@ -1874,7 +1813,6 @@ button.command-palette-item.is-active .command-palette-item-icon {
   .command-palette-leave-active,
   .command-palette-enter-active .command-palette-dialog,
   .command-palette-leave-active .command-palette-dialog,
-  .image-card-actions,
   .workbench-shell .quick-tag-heading > :is(.quick-tag-count, .quick-tag-add-button, .desk-paste-button, .quick-tag-menu-button),
   .workbench-shell .todo-heading-actions > :is(.todo-count, .icon-button) {
     transition: none;
@@ -2251,6 +2189,10 @@ html[data-theme="dark"] .update-check-modal.n-card {
     0 24px 64px rgba(0, 0, 0, 0.52) !important;
 }
 
+html[data-theme="dark"] .example-desktop-modal.n-card {
+  background: rgba(30, 32, 40, 0.94) !important;
+}
+
 /* Frosted glass toast alerts in default no-GIF mode. */
 .default-message .n-alert {
   border-radius: 12px !important;
@@ -2301,7 +2243,6 @@ html[data-theme="dark"] .default-message .n-alert {
   .command-palette-dialog,
   .notify-floating-date-picker,
   .selection-toolbar,
-  .image-card-actions,
   .n-modal-mask,
   .n-modal.n-card,
   .default-message .n-alert {
@@ -2322,7 +2263,6 @@ html[data-theme="dark"] .default-message .n-alert {
   .command-palette-dialog,
   .notify-floating-date-picker,
   .selection-toolbar,
-  .image-card-actions,
   .n-modal.n-card,
   .default-message .n-alert {
     background: var(--card) !important;

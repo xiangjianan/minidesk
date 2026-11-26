@@ -575,9 +575,7 @@ describe("ImagePanel", () => {
     const uploadOption = wrapper.findAll(".dropdown-option").find((option) => option.text() === "选择本地图片");
     expect(uploadOption?.exists()).toBe(true);
 
-    await wrapper.get('[data-testid="image-card-copy-a"]').trigger("click");
-    expect(wrapper.emitted("copy")).toEqual([["a"]]);
-    expect(wrapper.emitted("preview")).toBeUndefined();
+    expect(wrapper.find('[data-testid="image-card-copy-a"]').exists()).toBe(false);
     expect(wrapper.find('[data-testid="image-card-delete-b"]').exists()).toBe(false);
     wrapper.unmount();
   });
