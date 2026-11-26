@@ -561,6 +561,13 @@ describe("workbench style contract", () => {
     expectSelectorBody(desk, ".workbench-shell .quick-tag-add-button:focus-visible", "box-shadow: none");
   });
 
+  it("matches the dark workspace switcher background to the settings menu", () => {
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    const background = "background: rgba(30, 32, 40, 0.94) !important";
+    expectSelectorBody(desk, 'html[data-theme="dark"] .n-dropdown-menu', background);
+    expectSelectorBody(desk, 'html[data-theme="dark"] .workspace-switcher-popover.n-popover', background);
+  });
+
   it("keeps the notebook selection toolbar translucent without backdrop blur", () => {
     const styles = readFileSync(resolve(__dirname, "../styles.css"), "utf8");
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");

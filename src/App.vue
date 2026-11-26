@@ -4581,7 +4581,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
       @open-shortcut-help="shortcutHelpVisible = true"
     />
     <SupportAuthor :show="supportDialogVisible" :language="state.language" @close="supportDialogVisible = false" />
-    <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal example-desktop-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">
+    <NModal :show="exampleDialogVisible && !isMobileBlocked" :auto-focus="false" :mask-closable="false" :closable="false" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].title" style="width: min(440px, calc(100vw - 32px))">
       <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].description }}</p>
       <template #footer>
         <div class="dialog-actions">
@@ -4590,7 +4590,7 @@ function moveItem<T extends { id: string }>(items: T[], dragId: string, targetId
         </div>
       </template>
     </NModal>
-    <NModal :show="exampleRepeatConfirm" preset="card" class="workspace-dialog-modal example-desktop-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) exampleRepeatConfirm = false; }">
+    <NModal :show="exampleRepeatConfirm" preset="card" class="workspace-dialog-modal" :title="EXAMPLE_DESKTOP_TEXT[state.language].repeatTitle" style="width: min(440px, calc(100vw - 32px))" @update:show="(show: boolean) => { if (!show) exampleRepeatConfirm = false; }">
       <p>{{ EXAMPLE_DESKTOP_TEXT[state.language].repeatDescription }}</p>
       <div class="dialog-actions" style="margin-top: 16px;">
         <NButton :disabled="exampleLoading" @click="exampleRepeatConfirm = false">{{ uiText.common.cancel }}</NButton>
