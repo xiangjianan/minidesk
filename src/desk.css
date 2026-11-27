@@ -305,10 +305,6 @@ html[data-theme="dark"] .workbench-shell,
   grid-template-columns: minmax(0, 1fr);
 }
 .workbench-shell .todo-list { padding: 8px; }
-.workbench-shell .todo-section.is-collapsed > .todo-heading::before,
-.workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
-  border-radius: var(--desk-card-radius);
-}
 /* Keep the card fill while the grid shrinks/grows, as reminder lists do. */
 .workbench-shell .quick-tag-content.is-collapsed { background: transparent; }
 .workbench-shell .quick-tag-group.is-empty,
@@ -1134,6 +1130,9 @@ html[data-theme="dark"] .workbench-shell {
 .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty) {
   background: color-mix(in srgb, var(--quick-list-color) 5%, rgba(255, 255, 255, 0.78));
 }
+.workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::before {
+  border-color: color-mix(in srgb, var(--quick-list-color) 20%, #e4e8ef);
+}
 .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::after {
   border-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(110, 130, 158, 0.14));
 }
@@ -1145,6 +1144,9 @@ html[data-theme="dark"] .workbench-shell {
 html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty) {
   background: color-mix(in srgb, var(--quick-list-color) 7%, rgba(30, 31, 38, 0.76));
 }
+html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::before {
+  border-color: color-mix(in srgb, var(--quick-list-color) 20%, #30323b);
+}
 html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:not(.is-empty)::after {
   border-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(210, 222, 245, 0.10));
 }
@@ -1153,11 +1155,9 @@ html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-c
   border-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(210, 222, 245, 0.10));
   border-bottom-color: color-mix(in srgb, var(--quick-list-color) 18%, rgba(255, 255, 255, 0.06));
 }
-.workbench-shell .quick-tag-group[style*="--quick-list-color"]:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
-  border-bottom-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(110, 130, 158, 0.14));
-}
+.workbench-shell .quick-tag-group[style*="--quick-list-color"]:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before,
 html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-color"]:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
-  border-bottom-color: color-mix(in srgb, var(--quick-list-color) 20%, rgba(210, 222, 245, 0.10));
+  border-bottom-color: transparent;
 }
 .workbench-shell .quick-tag-group[style*="--quick-list-color"] button.quick-button {
   background: color-mix(in srgb, var(--quick-list-color) 18%, var(--card));
@@ -1179,6 +1179,9 @@ html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-c
 .workbench-shell .todo-section[style*="--todo-list-color"] {
   background: color-mix(in srgb, var(--todo-list-color) 5%, rgba(255, 255, 255, 0.78));
 }
+.workbench-shell .todo-section[style*="--todo-list-color"]::before {
+  border-color: color-mix(in srgb, var(--todo-list-color) 20%, #e4e8ef);
+}
 .workbench-shell .todo-section[style*="--todo-list-color"]::after {
   border-color: color-mix(in srgb, var(--todo-list-color) 20%, rgba(110, 130, 158, 0.14));
 }
@@ -1193,6 +1196,9 @@ html[data-theme="dark"] .workbench-shell .quick-tag-group[style*="--quick-list-c
 html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"] {
   background: color-mix(in srgb, var(--todo-list-color) 7%, rgba(30, 31, 38, 0.76));
 }
+html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"]::before {
+  border-color: color-mix(in srgb, var(--todo-list-color) 20%, #30323b);
+}
 html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"]::after {
   border-color: color-mix(in srgb, var(--todo-list-color) 20%, rgba(210, 222, 245, 0.10));
 }
@@ -1204,11 +1210,9 @@ html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color
 html[data-theme="dark"] .workbench-shell .todo-section[style*="--todo-list-color"] .todo-item:hover {
   background-color: color-mix(in srgb, var(--todo-list-color) 14%, transparent);
 }
-.workbench-shell .todo-section.is-collapsed[style*="--todo-list-color"] > .todo-heading::before {
-  border-bottom-color: color-mix(in srgb, var(--todo-list-color) 20%, rgba(110, 130, 158, 0.14));
-}
+.workbench-shell .todo-section.is-collapsed[style*="--todo-list-color"] > .todo-heading::before,
 html[data-theme="dark"] .workbench-shell .todo-section.is-collapsed[style*="--todo-list-color"] > .todo-heading::before {
-  border-bottom-color: color-mix(in srgb, var(--todo-list-color) 20%, rgba(210, 222, 245, 0.10));
+  border-bottom-color: transparent;
 }
 .quick-list-colors { display: flex; flex-wrap: wrap; align-items: center; gap: 28px 8px; padding: 0 0 22px; border: 0; margin: 0; }
 .quick-list-colors legend { margin-bottom: 8px; }
@@ -1974,6 +1978,33 @@ html[data-theme="dark"] .workbench-shell .image-card::after {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
+/* Split reminder and quick-group rims at the bottom corner arc: ::after (z-index: 3)
+   stays behind the sticky heading's top corner mask, while ::before (z-index: 5)
+   draws the bottom rounded border above the sticky heading as the card scrolls out. */
+.workbench-shell .todo-section::after,
+.workbench-shell .quick-tag-group:not(.is-empty)::after {
+  bottom: var(--desk-card-radius);
+  border-bottom: 0;
+  border-radius: var(--desk-card-radius) var(--desk-card-radius) 0 0;
+}
+.workbench-shell .todo-section::before,
+.workbench-shell .quick-tag-group:not(.is-empty)::before {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--desk-card-radius);
+  z-index: 5;
+  box-sizing: border-box;
+  border: 1px solid #e4e8ef;
+  border-top: 0;
+  border-radius: 0 0 var(--desk-card-radius) var(--desk-card-radius);
+  pointer-events: none;
+}
+html[data-theme="dark"] .workbench-shell .todo-section::before,
+html[data-theme="dark"] .workbench-shell .quick-tag-group:not(.is-empty)::before {
+  border-color: #30323b;
+}
+
 /* Draw the image rim at the outer edge, with no empty border around it. */
 .workbench-shell .image-card:not(.is-active, .is-menu-selected, .is-drop-target) {
   border: 0;
@@ -2051,12 +2082,7 @@ html[data-theme="dark"] .workbench-shell .quick-tag-heading::before {
 
 .workbench-shell .todo-section.is-collapsed > .todo-heading::before,
 .workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
-  border-bottom-color: rgba(110, 130, 158, 0.16);
-}
-
-html[data-theme="dark"] .workbench-shell .todo-section.is-collapsed > .todo-heading::before,
-html[data-theme="dark"] .workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before {
-  border-bottom-color: rgba(210, 222, 245, 0.10);
+  border-bottom-color: transparent;
 }
 
 .workbench-shell button.quick-button {
