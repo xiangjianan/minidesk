@@ -639,32 +639,25 @@ describe("workbench style contract", () => {
     );
   });
 
-  it("fills sticky reminder and quick-group heading corners squarely with an opaque base while card clip-path rounds outer corners", () => {
+  it("masks scrolled card corners behind rounded sticky reminder and quick-group headers", () => {
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
     expectSelectorBody(desk, ".workbench-shell .todo-section", "clip-path: inset(0 round var(--desk-card-radius))");
     expectSelectorBody(desk, ".workbench-shell .quick-tag-group", "clip-path: inset(0 round var(--desk-card-radius))");
-    expectSelectorBody(desk, ".workbench-shell .todo-heading", "border-radius: 0");
-    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "border-radius: 0");
-    expectSelectorBody(desk, ".workbench-shell .todo-heading", "background-color: var(--card)");
-    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "background-color: var(--card)");
-    expectSelectorBody(desk, ".workbench-shell .todo-heading::before", "border-radius: 0");
-    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading::before", "border-radius: 0");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading", "z-index: 4");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "z-index: 4");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading", "background-attachment: fixed");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "background-attachment: fixed");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .workbench-shell .todo-heading', "background-attachment: fixed");
+    expectSelectorBody(desk, 'html[data-theme="dark"] .workbench-shell .quick-tag-heading', "background-attachment: fixed");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading::before", "border-radius: var(--desk-card-radius) var(--desk-card-radius) 0 0");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading::before", "border-radius: var(--desk-card-radius) var(--desk-card-radius) 0 0");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading::before", "border: 1px solid rgba(110, 130, 158, 0.16)");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading::before", "border: 1px solid rgba(110, 130, 158, 0.16)");
     for (const selector of [
       ".workbench-shell .todo-heading",
       ".workbench-shell .quick-tag-heading",
     ]) {
       expect(ruleBodies(desk, selector).join("\n")).not.toContain("background-color: transparent");
     }
-    for (const selector of [
-      ".workbench-shell .todo-heading",
-      ".workbench-shell .quick-tag-heading",
-      ".workbench-shell .todo-heading::before",
-      ".workbench-shell .quick-tag-heading::before",
-      ".workbench-shell .todo-section.is-collapsed > .todo-heading::before",
-      ".workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before",
-    ]) {
-      expect(ruleBodies(desk, selector).join("\n")).not.toContain("border-radius: var(--desk-card-radius)");
-    }
-    expect(desk).not.toMatch(/(?:todo-heading|quick-tag-heading)[^{]*\{[^}]*border-radius:\s*var\(--desk-card-radius\)/);
   });
 });
