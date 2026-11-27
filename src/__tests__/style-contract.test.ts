@@ -639,14 +639,22 @@ describe("workbench style contract", () => {
     );
   });
 
-  it("fills sticky reminder and quick-group heading corners squarely while card clip-path rounds outer corners", () => {
+  it("fills sticky reminder and quick-group heading corners squarely with an opaque base while card clip-path rounds outer corners", () => {
     const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
     expectSelectorBody(desk, ".workbench-shell .todo-section", "clip-path: inset(0 round var(--desk-card-radius))");
     expectSelectorBody(desk, ".workbench-shell .quick-tag-group", "clip-path: inset(0 round var(--desk-card-radius))");
     expectSelectorBody(desk, ".workbench-shell .todo-heading", "border-radius: 0");
     expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "border-radius: 0");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading", "background-color: var(--card)");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "background-color: var(--card)");
     expectSelectorBody(desk, ".workbench-shell .todo-heading::before", "border-radius: 0");
     expectSelectorBody(desk, ".workbench-shell .quick-tag-heading::before", "border-radius: 0");
+    for (const selector of [
+      ".workbench-shell .todo-heading",
+      ".workbench-shell .quick-tag-heading",
+    ]) {
+      expect(ruleBodies(desk, selector).join("\n")).not.toContain("background-color: transparent");
+    }
     for (const selector of [
       ".workbench-shell .todo-heading",
       ".workbench-shell .quick-tag-heading",
