@@ -638,4 +638,25 @@ describe("workbench style contract", () => {
       "background-color: color-mix(in srgb, var(--todo-list-color) 14%, transparent)",
     );
   });
+
+  it("fills sticky reminder and quick-group heading corners squarely while card clip-path rounds outer corners", () => {
+    const desk = readFileSync(resolve(__dirname, "../desk.css"), "utf8");
+    expectSelectorBody(desk, ".workbench-shell .todo-section", "clip-path: inset(0 round var(--desk-card-radius))");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-group", "clip-path: inset(0 round var(--desk-card-radius))");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading", "border-radius: 0");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading", "border-radius: 0");
+    expectSelectorBody(desk, ".workbench-shell .todo-heading::before", "border-radius: 0");
+    expectSelectorBody(desk, ".workbench-shell .quick-tag-heading::before", "border-radius: 0");
+    for (const selector of [
+      ".workbench-shell .todo-heading",
+      ".workbench-shell .quick-tag-heading",
+      ".workbench-shell .todo-heading::before",
+      ".workbench-shell .quick-tag-heading::before",
+      ".workbench-shell .todo-section.is-collapsed > .todo-heading::before",
+      ".workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before",
+    ]) {
+      expect(ruleBodies(desk, selector).join("\n")).not.toContain("border-radius: var(--desk-card-radius)");
+    }
+    expect(desk).not.toMatch(/(?:todo-heading|quick-tag-heading)[^{]*\{[^}]*border-radius:\s*var\(--desk-card-radius\)/);
+  });
 });

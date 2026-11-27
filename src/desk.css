@@ -251,14 +251,16 @@ html[data-theme="dark"] .workbench-shell,
   border: 0;
   border-radius: 0;
 }
-/* The sticky header must cover the scrolled white card at its rounded corners. */
+/* Fill the sticky header squarely; the parent card's clip-path rounds its
+   outer corners at rest so scrolled card content never peeks out at the
+   top-left/top-right corners while the heading is pinned. */
 .workbench-shell .todo-heading::before,
 .workbench-shell .quick-tag-heading::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  border-radius: var(--desk-card-radius) var(--desk-card-radius) 0 0;
+  border-radius: 0;
   background: var(--desk-group-surface);
   pointer-events: none;
 }
@@ -303,12 +305,6 @@ html[data-theme="dark"] .workbench-shell,
   grid-template-columns: minmax(0, 1fr);
 }
 .workbench-shell .todo-list { padding: 8px; }
-.workbench-shell .todo-section.is-collapsed > .todo-heading,
-.workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading {
-  border-radius: var(--desk-card-radius);
-}
-.workbench-shell .todo-section.is-collapsed > .todo-heading::before,
-.workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading::before { border-radius: var(--desk-card-radius); }
 /* Keep the card fill while the grid shrinks/grows, as reminder lists do. */
 .workbench-shell .quick-tag-content.is-collapsed { background: transparent; }
 .workbench-shell .quick-tag-group.is-empty,
@@ -1087,16 +1083,7 @@ html[data-theme="dark"] .workbench-shell {
 }
 .workbench-shell .quick-tag-add-button .n-icon { font-size: 16px; }
 
-/* The confirmation tint must follow the header's rounded surface. */
-.workbench-shell :is(.todo-heading, .quick-tag-heading)[data-confirm-target] {
-  border-radius: var(--desk-card-radius) var(--desk-card-radius) 0 0;
-}
-.workbench-shell .todo-section.is-collapsed > .todo-heading[data-confirm-target],
-.workbench-shell .quick-tag-group:has(> .quick-tag-content.is-collapsed) > .quick-tag-heading[data-confirm-target] {
-  border-radius: var(--desk-card-radius);
-}
-
-/* Keep the rounded surface above scrolled content and mask its corners. */
+/* Keep the sticky header above scrolled content while the card clip-path owns outer rounding. */
 .workbench-shell .todo-heading,
 .workbench-shell .quick-tag-heading {
   isolation: isolate;
